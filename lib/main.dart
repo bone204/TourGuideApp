@@ -1,12 +1,12 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'screens/home/home_screen.dart'; // Import đường dẫn đến file mới
+import 'screens/auth/login_screen.dart'; 
 
 void main() {
   runApp(MaterialApp(
     home: SafeArea(
       child: Scaffold(
-        body: HomePage(),
+        body: LoginScreen(),
       )
     ),
     debugShowCheckedModeBanner: false,
