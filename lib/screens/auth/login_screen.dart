@@ -1,8 +1,28 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:tourguideapp/user_auth/firebase_auth_services.dart';
 import '../auth/signup_screen.dart'; 
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final FirebaseAuthService _auth = FirebaseAuthService();
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,9 +48,14 @@ class LoginScreen extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const CustomTextField(hintText: 'Email'),
+                  CustomTextField(
+                    hintText: 'Email',
+                    controller: _emailController,
+                  ),
                   const SizedBox(height: 16.0),
-                  const CustomPasswordField(), 
+                  CustomPasswordField(
+                    controller: _passwordController,
+                  ), 
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
@@ -46,7 +71,7 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 20.0),
                   ElevatedButton(
                     onPressed: () {
-                      // Handle sign in
+                      _signIn();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF24BAEC),
@@ -116,21 +141,42 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+
+  void _signIn() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    User? user = await _auth.signInWithEmailAndPassword(email, password);
+
+    if(user != null) {
+      if (kDebugMode) {
+        print("User is successfully created");
+      }
+      Navigator.pushNamed(context, "/home");
+    } else {
+      if (kDebugMode) {
+        print("Some error occured");
+      }
+    }
+  }
 }
 
 class CustomTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
+  final TextEditingController controller; // Thêm tham số controller
 
   const CustomTextField({
     super.key,
     required this.hintText,
+    required this.controller, // Yêu cầu controller
     this.obscureText = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      controller: controller, // Liên kết controller với TextFormField
       obscureText: obscureText,
       decoration: InputDecoration(
         hintText: hintText,
@@ -153,8 +199,11 @@ class CustomTextField extends StatelessWidget {
   }
 }
 
+
 class CustomPasswordField extends StatefulWidget {
-  const CustomPasswordField({super.key});
+  final TextEditingController controller; // Thêm tham số controller
+
+  const CustomPasswordField({super.key, required this.controller}); // Yêu cầu controller
 
   @override
   _CustomPasswordFieldState createState() => _CustomPasswordFieldState();
@@ -166,6 +215,7 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      controller: widget.controller, // Sử dụng controller từ widget
       obscureText: _obscureText,
       decoration: InputDecoration(
         hintText: 'Password',
@@ -203,6 +253,7 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
     );
   }
 }
+
 
 class SocialIconButton extends StatelessWidget {
   final IconData icon;
