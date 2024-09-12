@@ -1,14 +1,14 @@
 // lib/views/home/home_screen.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+// import 'package:tourguideapp/widgets/bottombar.dart';
 
-
-class HomeScreen extends StatefulWidget {
+class ExploreScreen extends StatefulWidget {
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _ExploreScreenState createState() => _ExploreScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _ExploreScreenState extends State<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Text(
-                        'Home Screen',
+                        'Explore Screen',
                         style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                       ),
                       ElevatedButton(
@@ -47,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      // bottomNavigationBar: const NavigationExample(), 
     );
   }
 }
