@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/bottombar.dart'; // Import NavigationExample
-import './home_screen.dart'; // Import HomeScreen
+import 'home_screen.dart'; // Import HomeScreen
 import '../explore/explore_profile.dart';
 import '../user/profile_screen.dart'; // Import ProfileScreen
 
