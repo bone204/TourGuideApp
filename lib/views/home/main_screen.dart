@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../widgets/bottombar.dart'; // Import NavigationExample
-import 'home_screen.dart'; // Import HomeScreen
+import '../../widgets/bottombar.dart'; 
+import 'home_screen.dart'; 
 import '../explore/explore_profile.dart';
-import '../user/profile_screen.dart'; // Import ProfileScreen
+import '../user/profile_screen.dart'; 
 
 class MainScreen extends StatefulWidget {
   @override
@@ -11,26 +11,38 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  int _previousIndex = 0; 
 
-  // Danh sách các màn hình mà bạn muốn điều hướng tới
   final List<Widget> _screens = [
     HomeScreen(),
     ExploreScreen(),
-    const ProfileScreen(),
-    // Thêm các màn hình khác vào đây
   ];
 
   void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    if (index == 2) { 
+      _previousIndex = _currentIndex; 
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfileScreen(),
+        ),
+      ).then((_) {
+        setState(() {
+          _currentIndex = _previousIndex; 
+        });
+      });
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex], 
-      bottomNavigationBar: NavigationExample( // Sử dụng NavigationExample cho BottomNavigationBar
+      body: _screens[_currentIndex],
+      bottomNavigationBar: NavigationExample(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
       ),
