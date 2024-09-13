@@ -63,20 +63,24 @@ class SignupScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 30.0),
                       ElevatedButton(
-                        onPressed: () async {
-                          User? user = await signupViewModel.signUp(
-                            _emailController.text,
-                            _passwordController.text,
-                          );
+                        onPressed: signupViewModel.isLoading
+                            ? null
+                            : () async {
+                                User? user = await signupViewModel.signUp(
+                                  _emailController.text,
+                                  _passwordController.text,
+                                  _usernameController.text,
+                                  '', // Thêm địa chỉ nếu có
+                                );
 
-                          if (user != null) {
-                            Navigator.pushNamed(context, "/home");
-                          } else {
-                            if (kDebugMode) {
-                              print("Some error occurred");
-                            }
-                          }
-                        },
+                                if (user != null) {
+                                  Navigator.pushNamed(context, "/home");
+                                } else {
+                                  if (kDebugMode) {
+                                    print("Some error occurred");
+                                  }
+                                }
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF24BAEC),
                           minimumSize: const Size(double.infinity, 50),

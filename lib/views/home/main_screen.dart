@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../widgets/bottombar.dart'; 
 import 'home_screen.dart'; 
 import '../explore/explore_profile.dart';
 import '../user/profile_screen.dart'; 
+import '../../viewmodels/profile_viewmodel.dart'; // Import ProfileViewModel
 
 class MainScreen extends StatefulWidget {
   @override
@@ -11,26 +13,24 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  int _previousIndex = 0; 
 
   final List<Widget> _screens = [
     HomeScreen(),
     ExploreScreen(),
+    // ProfileScreen không cần thêm vào danh sách nếu chỉ dùng Navigation
   ];
 
   void _onTabTapped(int index) {
-    if (index == 2) { 
-      _previousIndex = _currentIndex; 
+    if (index == 2) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ProfileScreen(),
+          builder: (context) => ChangeNotifierProvider(
+            create: (_) => ProfileViewModel(),
+            child: ProfileScreen(),
+          ),
         ),
-      ).then((_) {
-        setState(() {
-          _currentIndex = _previousIndex; 
-        });
-      });
+      );
     } else {
       setState(() {
         _currentIndex = index;

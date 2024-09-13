@@ -1,21 +1,32 @@
-import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:tourguideapp/services/firebase_auth_services.dart';
 
 class SignupViewModel extends ChangeNotifier {
   final FirebaseAuthService _auth = FirebaseAuthService();
   bool _isLoading = false;
+  String? _errorMessage;
 
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
-  Future<User?> signUp(String email, String password) async {
+  Future<User?> signUp(String email, String password, String name, String address) async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
 
-    User? user = await _auth.signUpWithEmailAndPassword(email, password);
-
-    _isLoading = false;
-    notifyListeners();
-    return user;
+    try {
+      User? user = await _auth.signUpWithEmailAndPassword(email, password, name, address);
+      if (user != null) {
+        // Đăng ký thành công và người dùng đã được lưu vào Firestore
+        return user;
+      }
+    } catch (e) {
+      _errorMessage = 'Đăng ký không thành công. Vui lòng kiểm tra lại thông tin.';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+    return null;
   }
 }

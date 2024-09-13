@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Tour Guide App',
-      initialRoute: '/home', // Set the initial route to the login screen
+      initialRoute: '/', // Set the initial route to the login screen
       routes: {
         '/': (context) => LoginScreen(), // Login screen as the initial screen
         '/signup': (context) => SignupScreen(), // Signup screen

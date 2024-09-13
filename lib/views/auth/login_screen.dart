@@ -1,4 +1,3 @@
-// views/login_screen.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +30,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Please sign to continue our app',
+                  'Please sign in to continue using our app',
                   style: TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
                 ),
                 const SizedBox(height: 20),
@@ -62,20 +61,22 @@ class LoginScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20.0),
                       ElevatedButton(
-                        onPressed: () async {
-                          User? user = await loginViewModel.signIn(
-                            _emailController.text,
-                            _passwordController.text,
-                          );
+                        onPressed: loginViewModel.isLoading
+                            ? null
+                            : () async {
+                                User? user = await loginViewModel.signIn(
+                                  _emailController.text,
+                                  _passwordController.text,
+                                );
 
-                          if (user != null) {
-                            Navigator.pushNamed(context, "/home");
-                          } else {
-                            if (kDebugMode) {
-                              print("Some error occurred");
-                            }
-                          }
-                        },
+                                if (user != null) {
+                                  Navigator.pushNamed(context, "/home");
+                                } else {
+                                  if (kDebugMode) {
+                                    print("Some error occurred");
+                                  }
+                                }
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF24BAEC),
                           minimumSize: const Size(double.infinity, 50),
