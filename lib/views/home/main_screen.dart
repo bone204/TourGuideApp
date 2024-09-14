@@ -4,6 +4,7 @@ import '../../widgets/bottombar.dart';
 import 'home_screen.dart'; 
 import '../explore/explore_profile.dart';
 import '../user/profile_screen.dart'; 
+import '../car_rental/car_rental_screen.dart';
 import '../../viewmodels/profile_viewmodel.dart'; // Import ProfileViewModel
 
 class MainScreen extends StatefulWidget {
@@ -17,11 +18,12 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     HomeScreen(),
     ExploreScreen(),
+    CarRentalScreen(),
     // ProfileScreen không cần thêm vào danh sách nếu chỉ dùng Navigation
   ];
 
   void _onTabTapped(int index) {
-    if (index == 2) {
+    if (index == 3) {
       Navigator.push(
         context,
         MaterialPageRoute(

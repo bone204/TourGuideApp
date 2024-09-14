@@ -15,6 +15,7 @@ class NavigationExample extends StatelessWidget {
       child: ClipPath(
         clipper: CustomBottomBarClipper(),
         child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed, // Đảm bảo các tab cách đều và không thay đổi kích thước
           currentIndex: currentIndex,
           onTap: onTap,
           selectedItemColor: const Color(0xFF24BAEC), // Màu cho mục đã chọn
@@ -31,6 +32,10 @@ class NavigationExample extends StatelessWidget {
             BottomNavigationBarItem(
               icon: Icon(Icons.explore),
               label: 'Explore',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bike_scooter),
+              label: 'Rental',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
