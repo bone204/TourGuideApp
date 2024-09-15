@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
 class CustomTextField extends StatelessWidget {
   final String hintText;
@@ -57,7 +58,7 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
       controller: widget.controller, // Sử dụng controller từ widget
       obscureText: _obscureText,
       decoration: InputDecoration(
-        hintText: 'Password',
+        hintText: AppLocalizations.of(context).translate('Password'),
         filled: true,
         fillColor: const Color(0xFFF7F7F9),
         border: OutlineInputBorder(
@@ -83,9 +84,9 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please enter your password';
+          return AppLocalizations.of(context).translate('Please enter your password');
         } else if (value.length < 8) {
-          return 'Password must be at least 8 characters long';
+          return AppLocalizations.of(context).translate('Password must be at least 8 characters long');
         }
         return null;
       },

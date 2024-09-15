@@ -1,11 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:provider/provider.dart'; // Provider for state management
 import 'package:tourguideapp/viewmodels/login_viewmodel.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/social_icon_button.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -24,14 +25,14 @@ class LoginScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                const Text(
-                  'Sign in now',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 34),
+                Text(
+                  AppLocalizations.of(context).translate('Sign in now'),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 34),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'Please sign in to continue using our app',
-                  style: TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
+                Text(
+                  AppLocalizations.of(context).translate('Please sign in to continue using our app'),
+                  style: const TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
                 ),
                 const SizedBox(height: 20),
                 Container(
@@ -40,7 +41,7 @@ class LoginScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CustomTextField(
-                        hintText: 'Email',
+                        hintText: AppLocalizations.of(context).translate('Email'),
                         controller: _emailController,
                       ),
                       const SizedBox(height: 16.0),
@@ -53,9 +54,9 @@ class LoginScreen extends StatelessWidget {
                           onPressed: () {
                             // Handle forgot password
                           },
-                          child: const Text(
-                            'Forgot Password?',
-                            style: TextStyle(fontSize: 16, color: Color(0xFFFF7029)),
+                          child: Text(
+                            AppLocalizations.of(context).translate('Forgot Password?'),
+                            style: const TextStyle(fontSize: 16, color: Color(0xFFFF7029)),
                           ),
                         ),
                       ),
@@ -89,18 +90,18 @@ class LoginScreen extends StatelessWidget {
                             ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                            : const Text(
-                                'Sign In',
-                                style: TextStyle(color: Colors.white, fontSize: 20),
+                            : Text(
+                                AppLocalizations.of(context).translate('Sign In'),
+                                style: const TextStyle(color: Colors.white, fontSize: 20),
                               ),
                       ),
                       const SizedBox(height: 30),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Don't have an account?",
-                            style: TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
+                          Text(
+                            AppLocalizations.of(context).translate("Don't have an account?"),
+                            style: const TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
                           ),
                           TextButton(
                             onPressed: () {
@@ -109,16 +110,16 @@ class LoginScreen extends StatelessWidget {
                                 MaterialPageRoute(builder: (context) => SignupScreen()),
                               );
                             },
-                            child: const Text(
-                              'Sign up',
-                              style: TextStyle(fontSize: 16, color: Color(0xFFFF7029)),
+                            child: Text(
+                              AppLocalizations.of(context).translate('Sign up'),
+                              style: const TextStyle(fontSize: 16, color: Color(0xFFFF7029)),
                             ),
                           ),
                         ],
                       ),
-                      const Text(
-                        'Or connect',
-                        style: TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
+                      Text(
+                        AppLocalizations.of(context).translate('Or connect'),
+                        style: const TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
                       ),
                     ],
                   ),

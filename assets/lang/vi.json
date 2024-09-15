@@ -1,0 +1,38 @@
+{
+    "settings": "Cài Đặt",
+    "language": "Ngôn ngữ",
+
+    "Profile": "Hồ Sơ",
+    "Home": "Trang Chủ",
+    "Rental": "Thuê Xe",
+    "Explore": "Khám Phá",
+
+    "Favourite Destinations": "Điểm Đến Ưa Thích",
+    "Travel History": "Lịch Sử Du Lịch",
+    "Vehicle Rental Registration": "Đăng Ký Cho Thuê Xe",
+    "Feedback": "Đánh Giá",
+    "Settings": "Cài Đặt",
+    "Reward Points": "Điểm Tích Lũy",
+    "Travel Trips": "Chuyến Du Lịch",
+    "Bucket Lists": "Mục Tiêu",
+
+    "Sign in now": "Đăng Nhập",
+    "Please sign in to continue using our app": "Vui lòng đăng nhập để tiếp tục",
+    "Email": "Email",
+    "Forgot Password?": "Quên mật khẩu?",
+    "Sign In": "Đăng nhập",
+    "Don't have an account?": "Bạn chưa có tài khoản?",
+    "Sign up": "Đăng ký",
+    "Or connect": "Hoặc kết nối",
+    "Password": "Mật khẩu",
+    "Please enter your password": "Vui lòng nhập mật khẩu của bạn",
+    "Password must be at least 8 characters long": "Mật khẩu phải chứa ít nhất 8 ký tự",
+
+    "Sign up now": "Đăng ký ngay",
+    "Please fill the details and create account": "Vui lòng điền đầy đủ thông tin",
+    "Fullname": "Họ và tên",
+    "Sign Up": "Đăng ký",
+    "Already have an account?": "Đã có tài khoản?",
+    "Sign in": "Đăng nhập"
+}
+  

@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tourguideapp/views/user/setting_screen.dart';
 import '../../viewmodels/profile_viewmodel.dart';
 import '../auth/login_screen.dart';
+import '../../localization/app_localizations.dart';
 
 class ProfileScreen extends StatelessWidget {
-    @override
+  @override
   Widget build(BuildContext context) {
-    // Truy cập ProfileViewModel từ Provider
     final profileViewModel = Provider.of<ProfileViewModel>(context);
-
-    // Kiểm tra xem người dùng có đang đăng nhập hay không
     final user = FirebaseAuth.instance.currentUser;
+
     if (user == null) {
-      // Nếu không đăng nhập, chuyển hướng đến màn hình đăng nhập
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
@@ -39,9 +38,9 @@ class ProfileScreen extends StatelessWidget {
                   _buildIconButton(Icons.chevron_left, () {
                     Navigator.of(context).pop();
                   }),
-                  const Text(
-                    'Profile',
-                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+                  Text(
+                    AppLocalizations.of(context).translate('Profile'),
+                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                   _buildIconButton(Icons.edit, () {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -77,57 +76,38 @@ class ProfileScreen extends StatelessWidget {
                   style: const TextStyle(fontSize: 18, color: Colors.grey),
                 ),
                 const SizedBox(height: 40),
-                _buildStatsRow(),
+                _buildStatsRow(context),
                 const SizedBox(height: 20),
-                _buildInteractiveRow(Icons.location_pin, 'Favourite Destinations', Icons.chevron_right, () {
+                _buildInteractiveRow(Icons.location_pin, AppLocalizations.of(context).translate('Favourite Destinations'), Icons.chevron_right, () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Notifications clicked')),
                   );
                 }),
                 const SizedBox(height: 5),
-                _buildInteractiveRow(Icons.history, 'Travel History', Icons.chevron_right, () {
+                _buildInteractiveRow(Icons.history, AppLocalizations.of(context).translate('Travel History'), Icons.chevron_right, () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Notifications clicked')),
                   );
                 }),
                 const SizedBox(height: 5),
-                _buildInteractiveRow(Icons.car_crash, 'Vehicle Rental Registration', Icons.chevron_right, () {
+                _buildInteractiveRow(Icons.car_crash, AppLocalizations.of(context).translate('Vehicle Rental Registration'), Icons.chevron_right, () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Notifications clicked')),
                   );
                 }),
                 const SizedBox(height: 5),
-                _buildInteractiveRow(Icons.feedback, 'Feedback', Icons.chevron_right, () {
+                _buildInteractiveRow(Icons.feedback, AppLocalizations.of(context).translate('Feedback'), Icons.chevron_right, () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Notifications clicked')),
                   );
                 }),
                 const SizedBox(height: 5),
-                _buildInteractiveRow(Icons.settings, 'Settings', Icons.chevron_right, () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Settings clicked')),
+                _buildInteractiveRow(Icons.settings, AppLocalizations.of(context).translate('Settings'), Icons.chevron_right, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingsScreen()),
                   );
                 }),
-                // const SizedBox(height: 20),
-                // ElevatedButton.icon(
-                //   onPressed: () async {
-                //     await FirebaseAuth.instance.signOut(); // Đăng xuất người dùng
-                //     Navigator.pushReplacement(
-                //       context,
-                //       MaterialPageRoute(builder: (context) => LoginScreen()),
-                //     );
-                //   },
-                //   icon: const Icon(Icons.logout),
-                //   label: const Text('Đăng Xuất'),
-                //   style: ElevatedButton.styleFrom(
-                //     backgroundColor: Colors.redAccent,
-                //     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                //     textStyle: const TextStyle(
-                //       fontSize: 18,
-                //       fontWeight: FontWeight.bold,
-                //     ),
-                //   ),
-                // ),
               ],
             ),
           ),
@@ -170,7 +150,6 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
-      
     );
   }
 
@@ -190,7 +169,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow() {
+  Widget _buildStatsRow(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -208,17 +187,17 @@ class ProfileScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildStatsColumn('Reward Points', '360'),
+          _buildStatsColumn(context, AppLocalizations.of(context).translate('Reward Points'), '360'),
           const SizedBox(width: 30),
-          _buildStatsColumn('Travel Trips', '238'),
+          _buildStatsColumn(context, AppLocalizations.of(context).translate('Travel Trips'), '238'),
           const SizedBox(width: 30),
-          _buildStatsColumn('Bucket Lists', '473'),
+          _buildStatsColumn(context, AppLocalizations.of(context).translate('Bucket Lists'), '473'),
         ],
       ),
     );
   }
 
-  Widget _buildStatsColumn(String title, String value) {
+  Widget _buildStatsColumn(BuildContext context, String title, String value) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

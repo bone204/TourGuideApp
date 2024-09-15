@@ -2,10 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:provider/provider.dart'; // Provider for state management
+import 'package:provider/provider.dart'; 
 import 'package:tourguideapp/viewmodels/signup_viewmodel.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/social_icon_button.dart';
+import 'package:tourguideapp/localization/app_localizations.dart'; // Import localization
 import 'login_screen.dart';
 
 class SignupScreen extends StatelessWidget {
@@ -25,14 +26,14 @@ class SignupScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                const Text(
-                  'Sign up now',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 34),
+                Text(
+                  AppLocalizations.of(context).translate('Sign up now'), // Lấy chuỗi 'Sign up now' từ localization
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 34),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'Please fill the details and create account',
-                  style: TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
+                Text(
+                  AppLocalizations.of(context).translate('Please fill the details and create account'), // Dịch
+                  style: const TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
                 ),
                 const SizedBox(height: 20),
                 Container(
@@ -41,12 +42,12 @@ class SignupScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CustomTextField(
-                        hintText: 'Fullname',
+                        hintText: AppLocalizations.of(context).translate('Fullname'), // Dịch 'Fullname'
                         controller: _usernameController,
                       ),
                       const SizedBox(height: 16.0),
                       CustomTextField(
-                        hintText: 'Email',
+                        hintText: AppLocalizations.of(context).translate('Email'), // Dịch 'Email'
                         controller: _emailController,
                       ),
                       const SizedBox(height: 16.0),
@@ -54,11 +55,11 @@ class SignupScreen extends StatelessWidget {
                         controller: _passwordController,
                       ),
                       const SizedBox(height: 8.0),
-                      const Align(
+                      Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          "Password must be 8 characters",
-                          style: TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
+                          AppLocalizations.of(context).translate("Password must be at least 8 characters long"), // Dịch
+                          style: const TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
                         ),
                       ),
                       const SizedBox(height: 30.0),
@@ -93,18 +94,18 @@ class SignupScreen extends StatelessWidget {
                             ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                            : const Text(
-                                'Sign Up',
-                                style: TextStyle(color: Colors.white, fontSize: 20),
+                            : Text(
+                                AppLocalizations.of(context).translate('Sign Up'), // Dịch 'Sign Up'
+                                style: const TextStyle(color: Colors.white, fontSize: 20),
                               ),
                       ),
                       const SizedBox(height: 30),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Already have an account?",
-                            style: TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
+                          Text(
+                            AppLocalizations.of(context).translate("Already have an account?"), // Dịch
+                            style: const TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
                           ),
                           TextButton(
                             onPressed: () {
@@ -113,16 +114,16 @@ class SignupScreen extends StatelessWidget {
                                 MaterialPageRoute(builder: (context) => LoginScreen()),
                               );
                             },
-                            child: const Text(
-                              'Sign in',
-                              style: TextStyle(fontSize: 16, color: Color(0xFFFF7029)),
+                            child: Text(
+                              AppLocalizations.of(context).translate('Sign in'), // Dịch 'Sign in'
+                              style: const TextStyle(fontSize: 16, color: Color(0xFFFF7029)),
                             ),
                           ),
                         ],
                       ),
-                      const Text(
-                        'Or connect',
-                        style: TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
+                      Text(
+                        AppLocalizations.of(context).translate('Or connect'), // Dịch 'Or connect'
+                        style: const TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
                       ),
                     ],
                   ),

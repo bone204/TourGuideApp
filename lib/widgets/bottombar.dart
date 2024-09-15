@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'custom_bottom_bar_clip.dart'; // Import CustomBottomBarClipper
 
+import 'package:tourguideapp/localization/app_localizations.dart';
+
 class NavigationExample extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -24,22 +26,22 @@ class NavigationExample extends StatelessWidget {
           unselectedLabelStyle: const TextStyle(fontSize: 16),
           showUnselectedLabels: true,
           backgroundColor: Colors.white, // Đặt nền của BottomNavigationBar thành trong suốt
-          items: const [
+          items:  [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+              icon: const Icon(Icons.home),
+              label: AppLocalizations.of(context).translate('Home'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.explore),
-              label: 'Explore',
+              icon: const Icon(Icons.explore),
+              label: AppLocalizations.of(context).translate('Explore'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.bike_scooter),
-              label: 'Rental',
+              icon: const Icon(Icons.bike_scooter),
+              label: AppLocalizations.of(context).translate('Rental'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
+              icon: const Icon(Icons.person),
+              label: AppLocalizations.of(context).translate('Profile'),
             ),
           ],
         ),

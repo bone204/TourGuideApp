@@ -1,0 +1,38 @@
+{
+    "settings": "Settings",
+    "language": "Language",
+
+    "Profile": "Profile",
+    "Home": "Home",
+    "Rental": "Rental",
+    "Explore": "Explore",
+
+    "Favourite Destinations": "Favourite Destinations",
+    "Travel History": "Travel History",
+    "Vehicle Rental Registration": "Vehicle Rental Registration",
+    "Feedback": "Feedback",
+    "Settings": "Settings",
+    "Reward Points": "Reward Points",
+    "Travel Trips": "Travel Trips",
+    "Bucket Lists": "Bucket Lists",
+
+    "Sign in now": "Sign in now",
+    "Please sign in to continue using our app": "Please sign in to continue using our app",
+    "Email": "Email",
+    "Forgot Password?": "Forgot Password?",
+    "Sign In": "Sign In",
+    "Don't have an account?": "Don't have an account?",
+    "Sign up": "Sign up",
+    "Or connect": "Or connect",
+    "Password": "Password",
+    "Please enter your password": "Please enter your password",
+    "Password must be at least 8 characters long": "Password must be at least 8 characters long",
+
+    "Sign up now": "Sign up now",
+    "Please fill the details and create account": "Please fill the details and create account",
+    "Fullname": "Fullname",
+    "Sign Up": "Sign Up",
+    "Already have an account?": "Already have an account?",
+    "Sign in": "Sign in"
+  }
+  
