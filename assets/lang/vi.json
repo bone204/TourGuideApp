@@ -1,16 +1,19 @@
 {
     "settings": "Cài Đặt",
     "language": "Ngôn ngữ",
+    "English": "Tiếng Anh",
+    "Vietnamese": "Tiếng Việt",
+    "Select Language": "Lựa Chọn Ngôn Ngữ",
 
     "Profile": "Hồ Sơ",
     "Home": "Trang Chủ",
     "Rental": "Thuê Xe",
     "Explore": "Khám Phá",
 
-    "Favourite Destinations": "Điểm Đến Ưa Thích",
+    "Favourite Destinations": "Điểm Đến Yêu Thích",
     "Travel History": "Lịch Sử Du Lịch",
     "Vehicle Rental Registration": "Đăng Ký Cho Thuê Xe",
-    "Feedback": "Đánh Giá",
+    "Feedback": "Đánh Giá Trải Nghiệm",
     "Settings": "Cài Đặt",
     "Reward Points": "Điểm Tích Lũy",
     "Travel Trips": "Chuyến Du Lịch",
@@ -33,6 +36,12 @@
     "Fullname": "Họ và tên",
     "Sign Up": "Đăng ký",
     "Already have an account?": "Đã có tài khoản?",
-    "Sign in": "Đăng nhập"
+    "Sign in": "Đăng nhập",
+    "Sign Out": "Đăng Xuất",
+
+    "Confirm": "Xác nhận",
+    "This action will log you out and restart the app. Do you want to proceed?": "Hành động này sẽ khiến tài khoản đăng xuất và khởi động lại ứng dụng. Bạn có chắc chắn muốn tiếp tục không?",
+    "Cancel": "Hủy"
+
 }
   

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tourguideapp/views/user/setting_screen.dart';
+import 'package:tourguideapp/views/settings/setting_screen.dart';
 import '../../viewmodels/profile_viewmodel.dart';
 import '../auth/login_screen.dart';
 import '../../localization/app_localizations.dart';
+import '../../widgets/custom_icon_button.dart';
+import '../../widgets/interactive_row_widget.dart';
 
 class ProfileScreen extends StatelessWidget {
   @override
@@ -35,18 +37,24 @@ class ProfileScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildIconButton(Icons.chevron_left, () {
-                    Navigator.of(context).pop();
-                  }),
+                  CustomIconButton(
+                    icon: Icons.chevron_left,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
                   Text(
                     AppLocalizations.of(context).translate('Profile'),
                     style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
                   ),
-                  _buildIconButton(Icons.edit, () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Nút chỉnh sửa đã được bấm')),
-                    );
-                  }),
+                  CustomIconButton(
+                    icon: Icons.edit,
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Nút chỉnh sửa đã được bấm')),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -78,92 +86,64 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 40),
                 _buildStatsRow(context),
                 const SizedBox(height: 20),
-                _buildInteractiveRow(Icons.location_pin, AppLocalizations.of(context).translate('Favourite Destinations'), Icons.chevron_right, () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Notifications clicked')),
-                  );
-                }),
+                InteractiveRowWidget(
+                  leadingIcon: Icons.location_pin,
+                  title: AppLocalizations.of(context).translate('Favourite Destinations'),
+                  trailingIcon: Icons.chevron_right,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Notifications clicked')),
+                    );
+                  },
+                ),
                 const SizedBox(height: 5),
-                _buildInteractiveRow(Icons.history, AppLocalizations.of(context).translate('Travel History'), Icons.chevron_right, () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Notifications clicked')),
-                  );
-                }),
+                InteractiveRowWidget(
+                  leadingIcon: Icons.history,
+                  title: AppLocalizations.of(context).translate('Travel History'),
+                  trailingIcon: Icons.chevron_right,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Notifications clicked')),
+                    );
+                  },
+                ),
                 const SizedBox(height: 5),
-                _buildInteractiveRow(Icons.car_crash, AppLocalizations.of(context).translate('Vehicle Rental Registration'), Icons.chevron_right, () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Notifications clicked')),
-                  );
-                }),
+                InteractiveRowWidget(
+                  leadingIcon: Icons.car_crash,
+                  title: AppLocalizations.of(context).translate('Vehicle Rental Registration'),
+                  trailingIcon: Icons.chevron_right,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Notifications clicked')),
+                    );
+                  },
+                ),
                 const SizedBox(height: 5),
-                _buildInteractiveRow(Icons.feedback, AppLocalizations.of(context).translate('Feedback'), Icons.chevron_right, () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Notifications clicked')),
-                  );
-                }),
+                InteractiveRowWidget(
+                  leadingIcon: Icons.feedback,
+                  title: AppLocalizations.of(context).translate('Feedback'),
+                  trailingIcon: Icons.chevron_right,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Notifications clicked')),
+                    );
+                  },
+                ),
                 const SizedBox(height: 5),
-                _buildInteractiveRow(Icons.settings, AppLocalizations.of(context).translate('Settings'), Icons.chevron_right, () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SettingsScreen()),
-                  );
-                }),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInteractiveRow(IconData leadingIcon, String title, IconData trailingIcon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 23, horizontal: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 0.5,
-              blurRadius: 3,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(leadingIcon, color: Colors.black),
-                const SizedBox(width: 20),
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                InteractiveRowWidget(
+                  leadingIcon: Icons.settings,
+                  title: AppLocalizations.of(context).translate('Settings'),
+                  trailingIcon: Icons.chevron_right,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SettingsScreen()),
+                    );
+                  },
                 ),
               ],
             ),
-            Icon(trailingIcon, color: Colors.grey),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildIconButton(IconData icon, VoidCallback onPressed) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFFF7F7F9),
-          shape: BoxShape.circle,
-        ),
-        child: IconButton(
-          icon: Icon(icon, color: Colors.black, size: 25),
-          onPressed: onPressed,
+          ),
         ),
       ),
     );

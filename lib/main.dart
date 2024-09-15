@@ -5,7 +5,7 @@ import 'localization/app_localizations.dart';
 import 'views/auth/login_screen.dart';
 import 'views/auth/signup_screen.dart';
 import 'views/home/main_screen.dart';
-import 'views/user/setting_screen.dart';
+import 'views/settings/setting_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,7 +55,7 @@ class MyAppState extends State<MyApp> {
         }
         return supportedLocales.first;
       },
-      initialRoute: '/',
+      initialRoute: '/home',
       routes: {
         '/': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
