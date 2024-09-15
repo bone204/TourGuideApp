@@ -54,7 +54,7 @@ class SignupScreen extends StatelessWidget {
                       CustomPasswordField(
                         controller: _passwordController,
                       ),
-                      const SizedBox(height: 8.0),
+                      const SizedBox(height: 12.0),
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(

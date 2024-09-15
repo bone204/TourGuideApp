@@ -139,12 +139,27 @@ class LoginScreen extends StatelessWidget {
                     SocialIconButton(
                       icon: FontAwesomeIcons.google,
                       color: const Color(0xFFDB4437),
-                      onPressed: () {
-                        // Handle Google login
+                      onPressed: () async {
+                        User? user = await loginViewModel.signInWithGoogle();
+                        if (user != null) {
+                          Navigator.pushNamed(context, "/home");
+                        } else {
+                          if (kDebugMode) {
+                            print("Google login failed");
+                          }
+                        }
                       },
                     ),
                   ],
                 ),
+                if (loginViewModel.errorMessage != null) // Hiển thị thông báo lỗi nếu có
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      loginViewModel.errorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
               ],
             ),
           ),
