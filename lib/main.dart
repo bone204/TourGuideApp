@@ -1,15 +1,23 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart'; // Import provider package
+import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
 import 'localization/app_localizations.dart';
 import 'views/auth/login_screen.dart';
 import 'views/auth/signup_screen.dart';
 import 'views/home/main_screen.dart';
 import 'views/settings/setting_screen.dart';
+import 'viewmodels/profile_viewmodel.dart'; // Import ViewModels
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // Khởi tạo Firebase trước khi chạy ứng dụng
+  try {
+    await Firebase.initializeApp(); // Initialize Firebase before running the app
+  } catch (e) {
+    print("Error initializing Firebase: $e");
+    // Handle Firebase initialization errors if necessary
+  }
   runApp(MyApp());
 }
 
@@ -24,7 +32,7 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  Locale _locale = const Locale('en'); // Đặt ngôn ngữ mặc định
+  Locale _locale = const Locale('en'); // Default locale
 
   void setLocale(Locale locale) {
     setState(() {
@@ -34,35 +42,42 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Tour Guide App',
-      locale: _locale,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ProfileViewModel()),
+        ChangeNotifierProvider(create: (_) => HomeViewModel()), // Add providers here
+        // Add other providers if needed
       ],
-      supportedLocales: const [
-        Locale('en', ''),
-        Locale('vi', ''),
-      ],
-      localeResolutionCallback: (locale, supportedLocales) {
-        for (var supportedLocale in supportedLocales) {
-          if (supportedLocale.languageCode == locale?.languageCode) {
-            return supportedLocale;
+      child: MaterialApp(
+        title: 'Tour Guide App',
+        locale: _locale,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', ''), // English
+          Locale('vi', ''), // Vietnamese
+        ],
+        localeResolutionCallback: (locale, supportedLocales) {
+          for (var supportedLocale in supportedLocales) {
+            if (supportedLocale.languageCode == locale?.languageCode) {
+              return supportedLocale;
+            }
           }
-        }
-        return supportedLocales.first;
-      },
-      initialRoute: '/home',
-      routes: {
-        '/': (context) => LoginScreen(),
-        '/signup': (context) => SignupScreen(),
-        '/home': (context) => MainScreen(),
-        '/settings': (context) => SettingsScreen(),
-      },
-      debugShowCheckedModeBanner: false,
+          return supportedLocales.first;
+        },
+        initialRoute: '/', // Ensure this is the intended initial route
+        routes: {
+          '/': (context) => LoginScreen(),
+          '/signup': (context) => SignupScreen(),
+          '/home': (context) => MainScreen(),
+          '/settings': (context) => SettingsScreen(),
+        },
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }

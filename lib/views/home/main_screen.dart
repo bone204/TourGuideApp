@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:tourguideapp/views/explore/explore_profile.dart';
 import '../../widgets/bottombar.dart'; 
 import 'home_screen.dart'; 
-import '../explore/explore_profile.dart';
-import '../user/profile_screen.dart'; 
 import '../car_rental/car_rental_screen.dart';
-import '../../viewmodels/profile_viewmodel.dart'; // Import ProfileViewModel
+import '../user/profile_screen.dart'; 
 
 class MainScreen extends StatefulWidget {
   @override
@@ -19,7 +17,7 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(),
     ExploreScreen(),
     CarRentalScreen(),
-    // ProfileScreen không cần thêm vào danh sách nếu chỉ dùng Navigation
+    // Do not include ProfileScreen here, handle navigation separately
   ];
 
   void _onTabTapped(int index) {
@@ -27,10 +25,7 @@ class _MainScreenState extends State<MainScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider(
-            create: (_) => ProfileViewModel(),
-            child: ProfileScreen(),
-          ),
+          builder: (context) => ProfileScreen(), // No need to wrap with ChangeNotifierProvider
         ),
       );
     } else {
@@ -43,7 +38,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: _currentIndex != 3 ? _screens[_currentIndex] : Container(), // Conditional display
       bottomNavigationBar: NavigationExample(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,

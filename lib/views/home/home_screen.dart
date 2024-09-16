@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
 import 'package:tourguideapp/widgets/horizontal_card.dart';
 import 'package:tourguideapp/widgets/vertical_card.dart';
 import 'package:tourguideapp/widgets/horizontal_card_list_view.dart';
@@ -9,6 +11,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final homeViewModel = Provider.of<HomeViewModel>(context);
     final List<HorizontalCardData> horizontalCards = [
       HorizontalCardData(
         imageUrl: 'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
@@ -64,7 +67,10 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.all(30),
           child: Column(
             children: [
-              const UserHeader(),
+              UserHeader(
+                name: homeViewModel.name,
+                profileImageUrl: homeViewModel.profileImageUrl,
+              ),
               const SizedBox(height: 20),
               const HeaderBar(),
               const SizedBox(height: 20),
@@ -93,7 +99,14 @@ class HomeScreen extends StatelessWidget {
 }
 
 class UserHeader extends StatelessWidget {
-  const UserHeader({super.key});
+  final String name;
+  final String profileImageUrl;
+
+  const UserHeader({
+    required this.name,
+    required this.profileImageUrl,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -106,17 +119,21 @@ class UserHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(15),
           ),
           padding: const EdgeInsets.all(8),
-          child: const Row(
+          child: Row(
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: NetworkImage(
-                    'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
+                backgroundImage: profileImageUrl.isNotEmpty
+                    ? NetworkImage(profileImageUrl)
+                    : null,
+                child: profileImageUrl.isEmpty
+                    ? Icon(Icons.person, color: Colors.grey[600])
+                    : null,
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Text(
-                'User Name',
-                style: TextStyle(
+                name,
+                style: const TextStyle(
                     color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ],
@@ -213,23 +230,28 @@ class SectionHeadline extends StatelessWidget {
             Text(
               title,
               style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold),
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
             Text(
               subtitle,
               style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal),
+                color: Color(0xFF6C6C6C),
+                fontSize: 14,
+              ),
             ),
           ],
         ),
-        Text(
-          "View all",
-          style: TextStyle(
-              color: viewAllColor, fontWeight: FontWeight.normal),
+        TextButton(
+          onPressed: () {
+            // Add navigation or action here
+          },
+          child: Text(
+            'View All',
+            style: TextStyle(color: viewAllColor),
+          ),
         ),
       ],
     );
