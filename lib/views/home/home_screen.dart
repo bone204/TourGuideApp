@@ -1,52 +1,237 @@
-// lib/views/home/home_screen.dart
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tourguideapp/widgets/horizontal_card.dart';
+import 'package:tourguideapp/widgets/vertical_card.dart';
+import 'package:tourguideapp/widgets/horizontal_card_list_view.dart';
+import 'package:tourguideapp/widgets/vertical_card_list_view.dart';
 
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
+    final List<HorizontalCardData> horizontalCards = [
+      HorizontalCardData(
+        imageUrl: 'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        placeName: 'Place 1',
+        description: 'Description for Place 1',
+        price: r'$160.05',
+        rating: 4.5,
+        ratingCount: 12,
+      ),
+      HorizontalCardData(
+        imageUrl: 'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        placeName: 'Place 2',
+        description: 'Description for Place 2',
+        price: r'$180.75',
+        rating: 4.0,
+        ratingCount: 15,
+      ),
+      HorizontalCardData(
+        imageUrl: 'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        placeName: 'Place 3',
+        description: 'Description for Place 3',
+        price: r'$200.00',
+        rating: 4.0,
+        ratingCount: 15,
+      ),
+    ];
+
+    final List<VerticalCardData> verticalCards = [
+      VerticalCardData(
+        imageUrl: 'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        placeName: 'Place 1',
+        description: 'Description for Place 1',
+        price: r'$160.05',
+      ),
+      VerticalCardData(
+        imageUrl: 'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        placeName: 'Place 2',
+        description: 'Description for Place 2',
+        price: r'$180.75',
+      ),
+      VerticalCardData(
+        imageUrl: 'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        placeName: 'Place 3',
+        description: 'Description for Place 3',
+        price: r'$200.00',
+      ),
+    ];
+
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(30),
+          child: Column(
+            children: [
+              const UserHeader(),
+              const SizedBox(height: 20),
+              const HeaderBar(),
+              const SizedBox(height: 20),
+              const SectionHeadline(
+                title: "Popular",
+                subtitle: "The best destination for you",
+                viewAllColor: Color(0xFFFF7029),
+              ),
+              const SizedBox(height: 10),
+              HorizontalCardListView(cardDataList: horizontalCards),
+              const SizedBox(height: 20),
+              const SectionHeadline(
+                title: "Nearest Places",
+                subtitle: "The best destination close to you",
+                viewAllColor: Color(0xFFFF7029),
+              ),
+              const SizedBox(height: 10),
+              VerticalCardListView(cardDataList: verticalCards),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class UserHeader extends StatelessWidget {
+  const UserHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFF7F7F9),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          padding: const EdgeInsets.all(8),
+          child: const Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: NetworkImage(
+                    'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
+              ),
+              SizedBox(width: 10),
+              Text(
+                'User Name',
+                style: TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFF7F7F9),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Notification button pressed')),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class HeaderBar extends StatelessWidget {
+  const HeaderBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              color: Colors.white,
+            const Text(
+              'Explore the',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 38,
+              ),
             ),
-            Center(
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        'Home Screen',
-                        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          FirebaseAuth.instance.signOut();
-                          Navigator.pushNamed(context, "/");
-                        },
-                        child: const Text('Go to Login'),
-                      ),
-                    ],
+            const SizedBox(height: 5),
+            RichText(
+              text: const TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Beautiful ',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 38,
+                    ),
                   ),
-                ),
+                  TextSpan(
+                    text: 'world!',
+                    style: TextStyle(
+                      color: Color(0xFFFF7029),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 38,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
-      ),
+      ],
+    );
+  }
+}
+
+class SectionHeadline extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final Color viewAllColor;
+
+  const SectionHeadline({
+    required this.title,
+    required this.subtitle,
+    required this.viewAllColor,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
+            ),
+            Text(
+              subtitle,
+              style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal),
+            ),
+          ],
+        ),
+        Text(
+          "View all",
+          style: TextStyle(
+              color: viewAllColor, fontWeight: FontWeight.normal),
+        ),
+      ],
     );
   }
 }
