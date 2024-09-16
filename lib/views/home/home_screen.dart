@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
 import 'package:tourguideapp/widgets/horizontal_card.dart';
 import 'package:tourguideapp/widgets/vertical_card.dart';
@@ -228,7 +229,7 @@ class SectionHeadline extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              title,
+              AppLocalizations.of(context).translate(title),
               style: const TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -236,7 +237,7 @@ class SectionHeadline extends StatelessWidget {
               ),
             ),
             Text(
-              subtitle,
+              AppLocalizations.of(context).translate(subtitle),
               style: const TextStyle(
                 color: Color(0xFF6C6C6C),
                 fontSize: 14,
@@ -249,7 +250,7 @@ class SectionHeadline extends StatelessWidget {
             // Add navigation or action here
           },
           child: Text(
-            'View All',
+            AppLocalizations.of(context).translate('View All'),
             style: TextStyle(color: viewAllColor),
           ),
         ),

@@ -41,7 +41,12 @@
 
     "Confirm": "Xác nhận",
     "This action will log you out and restart the app. Do you want to proceed?": "Hành động này sẽ khiến tài khoản đăng xuất và khởi động lại ứng dụng. Bạn có chắc chắn muốn tiếp tục không?",
-    "Cancel": "Hủy"
+    "Cancel": "Hủy",
 
+    "View All": "Tất Cả",
+    "Popular": "Địa Điểm Nổi Tiếng",
+    "The best destination for you": "Điểm đến tuyệt vời dành cho bạn",
+    "Nearest Places": "Địa điểm gần bạn",
+    "The best destination close to you": "Điểm đến tuyệt vời gần bạn"
 }
   
