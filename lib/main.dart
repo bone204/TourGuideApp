@@ -69,7 +69,7 @@ class MyAppState extends State<MyApp> {
           }
           return supportedLocales.first;
         },
-        initialRoute: '/', // Ensure this is the intended initial route
+        initialRoute: '/home', // Ensure this is the intended initial route
         routes: {
           '/': (context) => LoginScreen(),
           '/signup': (context) => SignupScreen(),

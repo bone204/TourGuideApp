@@ -29,12 +29,12 @@ class LoginScreen extends StatelessWidget {
                   AppLocalizations.of(context).translate('Sign in now'),
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 34),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 Text(
                   AppLocalizations.of(context).translate('Please sign in to continue using our app'),
                   style: const TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 40),
                 Container(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -56,7 +56,7 @@ class LoginScreen extends StatelessWidget {
                           },
                           child: Text(
                             AppLocalizations.of(context).translate('Forgot Password?'),
-                            style: const TextStyle(fontSize: 16, color: Color(0xFFFF7029)),
+                            style: const TextStyle(fontSize: 14, color: Color(0xFFFF7029)),
                           ),
                         ),
                       ),
@@ -95,7 +95,7 @@ class LoginScreen extends StatelessWidget {
                                 style: const TextStyle(color: Colors.white, fontSize: 20),
                               ),
                       ),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 40),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

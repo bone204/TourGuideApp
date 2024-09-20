@@ -21,7 +21,17 @@ class VerticalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Lấy kích thước màn hình hiện tại
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    // Tính toán chiều cao và chiều rộng phù hợp dựa trên kích thước màn hình
+    double imageHeight = screenHeight * 0.12; // 12% chiều cao màn hình
+    double imageWidth = screenWidth * 0.25;   // 25% chiều rộng màn hình
+    double fontSizeTitle = screenWidth * 0.04; // Cỡ chữ dựa trên chiều rộng
+
     return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8), // Thêm khoảng cách giữa các thẻ
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: Colors.white,
@@ -39,8 +49,8 @@ class VerticalCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             child: Image.network(
               data.imageUrl,
-              height: 100,
-              width: 100,
+              height: imageHeight,
+              width: imageWidth,
               fit: BoxFit.cover,
             ),
           ),
@@ -52,8 +62,8 @@ class VerticalCard extends StatelessWidget {
               children: [
                 Text(
                   data.placeName,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: fontSizeTitle, // Responsive cỡ chữ tiêu đề
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -62,16 +72,16 @@ class VerticalCard extends StatelessWidget {
                   data.description,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.035, // Responsive cỡ chữ mô tả
                     color: Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 5),
                 Text(
                   data.price,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.04, // Responsive cỡ chữ giá
                     fontWeight: FontWeight.bold,
                   ),
                 ),

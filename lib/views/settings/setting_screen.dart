@@ -13,11 +13,14 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(100.0),
+          preferredSize: Size.fromHeight(screenHeight * 0.13), // Responsive height
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -34,10 +37,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   Text(
                     AppLocalizations.of(context).translate('Settings'),
-                    style: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20),
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: screenWidth * 0.05, // Responsive font size
+                    ),
                   ),
                   CustomIconButton(
                     icon: Icons.edit,
@@ -53,7 +57,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         body: Padding(
-          padding: const EdgeInsets.fromLTRB(30, 16, 30, 16),
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08, vertical: screenHeight * 0.02), // Responsive padding
           child: Align(
             alignment: Alignment.topCenter,
             child: Column(
@@ -71,7 +75,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: screenHeight * 0.03), // Responsive space
                 // Nút đăng xuất
                 InteractiveRowWidget(
                   leadingIcon: Icons.logout,

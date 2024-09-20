@@ -20,19 +20,22 @@ class InteractiveRowWidget extends StatelessWidget {
     final textColor = isSelected ? const Color(0xFF24BAEC) : Colors.black;
     final iconColor = isSelected ? const Color(0xFF24BAEC) : Colors.grey;
 
+    // Use MediaQuery to make the widget responsive
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 23, horizontal: 16),
+        padding: EdgeInsets.symmetric(vertical: screenWidth * 0.05, horizontal: screenWidth * 0.03), // Reduced padding
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8), // Reduced border radius
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.1),
               spreadRadius: 0.5,
-              blurRadius: 3,
-              offset: const Offset(0, 3),
+              blurRadius: 2, // Reduced blur radius
+              offset: const Offset(0, 2), // Reduced offset
             ),
           ],
         ),
@@ -42,11 +45,11 @@ class InteractiveRowWidget extends StatelessWidget {
             Row(
               children: [
                 Icon(leadingIcon, color: textColor),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12), // Reduced space
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: screenWidth * 0.04, // Reduced font size
                     fontWeight: FontWeight.bold,
                     color: textColor,
                   ),

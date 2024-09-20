@@ -21,14 +21,17 @@ class ProfileScreen extends StatelessWidget {
           MaterialPageRoute(builder: (context) => LoginScreen()),
         );
       });
-      return const SizedBox.shrink(); // Trả về widget trống trong khi chuyển hướng
+      return const SizedBox.shrink(); // Returns an empty widget while redirecting
     }
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(100.0),
+          preferredSize: Size.fromHeight(screenHeight * 0.13), // Slightly increased height
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -45,13 +48,13 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   Text(
                     AppLocalizations.of(context).translate('Profile'),
-                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: screenWidth * 0.05), // Increased font size
                   ),
                   CustomIconButton(
                     icon: Icons.edit,
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Nút chỉnh sửa đã được bấm')),
+                        const SnackBar(content: Text('Edit button pressed')),
                       );
                     },
                   ),
@@ -61,86 +64,36 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         body: Padding(
-          padding: const EdgeInsets.fromLTRB(30, 16, 30, 16),
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06, vertical: screenHeight * 0.01), // Slightly increased padding
           child: Align(
             alignment: Alignment.topCenter,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const CircleAvatar(
-                  radius: 70,
+                  radius: 70, // Slightly increased size
                   backgroundImage: NetworkImage(
                     'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: screenHeight * 0.025), // Slightly increased height
                 Text(
                   profileViewModel.name,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: screenWidth * 0.055, fontWeight: FontWeight.bold), // Increased font size
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: screenHeight * 0.015),
                 Text(
                   profileViewModel.email,
-                  style: const TextStyle(fontSize: 18, color: Colors.grey),
+                  style: TextStyle(fontSize: screenWidth * 0.045, color: Colors.grey),
                 ),
-                const SizedBox(height: 40),
-                _buildStatsRow(context),
-                const SizedBox(height: 20),
-                InteractiveRowWidget(
-                  leadingIcon: Icons.location_pin,
-                  title: AppLocalizations.of(context).translate('Favourite Destinations'),
-                  trailingIcon: Icons.chevron_right,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Notifications clicked')),
-                    );
-                  },
-                ),
-                const SizedBox(height: 5),
-                InteractiveRowWidget(
-                  leadingIcon: Icons.history,
-                  title: AppLocalizations.of(context).translate('Travel History'),
-                  trailingIcon: Icons.chevron_right,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Notifications clicked')),
-                    );
-                  },
-                ),
-                const SizedBox(height: 5),
-                InteractiveRowWidget(
-                  leadingIcon: Icons.car_crash,
-                  title: AppLocalizations.of(context).translate('Vehicle Rental Registration'),
-                  trailingIcon: Icons.chevron_right,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Notifications clicked')),
-                    );
-                  },
-                ),
-                const SizedBox(height: 5),
-                InteractiveRowWidget(
-                  leadingIcon: Icons.feedback,
-                  title: AppLocalizations.of(context).translate('Feedback'),
-                  trailingIcon: Icons.chevron_right,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Notifications clicked')),
-                    );
-                  },
-                ),
-                const SizedBox(height: 5),
-                InteractiveRowWidget(
-                  leadingIcon: Icons.settings,
-                  title: AppLocalizations.of(context).translate('Settings'),
-                  trailingIcon: Icons.chevron_right,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SettingsScreen()),
-                    );
-                  },
-                ),
+                SizedBox(height: screenHeight * 0.035), // Increased height
+                _buildStatsRow(context, screenWidth, screenHeight),
+                SizedBox(height: screenHeight * 0.015), // Increased height
+                _buildInteractiveRow(context, Icons.location_pin, 'Favourite Destinations'),
+                _buildInteractiveRow(context, Icons.history, 'Travel History'),
+                _buildInteractiveRow(context, Icons.car_crash, 'Vehicle Rental Registration'),
+                _buildInteractiveRow(context, Icons.feedback, 'Feedback'),
+                _buildInteractiveRow(context, Icons.settings, 'Settings', navigateToSettings: true),
               ],
             ),
           ),
@@ -149,7 +102,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow(BuildContext context) {
+  Widget _buildStatsRow(BuildContext context, double screenWidth, double screenHeight) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -163,29 +116,29 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+      padding: EdgeInsets.fromLTRB(0, screenHeight * 0.015, 0, screenHeight * 0.015), // Increased padding
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildStatsColumn(context, AppLocalizations.of(context).translate('Reward Points'), '360'),
-          const SizedBox(width: 30),
-          _buildStatsColumn(context, AppLocalizations.of(context).translate('Travel Trips'), '238'),
-          const SizedBox(width: 30),
-          _buildStatsColumn(context, AppLocalizations.of(context).translate('Bucket Lists'), '473'),
+          _buildStatsColumn(context, AppLocalizations.of(context).translate('Reward Points'), '360', screenWidth),
+          const SizedBox(width: 25), // Increased space
+          _buildStatsColumn(context, AppLocalizations.of(context).translate('Travel Trips'), '238', screenWidth),
+          const SizedBox(width: 25), // Increased space
+          _buildStatsColumn(context, AppLocalizations.of(context).translate('Bucket Lists'), '473', screenWidth),
         ],
       ),
     );
   }
 
-  Widget _buildStatsColumn(BuildContext context, String title, String value) {
+  Widget _buildStatsColumn(BuildContext context, String title, String value, double screenWidth) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Increased font size
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 8), // Increased space
         Text(
           value,
           style: const TextStyle(
@@ -195,6 +148,26 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildInteractiveRow(BuildContext context, IconData leadingIcon, String title, {bool navigateToSettings = false}) {
+    return InteractiveRowWidget(
+      leadingIcon: leadingIcon,
+      title: AppLocalizations.of(context).translate(title),
+      trailingIcon: Icons.chevron_right,
+      onTap: () {
+        if (navigateToSettings) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SettingsScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Row clicked')),
+          );
+        }
+      },
     );
   }
 }

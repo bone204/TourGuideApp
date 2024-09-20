@@ -12,20 +12,20 @@ class NavigationExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 70.0, // Chiều cao của BottomNavigationBar
-      color: Colors.white, // Màu nền của BottomNavigationBar
+      height: 92.0, 
+      color: Colors.white, 
       child: ClipPath(
         clipper: CustomBottomBarClipper(),
         child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed, // Đảm bảo các tab cách đều và không thay đổi kích thước
+          type: BottomNavigationBarType.fixed, 
           currentIndex: currentIndex,
           onTap: onTap,
-          selectedItemColor: const Color(0xFF24BAEC), // Màu cho mục đã chọn
-          unselectedItemColor: const Color(0xFF7D848D), // Màu cho mục chưa chọn
+          selectedItemColor: const Color(0xFF24BAEC), 
+          unselectedItemColor: const Color(0xFF7D848D), 
           selectedLabelStyle: const TextStyle(fontSize: 16),
           unselectedLabelStyle: const TextStyle(fontSize: 16),
           showUnselectedLabels: true,
-          backgroundColor: Colors.white, // Đặt nền của BottomNavigationBar thành trong suốt
+          backgroundColor: Colors.white, 
           items:  [
             BottomNavigationBarItem(
               icon: const Icon(Icons.home),

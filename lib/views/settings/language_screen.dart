@@ -16,12 +16,12 @@ class _LanguageScreenState extends State<LanguageScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Cập nhật locale hiện tại
+    // Update current locale
     _selectedLocale = Localizations.localeOf(context);
   }
 
   Future<void> _onLocaleChange(Locale locale) async {
-  // Hiển thị hộp thoại xác nhận trước khi đổi ngôn ngữ
+    // Show confirmation dialog before changing language
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -33,25 +33,25 @@ class _LanguageScreenState extends State<LanguageScreen> {
             TextButton(
               child: Text(AppLocalizations.of(context).translate('Cancel')),
               onPressed: () {
-                Navigator.of(context).pop(); // Đóng hộp thoại mà không làm gì cả
+                Navigator.of(context).pop(); // Close dialog without action
               },
             ),
             TextButton(
               child: Text(AppLocalizations.of(context).translate('OK')),
               onPressed: () async {
-                Navigator.of(context).pop(); // Đóng hộp thoại
+                Navigator.of(context).pop(); // Close dialog
 
-                // Đăng xuất người dùng
+                // Sign out the user
                 await FirebaseAuth.instance.signOut();
 
-                // Sau khi đăng xuất, mới đổi ngôn ngữ
+                // Change language after signing out
                 MyApp.setLocale(context, locale);
 
-                // Reload lại ứng dụng sau khi đổi ngôn ngữ
+                // Reload the app after changing language
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => MyApp()),
-                  (route) => false, // Xóa tất cả các màn hình hiện tại trong stack
+                  (route) => false, // Clear all current screens in stack
                 );
               },
             ),
@@ -61,67 +61,71 @@ class _LanguageScreenState extends State<LanguageScreen> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(100.0),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          flexibleSpace: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CustomIconButton(
-                  icon: Icons.chevron_left,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                Text(
-                  AppLocalizations.of(context).translate('Select Language'),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return SafeArea(
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.13), // Responsive height
+          child: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            flexibleSpace: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomIconButton(
+                    icon: Icons.chevron_left,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
                   ),
-                ),
-                CustomIconButton(
-                  icon: Icons.edit,
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Edit button pressed')),
-                    );
-                  },
-                ),
-              ],
+                  Text(
+                    AppLocalizations.of(context).translate('Select Language'),
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: screenWidth * 0.05, // Responsive font size
+                    ),
+                  ),
+                  CustomIconButton(
+                    icon: Icons.edit,
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Edit button pressed')),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        children: [
-          InteractiveRowWidget(
-            leadingIcon: Icons.language,
-            title: AppLocalizations.of(context).translate('English'),
-            trailingIcon: Icons.check,
-            onTap: () => _onLocaleChange(const Locale('en')),
-            isSelected: _selectedLocale?.languageCode == 'en',
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04), // Responsive padding
+          child: ListView(
+            children: [
+              InteractiveRowWidget(
+                leadingIcon: Icons.language,
+                title: AppLocalizations.of(context).translate('English'),
+                trailingIcon: Icons.check,
+                onTap: () => _onLocaleChange(const Locale('en')),
+                isSelected: _selectedLocale?.languageCode == 'en',
+              ),
+              const SizedBox(height: 10),
+              InteractiveRowWidget(
+                leadingIcon: Icons.language,
+                title: AppLocalizations.of(context).translate('Vietnamese'),
+                trailingIcon: Icons.check,
+                onTap: () => _onLocaleChange(const Locale('vi')),
+                isSelected: _selectedLocale?.languageCode == 'vi',
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          InteractiveRowWidget(
-            leadingIcon: Icons.language,
-            title: AppLocalizations.of(context).translate('Vietnamese'),
-            trailingIcon: Icons.check,
-            onTap: () => _onLocaleChange(const Locale('vi')),
-            isSelected: _selectedLocale?.languageCode == 'vi',
-          ),
-        ],
+        ),
       ),
     );
   }

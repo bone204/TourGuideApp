@@ -30,12 +30,12 @@ class SignupScreen extends StatelessWidget {
                   AppLocalizations.of(context).translate('Sign up now'), // Lấy chuỗi 'Sign up now' từ localization
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 34),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 Text(
                   AppLocalizations.of(context).translate('Please fill the details and create account'), // Dịch
                   style: const TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 40),
                 Container(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -54,15 +54,15 @@ class SignupScreen extends StatelessWidget {
                       CustomPasswordField(
                         controller: _passwordController,
                       ),
-                      const SizedBox(height: 12.0),
+                      const SizedBox(height: 16.0),
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
                           AppLocalizations.of(context).translate("Password must be at least 8 characters long"), // Dịch
-                          style: const TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
+                          style: const TextStyle(fontSize: 14, color: Color(0xFF7D848D)),
                         ),
                       ),
-                      const SizedBox(height: 30.0),
+                      const SizedBox(height: 40.0),
                       ElevatedButton(
                         onPressed: signupViewModel.isLoading
                             ? null
@@ -99,7 +99,7 @@ class SignupScreen extends StatelessWidget {
                                 style: const TextStyle(color: Colors.white, fontSize: 20),
                               ),
                       ),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 40),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
