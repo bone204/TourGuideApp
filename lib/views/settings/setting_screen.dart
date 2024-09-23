@@ -13,86 +13,94 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(screenHeight * 0.13), // Responsive height
+          preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.13), // Responsive height
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
             automaticallyImplyLeading: false,
             flexibleSpace: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomIconButton(
-                    icon: Icons.chevron_left,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  Text(
-                    AppLocalizations.of(context).translate('Settings'),
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: screenWidth * 0.05, // Responsive font size
-                    ),
-                  ),
-                  CustomIconButton(
-                    icon: Icons.edit,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Edit button pressed')),
-                      );
-                    },
-                  ),
-                ],
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CustomIconButton(
+                        icon: Icons.chevron_left,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      Flexible(
+                        child: Text(
+                          AppLocalizations.of(context).translate('Settings'),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: constraints.maxWidth * 0.05, // Responsive font size
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      CustomIconButton(
+                        icon: Icons.edit,
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Edit button pressed')),
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
         ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08, vertical: screenHeight * 0.02), // Responsive padding
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Tùy chọn ngôn ngữ
-                InteractiveRowWidget(
-                  leadingIcon: Icons.language,
-                  title: AppLocalizations.of(context).translate('language'),
-                  trailingIcon: Icons.chevron_right,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LanguageScreen()),
-                    );
-                  },
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: constraints.maxWidth * 0.08, vertical: constraints.maxHeight * 0.02), // Responsive padding
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Tùy chọn ngôn ngữ
+                    InteractiveRowWidget(
+                      leadingIcon: Icons.language,
+                      title: AppLocalizations.of(context).translate('language'),
+                      trailingIcon: Icons.chevron_right,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LanguageScreen()),
+                        );
+                      },
+                    ),
+                    SizedBox(height: constraints.maxHeight * 0.03), // Responsive space
+                    // Nút đăng xuất
+                    InteractiveRowWidget(
+                      leadingIcon: Icons.logout,
+                      title: AppLocalizations.of(context).translate('Sign Out'),
+                      trailingIcon: Icons.chevron_right,
+                      onTap: () {
+                        FirebaseAuth.instance.signOut();
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          "/",
+                          (route) => false,
+                        );
+                      },
+                    ),
+                  ],
                 ),
-                SizedBox(height: screenHeight * 0.03), // Responsive space
-                // Nút đăng xuất
-                InteractiveRowWidget(
-                  leadingIcon: Icons.logout,
-                  title: AppLocalizations.of(context).translate('Sign Out'),
-                  trailingIcon: Icons.chevron_right,
-                  onTap: () {
-                    FirebaseAuth.instance.signOut();
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      "/",
-                      (route) => false,
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
