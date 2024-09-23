@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/main.dart';
 import 'package:tourguideapp/widgets/interactive_row_widget.dart';  // Import InteractiveRowWidget
@@ -20,45 +19,11 @@ class _LanguageScreenState extends State<LanguageScreen> {
     _selectedLocale = Localizations.localeOf(context);
   }
 
-  Future<void> _onLocaleChange(Locale locale) async {
-    // Show confirmation dialog before changing language
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(AppLocalizations.of(context).translate('Confirm')),
-          content: Text(AppLocalizations.of(context).translate(
-              'This action will log you out and restart the app. Do you want to proceed?')),
-          actions: <Widget>[
-            TextButton(
-              child: Text(AppLocalizations.of(context).translate('Cancel')),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog without action
-              },
-            ),
-            TextButton(
-              child: Text(AppLocalizations.of(context).translate('OK')),
-              onPressed: () async {
-                Navigator.of(context).pop(); // Close dialog
-
-                // Sign out the user
-                await FirebaseAuth.instance.signOut();
-
-                // Change language after signing out
-                MyApp.setLocale(context, locale);
-
-                // Reload the app after changing language
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyApp()),
-                  (route) => false, // Clear all current screens in stack
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
+  void _onLocaleChange(Locale locale) {
+    setState(() {
+      _selectedLocale = locale;
+    });
+    MyApp.setLocale(context, locale);
   }
 
   @override

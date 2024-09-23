@@ -45,30 +45,6 @@ class HomeScreen extends StatelessWidget {
       ),
     ];
 
-    final List<VerticalCardData> verticalCards = [
-      VerticalCardData(
-        imageUrl:
-            'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        placeName: 'Place 1',
-        description: 'Description for Place 1',
-        price: r'$160.05',
-      ),
-      VerticalCardData(
-        imageUrl:
-            'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        placeName: 'Place 2',
-        description: 'Description for Place 2',
-        price: r'$180.75',
-      ),
-      VerticalCardData(
-        imageUrl:
-            'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        placeName: 'Place 3',
-        description: 'Description for Place 3',
-        price: r'$200.00',
-      ),
-    ];
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -97,7 +73,31 @@ class HomeScreen extends StatelessWidget {
                 viewAllColor: Color(0xFFFF7029),
               ),
               SizedBox(height: screenWidth * 0.025),
-              VerticalCardListView(cardDataList: verticalCards),
+              HorizontalCardListView(cardDataList: horizontalCards),
+              SizedBox(height: screenWidth * 0.05),
+              const SectionHeadline(
+                title: "Recommended",
+                subtitle: "Top picks for you",
+                viewAllColor: Color(0xFFFF7029),
+              ),
+              SizedBox(height: screenWidth * 0.025),
+              HorizontalCardListView(cardDataList: horizontalCards),
+              SizedBox(height: screenWidth * 0.05),
+              const SectionHeadline(
+                title: "Trending",
+                subtitle: "Popular destinations",
+                viewAllColor: Color(0xFFFF7029),
+              ),
+              SizedBox(height: screenWidth * 0.025),
+              HorizontalCardListView(cardDataList: horizontalCards),
+              SizedBox(height: screenWidth * 0.05),
+              const SectionHeadline(
+                title: "New Arrivals",
+                subtitle: "Recently added places",
+                viewAllColor: Color(0xFFFF7029),
+              ),
+              SizedBox(height: screenWidth * 0.025),
+              HorizontalCardListView(cardDataList: horizontalCards),
               SizedBox(height: screenWidth * 0.05),
             ],
           ),

@@ -21,7 +21,7 @@ class ProfileScreen extends StatelessWidget {
           MaterialPageRoute(builder: (context) => LoginScreen()),
         );
       });
-      return const SizedBox.shrink(); // Returns an empty widget while redirecting
+      return const SizedBox.shrink();
     }
 
     final screenWidth = MediaQuery.of(context).size.width;
@@ -31,7 +31,7 @@ class ProfileScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(screenHeight * 0.13), // Slightly increased height
+          preferredSize: Size.fromHeight(screenHeight * 0.13),
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -48,7 +48,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   Text(
                     AppLocalizations.of(context).translate('Profile'),
-                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: screenWidth * 0.05), // Increased font size
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: screenWidth * 0.05),
                   ),
                   CustomIconButton(
                     icon: Icons.edit,
@@ -64,36 +64,42 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06, vertical: screenHeight * 0.01), // Slightly increased padding
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06, vertical: screenHeight * 0.01),
           child: Align(
             alignment: Alignment.topCenter,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const CircleAvatar(
-                  radius: 70, // Slightly increased size
+                  radius: 70,
                   backgroundImage: NetworkImage(
                     'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.025), // Slightly increased height
+                SizedBox(height: screenHeight * 0.025),
                 Text(
                   profileViewModel.name,
-                  style: TextStyle(fontSize: screenWidth * 0.055, fontWeight: FontWeight.bold), // Increased font size
+                  style: TextStyle(fontSize: screenWidth * 0.055, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: screenHeight * 0.015),
                 Text(
                   profileViewModel.email,
                   style: TextStyle(fontSize: screenWidth * 0.045, color: Colors.grey),
                 ),
-                SizedBox(height: screenHeight * 0.035), // Increased height
+                SizedBox(height: screenHeight * 0.035),
                 _buildStatsRow(context, screenWidth, screenHeight),
-                SizedBox(height: screenHeight * 0.015), // Increased height
-                _buildInteractiveRow(context, Icons.location_pin, 'Favourite Destinations'),
-                _buildInteractiveRow(context, Icons.history, 'Travel History'),
-                _buildInteractiveRow(context, Icons.car_crash, 'Vehicle Rental Registration'),
-                _buildInteractiveRow(context, Icons.feedback, 'Feedback'),
-                _buildInteractiveRow(context, Icons.settings, 'Settings', navigateToSettings: true),
+                SizedBox(height: screenHeight * 0.015),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      _buildInteractiveRow(context, Icons.location_pin, 'Favourite Destinations'),
+                      _buildInteractiveRow(context, Icons.history, 'Travel History'),
+                      _buildInteractiveRow(context, Icons.car_crash, 'Vehicle Rental Registration'),
+                      _buildInteractiveRow(context, Icons.feedback, 'Feedback'),
+                      _buildInteractiveRow(context, Icons.settings, 'Settings', navigateToSettings: true),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -116,14 +122,14 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      padding: EdgeInsets.fromLTRB(0, screenHeight * 0.015, 0, screenHeight * 0.015), // Increased padding
+      padding: EdgeInsets.fromLTRB(0, screenHeight * 0.015, 0, screenHeight * 0.015),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _buildStatsColumn(context, AppLocalizations.of(context).translate('Reward Points'), '360', screenWidth),
-          const SizedBox(width: 25), // Increased space
+          const SizedBox(width: 25),
           _buildStatsColumn(context, AppLocalizations.of(context).translate('Travel Trips'), '238', screenWidth),
-          const SizedBox(width: 25), // Increased space
+          const SizedBox(width: 25),
           _buildStatsColumn(context, AppLocalizations.of(context).translate('Bucket Lists'), '473', screenWidth),
         ],
       ),
@@ -136,13 +142,13 @@ class ProfileScreen extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Increased font size
+          style: TextStyle(fontSize: screenWidth * 0.04, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 8), // Increased space
+        const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 16,
+          style: TextStyle(
+            fontSize: screenWidth * 0.04,
             color: Color(0xFFFF7029),
             fontWeight: FontWeight.bold,
           ),

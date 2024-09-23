@@ -22,8 +22,8 @@ class NavigationExample extends StatelessWidget {
           onTap: onTap,
           selectedItemColor: const Color(0xFF24BAEC), 
           unselectedItemColor: const Color(0xFF7D848D), 
-          selectedLabelStyle: const TextStyle(fontSize: 16),
-          unselectedLabelStyle: const TextStyle(fontSize: 16),
+          selectedLabelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          unselectedLabelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           showUnselectedLabels: true,
           backgroundColor: Colors.white, 
           items:  [
