@@ -4,6 +4,8 @@ import 'package:flutter_map/flutter_map.dart'; // Thư viện bản đồ Flutte
 import 'package:latlong2/latlong.dart'; // Quản lý tọa độ LatLng
 
 class ExploreScreen extends StatefulWidget {
+  const ExploreScreen({super.key});
+
   @override
   _ExploreScreenState createState() => _ExploreScreenState();
 }

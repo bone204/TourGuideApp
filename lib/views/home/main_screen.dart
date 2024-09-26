@@ -6,6 +6,8 @@ import '../car_rental/car_rental_screen.dart';
 import '../user/profile_screen.dart'; 
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -14,9 +16,9 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    HomeScreen(),
+    const HomeScreen(),
     ExploreScreen(),
-    CarRentalScreen(),
+    const CarRentalScreen(),  
     // Do not include ProfileScreen here, handle navigation separately
   ];
 

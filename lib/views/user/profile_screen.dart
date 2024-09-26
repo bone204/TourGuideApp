@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourguideapp/views/settings/setting_screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../viewmodels/profile_viewmodel.dart';
 import '../auth/login_screen.dart';
 import '../../localization/app_localizations.dart';
@@ -9,8 +10,11 @@ import '../../widgets/custom_icon_button.dart';
 import '../../widgets/interactive_row_widget.dart';
 
 class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context, designSize: const Size(375, 812)); // Thiết lập kích thước màn hình
     final profileViewModel = Provider.of<ProfileViewModel>(context);
     final user = FirebaseAuth.instance.currentUser;
 
@@ -24,14 +28,11 @@ class ProfileScreen extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(screenHeight * 0.13),
+          preferredSize: Size.fromHeight(100.h), 
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -48,7 +49,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   Text(
                     AppLocalizations.of(context).translate('Profile'),
-                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: screenWidth * 0.05),
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20.sp),
                   ),
                   CustomIconButton(
                     icon: Icons.edit,
@@ -64,7 +65,7 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06, vertical: screenHeight * 0.01),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
           child: Align(
             alignment: Alignment.topCenter,
             child: Column(
@@ -76,26 +77,30 @@ class ProfileScreen extends StatelessWidget {
                     'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.025),
+                SizedBox(height: 16.h),
                 Text(
                   profileViewModel.name,
-                  style: TextStyle(fontSize: screenWidth * 0.055, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: screenHeight * 0.015),
+                SizedBox(height: 8.h),
                 Text(
                   profileViewModel.email,
-                  style: TextStyle(fontSize: screenWidth * 0.045, color: Colors.grey),
+                  style: TextStyle(fontSize: 14.sp, color: Colors.grey),
                 ),
-                SizedBox(height: screenHeight * 0.035),
-                _buildStatsRow(context, screenWidth, screenHeight),
-                SizedBox(height: screenHeight * 0.015),
+                SizedBox(height: 34.h),
+                _buildStatsRow(context),
+                SizedBox(height: 16.h),
                 Expanded(
                   child: ListView(
                     children: [
                       _buildInteractiveRow(context, Icons.location_pin, 'Favourite Destinations'),
+                      SizedBox(height: 16.h),
                       _buildInteractiveRow(context, Icons.history, 'Travel History'),
+                      SizedBox(height: 16.h),
                       _buildInteractiveRow(context, Icons.car_crash, 'Vehicle Rental Registration'),
+                      SizedBox(height: 16.h),
                       _buildInteractiveRow(context, Icons.feedback, 'Feedback'),
+                      SizedBox(height: 16.h),
                       _buildInteractiveRow(context, Icons.settings, 'Settings', navigateToSettings: true),
                     ],
                   ),
@@ -108,11 +113,11 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow(BuildContext context, double screenWidth, double screenHeight) {
+  Widget _buildStatsRow(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),  // Sử dụng ScreenUtil để điều chỉnh bo góc
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
@@ -122,34 +127,34 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      padding: EdgeInsets.fromLTRB(0, screenHeight * 0.015, 0, screenHeight * 0.015),
+      padding: EdgeInsets.symmetric(vertical: 15.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildStatsColumn(context, AppLocalizations.of(context).translate('Reward Points'), '360', screenWidth),
-          const SizedBox(width: 25),
-          _buildStatsColumn(context, AppLocalizations.of(context).translate('Travel Trips'), '238', screenWidth),
-          const SizedBox(width: 25),
-          _buildStatsColumn(context, AppLocalizations.of(context).translate('Bucket Lists'), '473', screenWidth),
+          _buildStatsColumn(context, AppLocalizations.of(context).translate('Reward Points'), '360'),
+          SizedBox(width: 25.w),
+          _buildStatsColumn(context, AppLocalizations.of(context).translate('Travel Trips'), '238'),
+          SizedBox(width: 25.w),
+          _buildStatsColumn(context, AppLocalizations.of(context).translate('Bucket Lists'), '473'),
         ],
       ),
     );
   }
 
-  Widget _buildStatsColumn(BuildContext context, String title, String value, double screenWidth) {
+  Widget _buildStatsColumn(BuildContext context, String title, String value) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: screenWidth * 0.04, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         Text(
           value,
           style: TextStyle(
-            fontSize: screenWidth * 0.04,
-            color: Color(0xFFFF7029),
+            fontSize: 16.sp,
+            color: const Color(0xFFFF7029),
             fontWeight: FontWeight.bold,
           ),
         ),

@@ -22,6 +22,8 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   MyAppState createState() => MyAppState();
 
@@ -69,7 +71,7 @@ class MyAppState extends State<MyApp> {
           }
           return supportedLocales.first;
         },
-        initialRoute: '/home', // Ensure this is the intended initial route
+        initialRoute: '/settings', // Ensure this is the intended initial route
         routes: {
           '/': (context) => LoginScreen(),
           '/signup': (context) => SignupScreen(),

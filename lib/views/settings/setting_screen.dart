@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';  // Import FirebaseAuth để đăng xuất
+import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth để đăng xuất
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/views/settings/account_information_screen.dart';
+import 'package:tourguideapp/views/settings/password_screen.dart';
+import 'package:tourguideapp/views/settings/person_information_screen.dart';
+import 'package:tourguideapp/views/settings/policy_term_screen.dart';
+import 'package:tourguideapp/views/settings/privacy_policy_screen.dart';
 import 'package:tourguideapp/widgets/interactive_row_widget.dart';
-import 'language_screen.dart';  // Import màn hình lựa chọn ngôn ngữ
+import 'language_screen.dart'; // Import màn hình lựa chọn ngôn ngữ
 import '../../widgets/custom_icon_button.dart';
 
 class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }
@@ -13,11 +21,13 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Khởi tạo ScreenUtil
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.13), // Responsive height
+          preferredSize: Size.fromHeight(100.h), // Chiều cao app bar
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -40,19 +50,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
-                            fontSize: constraints.maxWidth * 0.05, // Responsive font size
+                            fontSize: 20.sp, // Kích thước chữ sử dụng ScreenUtil
                           ),
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      CustomIconButton(
-                        icon: Icons.edit,
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Edit button pressed')),
-                          );
-                        },
-                      ),
+                      SizedBox(width: 84.w),
                     ],
                   );
                 },
@@ -60,47 +63,120 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ),
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: constraints.maxWidth * 0.08, vertical: constraints.maxHeight * 0.02), // Responsive padding
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Tùy chọn ngôn ngữ
-                    InteractiveRowWidget(
-                      leadingIcon: Icons.language,
-                      title: AppLocalizations.of(context).translate('language'),
-                      trailingIcon: Icons.chevron_right,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LanguageScreen()),
-                        );
-                      },
-                    ),
-                    SizedBox(height: constraints.maxHeight * 0.03), // Responsive space
-                    // Nút đăng xuất
-                    InteractiveRowWidget(
-                      leadingIcon: Icons.logout,
-                      title: AppLocalizations.of(context).translate('Sign Out'),
-                      trailingIcon: Icons.chevron_right,
-                      onTap: () {
-                        FirebaseAuth.instance.signOut();
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          "/",
-                          (route) => false,
-                        );
-                      },
-                    ),
-                  ],
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w), // Padding sử dụng ScreenUtil
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                AppLocalizations.of(context).translate('Account & Security'),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.sp, // Kích thước chữ sử dụng ScreenUtil
                 ),
+                textAlign: TextAlign.left,
               ),
-            );
-          },
+              SizedBox(height: 16.h),
+              InteractiveRowWidget(
+                leadingIcon: Icons.person,
+                title: AppLocalizations.of(context).translate('Personal Information'),
+                trailingIcon: Icons.chevron_right,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PersonInfoScreen()),
+                  );
+                },
+              ),
+              SizedBox(height: 16.h), // Responsive space sử dụng ScreenUtil
+              InteractiveRowWidget(
+                leadingIcon: Icons.account_circle_outlined,
+                title: AppLocalizations.of(context).translate('Account Information'),
+                trailingIcon: Icons.chevron_right,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AccountInfoScreen()),
+                  );
+                },
+              ),
+              SizedBox(height: 16.h),
+              InteractiveRowWidget(
+                leadingIcon: Icons.key,
+                title: AppLocalizations.of(context).translate('Change Password'),
+                trailingIcon: Icons.chevron_right,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PasswordScreen()),
+                  );
+                },
+              ),
+              SizedBox(height: 20.h),
+              Text(
+                AppLocalizations.of(context).translate('Settings'),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.sp, // Kích thước chữ sử dụng ScreenUtil
+                ),
+                textAlign: TextAlign.left,
+              ),
+              SizedBox(height: 16.h),
+              InteractiveRowWidget(
+                leadingIcon: Icons.language,
+                title: AppLocalizations.of(context).translate('language'),
+                trailingIcon: Icons.chevron_right,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LanguageScreen()),
+                  );
+                },
+              ),
+              SizedBox(height: 16.h),
+              InteractiveRowWidget(
+                leadingIcon: Icons.book,
+                title: AppLocalizations.of(context).translate('Policies & Terms'),
+                trailingIcon: Icons.chevron_right,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PolicyAndTermScreen()),
+                  );
+                },
+              ),
+              SizedBox(height: 16.h),
+              InteractiveRowWidget(
+                leadingIcon: Icons.lock,
+                title: AppLocalizations.of(context).translate('Privacy Policy'),
+                trailingIcon: Icons.chevron_right,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PrivacyPolicyScreen()),
+                  );
+                },
+              ),
+              SizedBox(height: 16.h), // Responsive space sử dụng ScreenUtil
+              // Nút đăng xuất
+              InteractiveRowWidget(
+                leadingIcon: Icons.logout,
+                title: AppLocalizations.of(context).translate('Sign Out'),
+                trailingIcon: Icons.chevron_right,
+                onTap: () {
+                  FirebaseAuth.instance.signOut();
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    "/",
+                    (route) => false,
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

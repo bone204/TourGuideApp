@@ -7,7 +7,7 @@ class NavigationExample extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  const NavigationExample({Key? key, required this.currentIndex, required this.onTap}) : super(key: key);
+  const NavigationExample({super.key, required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

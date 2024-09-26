@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/viewmodels/login_viewmodel.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/social_icon_button.dart';
@@ -13,32 +14,33 @@ class LoginScreen extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  LoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
+    ScreenUtil.init(context, designSize: const Size(375, 812));
     return ChangeNotifierProvider<LoginViewModel>(
       create: (_) => LoginViewModel(),
       child: Consumer<LoginViewModel>(
         builder: (context, loginViewModel, child) => Scaffold(
           backgroundColor: Colors.white,
           body: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(screenWidth * 0.05, 150, screenWidth * 0.05, 0),
+            padding: EdgeInsets.fromLTRB(20.w, 150.h, 20.w, 0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
                   AppLocalizations.of(context).translate('Sign in now'),
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: screenWidth * 0.09),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26.sp),
                 ),
-                SizedBox(height: screenWidth * 0.04),
+                SizedBox(height: 16.h),
                 Text(
                   AppLocalizations.of(context).translate('Please sign in to continue using our app'),
-                  style: TextStyle(fontSize: screenWidth * 0.04, color: Color(0xFF7D848D)),
+                  style: TextStyle(fontSize: 16.sp, color: const Color(0xFF7D848D)),
                 ),
-                SizedBox(height: screenWidth * 0.1),
+                SizedBox(height: 40.h),
                 Container(
-                  padding: EdgeInsets.all(screenWidth * 0.04),
+                  padding: EdgeInsets.all(15.w),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -46,7 +48,7 @@ class LoginScreen extends StatelessWidget {
                         hintText: AppLocalizations.of(context).translate('Email'),
                         controller: _emailController,
                       ),
-                      SizedBox(height: screenWidth * 0.02),
+                      SizedBox(height: 16.h),
                       CustomPasswordField(
                         controller: _passwordController,
                       ),
@@ -58,11 +60,11 @@ class LoginScreen extends StatelessWidget {
                           },
                           child: Text(
                             AppLocalizations.of(context).translate('Forgot Password?'),
-                            style: TextStyle(fontSize: screenWidth * 0.02, color: Color(0xFFFF7029)),
+                            style: TextStyle(fontSize: 14.sp, color: const Color(0xFFFF7029)),
                           ),
                         ),
                       ),
-                      SizedBox(height: screenWidth * 0.04),
+                      SizedBox(height: 30.h),
                       ElevatedButton(
                         onPressed: loginViewModel.isLoading
                             ? null
@@ -81,29 +83,34 @@ class LoginScreen extends StatelessWidget {
                                 }
                               },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF24BAEC),
-                          minimumSize: const Size(double.infinity, 50),
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          backgroundColor: const Color(0xFF007BFF),
+                          minimumSize: Size(double.infinity, 50.h),
+                          padding: EdgeInsets.symmetric(vertical: 16.h),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
+                            borderRadius: BorderRadius.circular(8.r),
                           ),
                         ),
                         child: loginViewModel.isLoading
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
+                            ? SizedBox(
+                                width: 20.w,
+                                height: 20.h,
+                                child: const CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
                               )
                             : Text(
                                 AppLocalizations.of(context).translate('Sign In'),
-                                style: const TextStyle(color: Colors.white, fontSize: 20),
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16.sp),
                               ),
                       ),
-                      SizedBox(height: screenWidth * 0.1),
+                      SizedBox(height: 40.h),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             AppLocalizations.of(context).translate("Don't have an account?"),
-                            style: const TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
+                            style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
                           ),
                           TextButton(
                             onPressed: () {
@@ -114,19 +121,19 @@ class LoginScreen extends StatelessWidget {
                             },
                             child: Text(
                               AppLocalizations.of(context).translate('Sign up'),
-                              style: const TextStyle(fontSize: 16, color: Color(0xFFFF7029)),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp, color: const Color(0xFFFF7029)),
                             ),
                           ),
                         ],
                       ),
                       Text(
                         AppLocalizations.of(context).translate('Or connect'),
-                        style: const TextStyle(fontSize: 16, color: Color(0xFF7D848D)),
+                        style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: screenWidth * 0.1),
+                SizedBox(height: 40.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -137,7 +144,7 @@ class LoginScreen extends StatelessWidget {
                         // Handle Facebook login
                       },
                     ),
-                    SizedBox(width: screenWidth * 0.03),
+                    SizedBox(width: 30.w),
                     SocialIconButton(
                       icon: FontAwesomeIcons.google,
                       color: const Color(0xFFDB4437),
@@ -154,12 +161,12 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (loginViewModel.errorMessage != null) // Hiển thị thông báo lỗi nếu có
+                if (loginViewModel.errorMessage != null)
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: EdgeInsets.all(16.w),
                     child: Text(
                       loginViewModel.errorMessage!,
-                      style: const TextStyle(color: Colors.red),
+                      style: TextStyle(color: Colors.red, fontSize: 14.sp),
                     ),
                   ),
               ],

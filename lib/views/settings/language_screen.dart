@@ -3,8 +3,11 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/main.dart';
 import 'package:tourguideapp/widgets/interactive_row_widget.dart';  // Import InteractiveRowWidget
 import '../../widgets/custom_icon_button.dart';  // Import CustomIconButton
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 
 class LanguageScreen extends StatefulWidget {
+  const LanguageScreen({super.key});
+
   @override
   _LanguageScreenState createState() => _LanguageScreenState();
 }
@@ -28,12 +31,12 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Initialize ScreenUtil
 
     return SafeArea(
       child: Scaffold(
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.13), // Responsive height
+          preferredSize: Size.fromHeight(100.h), // Responsive height
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -53,24 +56,17 @@ class _LanguageScreenState extends State<LanguageScreen> {
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
-                      fontSize: screenWidth * 0.05, // Responsive font size
+                      fontSize: 20.sp, // Responsive font size using ScreenUtil
                     ),
                   ),
-                  CustomIconButton(
-                    icon: Icons.edit,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Edit button pressed')),
-                      );
-                    },
-                  ),
+                  SizedBox(width: 84.w), // Maintain space for the removed edit button
                 ],
               ),
             ),
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04), // Responsive padding
+          padding: EdgeInsets.symmetric(horizontal: 20.w), // Responsive padding
           child: ListView(
             children: [
               InteractiveRowWidget(
@@ -80,7 +76,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                 onTap: () => _onLocaleChange(const Locale('en')),
                 isSelected: _selectedLocale?.languageCode == 'en',
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
               InteractiveRowWidget(
                 leadingIcon: Icons.language,
                 title: AppLocalizations.of(context).translate('Vietnamese'),

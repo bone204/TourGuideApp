@@ -3,9 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
 import 'package:tourguideapp/widgets/horizontal_card.dart';
-import 'package:tourguideapp/widgets/vertical_card.dart';
 import 'package:tourguideapp/widgets/horizontal_card_list_view.dart';
-import 'package:tourguideapp/widgets/vertical_card_list_view.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

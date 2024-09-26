@@ -5,17 +5,23 @@ import 'package:flutter/material.dart';
 
 class AppLocalizations {
   final Locale locale;
+  Map<String, String> _localizedStrings = {}; // Khởi tạo với một Map rỗng
 
-  AppLocalizations(this.locale);
+  AppLocalizations(this.locale) {
+    load(); // Gọi load() trong constructor
+  }
 
   static AppLocalizations of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+    final localizations = Localizations.of<AppLocalizations>(context, AppLocalizations);
+    if (localizations != null && localizations._localizedStrings.isNotEmpty) {
+      return localizations;
+    }
+    // Nếu không tìm thấy bản địa hóa hoặc bản dịch chưa được tải, trả về bản địa hóa mặc định
+    return AppLocalizations(const Locale('en'));
   }
 
   static const LocalizationsDelegate<AppLocalizations> delegate =
       _AppLocalizationsDelegate();
-
-  late Map<String, String> _localizedStrings;
 
   Future<bool> load() async {
     try {
@@ -30,9 +36,22 @@ class AppLocalizations {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print("Error loading localization file: $e");
+        print("Lỗi khi tải tệp bản địa hóa: $e");
       }
-      return false;
+      // Tải tệp ngôn ngữ mặc định nếu không tìm thấy tệp cho ngôn ngữ hiện tại
+      try {
+        String defaultJsonString = await rootBundle.loadString('assets/lang/en.json');
+        Map<String, dynamic> defaultJsonMap = json.decode(defaultJsonString);
+        _localizedStrings = defaultJsonMap.map((key, value) {
+          return MapEntry(key, value.toString());
+        });
+        return true;
+      } catch (e) {
+        if (kDebugMode) {
+          print("Lỗi khi tải tệp bản địa hóa mặc định: $e");
+        }
+        return false;
+      }
     }
   }
 
