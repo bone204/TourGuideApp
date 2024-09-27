@@ -27,44 +27,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(100.h), // Chiều cao app bar
+          preferredSize: Size.fromHeight(60.h), // Chiều cao app bar
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
             automaticallyImplyLeading: false,
-            flexibleSpace: Center(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CustomIconButton(
-                        icon: Icons.chevron_left,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      Flexible(
-                        child: Text(
-                          AppLocalizations.of(context).translate('Settings'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp, // Kích thước chữ sử dụng ScreenUtil
-                          ),
-                          textAlign: TextAlign.center,
+            flexibleSpace: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [ 
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomIconButton(
+                          icon: Icons.chevron_left,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
                         ),
-                      ),
-                      SizedBox(width: 84.w),
-                    ],
-                  );
-                },
-              ),
+                        Flexible(
+                          child: Text(
+                            AppLocalizations.of(context).translate('Settings'),
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20.sp, // Kích thước chữ sử dụng ScreenUtil
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        SizedBox(width: 84.w),
+                      ],
+                    );
+                  },
+                ),
+              ]
             ),
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w), // Padding sử dụng ScreenUtil
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h), // Padding sử dụng ScreenUtil
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

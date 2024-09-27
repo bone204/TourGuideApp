@@ -26,7 +26,6 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
             Expanded(
               child: _buildVehicleList(),
             ),
-            _buildBottomNavigation(),
           ],
         ),
       ),

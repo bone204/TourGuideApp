@@ -35,38 +35,42 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(100.h), // Responsive height
+          preferredSize: Size.fromHeight(60.h), // Responsive height
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
             automaticallyImplyLeading: false,
-            flexibleSpace: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomIconButton(
-                    icon: Icons.chevron_left,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  Text(
-                    AppLocalizations.of(context).translate('Select Language'),
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.sp, // Responsive font size using ScreenUtil
+            flexibleSpace: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomIconButton(
+                      icon: Icons.chevron_left,
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
                     ),
-                  ),
-                  SizedBox(width: 84.w), // Maintain space for the removed edit button
-                ],
-              ),
+                    Text(
+                      AppLocalizations.of(context).translate('Select Language'),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.sp, // Responsive font size using ScreenUtil
+                      ),
+                    ),
+                    SizedBox(width: 84.w), // Maintain space for the removed edit button
+                  ],
+                ),
+              ]
             ),
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w), // Responsive padding
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h), // Responsive padding
           child: ListView(
             children: [
               InteractiveRowWidget(

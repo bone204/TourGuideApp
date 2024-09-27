@@ -20,46 +20,49 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(100.h), // Chiều cao app bar
+          preferredSize: Size.fromHeight(60.h), // Chiều cao app bar
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
             automaticallyImplyLeading: false,
-            flexibleSpace: Center(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CustomIconButton(
-                        icon: Icons.chevron_left,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      Flexible(
-                        child: Text(
-                          AppLocalizations.of(context).translate('Personal Information'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18.sp, // Kích thước chữ sử dụng ScreenUtil
-                          ),
-                          textAlign: TextAlign.center,
+            flexibleSpace: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomIconButton(
+                          icon: Icons.chevron_left,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
                         ),
-                      ),
-                      CustomIconButton(
-                        icon: Icons.edit,
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Edit button pressed')),
-                          );
-                        },
-                      ),
-                    ],
-                  );
-                },
-              ),
+                        Flexible(
+                          child: Text(
+                            AppLocalizations.of(context).translate('Personal Information'),
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.sp, // Kích thước chữ sử dụng ScreenUtil
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        CustomIconButton(
+                          icon: Icons.edit,
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Edit button pressed')),
+                            );
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ]
             ),
           ),
         ),
