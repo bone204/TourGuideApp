@@ -4,14 +4,16 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
 import 'package:tourguideapp/widgets/horizontal_card.dart';
 import 'package:tourguideapp/widgets/horizontal_card_list_view.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context, designSize: const Size(375, 812)); // Initialize ScreenUtil
+
     final homeViewModel = Provider.of<HomeViewModel>(context);
-    final screenWidth = MediaQuery.of(context).size.width;
 
     final List<HorizontalCardData> horizontalCards = [
       HorizontalCardData(
@@ -23,80 +25,39 @@ class HomeScreen extends StatelessWidget {
         rating: 4.5,
         ratingCount: 12,
       ),
-      HorizontalCardData(
-        imageUrl:
-            'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        placeName: 'Place 2',
-        description: 'Description for Place 2',
-        price: r'$180.75',
-        rating: 4.0,
-        ratingCount: 15,
-      ),
-      HorizontalCardData(
-        imageUrl:
-            'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        placeName: 'Place 3',
-        description: 'Description for Place 3',
-        price: r'$200.00',
-        rating: 4.0,
-        ratingCount: 15,
-      ),
+      // Add other card data here
     ];
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF9F9F9),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(screenWidth * 0.05),
+          padding: EdgeInsets.all(20.w), // Use ScreenUtil for padding
           child: Column(
             children: [
               UserHeader(
                 name: homeViewModel.name,
                 profileImageUrl: homeViewModel.profileImageUrl,
               ),
-              SizedBox(height: screenWidth * 0.05),
+              SizedBox(height: 20.h), // Adjust size with ScreenUtil
               const HeaderBar(),
-              SizedBox(height: screenWidth * 0.05),
+              SizedBox(height: 20.h),
               const SectionHeadline(
                 title: "Popular",
                 subtitle: "The best destination for you",
                 viewAllColor: Color(0xFFFF7029),
               ),
-              SizedBox(height: screenWidth * 0.025),
+              SizedBox(height: 10.h),
               HorizontalCardListView(cardDataList: horizontalCards),
-              SizedBox(height: screenWidth * 0.05),
+              SizedBox(height: 20.h),
               const SectionHeadline(
                 title: "Nearest Places",
                 subtitle: "The best destination close to you",
                 viewAllColor: Color(0xFFFF7029),
               ),
-              SizedBox(height: screenWidth * 0.025),
+              SizedBox(height: 10.h),
               HorizontalCardListView(cardDataList: horizontalCards),
-              SizedBox(height: screenWidth * 0.05),
-              const SectionHeadline(
-                title: "Recommended",
-                subtitle: "Top picks for you",
-                viewAllColor: Color(0xFFFF7029),
-              ),
-              SizedBox(height: screenWidth * 0.025),
-              HorizontalCardListView(cardDataList: horizontalCards),
-              SizedBox(height: screenWidth * 0.05),
-              const SectionHeadline(
-                title: "Trending",
-                subtitle: "Popular destinations",
-                viewAllColor: Color(0xFFFF7029),
-              ),
-              SizedBox(height: screenWidth * 0.025),
-              HorizontalCardListView(cardDataList: horizontalCards),
-              SizedBox(height: screenWidth * 0.05),
-              const SectionHeadline(
-                title: "New Arrivals",
-                subtitle: "Recently added places",
-                viewAllColor: Color(0xFFFF7029),
-              ),
-              SizedBox(height: screenWidth * 0.025),
-              HorizontalCardListView(cardDataList: horizontalCards),
-              SizedBox(height: screenWidth * 0.05),
+              // Add other sections similarly...
             ],
           ),
         ),
@@ -117,35 +78,33 @@ class UserHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
           decoration: BoxDecoration(
             color: const Color(0xFFF7F7F9),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(22.r), // Use ScreenUtil for radius
           ),
-          padding: EdgeInsets.all(screenWidth * 0.02),
+          padding: EdgeInsets.all(8.w), // Adjust padding
           child: Row(
             children: [
               CircleAvatar(
-                radius: screenWidth * 0.05,
+                radius: 22.w, // Use ScreenUtil for radius
                 backgroundImage: profileImageUrl.isNotEmpty
                     ? NetworkImage(profileImageUrl)
                     : null,
                 child: profileImageUrl.isEmpty
-                    ? Icon(Icons.person, color: Colors.grey[600])
+                    ? Icon(Icons.person, color: Colors.grey[600], size: 20.sp) // Adjust icon size
                     : null,
               ),
-              SizedBox(width: screenWidth * 0.03),
+              SizedBox(width: 12.w), // Adjust spacing
               Text(
                 name,
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
-                  fontSize: screenWidth * 0.04,
+                  fontSize: 16.sp, // Adjust text size
                 ),
               ),
             ],
@@ -154,10 +113,11 @@ class UserHeader extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             color: const Color(0xFFF7F7F9),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(20.r),
           ),
           child: IconButton(
             icon: const Icon(Icons.notifications),
+            iconSize: 24.sp, // Adjust icon size
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Notification button pressed')),
@@ -175,10 +135,8 @@ class HeaderBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Column(
@@ -188,10 +146,10 @@ class HeaderBar extends StatelessWidget {
               'Explore the',
               style: TextStyle(
                 color: Colors.black,
-                fontSize: screenWidth * 0.09,
+                fontSize: 38.sp, // Use ScreenUtil for text size
               ),
             ),
-            SizedBox(height: screenWidth * 0.01),
+            SizedBox(height: 5.h), // Adjust size
             RichText(
               text: TextSpan(
                 children: [
@@ -200,7 +158,7 @@ class HeaderBar extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
-                      fontSize: screenWidth * 0.09,
+                      fontSize: 38.sp, // Adjust text size
                     ),
                   ),
                   TextSpan(
@@ -208,7 +166,7 @@ class HeaderBar extends StatelessWidget {
                     style: TextStyle(
                       color: const Color(0xFFFF7029),
                       fontWeight: FontWeight.bold,
-                      fontSize: screenWidth * 0.09,
+                      fontSize: 34.sp,
                     ),
                   ),
                 ],
@@ -235,8 +193,6 @@ class SectionHeadline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -248,15 +204,15 @@ class SectionHeadline extends StatelessWidget {
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
-                fontSize: screenWidth * 0.05,
+                fontSize: 20.sp, // Adjust text size
               ),
             ),
-            SizedBox(height: screenWidth * 0.01),
+            SizedBox(height: 5.h), // Adjust spacing
             Text(
               AppLocalizations.of(context).translate(subtitle),
               style: TextStyle(
                 color: Colors.grey,
-                fontSize: screenWidth * 0.04,
+                fontSize: 14.sp, // Adjust text size
               ),
             ),
           ],
@@ -267,7 +223,7 @@ class SectionHeadline extends StatelessWidget {
             AppLocalizations.of(context).translate("View all"),
             style: TextStyle(
               color: viewAllColor,
-              fontSize: screenWidth * 0.04,
+              fontSize: 14.sp, // Adjust text size
             ),
           ),
         ),

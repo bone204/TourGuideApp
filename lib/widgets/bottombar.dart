@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'custom_bottom_bar_clip.dart'; // Import CustomBottomBarClipper
-
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
+import 'custom_bottom_bar_clip.dart'; 
 import 'package:tourguideapp/localization/app_localizations.dart';
 
 class NavigationExample extends StatelessWidget {
@@ -11,8 +11,16 @@ class NavigationExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize ScreenUtil
+    ScreenUtil.init(
+      context,
+      designSize: const Size(375, 812), // Define your design size
+      minTextAdapt: true,
+      splitScreenMode: true,
+    );
+
     return Container(
-      height: 92.0, 
+      height: 92.h, // Use ScreenUtil for height
       color: Colors.white, 
       child: ClipPath(
         clipper: CustomBottomBarClipper(),
@@ -22,25 +30,49 @@ class NavigationExample extends StatelessWidget {
           onTap: onTap,
           selectedItemColor: const Color(0xFF24BAEC), 
           unselectedItemColor: const Color(0xFF7D848D), 
-          selectedLabelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          unselectedLabelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          selectedLabelStyle: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold), // Use ScreenUtil for font size
+          unselectedLabelStyle: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold), // Use ScreenUtil for font size
           showUnselectedLabels: true,
           backgroundColor: Colors.white, 
-          items:  [
+          items: [
             BottomNavigationBarItem(
-              icon: const Icon(Icons.home),
+              icon: Column(
+                mainAxisSize: MainAxisSize.min, // Use min to avoid extra space
+                children: [
+                  const Icon(Icons.home, size: 24),
+                  SizedBox(height: 8.h), // Spacing of 8 logical pixels
+                ],
+              ),
               label: AppLocalizations.of(context).translate('Home'),
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.explore),
+              icon: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.explore, size: 24),
+                  SizedBox(height: 8.h),
+                ],
+              ),
               label: AppLocalizations.of(context).translate('Explore'),
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.bike_scooter),
+              icon: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.bike_scooter, size: 24),
+                  SizedBox(height: 8.h),
+                ],
+              ),
               label: AppLocalizations.of(context).translate('Rental'),
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.person),
+              icon: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.person,size: 24),
+                  SizedBox(height: 8.h),
+                ],
+              ),
               label: AppLocalizations.of(context).translate('Profile'),
             ),
           ],

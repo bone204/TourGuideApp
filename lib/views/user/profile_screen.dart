@@ -57,14 +57,7 @@ class ProfileScreen extends StatelessWidget {
                         fontSize: 20.sp,
                       ),
                     ),
-                    CustomIconButton(
-                      icon: Icons.edit,
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Edit button pressed')),
-                        );
-                      },
-                    ),
+                    SizedBox(width: 84.w),
                   ],
                 ),
               ],
