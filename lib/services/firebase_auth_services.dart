@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import '../models/user_model.dart'; // Import model người dùng
 
 class FirebaseAuthService {
@@ -32,12 +31,11 @@ class FirebaseAuthService {
       }
 
       return user;
+    } on FirebaseAuthException catch (e) {
+      throw _handleFirebaseAuthException(e);
     } catch (e) {
-      if (kDebugMode) {
-        print("An error occurred during sign up: $e");
-      }
+      throw Exception("Đã xảy ra lỗi không xác định khi đăng ký: $e");
     }
-    return null;
   }
 
   // Đăng nhập bằng email và mật khẩu
@@ -50,12 +48,11 @@ class FirebaseAuthService {
       );
 
       return credential.user;
+    } on FirebaseAuthException catch (e) {
+      throw _handleFirebaseAuthException(e);
     } catch (e) {
-      if (kDebugMode) {
-        print("An error occurred during sign in: $e");
-      }
+      throw Exception("Đã xảy ra lỗi không xác định khi đăng nhập: $e");
     }
-    return null;
   }
 
   // Lưu thông tin người dùng vào Firestore
@@ -63,9 +60,7 @@ class FirebaseAuthService {
     try {
       await _firestore.collection('users').doc(user.userId).set(user.toMap());
     } catch (e) {
-      if (kDebugMode) {
-        print("Failed to save user data: $e");
-      }
+      throw Exception("Lỗi khi lưu thông tin người dùng: $e");
     }
   }
 
@@ -76,11 +71,32 @@ class FirebaseAuthService {
       if (snapshot.exists) {
         return UserModel.fromMap(snapshot.data() as Map<String, dynamic>);
       }
+      return null;
     } catch (e) {
-      if (kDebugMode) {
-        print("Failed to fetch user data: $e");
-      }
+      throw Exception("Lỗi khi lấy thông tin người dùng: $e");
     }
-    return null;
+  }
+
+  String _handleFirebaseAuthException(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'user-not-found':
+        return 'Không tìm thấy tài khoản với email này.';
+      case 'wrong-password':
+        return 'Sai mật khẩu.';
+      case 'invalid-email':
+        return 'Email không hợp lệ.';
+      case 'user-disabled':
+        return 'Tài khoản này đã bị vô hiệu hóa.';
+      case 'email-already-in-use':
+        return 'Email này đã được sử dụng bởi một tài khoản khác.';
+      case 'operation-not-allowed':
+        return 'Hoạt động này không được cho phép.';
+      case 'weak-password':
+        return 'Mật khẩu quá yếu.';
+      case 'network-request-failed':
+        return 'Lỗi kết nối mạng. Vui lòng kiểm tra lại kết nối internet của bạn.';
+      default:
+        return 'Đã xảy ra lỗi: ${e.message}';
+    }
   }
 }

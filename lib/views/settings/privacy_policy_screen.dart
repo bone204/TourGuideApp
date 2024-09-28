@@ -50,7 +50,7 @@ class _PrivacyPolicyScreenScreenState extends State<PrivacyPolicyScreen> {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        SizedBox(width: 84.w),
+                        SizedBox(width: 88.w),
                       ],
                     );
                   },

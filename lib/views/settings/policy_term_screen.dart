@@ -20,7 +20,7 @@ class _PolicyAndTermScreenScreenState extends State<PolicyAndTermScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(100.h), // Chiều cao app bar
+          preferredSize: Size.fromHeight(60.h), // Chiều cao app bar
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -50,7 +50,7 @@ class _PolicyAndTermScreenScreenState extends State<PolicyAndTermScreen> {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        SizedBox(width: 84.w),
+                        SizedBox(width: 88.w),
                       ],
                     );
                   },

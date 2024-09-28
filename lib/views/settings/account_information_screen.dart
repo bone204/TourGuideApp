@@ -50,7 +50,7 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        SizedBox(width: 84.w),
+                        SizedBox(width: 88.w),
                       ],
                     );
                   },

@@ -50,7 +50,7 @@ class _PasswordScreenScreenState extends State<PasswordScreen> {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        SizedBox(width: 84.w),
+                        SizedBox(width: 88.w),
                       ],
                     );
                   },

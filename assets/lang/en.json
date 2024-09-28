@@ -54,6 +54,10 @@
     "Account Information": "Account Information",
     "Change Password": "Change Password",
     "Policies & Terms": "Policies & Terms",
-    "Privacy Policy": "Privacy Policy"
+    "Privacy Policy": "Privacy Policy",
+
+    "Please enter both email and password.": "Please enter both email and password.",
+    "Confirm Language Change": "Confirm Language Change",
+    "Do you want to change the language?": "Do you want to change the language?"
   }
   

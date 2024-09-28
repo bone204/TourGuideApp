@@ -8,13 +8,57 @@ import 'package:tourguideapp/viewmodels/login_viewmodel.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/social_icon_button.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/services/firebase_auth_services.dart';
 import 'signup_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuthService _authService = FirebaseAuthService();
 
-  LoginScreen({super.key});
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context).translate('Error')),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text(AppLocalizations.of(context).translate('OK')),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _login() async {
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showErrorDialog(AppLocalizations.of(context).translate('Please enter both email and password.'));
+      return;
+    }
+
+    try {
+      User? user = await _authService.signInWithEmailAndPassword(email, password);
+      if (user != null) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      _showErrorDialog(e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,22 +110,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 30.h),
                       ElevatedButton(
-                        onPressed: loginViewModel.isLoading
-                            ? null
-                            : () async {
-                                User? user = await loginViewModel.signIn(
-                                  _emailController.text,
-                                  _passwordController.text,
-                                );
-
-                                if (user != null) {
-                                  Navigator.pushNamed(context, "/home");
-                                } else {
-                                  if (kDebugMode) {
-                                    print("Some error occurred");
-                                  }
-                                }
-                              },
+                        onPressed: loginViewModel.isLoading ? null : _login,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF007BFF),
                           minimumSize: Size(double.infinity, 50.h),
@@ -161,14 +190,6 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (loginViewModel.errorMessage != null)
-                  Padding(
-                    padding: EdgeInsets.all(16.w),
-                    child: Text(
-                      loginViewModel.errorMessage!,
-                      style: TextStyle(color: Colors.red, fontSize: 14.sp),
-                    ),
-                  ),
               ],
             ),
           ),

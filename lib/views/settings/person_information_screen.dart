@@ -45,7 +45,7 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
                             style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
-                              fontSize: 18.sp, // Kích thước chữ sử dụng ScreenUtil
+                              fontSize: 16.sp, // Kích thước chữ sử dụng ScreenUtil
                             ),
                             textAlign: TextAlign.center,
                           ),

@@ -57,7 +57,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        SizedBox(width: 84.w),
+                        SizedBox(width: 88.w),
                       ],
                     );
                   },

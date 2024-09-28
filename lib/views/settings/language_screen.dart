@@ -14,6 +14,7 @@ class LanguageScreen extends StatefulWidget {
 
 class _LanguageScreenState extends State<LanguageScreen> {
   Locale? _selectedLocale;
+  bool _isLoading = false;
 
   @override
   void didChangeDependencies() {
@@ -22,11 +23,46 @@ class _LanguageScreenState extends State<LanguageScreen> {
     _selectedLocale = Localizations.localeOf(context);
   }
 
-  void _onLocaleChange(Locale locale) {
+  Future<void> _onLocaleChange(Locale locale) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    await Future.delayed(const Duration(seconds: 2)); // Simulate language loading time
+
     setState(() {
       _selectedLocale = locale;
+      _isLoading = false;
     });
+
     MyApp.setLocale(context, locale);
+  }
+
+  Future<void> _confirmLanguageChange(Locale locale) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context).translate('Confirm Language Change')),
+          content: Text(AppLocalizations.of(context).translate('Do you want to change the language?')),
+          actions: [
+            TextButton(
+              child: Text(AppLocalizations.of(context).translate('Cancel')),
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss dialog
+              },
+            ),
+            TextButton(
+              child: Text(AppLocalizations.of(context).translate('Confirm')),
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss dialog
+                _onLocaleChange(locale);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -62,35 +98,39 @@ class _LanguageScreenState extends State<LanguageScreen> {
                         fontSize: 20.sp, // Responsive font size using ScreenUtil
                       ),
                     ),
-                    SizedBox(width: 84.w), // Maintain space for the removed edit button
+                    SizedBox(width: 88.w), // Maintain space for the removed edit button
                   ],
                 ),
               ]
             ),
           ),
         ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h), // Responsive padding
-          child: ListView(
-            children: [
-              InteractiveRowWidget(
-                leadingIcon: Icons.language,
-                title: AppLocalizations.of(context).translate('English'),
-                trailingIcon: Icons.check,
-                onTap: () => _onLocaleChange(const Locale('en')),
-                isSelected: _selectedLocale?.languageCode == 'en',
+        body: _isLoading
+            ? Center(
+                child: CircularProgressIndicator(), // Show loading indicator while changing language
+              )
+            : Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h), // Responsive padding
+                child: ListView(
+                  children: [
+                    InteractiveRowWidget(
+                      leadingIcon: Icons.language,
+                      title: AppLocalizations.of(context).translate('English'),
+                      trailingIcon: Icons.check,
+                      onTap: () => _confirmLanguageChange(const Locale('en')),
+                      isSelected: _selectedLocale?.languageCode == 'en',
+                    ),
+                    SizedBox(height: 10.h),
+                    InteractiveRowWidget(
+                      leadingIcon: Icons.language,
+                      title: AppLocalizations.of(context).translate('Vietnamese'),
+                      trailingIcon: Icons.check,
+                      onTap: () => _confirmLanguageChange(const Locale('vi')),
+                      isSelected: _selectedLocale?.languageCode == 'vi',
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: 10.h),
-              InteractiveRowWidget(
-                leadingIcon: Icons.language,
-                title: AppLocalizations.of(context).translate('Vietnamese'),
-                trailingIcon: Icons.check,
-                onTap: () => _onLocaleChange(const Locale('vi')),
-                isSelected: _selectedLocale?.languageCode == 'vi',
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

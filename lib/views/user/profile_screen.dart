@@ -57,7 +57,7 @@ class ProfileScreen extends StatelessWidget {
                         fontSize: 20.sp,
                       ),
                     ),
-                    SizedBox(width: 84.w),
+                    SizedBox(width: 88.w),
                   ],
                 ),
               ],
