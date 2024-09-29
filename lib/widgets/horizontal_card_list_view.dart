@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:tourguideapp/widgets/horizontal_card.dart';
 
 class HorizontalCardListView extends StatelessWidget {
@@ -8,15 +9,15 @@ class HorizontalCardListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    ScreenUtil.init(context, designSize: const Size(375, 812));
     return SizedBox(
-      height: screenWidth * 0.6, 
+      height: 383.h, // Sử dụng chiều cao dựa trên ScreenUtil
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: cardDataList.length,
         itemBuilder: (context, index) {
           return Padding(
-            padding: EdgeInsets.only(right: screenWidth * 0.04), 
+            padding: EdgeInsets.only(right: 15.w), // Khoảng cách giữa các card sử dụng ScreenUtil
             child: HorizontalCard(data: cardDataList[index]),
           );
         },

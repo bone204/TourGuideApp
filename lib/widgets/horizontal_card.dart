@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/widgets/image_stack.dart';
 
 class HorizontalCardData {
   final String imageUrl;
@@ -25,80 +27,103 @@ class HorizontalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Lấy chiều rộng màn hình để tính toán
-    final screenWidth = MediaQuery.of(context).size.width;
-
+    ScreenUtil.init(context, designSize: const Size(375, 812));
     return Container(
-      width: screenWidth * 0.4, // Card chiếm 40% chiều rộng màn hình
-      margin: EdgeInsets.only(right: screenWidth * 0.03), // Khoảng cách giữa các card là 3% chiều rộng màn hình
+      width: 268.w, // Sử dụng ScreenUtil để điều chỉnh kích thước chiều rộng
+      margin: EdgeInsets.only(right: 10.w), // Khoảng cách giữa các card
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(16.r), // Dùng ScreenUtil cho borderRadius
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 5,
-            spreadRadius: 2,
+            color: const Color(0xFF000000).withOpacity(0.25),
+            blurRadius: 4.r,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              data.imageUrl,
-              height: screenWidth * 0.25, // Chiều cao ảnh là 25% của chiều rộng màn hình
-              width: screenWidth * 0.4,  // Chiều rộng ảnh tương ứng với card
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            data.placeName,
-            style: TextStyle(
-              fontSize: screenWidth * 0.04, // Kích thước chữ dựa trên 4% chiều rộng màn hình
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            data.description,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: screenWidth * 0.035, // Kích thước text dựa trên 3.5% chiều rộng màn hình
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            data.price,
-            style: TextStyle(
-              fontSize: screenWidth * 0.04, // Kích thước giá dựa trên 4% chiều rộng màn hình
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.star,
-                color: Colors.yellow[700],
-                size: screenWidth * 0.05, // Kích thước icon là 5% chiều rộng màn hình
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 14.w),
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16.r), // Cắt góc cho ảnh
+              child: Image.network(
+                data.imageUrl,
+                height: 285.h, 
+                width: 240.w, 
+                fit: BoxFit.cover,
               ),
-              Text(
-                '${data.rating} (${data.ratingCount})',
-                style: TextStyle(
-                  fontSize: screenWidth * 0.035, // Kích thước chữ rating dựa trên 3.5% chiều rộng màn hình
-                  color: Colors.black87,
-                ),
+            ),
+            SizedBox(height: 14.h), 
+            Container(
+              color: const Color(0xFFFFFFFF),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        "Kinh Thành Huế",
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF000000),
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            color: const Color(0xFF7D848D),
+                            size: 15.sp,
+                          ),
+                          SizedBox(width: 2.w), // Khoảng cách giữa icon và chữ
+                          Text(
+                            'Thừa Thiên Huế', // Thay đổi thành nội dung bạn muốn hiển thị
+                            style: TextStyle(
+                              color: const Color(0xFF7D848D), // Màu chữ
+                              fontSize: 15.sp, // Kích thước chữ
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.star_rate,
+                            color: Colors.yellow,
+                            size: 12.sp,
+                          ),
+                          SizedBox(width: 2.w), // Khoảng cách giữa icon và chữ
+                          Text(
+                            '4,7', // Thay đổi thành nội dung bạn muốn hiển thị
+                            style: TextStyle(
+                              color: const Color(0xFF000000), // Màu chữ
+                              fontSize: 15.sp, // Kích thước chữ
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                      const ImageStackWidget(),
+                    ],
+                  )
+                ],
               ),
-            ],
-          ),
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
 }
+
+
+

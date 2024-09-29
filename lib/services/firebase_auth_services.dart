@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '../models/user_model.dart'; // Import model người dùng
 
 class FirebaseAuthService {
@@ -32,8 +33,14 @@ class FirebaseAuthService {
 
       return user;
     } on FirebaseAuthException catch (e) {
+      if (kDebugMode) {
+        print('Lỗi đăng ký: ${e.message}');
+      } // In lỗi ra console
       throw _handleFirebaseAuthException(e);
     } catch (e) {
+      if (kDebugMode) {
+        print('Lỗi không xác định khi đăng ký: $e');
+      } // In lỗi ra console
       throw Exception("Đã xảy ra lỗi không xác định khi đăng ký: $e");
     }
   }
@@ -49,8 +56,14 @@ class FirebaseAuthService {
 
       return credential.user;
     } on FirebaseAuthException catch (e) {
+      if (kDebugMode) {
+        print('Lỗi đăng nhập: ${e.message}');
+      } // In lỗi ra console
       throw _handleFirebaseAuthException(e);
     } catch (e) {
+      if (kDebugMode) {
+        print('Lỗi không xác định khi đăng nhập: $e');
+      } // In lỗi ra console
       throw Exception("Đã xảy ra lỗi không xác định khi đăng nhập: $e");
     }
   }
@@ -60,6 +73,9 @@ class FirebaseAuthService {
     try {
       await _firestore.collection('users').doc(user.userId).set(user.toMap());
     } catch (e) {
+      if (kDebugMode) {
+        print('Lỗi khi lưu thông tin người dùng: $e');
+      } // In lỗi ra console
       throw Exception("Lỗi khi lưu thông tin người dùng: $e");
     }
   }
@@ -73,30 +89,50 @@ class FirebaseAuthService {
       }
       return null;
     } catch (e) {
+      if (kDebugMode) {
+        print('Lỗi khi lấy thông tin người dùng: $e');
+      } // In lỗi ra console
       throw Exception("Lỗi khi lấy thông tin người dùng: $e");
     }
   }
 
   String _handleFirebaseAuthException(FirebaseAuthException e) {
+    String errorMessage;
     switch (e.code) {
       case 'user-not-found':
-        return 'Không tìm thấy tài khoản với email này.';
+        errorMessage = 'Không tìm thấy tài khoản với email này.';
+        break;
       case 'wrong-password':
-        return 'Sai mật khẩu.';
+        errorMessage = 'Sai mật khẩu. Vui lòng kiểm tra lại.';
+        break;
       case 'invalid-email':
-        return 'Email không hợp lệ.';
+        errorMessage = 'Email không hợp lệ.';
+        break;
       case 'user-disabled':
-        return 'Tài khoản này đã bị vô hiệu hóa.';
+        errorMessage = 'Tài khoản này đã bị vô hiệu hóa.';
+        break;
       case 'email-already-in-use':
-        return 'Email này đã được sử dụng bởi một tài khoản khác.';
+        errorMessage = 'Email này đã được sử dụng bởi một tài khoản khác.';
+        break;
       case 'operation-not-allowed':
-        return 'Hoạt động này không được cho phép.';
+        errorMessage = 'Hoạt động này không được cho phép.';
+        break;
       case 'weak-password':
-        return 'Mật khẩu quá yếu.';
+        errorMessage = 'Mật khẩu quá yếu.';
+        break;
       case 'network-request-failed':
-        return 'Lỗi kết nối mạng. Vui lòng kiểm tra lại kết nối internet của bạn.';
+        errorMessage = 'Lỗi kết nối mạng. Vui lòng kiểm tra lại kết nối internet của bạn.';
+        break;
+      case 'invalid-credential':
+        errorMessage = 'Thông tin xác thực không hợp lệ hoặc đã hết hạn.';
+        break;
       default:
-        return 'Đã xảy ra lỗi: ${e.message}';
+        errorMessage = 'Đã xảy ra lỗi không xác định: ${e.message}';
     }
+
+    if (kDebugMode) {
+      print('FirebaseAuthException: $errorMessage');
+    } // In lỗi ra console
+    return errorMessage;
   }
 }
