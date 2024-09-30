@@ -18,13 +18,10 @@ class HomeScreen extends StatelessWidget {
     final List<HorizontalCardData> horizontalCards = [
       HorizontalCardData(
         imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
-        placeName: 'Place 1',
-        description: 'Description for Place 1',
-        price: r'$160.05',
+        placeName: 'Kinh Thành Huế',
+        description: 'Thừa Thiên Huế',
         rating: 4.5,
-        ratingCount: 12,
       ),
-      // Thêm dữ liệu thẻ khác ở đây
     ];
 
     return Scaffold(

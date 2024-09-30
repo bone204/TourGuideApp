@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tourguideapp/views/favourite_destinations/favourite_destinations.dart';
 import 'package:tourguideapp/views/settings/setting_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../viewmodels/profile_viewmodel.dart';
@@ -94,11 +95,11 @@ class ProfileScreen extends StatelessWidget {
                 Expanded(
                   child: ListView(
                     children: [
-                      _buildInteractiveRow(context, Icons.location_pin, 'Favourite Destinations'),
+                      _buildInteractiveRow(context, Icons.location_pin, 'Favourite Destinations', navigateToFavouriteDestinations: true), // Updated row
                       SizedBox(height: 16.h),
                       _buildInteractiveRow(context, Icons.history, 'Travel History'),
                       SizedBox(height: 16.h),
-                      _buildInteractiveRow(context, Icons.car_crash, 'Vehicle Rental Registration'),
+                      _buildInteractiveRow(context, Icons.car_crash, 'My Vehicle'),
                       SizedBox(height: 16.h),
                       _buildInteractiveRow(context, Icons.feedback, 'Feedback'),
                       SizedBox(height: 16.h),
@@ -163,7 +164,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInteractiveRow(BuildContext context, IconData leadingIcon, String title, {bool navigateToSettings = false}) {
+  Widget _buildInteractiveRow(BuildContext context, IconData leadingIcon, String title, {bool navigateToSettings = false, bool navigateToFavouriteDestinations = false}) {
     return InteractiveRowWidget(
       leadingIcon: leadingIcon,
       title: AppLocalizations.of(context).translate(title),
@@ -173,6 +174,11 @@ class ProfileScreen extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => SettingsScreen()),
+          );
+        } else if (navigateToFavouriteDestinations) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => FavouriteDestinationsScreen()), // Navigate to the FavouriteScreen
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(

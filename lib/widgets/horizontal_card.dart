@@ -6,17 +6,13 @@ class HorizontalCardData {
   final String imageUrl;
   final String placeName;
   final String description;
-  final String price;
   final double rating;
-  final int ratingCount;
 
   HorizontalCardData({
     required this.imageUrl,
     required this.placeName,
     required this.description,
-    required this.price,
     required this.rating,
-    required this.ratingCount,
   });
 }
 
@@ -29,10 +25,10 @@ class HorizontalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
     return Container(
-      width: 268.w, // Sử dụng ScreenUtil để điều chỉnh kích thước chiều rộng
-      margin: EdgeInsets.only(right: 10.w), // Khoảng cách giữa các card
+      width: 268.w, 
+      margin: EdgeInsets.only(right: 10.w), 
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.r), // Dùng ScreenUtil cho borderRadius
+        borderRadius: BorderRadius.circular(16.r), 
         color: Colors.white,
         boxShadow: [
           BoxShadow(
@@ -65,7 +61,7 @@ class HorizontalCard extends StatelessWidget {
                   Column(
                     children: [
                       Text(
-                        "Kinh Thành Huế",
+                        data.placeName,
                         style: TextStyle(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
@@ -80,12 +76,12 @@ class HorizontalCard extends StatelessWidget {
                             color: const Color(0xFF7D848D),
                             size: 15.sp,
                           ),
-                          SizedBox(width: 2.w), // Khoảng cách giữa icon và chữ
+                          SizedBox(width: 2.w), 
                           Text(
-                            'Thừa Thiên Huế', // Thay đổi thành nội dung bạn muốn hiển thị
+                            data.description, 
                             style: TextStyle(
-                              color: const Color(0xFF7D848D), // Màu chữ
-                              fontSize: 15.sp, // Kích thước chữ
+                              color: const Color(0xFF7D848D), 
+                              fontSize: 15.sp, 
                             ),
                           ),
                         ],
@@ -103,7 +99,7 @@ class HorizontalCard extends StatelessWidget {
                           ),
                           SizedBox(width: 2.w), // Khoảng cách giữa icon và chữ
                           Text(
-                            '4,7', // Thay đổi thành nội dung bạn muốn hiển thị
+                            data.rating.toString(), // Thay đổi thành nội dung bạn muốn hiển thị
                             style: TextStyle(
                               color: const Color(0xFF000000), // Màu chữ
                               fontSize: 15.sp, // Kích thước chữ
