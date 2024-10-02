@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart'; // Import provider package
+import 'package:tourguideapp/viewmodels/accountInfo_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
 import 'localization/app_localizations.dart';
 import 'views/auth/login_screen.dart';
@@ -15,7 +17,9 @@ void main() async {
   try {
     await Firebase.initializeApp(); // Initialize Firebase before running the app
   } catch (e) {
-    print("Error initializing Firebase: $e");
+    if (kDebugMode) {
+      print("Error initializing Firebase: $e");
+    }
     // Handle Firebase initialization errors if necessary
   }
   runApp(MyApp());
@@ -47,6 +51,7 @@ class MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
+        ChangeNotifierProvider(create: (_) => AccountInfoViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()), // Add providers here
         // Add other providers if needed
       ],

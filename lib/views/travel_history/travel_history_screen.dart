@@ -1,79 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/widgets/favourite_card.dart';
-import 'package:tourguideapp/widgets/favourite_card_list.dart';
+import 'package:tourguideapp/widgets/destination_card.dart';
+import 'package:tourguideapp/widgets/destinations_card_list.dart';
 // import 'package:tourguideapp/widgets/interactive_row_widget.dart';
 import '../../widgets/custom_icon_button.dart';
 
-class FavouriteDestinationsScreen extends StatefulWidget {
-  const FavouriteDestinationsScreen({super.key});
+class TravelHistoryScreen extends StatefulWidget {
+  const TravelHistoryScreen({super.key});
 
   @override
-  _FavouriteDestinationsState createState() => _FavouriteDestinationsState();
+  _TravelHistoryScreenState createState() => _TravelHistoryScreenState();
 }
 
-class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
+class _TravelHistoryScreenState extends State<TravelHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Khởi tạo ScreenUtil
-    final List<FavouriteCardData> favouriteCards = [
-      FavouriteCardData(
+    final List<DestinationCardData> destinationCards = [
+      DestinationCardData(
         imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
         placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
+        time: '26-27/01/2024',
       ),
-      FavouriteCardData(
+      DestinationCardData(
         imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
         placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
+        time: '26-27/01/2024',
       ),
-      FavouriteCardData(
+      DestinationCardData(
         imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
         placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
+        time: '26-27/01/2024',
       ),
-      FavouriteCardData(
+      DestinationCardData(
         imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
         placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
+        time: '26-27/01/2024',
       ),
-      FavouriteCardData(
+      DestinationCardData(
         imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
         placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
+        time: '26-27/01/2024',
       ),
-      FavouriteCardData(
+      DestinationCardData(
         imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
         placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
+        time: '26-27/01/2024',
       ),
-      FavouriteCardData(
+      DestinationCardData(
         imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
         placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
+        time: '26-27/01/2024',
       ),
-      FavouriteCardData(
+      DestinationCardData(
         imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
         placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
+        time: '26-27/01/2024',
       ),
-      FavouriteCardData(
+      DestinationCardData(
         imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
         placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
+        time: '26-27/01/2024',
       ),
-      FavouriteCardData(
+      DestinationCardData(
         imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
         placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
+        time: '26-27/01/2024',
       ),
     ];
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h), // Chiều cao app bar
+          preferredSize: Size.fromHeight(60.h), 
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -94,11 +94,11 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                         ),
                         Flexible(
                           child: Text(
-                            AppLocalizations.of(context).translate('Favourite Destinations'),
+                            AppLocalizations.of(context).translate('Travel History'),
                             style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
-                              fontSize: 16.sp, 
+                              fontSize: 18.sp, 
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -118,7 +118,7 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
             children: [
               _buildSearchBar(),
               SizedBox(height: 10.h),
-              FavouriteCardListView(cardDataList: favouriteCards),
+              DestinationsCardListView(cardDataList: destinationCards),
             ]
           ),
         )

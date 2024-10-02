@@ -43,7 +43,7 @@ class FavouriteCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(16.r), // Cắt góc cho ảnh
+                borderRadius: BorderRadius.circular(8.r), 
                 child: Image.network(
                   data.imageUrl,
                   height: 124.h, 

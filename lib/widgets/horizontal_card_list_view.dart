@@ -11,7 +11,7 @@ class HorizontalCardListView extends StatelessWidget {
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
     return SizedBox(
-      height: 383.h, // Sử dụng chiều cao dựa trên ScreenUtil
+      height: 390.h, // Sử dụng chiều cao dựa trên ScreenUtil
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: cardDataList.length,
