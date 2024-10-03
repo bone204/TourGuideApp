@@ -75,7 +75,12 @@ class SignupScreen extends StatelessWidget {
                                   _emailController.text,
                                   _passwordController.text,
                                   _usernameController.text,
-                                  '', // Thêm địa chỉ nếu có
+                                  '',
+                                  '',
+                                  '',
+                                  '',
+                                  '',
+                                  '' 
                                 );
 
                                 if (user != null) {

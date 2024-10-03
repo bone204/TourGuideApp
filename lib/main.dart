@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart'; // Import provider package
 import 'package:tourguideapp/viewmodels/accountInfo_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
+import 'package:tourguideapp/viewmodels/personInfo_viewmodel.dart';
 import 'localization/app_localizations.dart';
 import 'views/auth/login_screen.dart';
 import 'views/auth/signup_screen.dart';
@@ -53,7 +54,7 @@ class MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
         ChangeNotifierProvider(create: (_) => AccountInfoViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()), // Add providers here
-        // Add other providers if needed
+        ChangeNotifierProvider(create: (_) => PersonInfoViewModel()),
       ],
       child: MaterialApp(
         title: 'Tour Guide App',

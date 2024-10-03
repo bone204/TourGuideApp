@@ -4,10 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class DisabledTextField extends StatelessWidget {
   final String labelText;
   final String text;
+  final bool enabled;
 
   const DisabledTextField({
     required this.labelText,
     required this.text,
+    this.enabled = false,
     super.key,
   });
 
@@ -27,7 +29,7 @@ class DisabledTextField extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: TextField(
-            enabled: false,
+            enabled: enabled,
             controller: TextEditingController(text: text), // Nội dung hiển thị
             style: TextStyle(
               fontSize: 16.sp,

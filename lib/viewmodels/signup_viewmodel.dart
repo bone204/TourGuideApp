@@ -10,13 +10,13 @@ class SignupViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<User?> signUp(String email, String password, String name, String address) async {
+  Future<User?> signUp(String email, String password, String name, String address, String gender, String citizenId, String phoneNumber, String nationality, String birthday) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      User? user = await _auth.signUpWithEmailAndPassword(email, password, name, address);
+      User? user = await _auth.signUpWithEmailAndPassword(email, password, name, address,gender, citizenId, phoneNumber, nationality, birthday);
       if (user != null) {
         // Đăng ký thành công và người dùng đã được lưu vào Firestore
         return user;
