@@ -110,7 +110,7 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
                     isEditing: viewModel.isEditing,
                   ),
                   SizedBox(height: 16.h),
-                  _buildPhoneNumberField(viewModel), // Use the new method
+                  _buildPhoneNumberField(viewModel), 
                   SizedBox(height: 16.h),
                   _buildTextField(
                     controller: viewModel.addressController,

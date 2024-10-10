@@ -59,11 +59,11 @@ class NavigationExample extends StatelessWidget {
               icon: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.bike_scooter, size: 24),
+                  const Icon(Icons.supervisor_account, size: 24),
                   SizedBox(height: 8.h),
                 ],
               ),
-              label: AppLocalizations.of(context).translate('Rental'),
+              label: AppLocalizations.of(context).translate('Services'),
             ),
             BottomNavigationBarItem(
               icon: Column(

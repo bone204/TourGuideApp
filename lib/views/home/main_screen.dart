@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tourguideapp/views/explore/explore_profile.dart';
+import 'package:tourguideapp/views/service/service_screen.dart';
 import '../../widgets/bottombar.dart'; 
 import 'home_screen.dart'; 
-import '../car_rental/car_rental_screen.dart';
 import '../user/profile_screen.dart'; 
 
 class MainScreen extends StatefulWidget {
@@ -17,8 +17,8 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    ExploreScreen(),
-    const CarRentalScreen(),  
+    const ExploreScreen(),
+    const ServiceScreen(),  
     // Do not include ProfileScreen here, handle navigation separately
   ];
 
@@ -27,7 +27,7 @@ class _MainScreenState extends State<MainScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ProfileScreen(), // No need to wrap with ChangeNotifierProvider
+          builder: (context) => const ProfileScreen(), // No need to wrap with ChangeNotifierProvider
         ),
       );
     } else {
