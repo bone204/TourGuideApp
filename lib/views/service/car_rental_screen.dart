@@ -87,12 +87,14 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
             transmission: 'Automatic',
             seats: '5 seats',
             fuelType: 'Diesel',
+            imagePath: 'assets/img/icon-cx3.png', // Corrected path
           ),
           VehicleCardData(
             model: 'GLA 250 SUV',
             transmission: 'Automatic',
             seats: '7 seats',
             fuelType: 'Diesel',
+            imagePath: 'assets/img/icon-cx3.png', // Corrected path
           ),
         ];
       case 'Motobike':
@@ -102,12 +104,14 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
             transmission: 'Manual',
             seats: '2 seats',
             fuelType: 'Petrol',
+            imagePath: 'assets/img/icon-cx3.png',
           ),
           VehicleCardData(
             model: 'Yamaha MT-07',
             transmission: 'Manual',
             seats: '2 seats',
             fuelType: 'Petrol',
+            imagePath: 'assets/img/icon-cx3.png',
           ),
         ];
       case 'Bicycle':
@@ -117,12 +121,14 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
             transmission: 'Manual',
             seats: '1 seat',
             fuelType: 'Human',
+            imagePath: 'assets/img/icon-cx3.png',
           ),
           VehicleCardData(
             model: 'Specialized Tarmac SL7',
             transmission: 'Manual',
             seats: '1 seat',
             fuelType: 'Human',
+            imagePath: 'assets/img/icon-cx3.png',
           ),
         ];
       default:

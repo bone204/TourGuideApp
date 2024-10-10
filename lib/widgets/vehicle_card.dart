@@ -6,12 +6,14 @@ class VehicleCardData {
   final String transmission;
   final String seats;
   final String fuelType;
+  final String imagePath;
 
   VehicleCardData({
     required this.model,
     required this.transmission,
     required this.seats,
     required this.fuelType,
+    required this.imagePath
   });
 }
 
@@ -37,8 +39,9 @@ class VehicleCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 8.w, horizontal: 12.h),
+        padding: EdgeInsets.symmetric(vertical: 12.w, horizontal: 16.h),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,21 +53,45 @@ class VehicleCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 5.h),
-                Text(
-                  'Transmission: ${data.transmission}',
-                  style: TextStyle(fontSize: 14.sp),
-                ),
-                Text(
-                  'Seats: ${data.seats}',
-                  style: TextStyle(fontSize: 14.sp),
-                ),
-                Text(
-                  'Fuel: ${data.fuelType}',
-                  style: TextStyle(fontSize: 14.sp),
+                SizedBox(height: 10.h),
+                ClipRRect(
+                  child: Image.asset(
+                    data.imagePath,
+                    height: 70.h,
+                    width: 140.w,
+                    fit: BoxFit.fill,
+                  ),
                 ),
               ],
             ),
+            SizedBox(width: 6.w),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      data.transmission,
+                      style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
+                    ),
+                    SizedBox(width: 6.w),
+                    Text(
+                      '|',
+                      style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
+                    ),
+                    SizedBox(width: 6.w),
+                    Text(
+                      data.seats,
+                      style: TextStyle(fontSize: 14.sp,color: const Color(0xFF7D848D)),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15.h),
+                Text(
+                  "500,000 ₫ / ngày",
+                  style: TextStyle(fontSize: 16.sp, color: const Color(0xFFFF7029), fontWeight: FontWeight.bold),
+                ),
+            ],)
           ],
         ),
       ),
