@@ -62,6 +62,16 @@
     "Do you want to change the language?": "Do you want to change the language?",
 
     "Username": "Username",
-    "Search": "Search"
+    "Search": "Search",
+
+    "Available": "Available",
+    "Car": "Car",
+    "Motobike": "Motobike",
+    "Bicycle": "Bicycle",
+
+    "Location": "Location",
+    "Filter": "Filter",
+    "Start Date": "Start Date",
+    "End Date": "End Date"
   }
   

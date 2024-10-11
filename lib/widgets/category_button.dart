@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
 class CategoryButton extends StatelessWidget {
   final String category;
@@ -15,15 +16,17 @@ class CategoryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context, designSize: const Size(375, 812));
     return ElevatedButton(
       onPressed: () => onTap(category),
       style: ElevatedButton.styleFrom(
+        fixedSize: Size(100.w, 40.h),
         backgroundColor: isSelected ? const Color(0xFF007BFF) : Colors.white,
         foregroundColor: isSelected ? Colors.white : const Color(0xFF007BFF),
         side: const BorderSide(color: Color(0xFF007BFF)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
       ),
-      child: Text(category, style: TextStyle(fontSize: 14.sp)),
+      child: Text(AppLocalizations.of(context).translate(category), style: TextStyle(fontSize: 14.sp)),
     );
   }
 }

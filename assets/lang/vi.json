@@ -61,7 +61,17 @@
     "Confirm Language Change": "Xác Nhận Đổi Ngôn Ngữ",
     "Do you want to change the language?": "Bạn có chắc chắn đổi ngôn ngữ không?",
 
-    "Username": "Username",
-    "Search": "Tìm kiếm"
+    "Username": "Tên người dùng",
+    "Search": "Tìm kiếm",
+
+    "Available": "khả dụng",
+    "Car": "Xe ô tô",
+    "Motobike": "Xe máy",
+    "Bicycle": "Xe đạp",
+
+    "Location": "Vị trí đón",
+    "Filter": "Filter",
+    "Start Date": "Ngày nhận xe",
+    "End Date": "Ngày trả xe"
 }
   

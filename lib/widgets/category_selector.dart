@@ -16,22 +16,18 @@ class CategorySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context, designSize: const Size(375, 812));
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal, // Allow horizontal scrolling
-        child: Row(
-          children: categories.map((category) {
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5.w),
-              child: CategoryButton(
-                category: category,
-                isSelected: selectedCategory == category,
-                onTap: onCategorySelected,
-              ),
-            );
-          }).toList(),
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: categories.map((category) {
+          return CategoryButton(
+            category: category,
+            isSelected: selectedCategory == category,
+            onTap: onCategorySelected,
+          );
+        }).toList(),
       ),
     );
   }
