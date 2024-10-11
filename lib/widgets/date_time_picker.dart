@@ -49,33 +49,36 @@ class DateTimePicker extends StatelessWidget {
             style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 4.h),
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16.r),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0x0ff00000).withOpacity(0.25),
-                  blurRadius: 4.r,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.calendar_month, size: 24.sp),
-                    SizedBox(width: 8.w),
-                    Text(
-                      "${_getDayAbbreviation(selectedDate, context)}, ${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}",
-                      style: TextStyle(fontSize: 14.sp),
-                    ),
-                  ],
-                ),
-              ],
+          ConstrainedBox(
+            constraints: BoxConstraints(minWidth: 160.w),
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0x0ff00000).withOpacity(0.25),
+                    blurRadius: 4.r,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_month, size: 24.sp),
+                      SizedBox(width: 8.w),
+                      Text(
+                        "${_getDayAbbreviation(selectedDate, context)}, ${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}",
+                        style: TextStyle(fontSize: 14.sp),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],

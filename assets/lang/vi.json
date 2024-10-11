@@ -10,6 +10,7 @@
     "Rental": "Thuê Xe",
     "Explore": "Khám Phá",
     "Services": "Dịch Vụ",
+    "Car Rental": "Thuê Xe",
 
     "Favourite Destinations": "Điểm Đến Yêu Thích",
     "Travel History": "Lịch Sử Du Lịch",
@@ -70,7 +71,7 @@
     "Bicycle": "Xe đạp",
 
     "Location": "Vị trí đón",
-    "Filter": "Filter",
+    "Filter": "Lọc",
     "Start Date": "Ngày nhận xe",
     "End Date": "Ngày trả xe"
 }

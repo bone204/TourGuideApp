@@ -73,7 +73,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h), // Responsive height
+          preferredSize: Size.fromHeight(60.h),
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -81,32 +81,38 @@ class _LanguageScreenState extends State<LanguageScreen> {
             flexibleSpace: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CustomIconButton(
-                      icon: Icons.chevron_left,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    Text(
-                      AppLocalizations.of(context).translate('Select Language'),
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20.sp, // Responsive font size using ScreenUtil
+                SizedBox(
+                  height: 40.h,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft, 
+                        child: CustomIconButton(
+                          icon: Icons.chevron_left,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 88.w), // Maintain space for the removed edit button
-                  ],
+                      Center(
+                        child: Text(
+                          AppLocalizations.of(context).translate('Select Language'),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.sp,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ]
+              ],
             ),
           ),
         ),
         body: _isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(), // Show loading indicator while changing language
               )
             : Padding(

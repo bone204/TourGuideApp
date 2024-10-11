@@ -42,25 +42,31 @@ class ProfileScreen extends StatelessWidget {
             flexibleSpace: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CustomIconButton(
-                      icon: Icons.chevron_left,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    Text(
-                      AppLocalizations.of(context).translate('Profile'),
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20.sp,
+                SizedBox(
+                  height: 40.h,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft, 
+                        child: CustomIconButton(
+                          icon: Icons.chevron_left,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 88.w),
-                  ],
+                      Center(
+                        child: Text(
+                          AppLocalizations.of(context).translate('Profile'),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.sp,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

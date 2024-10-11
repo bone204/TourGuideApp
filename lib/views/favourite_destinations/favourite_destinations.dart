@@ -73,7 +73,7 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h), // Chiều cao app bar
+          preferredSize: Size.fromHeight(60.h),
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -81,34 +81,33 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
             flexibleSpace: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomIconButton(
+                SizedBox(
+                  height: 40.h,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft, 
+                        child: CustomIconButton(
                           icon: Icons.chevron_left,
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
                         ),
-                        Flexible(
-                          child: Text(
-                            AppLocalizations.of(context).translate('Favourite Destinations'),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.sp, 
-                            ),
-                            textAlign: TextAlign.center,
+                      ),
+                      Center(
+                        child: Text(
+                          AppLocalizations.of(context).translate('Favourite Destinations'),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.sp,
                           ),
                         ),
-                        SizedBox(width: 88.w),
-                      ],
-                    );
-                  },
+                      ),
+                    ],
+                  ),
                 ),
-              ]
+              ],
             ),
           ),
         ),

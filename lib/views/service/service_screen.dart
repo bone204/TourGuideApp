@@ -12,7 +12,7 @@ class ServiceScreen extends StatelessWidget {
     ScreenUtil.init(context, designSize: const Size(375, 812)); // Thiết lập kích thước màn hình
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF9F9F9),
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
           child: Align(

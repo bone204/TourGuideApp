@@ -73,7 +73,7 @@ class _TravelHistoryScreenState extends State<TravelHistoryScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h), 
+          preferredSize: Size.fromHeight(60.h),
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -81,34 +81,33 @@ class _TravelHistoryScreenState extends State<TravelHistoryScreen> {
             flexibleSpace: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomIconButton(
+                SizedBox(
+                  height: 40.h,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft, 
+                        child: CustomIconButton(
                           icon: Icons.chevron_left,
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
                         ),
-                        Flexible(
-                          child: Text(
-                            AppLocalizations.of(context).translate('Travel History'),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18.sp, 
-                            ),
-                            textAlign: TextAlign.center,
+                      ),
+                      Center(
+                        child: Text(
+                          AppLocalizations.of(context).translate('Travel History'),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.sp,
                           ),
                         ),
-                        SizedBox(width: 88.w),
-                      ],
-                    );
-                  },
+                      ),
+                    ],
+                  ),
                 ),
-              ]
+              ],
             ),
           ),
         ),

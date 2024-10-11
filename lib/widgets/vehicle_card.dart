@@ -53,12 +53,12 @@ class VehicleCard extends StatelessWidget {
                   child: Text(
                     data.model.length > 11 ? '${data.model.substring(0, 11)}...' : data.model,
                     style: TextStyle(
-                      fontSize: 18.sp,
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                SizedBox(height: 10.h),
+                SizedBox(height: 12.h),
                 ClipRRect(
                   child: Image.asset(
                     data.imagePath,
@@ -114,7 +114,6 @@ class VehicleCard extends StatelessWidget {
                           AppLocalizations.of(context).translate("Detail"),
                           style: TextStyle(
                             fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
                           )
                         )
                       ),

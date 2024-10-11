@@ -24,9 +24,10 @@ class CategoryButton extends StatelessWidget {
         backgroundColor: isSelected ? const Color(0xFF007BFF) : Colors.white,
         foregroundColor: isSelected ? Colors.white : const Color(0xFF007BFF),
         side: const BorderSide(color: Color(0xFF007BFF)),
+        padding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
       ),
-      child: Text(AppLocalizations.of(context).translate(category), style: TextStyle(fontSize: 14.sp)),
+      child: Center(child: Text(AppLocalizations.of(context).translate(category), style: TextStyle(fontSize: 14.sp))),
     );
   }
 }

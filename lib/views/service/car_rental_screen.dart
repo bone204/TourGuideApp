@@ -19,7 +19,7 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
   String selectedCategory = 'Car';
   final List<String> categories = ['Car', 'Motobike', 'Bicycle'];
   DateTime startDate = DateTime.now();
-  DateTime endDate = DateTime.now().add(const Duration(days: 1)); // Ngày kết thúc mặc định là 1 ngày sau
+  DateTime endDate = DateTime.now().add(const Duration(days: 1)); 
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: const Color(0xFFFFFFFF),
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.h),
         child: AppBar(
@@ -42,25 +42,31 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
           flexibleSpace: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomIconButton(
-                    icon: Icons.chevron_left,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  Text(
-                    'Car Rental',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.sp,
+              SizedBox(
+                height: 40.h,
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft, 
+                      child: CustomIconButton(
+                        icon: Icons.chevron_left,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 88.w), 
-                ],
+                    Center(
+                      child: Text(
+                        AppLocalizations.of(context).translate('Car Rental'),
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -71,7 +77,7 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
               child: Column(
                 children: [
                   Row(
@@ -86,7 +92,7 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
                         },
                         title: "Start Date",
                       ),
-                      SizedBox(width: 15.w),
+                      SizedBox(width: 12.w),
                       DateTimePicker(
                         selectedDate: endDate,
                         onDateSelected: (date) {
@@ -118,18 +124,17 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
                             ),
                           ],
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              AppLocalizations.of(context).translate('Filter'),
-                              style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold),
-                              overflow: TextOverflow.ellipsis, 
-                              maxLines: 1,
-                            ),
-                            SizedBox(width: 8.w),
-                            Icon(Icons.search, size: 24.sp, color: Colors.white),
-                          ],
+                        child: Center(
+                          child: Row(
+                            children: [
+                              Text(
+                                AppLocalizations.of(context).translate('Filter'),
+                                style: TextStyle(fontSize: 16.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(width: 8.w),
+                              Icon(Icons.search, size: 24.sp, color: Colors.white),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -137,7 +142,6 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
                 ]
               ),
             ),
-            SizedBox(height: 10.h),
             CategorySelector(
               categories: categories,
               selectedCategory: selectedCategory,

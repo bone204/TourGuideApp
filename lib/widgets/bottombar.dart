@@ -20,7 +20,7 @@ class NavigationExample extends StatelessWidget {
     );
 
     return Container(
-      height: 92.h, // Use ScreenUtil for height
+      height: 64.h, // Use ScreenUtil for height
       color: Colors.white, 
       child: ClipPath(
         clipper: CustomBottomBarClipper(),
@@ -30,8 +30,8 @@ class NavigationExample extends StatelessWidget {
           onTap: onTap,
           selectedItemColor: const Color(0xFF24BAEC), 
           unselectedItemColor: const Color(0xFF7D848D), 
-          selectedLabelStyle: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold), // Use ScreenUtil for font size
-          unselectedLabelStyle: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold), // Use ScreenUtil for font size
+          selectedLabelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold), // Use ScreenUtil for font size
+          unselectedLabelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold), // Use ScreenUtil for font size
           showUnselectedLabels: true,
           backgroundColor: Colors.white, 
           items: [
@@ -39,8 +39,8 @@ class NavigationExample extends StatelessWidget {
               icon: Column(
                 mainAxisSize: MainAxisSize.min, // Use min to avoid extra space
                 children: [
-                  const Icon(Icons.home, size: 24),
-                  SizedBox(height: 8.h), // Spacing of 8 logical pixels
+                  Icon(Icons.home, size: 24.sp),
+                  SizedBox(height: 4.h), // Spacing of 8 logical pixels
                 ],
               ),
               label: AppLocalizations.of(context).translate('Home'),
@@ -49,8 +49,8 @@ class NavigationExample extends StatelessWidget {
               icon: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.explore, size: 24),
-                  SizedBox(height: 8.h),
+                  Icon(Icons.explore, size: 24.sp),
+                  SizedBox(height: 4.h),
                 ],
               ),
               label: AppLocalizations.of(context).translate('Explore'),
@@ -59,8 +59,8 @@ class NavigationExample extends StatelessWidget {
               icon: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.supervisor_account, size: 24),
-                  SizedBox(height: 8.h),
+                  Icon(Icons.supervisor_account, size: 24.sp),
+                  SizedBox(height: 4.h),
                 ],
               ),
               label: AppLocalizations.of(context).translate('Services'),
@@ -69,8 +69,8 @@ class NavigationExample extends StatelessWidget {
               icon: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.person,size: 24),
-                  SizedBox(height: 8.h),
+                  Icon(Icons.person,size: 24.sp),
+                  SizedBox(height: 4.h),
                 ],
               ),
               label: AppLocalizations.of(context).translate('Profile'),

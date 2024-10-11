@@ -6,6 +6,18 @@ import '../../widgets/custom_icon_button.dart';
 import '../../viewmodels/personInfo_viewmodel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+
+// CustomIconButton(
+//                           icon: viewModel.isEditing ? Icons.check : Icons.edit,
+//                           onPressed: () {
+//                             if (viewModel.isEditing) {
+//                               viewModel.saveData();
+//                             }
+//                             viewModel.toggleEditing();
+//                           },
+//                         ),
+
+
 class PersonInfoScreen extends StatefulWidget {
   const PersonInfoScreen({super.key});
 
@@ -46,29 +58,32 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
             flexibleSpace: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomIconButton(
+                SizedBox(
+                  height: 40.h,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft, 
+                        child: CustomIconButton(
                           icon: Icons.chevron_left,
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
                         ),
-                        Flexible(
-                          child: Text(
-                            AppLocalizations.of(context).translate('Personal Information'),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.sp,
-                            ),
-                            textAlign: TextAlign.center,
+                      ),
+                      Center(
+                        child: Text(
+                          AppLocalizations.of(context).translate('Personal Information'),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.sp,
                           ),
                         ),
-                        CustomIconButton(
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight, 
+                        child: CustomIconButton(
                           icon: viewModel.isEditing ? Icons.check : Icons.edit,
                           onPressed: () {
                             if (viewModel.isEditing) {
@@ -77,9 +92,9 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
                             viewModel.toggleEditing();
                           },
                         ),
-                      ],
-                    );
-                  },
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

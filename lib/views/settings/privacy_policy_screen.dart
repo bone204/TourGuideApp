@@ -20,42 +20,41 @@ class _PrivacyPolicyScreenScreenState extends State<PrivacyPolicyScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h), // Chiều cao app bar
+          preferredSize: Size.fromHeight(60.h),
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
             automaticallyImplyLeading: false,
             flexibleSpace: Column(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: [ 
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomIconButton(
+              children: [
+                SizedBox(
+                  height: 40.h,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft, 
+                        child: CustomIconButton(
                           icon: Icons.chevron_left,
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
                         ),
-                        Flexible(
-                          child: Text(
-                            AppLocalizations.of(context).translate('Privacy Policy'),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18.sp, // Kích thước chữ sử dụng ScreenUtil
-                            ),
-                            textAlign: TextAlign.center,
+                      ),
+                      Center(
+                        child: Text(
+                          AppLocalizations.of(context).translate('Privacy Policy'),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.sp,
                           ),
                         ),
-                        SizedBox(width: 88.w),
-                      ],
-                    );
-                  },
+                      ),
+                    ],
+                  ),
                 ),
-              ]
+              ],
             ),
           ),
         ),

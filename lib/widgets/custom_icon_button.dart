@@ -15,7 +15,7 @@ class CustomIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 30.w),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Container(
         decoration: const BoxDecoration(
           color: Color(0xFFF7F7F9),
