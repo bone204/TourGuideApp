@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/views/service/vehicle_rental_detail_screen.dart';
 
 class VehicleCardData {
   final String model;
@@ -8,13 +9,17 @@ class VehicleCardData {
   final String seats;
   final String fuelType;
   final String imagePath;
+  final DateTime startDate; 
+  final DateTime endDate; 
 
   VehicleCardData({
     required this.model,
     required this.transmission,
     required this.seats,
     required this.fuelType,
-    required this.imagePath
+    required this.imagePath,
+    required this.startDate, 
+    required this.endDate
   });
 }
 
@@ -119,9 +124,19 @@ class VehicleCard extends StatelessWidget {
                       ),
                       SizedBox(width: 10.w),
                       ElevatedButton(
-                        onPressed: () => {
-              
-                        }, 
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => VehicleRentalDetail(
+                                model: data.model,
+                                imagePath: data.imagePath,
+                                startDate: data.startDate, 
+                                endDate: data.endDate, 
+                              ),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF007BFF),
                           foregroundColor: Colors.white,

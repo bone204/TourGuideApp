@@ -15,7 +15,7 @@ class LocationPicker extends StatelessWidget {
         SizedBox(height: 4.h),
         Container(
           width: 228.w,
-          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w),
+          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16.r),
@@ -28,10 +28,9 @@ class LocationPicker extends StatelessWidget {
             ],
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Icon(Icons.location_on_outlined, size: 24.sp),
-              SizedBox(width: 8.w),
+              SizedBox(width: 6.w),
               SizedBox(
                 width: 170.w,
                 child: Text(

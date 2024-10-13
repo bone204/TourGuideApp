@@ -73,6 +73,16 @@
     "Location": "Location",
     "Filter": "Filter",
     "Start Date": "Start Date",
-    "End Date": "End Date"
+    "End Date": "End Date",
+
+    "Specs": "Specs",
+    "Power": "Power",
+    "Max Speed": "Max Speed",
+    "Acceleration": "Acceleration",
+    "Duration": "Duration",
+    "Pick-up Time": "Pick-up Time",
+
+    "Invalid End Date": "Invalid End Date",
+    "End date must be after the start date.": "End date must be after the start date."
   }
   

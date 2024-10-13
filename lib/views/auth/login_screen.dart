@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext contextt) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
     return ChangeNotifierProvider<LoginViewModel>(
       create: (_) => LoginViewModel(),
@@ -162,20 +162,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 40.h),
+                SizedBox(height: 25.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SocialIconButton(
-                      icon: FontAwesomeIcons.facebook,
-                      color: const Color(0xFF4267B2),
-                      onPressed: () {
-                        // Handle Facebook login
-                      },
-                    ),
-                    SizedBox(width: 30.w),
-                    SocialIconButton(
                       icon: FontAwesomeIcons.google,
+                      label: AppLocalizations.of(context).translate('Google'),
                       color: const Color(0xFFDB4437),
                       onPressed: () async {
                         User? user = await loginViewModel.signInWithGoogle();
@@ -186,6 +179,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             print("Google login failed");
                           }
                         }
+                      },
+                    ),
+                    SizedBox(width: 15.w),
+                    SocialIconButton(
+                      icon: FontAwesomeIcons.facebook,
+                      label: AppLocalizations.of(context).translate('Facebook'),
+                      color: const Color(0xFF4267B2),
+                      onPressed: () {
+                        // Handle Facebook login
                       },
                     ),
                   ],

@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
-class DisabledTextField extends StatelessWidget {
+class InfoTextField extends StatelessWidget {
   final String labelText;
   final String text;
-  final bool enabled;
+  final IconData icon;
+  final int size;
 
-  const DisabledTextField({
+  const InfoTextField({
     required this.labelText,
     required this.text,
-    this.enabled = false,
+    required this.icon,
+    required this.size,
     super.key,
   });
 
@@ -19,31 +22,30 @@ class DisabledTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          labelText,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
+          AppLocalizations.of(context).translate(labelText),
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 12.h),
-        SizedBox(
-          width: double.infinity,
-          child: TextField(
-            enabled: enabled,
-            controller: TextEditingController(text: text), // Nội dung hiển thị
-            style: TextStyle(
-              fontSize: 16.sp,
-              color: Colors.black,
-            ),
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16.r),
-                borderSide: BorderSide.none,
+        Container(
+          width: size.w,
+          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF7F7F9),
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 24.sp),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Text(
+                  text,
+                  style: TextStyle(fontSize: 14.sp),
+                  overflow: TextOverflow.ellipsis, 
+                  maxLines: 1, 
+                ),
               ),
-              filled: true,
-              fillColor: const Color(0xFFF7F7F9),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
-            ),
+            ],
           ),
         ),
       ],

@@ -52,7 +52,7 @@ class DateTimePicker extends StatelessWidget {
           ConstrainedBox(
             constraints: BoxConstraints(minWidth: 160.w),
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
+              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16.r),
@@ -70,7 +70,7 @@ class DateTimePicker extends StatelessWidget {
                   Row(
                     children: [
                       Icon(Icons.calendar_month, size: 24.sp),
-                      SizedBox(width: 8.w),
+                      SizedBox(width: 6.w),
                       Text(
                         "${_getDayAbbreviation(selectedDate, context)}, ${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}",
                         style: TextStyle(fontSize: 14.sp),
@@ -86,3 +86,5 @@ class DateTimePicker extends StatelessWidget {
     );
   }
 }
+
+

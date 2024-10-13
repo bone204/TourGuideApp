@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/widgets/textfield.dart';
+import 'package:tourguideapp/widgets/disable_textfield.dart';
 import '../../viewmodels/accountInfo_viewmodel.dart';
 import '../../widgets/custom_icon_button.dart';
 

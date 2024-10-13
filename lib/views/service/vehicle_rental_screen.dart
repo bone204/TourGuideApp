@@ -6,16 +6,16 @@ import 'package:tourguideapp/widgets/date_time_picker.dart';
 import 'package:tourguideapp/widgets/location_picker.dart';
 import 'package:tourguideapp/widgets/vehicle_card.dart';
 import 'package:tourguideapp/widgets/vehicle_card_list.dart';
-import 'package:tourguideapp/widgets/category_selector.dart'; // Import the CategorySelector widget
+import 'package:tourguideapp/widgets/category_selector.dart';
 
-class CarRentalScreen extends StatefulWidget {
-  const CarRentalScreen({Key? key}) : super(key: key);
+class VehicleRentalScreen extends StatefulWidget {
+  const VehicleRentalScreen({Key? key}) : super(key: key);
 
   @override
-  State<CarRentalScreen> createState() => _CarRentalScreenState();
+  State<VehicleRentalScreen> createState() => _VehicleRentalScreenState();
 }
 
-class _CarRentalScreenState extends State<CarRentalScreen> {
+class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
   String selectedCategory = 'Car';
   final List<String> categories = ['Car', 'Motobike', 'Bicycle'];
   DateTime startDate = DateTime.now();
@@ -88,6 +88,9 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
                         onDateSelected: (date) {
                           setState(() {
                             startDate = date;
+                            if (endDate.isBefore(startDate)) {
+                              endDate = startDate.add(const Duration(days: 1));
+                            }
                           });
                         },
                         title: "Start Date",
@@ -97,7 +100,27 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
                         selectedDate: endDate,
                         onDateSelected: (date) {
                           setState(() {
-                            endDate = date;
+                            if (date.isAfter(startDate)) {
+                              endDate = date;
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text(AppLocalizations.of(context).translate('Invalid End Date')),
+                                    content: Text(AppLocalizations.of(context).translate('End date must be after the start date.')),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop(); // Close the dialog
+                                        },
+                                        child: Text(AppLocalizations.of(context).translate('OK')),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
                           });
                         },
                         title: "End Date",
@@ -183,14 +206,18 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
             transmission: 'Automatic',
             seats: '5 seats',
             fuelType: 'Diesel',
-            imagePath: 'assets/img/icon-cx3.png', // Corrected path
+            imagePath: 'assets/img/icon-cx3.png',
+            startDate: startDate,
+            endDate: endDate, // Corrected path
           ),
           VehicleCardData(
             model: 'GLA 250 SUV',
             transmission: 'Automatic',
             seats: '7 seats',
             fuelType: 'Diesel',
-            imagePath: 'assets/img/icon-cx3.png', // Corrected path
+            imagePath: 'assets/img/icon-cx3.png',
+            startDate: startDate,
+            endDate: endDate, // Corrected path
           ),
         ];
       case 'Motobike':
@@ -201,6 +228,8 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
             seats: '2 seats',
             fuelType: 'Petrol',
             imagePath: 'assets/img/icon-cx3.png',
+            startDate: startDate,
+            endDate: endDate,
           ),
           VehicleCardData(
             model: 'Yamaha MT-07',
@@ -208,6 +237,8 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
             seats: '2 seats',
             fuelType: 'Petrol',
             imagePath: 'assets/img/icon-cx3.png',
+            startDate: startDate,
+            endDate: endDate,
           ),
         ];
       case 'Bicycle':
@@ -218,6 +249,8 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
             seats: '1 seat',
             fuelType: 'Human',
             imagePath: 'assets/img/icon-cx3.png',
+            startDate: startDate,
+            endDate: endDate,
           ),
           VehicleCardData(
             model: 'Specialized Tarmac SL7',
@@ -225,6 +258,8 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
             seats: '1 seat',
             fuelType: 'Human',
             imagePath: 'assets/img/icon-cx3.png',
+            startDate: startDate,
+            endDate: endDate,
           ),
         ];
       default:

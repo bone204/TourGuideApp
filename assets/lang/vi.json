@@ -73,6 +73,16 @@
     "Location": "Vị trí đón",
     "Filter": "Lọc",
     "Start Date": "Ngày nhận xe",
-    "End Date": "Ngày trả xe"
+    "End Date": "Ngày trả xe",
+
+    "Specs": "Thông số kĩ thuật",
+    "Power": "Công Suất",
+    "Max Speed": "Tốc Độ Tối Đa",
+    "Acceleration": "Gia Tốc",
+    "Duration": "Thời Gian",
+    "Pick-up Time": "Thời Gian Đón",
+
+    "Invalid End Date": "Ngày trả không hợp lệ",
+    "End date must be after the start date.": "Ngày trả phải sau ngày nhận xe."
 }
   

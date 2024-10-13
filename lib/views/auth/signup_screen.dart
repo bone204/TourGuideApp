@@ -137,23 +137,25 @@ class SignupScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 40.h), 
+                SizedBox(height: 25.h), 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SocialIconButton(
-                      icon: FontAwesomeIcons.facebook,
-                      color: const Color(0xFF4267B2),
-                      onPressed: () {
-                        // Handle Facebook login
-                      },
-                    ),
-                    SizedBox(width: 30.w), 
-                    SocialIconButton(
                       icon: FontAwesomeIcons.google,
+                      label: AppLocalizations.of(context).translate('Google'),
                       color: const Color(0xFFDB4437),
                       onPressed: () {
                         // Handle Google login
+                      },
+                    ),
+                    SizedBox(width: 15.w), 
+                    SocialIconButton(
+                      icon: FontAwesomeIcons.facebook,
+                      label: AppLocalizations.of(context).translate('Facebook'),
+                      color: const Color(0xFF4267B2),
+                      onPressed: () {
+                        // Handle Facebook login
                       },
                     ),
                   ],

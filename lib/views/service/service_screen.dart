@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tourguideapp/views/service/car_rental_screen.dart';
+import 'package:tourguideapp/views/service/vehicle_rental_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../localization/app_localizations.dart';
 import '../../widgets/interactive_row_widget.dart';
@@ -48,7 +48,7 @@ class ServiceScreen extends StatelessWidget {
         if (navigateToCarRental) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const CarRentalScreen()),
+            MaterialPageRoute(builder: (context) => const VehicleRentalScreen()),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
