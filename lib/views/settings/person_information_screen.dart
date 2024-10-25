@@ -29,7 +29,6 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
   @override
   void initState() {
     super.initState();
-    // Load user data
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userId = FirebaseAuth.instance.currentUser?.uid; 
       if (userId != null) {

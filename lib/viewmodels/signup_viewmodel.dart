@@ -18,7 +18,6 @@ class SignupViewModel extends ChangeNotifier {
     try {
       User? user = await _auth.signUpWithEmailAndPassword(email, password, name, address,gender, citizenId, phoneNumber, nationality, birthday);
       if (user != null) {
-        // Đăng ký thành công và người dùng đã được lưu vào Firestore
         return user;
       }
     } catch (e) {

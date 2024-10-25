@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 class HomeViewModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   String _name = '';
   String _email = '';
   String _profileImageUrl = '';
@@ -15,47 +15,42 @@ class HomeViewModel extends ChangeNotifier {
   String get profileImageUrl => _profileImageUrl;
 
   HomeViewModel() {
-    _loadUserData();
+    _auth.authStateChanges().listen((user) {
+      if (user != null) {
+        _loadUserData();
+      } else {
+        _clearData();
+      }
+    });
   }
 
+  // Hàm tải dữ liệu người dùng
   Future<void> _loadUserData() async {
     User? user = _auth.currentUser;
     if (user != null) {
       try {
         DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
         if (doc.exists) {
-          // Convert doc.data() to Map<String, dynamic> to access specific fields
           Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
-          _name = data?['name'] ?? 'Unknown'; // Use default values if data is missing
+          _name = data?['name'] ?? 'Unknown';
           _email = data?['email'] ?? 'Unknown';
-          _profileImageUrl = data?['profileImageUrl'] ?? ''; // Add a field for profile image URL
-          notifyListeners();
+          _profileImageUrl = data?['profileImageUrl'] ?? '';
         } else {
-          if (kDebugMode) {
-            print("User document does not exist");
-          }
-          _name = 'Unknown';
-          _email = 'Unknown';
-          _profileImageUrl = '';
-          notifyListeners();
+          _clearData();
         }
       } catch (e) {
-        if (kDebugMode) {
-          print("Error fetching user data: $e");
-        }
-        _name = 'Unknown';
-        _email = 'Unknown';
-        _profileImageUrl = '';
-        notifyListeners();
+        _clearData();
       }
-    } else {
-      if (kDebugMode) {
-        print("User not logged in");
-      }
-      _name = 'Unknown';
-      _email = 'Unknown';
-      _profileImageUrl = '';
       notifyListeners();
     }
   }
+
+  // Hàm xóa dữ liệu cũ
+  void _clearData() {
+    _name = 'Unknown';
+    _email = 'Unknown';
+    _profileImageUrl = '';
+    notifyListeners();
+  }
 }
+

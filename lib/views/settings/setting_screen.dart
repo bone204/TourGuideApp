@@ -162,20 +162,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
               ),
-              SizedBox(height: 16.h), // Responsive space sử dụng ScreenUtil
-              // Nút đăng xuất
+              SizedBox(height: 16.h), 
               InteractiveRowWidget(
                 leadingIcon: Icons.logout,
                 title: AppLocalizations.of(context).translate('Sign Out'),
                 trailingIcon: Icons.chevron_right,
-                onTap: () {
-                  FirebaseAuth.instance.signOut();
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    "/",
-                    (route) => false,
+                onTap: () async {
+                  bool shouldLogout = await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text(AppLocalizations.of(context).translate('Confirm Logout')),
+                        content: Text(AppLocalizations.of(context).translate('Are you sure you want to log out?')),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(false); // Stay logged in
+                            },
+                            child: Text(AppLocalizations.of(context).translate('Cancel')),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(true); // Confirm logout
+                            },
+                            child: Text(AppLocalizations.of(context).translate('Logout')),
+                          ),
+                        ],
+                      );
+                    },
                   );
+
+                  if (shouldLogout) {
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      "/",
+                      (route) => false,
+                    );
+                  }
                 },
+
               ),
             ],
           ),
