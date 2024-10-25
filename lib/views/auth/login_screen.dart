@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
         builder: (context, loginViewModel, child) => Scaffold(
           backgroundColor: Colors.white,
           body: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(20.w, 150.h, 20.w, 0),
+            padding: EdgeInsets.fromLTRB(20.w, 140.h, 20.w, 0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[

@@ -26,7 +26,7 @@ class SignupScreen extends StatelessWidget {
         builder: (context, signupViewModel, child) => Scaffold(
           backgroundColor: Colors.white,
           body: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(20.w, 100.h, 20.w, 0), 
+            padding: EdgeInsets.fromLTRB(20.w, 90.h, 20.w, 0), 
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[

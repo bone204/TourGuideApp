@@ -24,6 +24,11 @@ dependencies:
   latlong2: ^0.9.1
   flutter_screenutil: ^5.9.3
   shared_preferences: ^2.3.2
+  google_fonts: ^6.2.1
+  dots_indicator: ^3.0.0
+  smooth_page_indicator: ^1.2.0+3
+  animate_do: ^3.3.4
+  
 
   # Localization dependencies
   flutter_localizations:

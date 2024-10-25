@@ -11,11 +11,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tourguideapp/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  testWidgets('Kiểm tra tăng bộ đếm', (WidgetTester tester) async {
+    // Xây dựng ứng dụng và kích hoạt một khung hình
+    await tester.pumpWidget(MyApp(showOnboarding: false));
 
-    // Verify that our counter starts at 0.
+    // Xác minh rằng bộ đếm của chúng ta bắt đầu từ 0
     expect(find.text('0'), findsOneWidget);
     expect(find.text('1'), findsNothing);
 

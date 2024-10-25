@@ -154,10 +154,10 @@ class HeaderBar extends StatelessWidget {
               'Explore the',
               style: TextStyle(
                 color: Colors.black,
-                fontSize: 38.sp, // Sử dụng ScreenUtil cho kích thước văn bản
+                fontSize: 38.sp, 
               ),
             ),
-            SizedBox(height: 5.h), // Điều chỉnh kích thước
+            SizedBox(height: 5.h), 
             RichText(
               text: TextSpan(
                 children: [
@@ -166,7 +166,7 @@ class HeaderBar extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
-                      fontSize: 38.sp, // Điều chỉnh kích thước văn bản
+                      fontSize: 38.sp, 
                     ),
                   ),
                   TextSpan(
@@ -212,15 +212,15 @@ class SectionHeadline extends StatelessWidget {
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
-                fontSize: 20.sp, // Điều chỉnh kích thước văn bản
+                fontSize: 20.sp, 
               ),
             ),
-            SizedBox(height: 5.h), // Điều chỉnh khoảng cách
+            SizedBox(height: 5.h), 
             Text(
               AppLocalizations.of(context).translate(subtitle),
               style: TextStyle(
                 color: Colors.grey,
-                fontSize: 14.sp, // Điều chỉnh kích thước văn bản
+                fontSize: 14.sp, 
               ),
             ),
           ],
