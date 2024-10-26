@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/horizontal_card.dart';
 
 class HorizontalCardListView extends StatelessWidget {
@@ -9,16 +10,25 @@ class HorizontalCardListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812));
     return SizedBox(
-      height: 390.h, // Sử dụng chiều cao dựa trên ScreenUtil
+      height: 390.h,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: cardDataList.length,
         itemBuilder: (context, index) {
           return Padding(
-            padding: EdgeInsets.only(right: 15.w), // Khoảng cách giữa các card sử dụng ScreenUtil
-            child: HorizontalCard(data: cardDataList[index]),
+            padding: EdgeInsets.only(right: 15.w),
+            child: HorizontalCard(
+              data: cardDataList[index],
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DestinationDetailPage(data: cardDataList[index]),
+                  ),
+                );
+              },
+            ),
           );
         },
       ),
