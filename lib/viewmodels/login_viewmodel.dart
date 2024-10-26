@@ -1,18 +1,21 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/services/firebase_auth_services.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final FirebaseAuthService _authService = FirebaseAuthService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Initialize Firestore
   bool isLoading = false;
-  String? errorMessage; // Biến lưu trữ thông báo lỗi
+  String? errorMessage;
 
-  // Đăng nhập với Email và Password
+  // Login with Email and Password
   Future<User?> signIn(String email, String password) async {
     isLoading = true;
-    errorMessage = null; // Xóa lỗi trước đó
-    notifyListeners(); // Thông báo cho View cập nhật trạng thái
+    errorMessage = null;
+    notifyListeners();
 
     try {
       User? user = await _authService.signInWithEmailAndPassword(email, password);
@@ -35,12 +38,12 @@ class LoginViewModel extends ChangeNotifier {
       errorMessage = 'An unexpected error occurred. Please try again.';
     } finally {
       isLoading = false;
-      notifyListeners(); // Thông báo cho View khi quá trình hoàn tất hoặc gặp lỗi
+      notifyListeners();
     }
     return null;
   }
 
-  // Đăng nhập bằng Google
+  // Sign in with Google
   Future<User?> signInWithGoogle() async {
     isLoading = true;
     errorMessage = null;
@@ -61,7 +64,22 @@ class LoginViewModel extends ChangeNotifier {
       );
 
       UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-      return userCredential.user;
+      User? user = userCredential.user;
+
+      // Check if user exists in Firestore
+      if (user != null) {
+        DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
+        if (!doc.exists) {
+          // If user does not exist, create a new account
+          await _firestore.collection('users').doc(user.uid).set({
+            'name': googleUser.displayName ?? 'Unknown',
+            'email': user.email,
+            'profileImageUrl': googleUser.photoUrl ?? '',
+            // Add additional information if needed
+          });
+        }
+      }
+      return user;
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case 'account-exists-with-different-credential':
@@ -76,8 +94,6 @@ class LoginViewModel extends ChangeNotifier {
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print('Error during Google sign-in: $e');
-      }
-      if (kDebugMode) {
         print('Stack trace: $stackTrace');
       }
       errorMessage = 'An unexpected error occurred during Google login.';
@@ -86,5 +102,48 @@ class LoginViewModel extends ChangeNotifier {
       notifyListeners();
     }
     return null;
+  }
+
+  // Login with Facebook
+  Future<User?> signInWithFacebook() async {
+    // Trigger the sign-in flow
+    final LoginResult loginResult = await FacebookAuth.instance.login();
+
+    if (loginResult.status == LoginStatus.success) {
+      // Create a credential from the access token
+      final accessToken = loginResult.accessToken;
+      if (accessToken != null) {
+        final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(accessToken.tokenString);
+
+        // Once signed in, return the UserCredential
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+        User? user = userCredential.user;
+
+        // Check if user is null
+        if (user != null) {
+          // Optional: Save additional user data in Firestore
+          DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
+          if (!doc.exists) {
+            await _firestore.collection('users').doc(user.uid).set({
+              'name': user.displayName ?? 'Unknown',
+              'email': user.email ?? 'No Email', // Default value if email is null
+              'profileImageUrl': '', // You might fetch this from Facebook API later
+            });
+          }
+        } else {
+          errorMessage = 'Failed to get user data.';
+        }
+        return user;
+      } else {
+        errorMessage = 'Failed to get access token.';
+        notifyListeners();
+        return null;
+      }
+    } else {
+      // Handle login failure cases
+      errorMessage = 'Facebook login failed: ${loginResult.message}';
+      notifyListeners();
+      return null;
+    }
   }
 }

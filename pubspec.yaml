@@ -28,7 +28,8 @@ dependencies:
   dots_indicator: ^3.0.0
   smooth_page_indicator: ^1.2.0+3
   animate_do: ^3.3.4
-  
+  flutter_facebook_auth: ^7.1.1
+  http: ^1.2.2
 
   # Localization dependencies
   flutter_localizations:

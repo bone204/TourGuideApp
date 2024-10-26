@@ -186,8 +186,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       icon: FontAwesomeIcons.facebook,
                       label: AppLocalizations.of(context).translate('Facebook'),
                       color: const Color(0xFF4267B2),
-                      onPressed: () {
-                        // Handle Facebook login
+                      onPressed: () async {
+                        User? user = await loginViewModel.signInWithFacebook();
+                        if (user != null) {
+                          Navigator.pushNamed(context, "/home");
+                        } else {
+                          if (kDebugMode) {
+                            print("Facebook login failed");
+                          }
+                        }
                       },
                     ),
                   ],
