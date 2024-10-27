@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/widgets/favourite_card_list.dart';
-// import 'package:tourguideapp/widgets/interactive_row_widget.dart';
+import 'package:tourguideapp/widgets/horizontal_card.dart';
 import '../../widgets/custom_icon_button.dart';
+import 'package:provider/provider.dart';
+import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 
 class FavouriteDestinationsScreen extends StatefulWidget {
   const FavouriteDestinationsScreen({super.key});
@@ -16,59 +19,9 @@ class FavouriteDestinationsScreen extends StatefulWidget {
 class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
   @override
   Widget build(BuildContext context) {
+    final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
+
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Khởi tạo ScreenUtil
-    final List<FavouriteCardData> favouriteCards = [
-      FavouriteCardData(
-        imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
-        placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
-      ),
-      FavouriteCardData(
-        imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
-        placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
-      ),
-      FavouriteCardData(
-        imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
-        placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
-      ),
-      FavouriteCardData(
-        imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
-        placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
-      ),
-      FavouriteCardData(
-        imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
-        placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
-      ),
-      FavouriteCardData(
-        imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
-        placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
-      ),
-      FavouriteCardData(
-        imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
-        placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
-      ),
-      FavouriteCardData(
-        imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
-        placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
-      ),
-      FavouriteCardData(
-        imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
-        placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
-      ),
-      FavouriteCardData(
-        imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
-        placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
-      ),
-    ];
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -117,13 +70,42 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
             children: [
               _buildSearchBar(),
               SizedBox(height: 10.h),
-              FavouriteCardListView(cardDataList: favouriteCards),
-            ]
+              FavouriteCardListView(
+                cardDataList: favouriteViewModel.favouriteCards.map((horizontalCard) {
+                  return FavouriteCardData(
+                    placeName: horizontalCard.placeName,
+                    imageUrl: horizontalCard.imageUrl,
+                    description: horizontalCard.description,
+                  );
+                }).toList(),
+                onCardTap: (favouriteCardData) {
+                  final horizontalCardData = HorizontalCardData(
+                    placeName: favouriteCardData.placeName,
+                    imageUrl: favouriteCardData.imageUrl,
+                    description: favouriteCardData.description,
+                    rating: 0, // Thêm giá trị mặc định cho rating nếu cần
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DestinationDetailPage(
+                        data: horizontalCardData,
+                        isFavourite: favouriteViewModel.isFavourite(horizontalCardData),
+                        onFavouriteToggle: (isFavourite) {
+                          favouriteViewModel.toggleFavourite(horizontalCardData);
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        )
+        ),
       ),
     );
   }
+
   Widget _buildSearchBar() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 0.h, horizontal: 20.w),

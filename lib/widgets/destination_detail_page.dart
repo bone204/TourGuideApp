@@ -4,8 +4,15 @@ import 'package:tourguideapp/widgets/horizontal_card.dart';
 
 class DestinationDetailPage extends StatelessWidget {
   final HorizontalCardData data;
+  final bool isFavourite;
+  final ValueChanged<bool> onFavouriteToggle; // Thêm callback
 
-  const DestinationDetailPage({required this.data, super.key});
+  const DestinationDetailPage({
+    required this.data,
+    required this.isFavourite,
+    required this.onFavouriteToggle, // Thêm vào constructor
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -148,11 +155,9 @@ class DestinationDetailPage extends StatelessWidget {
           Positioned(
             top: 40,
             right: 20,
-            child: GestureDetector(
-              onTap: () {
-                // Logic cho CustomLikeButton
-              },
-              child: const CustomLikeButton(),
+            child: CustomLikeButton(
+              isLiked: isFavourite,
+              onLikeChanged: onFavouriteToggle, // Gọi callback khi nhấn nút thích
             ),
           ),
           // Nút Save a Trip cố định ở đáy

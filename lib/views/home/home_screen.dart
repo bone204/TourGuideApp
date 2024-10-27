@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
+import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
+import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/horizontal_card.dart';
 import 'package:tourguideapp/widgets/horizontal_card_list_view.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; 
@@ -50,6 +52,8 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget buildSectionHeadline(BuildContext context, String title, String subtitle, List<HorizontalCardData> cardDataList) {
+    final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -59,7 +63,23 @@ class HomeScreen extends StatelessWidget {
           viewAllColor: const Color(0xFFFF7029),
         ),
         SizedBox(height: 12.h),
-        HorizontalCardListView(cardDataList: cardDataList),
+        HorizontalCardListView(
+          cardDataList: cardDataList,
+          onCardTap: (cardData) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DestinationDetailPage(
+                  data: cardData,
+                  isFavourite: favouriteViewModel.isFavourite(cardData),
+                  onFavouriteToggle: (isFavourite) {
+                    favouriteViewModel.toggleFavourite(cardData);
+                  },
+                ),
+              ),
+            );
+          },
+        ),
       ],
     );
   }

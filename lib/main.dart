@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart'; 
 import 'package:tourguideapp/viewmodels/accountInfo_viewmodel.dart';
+import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/personInfo_viewmodel.dart';
 import 'package:tourguideapp/views/on_boarding/on_boarding_screen.dart';
@@ -62,6 +63,7 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => FavouriteDestinationsViewModel()),
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
         ChangeNotifierProvider(create: (_) => AccountInfoViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()), 
