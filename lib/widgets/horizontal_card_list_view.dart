@@ -15,17 +15,17 @@ class HorizontalCardListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 390.h,
+      height: 400.h,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: cardDataList.length,
         itemBuilder: (context, index) {
           final data = cardDataList[index];
           return Padding(
-            padding: EdgeInsets.only(right: 15.w),
+            padding: EdgeInsets.fromLTRB(4.w, 4.h, 12.w, 6.h),
             child: HorizontalCard(
               data: data,
-              onTap: () => onCardTap(data), // Gọi hàm khi nhấn vào card
+              onTap: () => onCardTap(data), 
             ),
           );
         },

@@ -83,6 +83,9 @@
     "Pick-up Time": "Thời Gian Đón",
 
     "Invalid End Date": "Ngày trả không hợp lệ",
-    "End date must be after the start date.": "Ngày trả phải sau ngày nhận xe."
+    "End date must be after the start date.": "Ngày trả phải sau ngày nhận xe.",
+    "You haven't registered any vehicles yet.": "Bạn chưa đăng ký xe.",
+    "Register now": "Đăng ký ngay!",
+    "Vehicle Rental Register": "Đăng Ký Cho Thuê Xe"
 }
   

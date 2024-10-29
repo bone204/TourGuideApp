@@ -24,6 +24,24 @@ class HomeScreen extends StatelessWidget {
         description: 'Thừa Thiên Huế',
         rating: 4.5,
       ),
+      HorizontalCardData(
+        imageUrl: 'https://vnpay.vn/s1/statics.vnpay.vn/2023/9/01gg1bq72tx21695660244678.jpg',
+        placeName: 'Nhà thờ Đá',
+        description: 'Nha Trang',
+        rating: 4.5,
+      ),
+      HorizontalCardData(
+        imageUrl: 'https://ik.imagekit.io/tvlk/xpe-asset/AyJ40ZAo1DOyPyKLZ9c3RGQHTP2oT4ZXW+QmPVVkFQiXFSv42UaHGzSmaSzQ8DO5QIbWPZuF+VkYVRk6gh-Vg4ECbfuQRQ4pHjWJ5Rmbtkk=/2001357730516/Ba-Na-Hills-%2528Vietnam-Golden-Bridge%2529---Day-Tour-fe2e456e-05a1-4081-96df-c8fff570575b.png?tr=q-60,c-at_max,w-1280,h-720&_src=imagekit',
+        placeName: 'Cầu Vàng',
+        description: 'Đà Nẵng',
+        rating: 4.5,
+      ),
+      HorizontalCardData(
+        imageUrl: 'https://topquangngai.vn/wp-content/uploads/2022/08/mot-ngay-nang-tren-deo-violac-quang-ngai-296275938_164623472787479_2300489940475416046_n.jpg',
+        placeName: 'Đèo Vi Ô Lắc',
+        description: 'Quảng Ngãi',
+        rating: 4.5,
+      ),
     ];
 
     return Scaffold(

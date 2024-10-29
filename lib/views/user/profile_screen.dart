@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourguideapp/views/favourite_destinations/favourite_destinations.dart';
+import 'package:tourguideapp/views/my_vehicle/my_vehicle_screen.dart';
 import 'package:tourguideapp/views/settings/setting_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/views/travel_history/travel_history_screen.dart';
@@ -106,7 +107,7 @@ class ProfileScreen extends StatelessWidget {
                       SizedBox(height: 16.h),
                       _buildInteractiveRow(context, Icons.history, 'Travel History', navigateToTravelHistory: true),
                       SizedBox(height: 16.h),
-                      _buildInteractiveRow(context, Icons.car_crash, 'My Vehicle'),
+                      _buildInteractiveRow(context, Icons.car_crash, 'My Vehicle', navigateToMyVehicle: true),
                       SizedBox(height: 16.h),
                       _buildInteractiveRow(context, Icons.feedback, 'Feedback'),
                       SizedBox(height: 16.h),
@@ -171,7 +172,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInteractiveRow(BuildContext context, IconData leadingIcon, String title, {bool navigateToSettings = false, bool navigateToFavouriteDestinations = false, bool navigateToTravelHistory = false}) {
+  Widget _buildInteractiveRow(BuildContext context, IconData leadingIcon, String title, {bool navigateToSettings = false, bool navigateToFavouriteDestinations = false, bool navigateToTravelHistory = false, bool navigateToMyVehicle = false}) {
     return InteractiveRowWidget(
       leadingIcon: leadingIcon,
       title: AppLocalizations.of(context).translate(title),
@@ -191,6 +192,11 @@ class ProfileScreen extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => TravelHistoryScreen()),
+          );
+        }  else if (navigateToMyVehicle) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MyVehicleScreen()),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
