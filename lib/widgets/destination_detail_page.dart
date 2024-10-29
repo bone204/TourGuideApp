@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/widgets/custom_like_button.dart';
 import 'package:tourguideapp/widgets/horizontal_card.dart';
 
@@ -16,6 +17,7 @@ class DestinationDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context, designSize: const Size(375, 812));
     return Scaffold(
       body: Stack(
         children: [
@@ -25,7 +27,7 @@ class DestinationDetailPage extends StatelessWidget {
             left: 0,
             right: 0,
             child: Container(
-              height: 500, // Fixed height for the image
+              height: 400.h, // Fixed height for the image
               decoration: BoxDecoration(
                 image: DecorationImage(
                   image: NetworkImage(data.imageUrl),
@@ -41,12 +43,11 @@ class DestinationDetailPage extends StatelessWidget {
             maxChildSize: 0.9,
             builder: (context, scrollController) {
               return Container(
-                padding: const EdgeInsets.all(16),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
+                    topLeft: Radius.circular(35),
+                    topRight: Radius.circular(35),
                   ),
                 ),
                 child: DefaultTabController(
@@ -56,83 +57,101 @@ class DestinationDetailPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          data.placeName,
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(30.w, 30.h, 30.w, 0),
+                          child: Text(
+                            data.placeName,
+                            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                          ),
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Icon(Icons.location_on, color: Colors.grey[600]),
-                            const SizedBox(width: 8),
-                            Text(data.description, style: TextStyle(color: Colors.grey[600])),
-                          ],
+                        SizedBox(height: 10.h),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 30.w),
+                          child: Row(
+                            children: [
+                              Icon(Icons.location_on, color: Colors.grey[600]),
+                              SizedBox(width: 6.w),
+                              Text(data.description, style: TextStyle(color: Colors.grey[600])),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 16),
-
+                        SizedBox(height: 10.h),
                         // Rating
-                        Row(
-                          children: [
-                            Text(data.rating.toString(), style: TextStyle(color: Colors.grey[600], fontSize: 16)),
-                            const SizedBox(width: 4),
-                            Row(
-                              children: List.generate(5, (index) {
-                                return Icon(
-                                  index < data.rating.round()
-                                      ? Icons.star
-                                      : Icons.star_border,
-                                  color: Colors.amber,
-                                  size: 16,
-                                );
-                              }),
-                            ),
-                          ],
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 30.w),
+                          child: Row(
+                            children: [
+                              Text(data.rating.toString(), style: TextStyle(color: Colors.grey[600], fontSize: 14.sp)),
+                              SizedBox(width: 10.w),
+                              Row(
+                                children: List.generate(5, (index) {
+                                  return Icon(
+                                    index < data.rating.round()
+                                        ? Icons.star
+                                        : Icons.star_border,
+                                    color: Colors.amber,
+                                    size: 12.sp,
+                                  );
+                                }),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 28.h),
 
                         // TabBar
-                        const TabBar(
+                        TabBar(
                           labelColor: Colors.black,
                           unselectedLabelColor: Colors.grey,
                           indicatorColor: Colors.red,
-                          tabs: [
+                          labelStyle: TextStyle(
+                            fontSize: 14.sp, 
+                            fontWeight: FontWeight.bold, 
+                          ),
+                          unselectedLabelStyle: TextStyle(
+                            fontSize: 14.sp, 
+                            fontWeight: FontWeight.bold, 
+                          ),
+                          tabs: const [
                             Tab(text: 'About'),
                             Tab(text: 'Review'),
                             Tab(text: 'Photo'),
                             Tab(text: 'Video'),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 10.h),
 
-                        // TabBarView
-                        SizedBox(
-                          height: 200, // Fixed height for TabBarView
-                          child: TabBarView(
-                            children: [
-                              // About
-                              Text(
-                                "About: Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                                style: TextStyle(color: Colors.grey[700], fontSize: 14),
-                              ),
-                              // Review
-                              Text(
-                                "Review: Duis aute irure dolor in reprehenderit in voluptate velit esse.",
-                                style: TextStyle(color: Colors.grey[700], fontSize: 14),
-                              ),
-                              // Photo
-                              Text(
-                                "Photo: Excepteur sint occaecat cupidatat non proident.",
-                                style: TextStyle(color: Colors.grey[700], fontSize: 14),
-                              ),
-                              // Video
-                              Text(
-                                "Video: Sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                                style: TextStyle(color: Colors.grey[700], fontSize: 14),
-                              ),
-                            ],
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 30.w),
+                          child: SizedBox(
+                            height: 200, 
+                            child: TabBarView(
+                              children: [
+                                // About
+                                Text(
+                                  "About: Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                                ),
+                                // Review
+                                Text(
+                                  "Review: Duis aute irure dolor in reprehenderit in voluptate velit esse.",
+                                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                                ),
+                                // Photo
+                                Text(
+                                  "Photo: Excepteur sint occaecat cupidatat non proident.",
+                                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                                ),
+                                // Video
+                                Text(
+                                  "Video: Sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 30),
+                        SizedBox(height: 30.h),
                       ],
                     ),
                   ),
@@ -164,21 +183,21 @@ class DestinationDetailPage extends StatelessWidget {
           Positioned(
             left: 0,
             right: 0,
-            bottom: 20,
+            bottom: 20.h,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 30.w),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    backgroundColor: const Color(0xFFF36D72),
+                    padding: EdgeInsets.symmetric(vertical: 15.h),
+                    backgroundColor: const Color(0xFF007BFF),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                   ),
                   onPressed: () {},
-                  child: const Text(
+                  child: Text(
                     "Save a Trip",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
+                    style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
