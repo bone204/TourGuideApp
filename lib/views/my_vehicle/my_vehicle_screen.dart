@@ -4,6 +4,7 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/my_vehicle/vehicle_rental_register_screen.dart';
 import '../../widgets/custom_icon_button.dart';
 
+
 class MyVehicleScreen extends StatefulWidget {
   const MyVehicleScreen({super.key});
 
@@ -110,3 +111,5 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
     );
   }
 }
+
+

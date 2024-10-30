@@ -31,11 +31,13 @@ dependencies:
   flutter_facebook_auth: ^7.1.1
   http: ^1.2.2
   like_button: ^2.0.5
+  image_picker: ^1.1.2
 
   # Localization dependencies
   flutter_localizations:
     sdk: flutter
   intl: ^0.19.0
+  linear_step_indicator: ^1.0.0+3
 
 dev_dependencies:
   flutter_test:
