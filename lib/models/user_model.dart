@@ -1,17 +1,19 @@
 class UserModel {
   final String userId;
   final String name;
+  final String fullName;
   final String email;
   final String address;
-  final String gender; // Thêm giới tính
-  final String citizenId; // Thêm ID công dân
-  final String phoneNumber; // Thêm số điện thoại
-  final String nationality; // Thêm quốc tịch
-  final String birthday; // Thêm ngày sinh
+  final String gender;  
+  final String citizenId; 
+  final String phoneNumber;
+  final String nationality;
+  final String birthday; 
 
   UserModel({
     required this.userId,
     required this.name,
+    required this.fullName,
     required this.email,
     required this.address,
     required this.gender,
@@ -25,6 +27,7 @@ class UserModel {
     return {
       'userId': userId,
       'name': name,
+      'fullName': fullName,
       'email': email,
       'address': address,
       'gender': gender,
@@ -39,6 +42,7 @@ class UserModel {
     return UserModel(
       userId: map['userId'] ?? '',
       name: map['name'] ?? '',
+      fullName: map['fullName'] ?? '',
       email: map['email'] ?? '',
       address: map['address'] ?? '',
       gender: map['gender'] ?? '',

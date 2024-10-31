@@ -8,7 +8,7 @@ class FirebaseAuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Đăng ký bằng email và mật khẩu
-  Future<User?> signUpWithEmailAndPassword(String email, String password, String name, String address, String gender, String citizenId, String phoneNumber, String nationality, String birthday) async {
+  Future<User?> signUpWithEmailAndPassword(String email, String password, String name, String fullName, String address, String gender, String citizenId, String phoneNumber, String nationality, String birthday) async {
     try {
       // Tạo tài khoản người dùng mới
       UserCredential credential = await _auth.createUserWithEmailAndPassword(
@@ -23,6 +23,7 @@ class FirebaseAuthService {
         UserModel newUser = UserModel(
           userId: user.uid,
           name: name,
+          fullName: fullName,
           email: email,
           address: address,
           gender: gender,

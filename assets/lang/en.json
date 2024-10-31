@@ -92,6 +92,31 @@
     "Tax Information": "Tax Information",
     "Billing Information": "Billing Information",
     "Previous": "Previous",
-    "Next": "Next"
+    "Next": "Next",
+
+    "Full Name": "Full Name",
+    "Phone Number": "Phone Number",
+    "Identification Number": "Identification Number",
+    "Identification Photo": "Identification Photo",
+    "Business Type": "Business Type",
+    "Business Name": "Business Name",
+    "Business Province Region": "Business Province Region",
+    "Business Adress": "Business Adress",
+    "Tax Code": "Tax Code",
+    "Business Register Photo": "Business Register Photo",
+    "Bank Account Number": "Bank Account Number",
+    "Bank Account Name": "Bank Account Name",
+    "Bank Name": "Bank Name",
+    "I confirm all data provided is accurate and truthful. I have read and agree to ": "I confirm all data provided is accurate and truthful. I have read and agree to ",
+    "Traveline's Privacy Policy.": "Traveline's Privacy Policy.",
+    "I have read and commit that my vehicle meets all ": "I have read and commit that my vehicle meets all ",
+    "Legal Requirements for rental.": "Legal Requirements for rental.",
+    "I agree to the commission rate applied by the application - 20% and the ": "I agree to the commission rate applied by the application - 20% and the ",
+    "Terms Of Use.": "Terms Of Use.",
+
+    "Gender": "Gender",
+    "Address": "Address",
+    "Nationality": "Nationality",
+    "Birthday": "Birthday"
   }
   

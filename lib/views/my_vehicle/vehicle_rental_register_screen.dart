@@ -226,7 +226,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                               children: [
                                 _buildTextField(
                                   controller: TextEditingController(),
-                                  label: 'Full Name',
+                                  label: AppLocalizations.of(context).translate("Full Name"),
                                   isEditing: true,
                                 ),
                                 SizedBox(height: 16.h),
@@ -238,17 +238,17 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                                 SizedBox(height: 16.h),
                                 _buildTextField(
                                   controller: TextEditingController(),
-                                  label: 'Phone Number',
+                                  label: AppLocalizations.of(context).translate("Phone Number"),
                                   isEditing: true,
                                 ),
                                 SizedBox(height: 16.h),
                                 _buildTextField(
                                   controller: TextEditingController(),
-                                  label: 'Identification Number',
+                                  label: AppLocalizations.of(context).translate("Identification Number"),
                                   isEditing: true,
                                 ),
                                 SizedBox(height: 16.h),
-                                const ImagePickerWidget(title: 'Identification Photo'),
+                                ImagePickerWidget(title: AppLocalizations.of(context).translate("Identification Photo")),
                               ],
                             ),
                           ),
@@ -264,7 +264,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _buildDropdown(
-                                  label: 'Business Type',
+                                  label: AppLocalizations.of(context).translate("Business Type"),
                                   items: ['Type 1', 'Type 2', 'Type 3'],
                                   selectedItem: _selectedBusinessType,
                                   onChanged: (String? newValue) {
@@ -276,12 +276,12 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                                 SizedBox(height: 16.h),
                                 _buildTextField(
                                   controller: TextEditingController(),
-                                  label: 'Business Name',
+                                  label: AppLocalizations.of(context).translate("Business Name"),
                                   isEditing: true,
                                 ),
                                 SizedBox(height: 16.h),
                                 _buildDropdown(
-                                  label: 'Business Province Region',
+                                  label: AppLocalizations.of(context).translate("Business Province Region"),
                                   items: ['Region 1', 'Region 2', 'Region 3'],
                                   selectedItem: _selectedBusinessRegion,
                                   onChanged: (String? newValue) {
@@ -293,17 +293,17 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                                 SizedBox(height: 16.h),
                                 _buildTextField(
                                   controller: TextEditingController(),
-                                  label: 'Business Address',
+                                  label: AppLocalizations.of(context).translate("Business Adress"),
                                   isEditing: true,
                                 ),
                                 SizedBox(height: 16.h),
                                 _buildTextField(
                                   controller: TextEditingController(),
-                                  label: 'Tax Code',
+                                  label: AppLocalizations.of(context).translate("Tax Code"),
                                   isEditing: true,
                                 ),
                                 SizedBox(height: 16.h),
-                                const ImagePickerWidget(title: 'Business Register Photo'),
+                                ImagePickerWidget(title: AppLocalizations.of(context).translate("Business Register Photo")),
                               ],
                             ),
                           ),
@@ -320,18 +320,18 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                               children: [
                                 _buildTextField(
                                   controller: TextEditingController(),
-                                  label: 'Bank Account Number',
+                                  label: AppLocalizations.of(context).translate("Bank Account Number"),
                                   isEditing: true,
                                 ),
                                 SizedBox(height: 16.h),
                                 _buildTextField(
                                   controller: TextEditingController(),
-                                  label: 'Bank Account Name',
+                                  label: AppLocalizations.of(context).translate("Bank Account Name"),
                                   isEditing: true,
                                 ),
                                 SizedBox(height: 16.h),
                                 _buildDropdown(
-                                  label: 'Bank Name',
+                                  label: AppLocalizations.of(context).translate("Bank Name"),
                                   items: ['Bank 1', 'Bank 2', 'Bank 3'],
                                   selectedItem: _selectedBankName,
                                   onChanged: (String? newValue) {
@@ -342,20 +342,20 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                                 ),
                                 SizedBox(height: 26.h),
                                 CheckboxRow(
-                                  title: 'I confirm all data provided is accurate and truthful. I have read and agree to ',
-                                  link: "Traveline's Privacy Policy.",
+                                  title: AppLocalizations.of(context).translate("I confirm all data provided is accurate and truthful. I have read and agree to "),
+                                  link: AppLocalizations.of(context).translate("Traveline's Privacy Policy."),
                                   onTitleTap: _handleTitleTap,
                                 ),
                                 SizedBox(height: 12.h),
                                 CheckboxRow(
-                                  title: 'I have read and commit that my vehicle meets all ',
-                                  link: "Legal Requirements for rental.",
+                                  title: AppLocalizations.of(context).translate("I have read and commit that my vehicle meets all "),
+                                  link: AppLocalizations.of(context).translate("Legal Requirements for rental."),
                                   onTitleTap: _handleTitleTap,
                                 ),
                                 SizedBox(height: 12.h),
                                 CheckboxRow(
-                                  title: 'I agree to the commission rate applied by the application - 20% and the ',
-                                  link: "Terms Of Use.",
+                                  title: AppLocalizations.of(context).translate("I agree to the commission rate applied by the application - 20% and the "),
+                                  link: AppLocalizations.of(context).translate("Terms Of Use."),
                                   onTitleTap: _handleTitleTap,
                                 ),
                                 SizedBox(height: 16.h),

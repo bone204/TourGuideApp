@@ -107,20 +107,20 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
               child: Column(
                 children: [
                   _buildTextField(
-                    controller: viewModel.usernameController,
-                    label: AppLocalizations.of(context).translate('Username'),
+                    controller: viewModel.fullnameController,
+                    label: AppLocalizations.of(context).translate("Full Name"),
                     isEditing: viewModel.isEditing,
                   ),
                   SizedBox(height: 16.h),
                   _buildTextField(
                     controller: viewModel.genderController,
-                    label: AppLocalizations.of(context).translate('Gender'),
+                    label: AppLocalizations.of(context).translate("Gender"),
                     isEditing: viewModel.isEditing,
                   ),
                   SizedBox(height: 16.h),
                   _buildTextField(
                     controller: viewModel.citizenIdController,
-                    label: AppLocalizations.of(context).translate('Citizen Identification'),
+                    label: AppLocalizations.of(context).translate("Identification Number"),
                     isEditing: viewModel.isEditing,
                   ),
                   SizedBox(height: 16.h),
@@ -128,19 +128,19 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
                   SizedBox(height: 16.h),
                   _buildTextField(
                     controller: viewModel.addressController,
-                    label: AppLocalizations.of(context).translate('Address'),
+                    label: AppLocalizations.of(context).translate("Address"),
                     isEditing: viewModel.isEditing,
                   ),
                   SizedBox(height: 16.h),
                   _buildTextField(
                     controller: viewModel.nationalityController,
-                    label: AppLocalizations.of(context).translate('Nationality'),
+                    label: AppLocalizations.of(context).translate("Nationality"),
                     isEditing: viewModel.isEditing,
                   ),
                   SizedBox(height: 16.h),
                   _buildTextField(
                     controller: viewModel.birthdayController,
-                    label: AppLocalizations.of(context).translate('Birthday'),
+                    label: AppLocalizations.of(context).translate("Birthday"),
                     isEditing: viewModel.isEditing,
                   ),
                 ],
@@ -166,7 +166,6 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
         SizedBox(height: 12.h),
         Row(
           children: [
-            // Country Code Dropdown
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.w),
               decoration: BoxDecoration(
@@ -198,7 +197,7 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
                 width: double.infinity,
                 child: TextField(
                   enabled: viewModel.isEditing,
-                  controller: viewModel.phoneNumberController, // Use the controller from viewModel
+                  controller: viewModel.phoneNumberController, 
                   style: TextStyle(
                     fontSize: 16.sp,
                     color: Colors.black,

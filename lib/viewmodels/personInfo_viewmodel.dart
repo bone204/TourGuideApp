@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 
 class PersonInfoViewModel extends ChangeNotifier {
-  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController fullnameController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
   final TextEditingController citizenIdController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
@@ -24,7 +24,7 @@ class PersonInfoViewModel extends ChangeNotifier {
       var userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
       if (userDoc.exists) {
         // Cập nhật giá trị của các controller
-        usernameController.text = userDoc['name'] ?? '';
+        fullnameController.text = userDoc['fullName'] ?? '';
         genderController.text = userDoc['gender'] ?? '';
         citizenIdController.text = userDoc['citizenId'] ?? '';
         phoneNumberController.text = userDoc['phoneNumber'] ?? '';
@@ -51,7 +51,7 @@ class PersonInfoViewModel extends ChangeNotifier {
 
     if (userId != null) {
       await FirebaseFirestore.instance.collection('users').doc(userId).update({
-        'name': usernameController.text,
+        'fullName': fullnameController.text,
         'gender': genderController.text,
         'citizenId': citizenIdController.text,
         'phoneNumber': phoneNumberController.text,

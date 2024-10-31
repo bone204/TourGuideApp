@@ -75,7 +75,13 @@ class LoginViewModel extends ChangeNotifier {
             'name': googleUser.displayName ?? 'Unknown',
             'email': user.email,
             'profileImageUrl': googleUser.photoUrl ?? '',
-            // Add additional information if needed
+            'fullName': '',
+            'address': '',
+            'gender': '',
+            'citizenId': '',
+            'phoneNumber': '',
+            'nationality': '',
+            'birthday': '',
           });
         }
       }
@@ -126,8 +132,8 @@ class LoginViewModel extends ChangeNotifier {
           if (!doc.exists) {
             await _firestore.collection('users').doc(user.uid).set({
               'name': user.displayName ?? 'Unknown',
-              'email': user.email ?? 'No Email', // Default value if email is null
-              'profileImageUrl': '', // You might fetch this from Facebook API later
+              'email': user.email ?? 'No Email', 
+              'profileImageUrl': '', 
             });
           }
         } else {

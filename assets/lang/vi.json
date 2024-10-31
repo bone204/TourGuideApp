@@ -92,6 +92,31 @@
     "Tax Information": "Thông tin thuế",
     "Billing Information": "Thông tin thanh toán",
     "Previous": "Quay lại",
-    "Next": "Tiếp theo"
+    "Next": "Tiếp theo",
+
+    "Full Name": "Họ Và Tên",
+    "Phone Number": "Số Điện Thoại",
+    "Identification Number": "Số Căn Cước Công Dân",
+    "Identification Photo": "Ảnh Căn Cước Công Dân",
+    "Business Type": "Loại Hình Kinh Doanh",
+    "Business Name": "Tên Nơi Cho Thuê",
+    "Business Province Region": "Khu Vực Tỉnh Cho Thuê",
+    "Business Adress": "Địa Chỉ Cho Thuê",
+    "Tax Code": "Mã Số Thuế",
+    "Business Register Photo": "Ảnh Giấy Đăng Ký Kinh Doanh",
+    "Bank Account Number": "Số Tài Khoản Ngân Hàng",
+    "Bank Account Name": "Tên Tài Khoản Ngân Hàng",
+    "Bank Name": "Tên Ngân Hàng",
+    "I confirm all data provided is accurate and truthful. I have read and agree to ": "Tôi xác nhận tất cả dữ liệu đã cung cấp là chính xác và trung thực. Tôi đã đọc và đồng ý với ",
+    "Traveline's Privacy Policy.": "Chính Sách Bảo Mật Của Traveline.",
+    "I have read and commit that my vehicle meets all ": "Tôi đã đọc và cam kết xe của tôi đáp ứng đầy đủ các ",
+    "Legal Requirements for rental.": "Yêu Cầu Về Pháp Lý.",
+    "I agree to the commission rate applied by the application - 20% and the ": "Tôi đồng ý với mức hoa hồng - 20% và các ",
+    "Terms Of Use.": "Điều Khoản Sử Dụng.",
+
+    "Gender": "Giới Tính",
+    "Address": "Địa Chỉ",
+    "Nationality": "Quốc Tịch",
+    "Birthday": "Ngày Sinh"
 }
   
