@@ -84,8 +84,14 @@
 
     "Invalid End Date": "Ngày trả không hợp lệ",
     "End date must be after the start date.": "Ngày trả phải sau ngày nhận xe.",
-    "You haven't registered any vehicles yet.": "Bạn chưa đăng ký xe.",
+    "You haven't registered any vehicles yet.": "Bạn chưa đăng ký xe nào cả.",
     "Register now": "Đăng ký ngay!",
-    "Vehicle Rental Register": "Đăng Ký Cho Thuê Xe"
+    "Vehicle Rental Register": "Đăng Ký Cho Thuê Xe",
+
+    "Identification Information": "Thông tin định danh",
+    "Tax Information": "Thông tin thuế",
+    "Billing Information": "Thông tin thanh toán",
+    "Previous": "Quay lại",
+    "Next": "Tiếp theo"
 }
   

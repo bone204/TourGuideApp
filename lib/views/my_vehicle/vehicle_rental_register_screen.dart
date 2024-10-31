@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/widgets/checkbox_row.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/image_picker.dart';
 
@@ -45,6 +47,20 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
           curve: Curves.easeIn,
         );
       });
+    }
+  }
+
+  void _handleTitleTap() {
+    // Logic bạn muốn thực hiện khi nhấn vào tiêu đề
+    if (kDebugMode) {
+      print('Title tapped!');
+    }
+  }
+
+  void _completeRegistration() {
+    // Logic để hoàn thành đăng ký
+    if (kDebugMode) {
+      print('Registration completed!');
     }
   }
 
@@ -148,9 +164,9 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SizedBox(
-                              width: 100.w,
+                              width: 80.w,
                               child: Text(
-                                "Identification Information",
+                                AppLocalizations.of(context).translate('Identification Information'),
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w500,
@@ -159,11 +175,11 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                                 overflow: TextOverflow.visible,
                               ),
                             ),
-                            SizedBox(width: 32.w),
+                            SizedBox(width: 42.w),
                             SizedBox(
                               width: 90.w,
                               child: Text(
-                                "Tax Information",
+                                AppLocalizations.of(context).translate("Tax Information"),
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w500,
@@ -172,11 +188,11 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                                 overflow: TextOverflow.visible,
                               ),
                             ),
-                            SizedBox(width: 32.w),
+                            SizedBox(width: 42.w),
                             SizedBox(
-                              width: 100.w,
+                              width: 80.w,
                               child: Text(
-                                "Billing Information",
+                                AppLocalizations.of(context).translate("Billing Information"),
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w500,
@@ -324,6 +340,24 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                                     });
                                   },
                                 ),
+                                SizedBox(height: 26.h),
+                                CheckboxRow(
+                                  title: 'I confirm all data provided is accurate and truthful. I have read and agree to ',
+                                  link: "Traveline's Privacy Policy.",
+                                  onTitleTap: _handleTitleTap,
+                                ),
+                                SizedBox(height: 12.h),
+                                CheckboxRow(
+                                  title: 'I have read and commit that my vehicle meets all ',
+                                  link: "Legal Requirements for rental.",
+                                  onTitleTap: _handleTitleTap,
+                                ),
+                                SizedBox(height: 12.h),
+                                CheckboxRow(
+                                  title: 'I agree to the commission rate applied by the application - 20% and the ',
+                                  link: "Terms Of Use.",
+                                  onTitleTap: _handleTitleTap,
+                                ),
                                 SizedBox(height: 16.h),
                               ],
                             ),
@@ -356,7 +390,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                           ),
                         ),
                         child: Text(
-                          "Quay lại",
+                          AppLocalizations.of(context).translate("Previous"),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16.sp,
@@ -365,10 +399,10 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                       ),
                     ),
                   if (_currentStep > 0)
-                    SizedBox(width: 16.w), 
+                    SizedBox(width: 16.w),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _nextStep,
+                      onPressed: _currentStep == 2 ? _completeRegistration : _nextStep,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF007BFF),
                         foregroundColor: Colors.white,
@@ -379,7 +413,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                         ),
                       ),
                       child: Text(
-                        "Tiếp theo",
+                        _currentStep == 2 ? AppLocalizations.of(context).translate("Confirm") : AppLocalizations.of(context).translate("Next"),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16.sp,

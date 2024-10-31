@@ -86,6 +86,12 @@
     "End date must be after the start date.": "End date must be after the start date.",
     "You haven't registered any vehicles yet.": "You haven't registered any vehicles yet.",
     "Register now": "Register now",
-    "Vehicle Rental Register": "Vehicle Rental Register"
+    "Vehicle Rental Register": "Vehicle Rental Register",
+
+    "Identification Information": "Identification Information",
+    "Tax Information": "Tax Information",
+    "Billing Information": "Billing Information",
+    "Previous": "Previous",
+    "Next": "Next"
   }
   

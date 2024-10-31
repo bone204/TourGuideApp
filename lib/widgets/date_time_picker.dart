@@ -29,6 +29,7 @@ class DateTimePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context, designSize: const Size(375, 812));
     return GestureDetector(
       onTap: () async {
         final DateTime? pickedDate = await showDatePicker(
