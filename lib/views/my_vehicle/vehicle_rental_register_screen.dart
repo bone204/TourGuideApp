@@ -443,23 +443,25 @@ Widget _buildTextField({required TextEditingController controller, required Stri
         ),
       ),
       SizedBox(height: 12.h),
-      SizedBox(
-        width: double.infinity,
-        child: TextField(
-          enabled: isEditing,
-          controller: controller,
-          style: TextStyle(
-            fontSize: 16.sp,
-            color: Colors.black,
+      TextField(
+        enabled: isEditing,
+        controller: controller,
+        style: TextStyle(
+          fontSize: 16.sp,
+          color: Colors.black,
+        ),
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16.r),
+            borderSide: BorderSide.none,
           ),
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: BorderSide.none,
-            ),
-            filled: true,
-            fillColor: const Color(0xFFF7F7F9),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
+          filled: true,
+          fillColor: const Color(0xFFF7F7F9),
+          contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
+          suffixIcon: Icon(
+            Icons.edit,
+            color: const Color(0xFF5D6679),
+            size: 24.sp,
           ),
         ),
       ),

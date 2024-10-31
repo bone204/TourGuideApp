@@ -210,6 +210,11 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
                     filled: true,
                     fillColor: const Color(0xFFF7F7F9),
                     contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
+                    suffixIcon: Icon(
+                      viewModel.phoneNumberController.text.isEmpty ? Icons.warning : (viewModel.isEditing ? Icons.edit : Icons.check_sharp),
+                      color: viewModel.phoneNumberController.text.isEmpty ? Colors.red : (viewModel.isEditing ? const Color(0xFF5D6679) : const Color(0xFFFF7029)),
+                      size: 24.sp,
+                    ),
                   ),
                 ),
               ),
@@ -249,6 +254,11 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
               filled: true,
               fillColor: const Color(0xFFF7F7F9),
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
+              suffixIcon: Icon(
+                controller.text.isEmpty ? Icons.warning : (isEditing ? Icons.edit : Icons.check_sharp),
+                color: controller.text.isEmpty ? Colors.red : (isEditing ? const Color(0xFF5D6679) : const Color(0xFFFF7029)),
+                size: 24.sp,
+              ),
             ),
           ),
         ),

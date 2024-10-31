@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -107,9 +108,9 @@ class ProfileScreen extends StatelessWidget {
                       SizedBox(height: 16.h),
                       _buildInteractiveRow(context, Icons.history, 'Travel History', navigateToTravelHistory: true),
                       SizedBox(height: 16.h),
-                      _buildInteractiveRow(context, Icons.car_crash, 'My Vehicle', navigateToMyVehicle: true),
+                      _buildInteractiveRow(context, CupertinoIcons.car_detailed, 'My Vehicle', navigateToMyVehicle: true),
                       SizedBox(height: 16.h),
-                      _buildInteractiveRow(context, Icons.feedback, 'Feedback'),
+                      _buildInteractiveRow(context, CupertinoIcons.captions_bubble_fill, 'Feedback'),
                       SizedBox(height: 16.h),
                       _buildInteractiveRow(context, Icons.settings, 'Settings', navigateToSettings: true),
                     ],

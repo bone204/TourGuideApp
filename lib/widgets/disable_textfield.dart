@@ -43,6 +43,11 @@ class DisabledTextField extends StatelessWidget {
               filled: true,
               fillColor: const Color(0xFFF7F7F9),
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
+              suffixIcon: Icon(
+                Icons.check_sharp,
+                color: const Color(0xFFFF7029),
+                size: 24.sp,
+              ),
             ),
           ),
         ),

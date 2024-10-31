@@ -28,12 +28,7 @@ void main() async {
       print("Error initializing Firebase: $e");
     }
   }
-  
-  // Tạm thời bỏ qua việc kiểm tra SharedPreferences
-  // final prefs = await SharedPreferences.getInstance();
-  // final showOnboarding = !(prefs.getBool('showHome') ?? true);
 
-  // Luôn hiển thị màn hình onboarding để kiểm tra UI
   runApp(const MyApp(showOnboarding: true));
 }
 
