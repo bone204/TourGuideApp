@@ -17,7 +17,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const ExploreScreen(),
+    ExploreScreen(),
     const ServiceScreen(),  
     // Do not include ProfileScreen here, handle navigation separately
   ];
