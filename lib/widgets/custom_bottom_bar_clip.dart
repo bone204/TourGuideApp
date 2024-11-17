@@ -4,7 +4,7 @@ class CustomBottomBarClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final path = Path();
-    const radius = 30.0; // Độ cong của thanh điều hướng
+    const radius = 30.0; 
 
     path.lineTo(0, size.height - radius);
     path.arcToPoint(

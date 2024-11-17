@@ -23,7 +23,7 @@ class ServiceScreen extends StatelessWidget {
                 Expanded(
                   child: ListView(
                     children: [
-                      _buildInteractiveRow(context, Icons.bike_scooter, 'Car Rental', navigateToCarRental: true), 
+                      _buildInteractiveRow(context, Icons.bike_scooter, 'Car Rental'), 
                       SizedBox(height: 16.h),
                       _buildInteractiveRow(context, Icons.restaurant, 'Restaurant'),
                       SizedBox(height: 16.h),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/my_vehicle/vehicle_rental_register_screen.dart';
+import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import '../../widgets/custom_icon_button.dart';
 
 
@@ -82,27 +83,15 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
                   ),
                 ),
                 SizedBox(height: 16.h),
-                ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => VehicleRentalRegisterScreen()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF007BFF),
-                  foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 50.h),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+                CustomElevatedButton(
+                  text: "Register now",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => VehicleRentalRegisterScreen()),
+                    );
+                  },
                 ),
-                child: Text(
-                  AppLocalizations.of(context).translate("Register now"),
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  )
-                )
-              ),
               ],
             ),
           ),

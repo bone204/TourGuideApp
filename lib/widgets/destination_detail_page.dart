@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/widgets/custom_like_button.dart';
 import 'package:tourguideapp/widgets/horizontal_card.dart';
+import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 
 class DestinationDetailPage extends StatelessWidget {
   final HorizontalCardData data;
@@ -186,20 +187,9 @@ class DestinationDetailPage extends StatelessWidget {
             bottom: 20.h,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 30.w),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 15.h),
-                    backgroundColor: const Color(0xFF007BFF),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  ),
-                  onPressed: () {},
-                  child: Text(
-                    "Save a Trip",
-                    style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
-                  ),
-                ),
+              child: CustomElevatedButton(
+                text: "Save a Trip",
+                onPressed: () {},
               ),
             ),
           ),

@@ -4,6 +4,7 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
+import 'package:tourguideapp/widgets/home_navigator.dart';
 import 'package:tourguideapp/widgets/horizontal_card.dart';
 import 'package:tourguideapp/widgets/horizontal_card_list_view.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; 
@@ -46,24 +47,136 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(20.w), // Sử dụng ScreenUtil cho padding
-          child: Column(
-            children: [
-              UserHeader(
-                name: homeViewModel.name,
-                profileImageUrl: homeViewModel.profileImageUrl,
-              ),
-              SizedBox(height: 20.h), // Điều chỉnh kích thước bằng ScreenUtil
-              const HeaderBar(),
-              SizedBox(height: 20.h),
-              buildSectionHeadline(context, "Popular", "The best destination for you", horizontalCards),
-              SizedBox(height: 20.h),
-              buildSectionHeadline(context, "Nearest Places", "The best destination close to you", horizontalCards),
-              // Thêm các phần khác tương tự...
-            ],
-          ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Stack(
+              children: [
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    width: double.infinity,
+                    height: 310.h,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    width: double.infinity,
+                    height: 232.h,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(topLeft: Radius.zero, topRight: Radius.zero, bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF66B2FF),
+                          Color(0xFF007BFF),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(20.w, 20.w, 20.w, 10.h),
+                    child: Column(
+                      children: [
+                        UserHeader(
+                          name: homeViewModel.name,
+                          profileImageUrl: homeViewModel.profileImageUrl,
+                        ),
+                        SizedBox(height: 40.h),
+                        Container(
+                          width: 335.w,
+                          height: 164.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16.r), 
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF000000).withOpacity(0.25),
+                                blurRadius: 4.r,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Column(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: HomeNavigator(
+                                        image: 'assets/img/car_home.png', 
+                                        text: "Car Rental"
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: HomeNavigator(
+                                        image: 'assets/img/motorbike_home.png', 
+                                        text: "Motorbike Rental"
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: HomeNavigator(
+                                        image: 'assets/img/travel_home.png', 
+                                        text: "Travel"
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: HomeNavigator(
+                                        image: 'assets/img/restaurant_home.png', 
+                                        text: "Find Restaurant"
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: HomeNavigator(
+                                        image: 'assets/img/delivery_home.png', 
+                                        text: "Fast Delivery"
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: HomeNavigator(
+                                        image: 'assets/img/hotel_home.png', 
+                                        text: "Find Hotel"
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ]
+                    ),
+                  ),
+                ),
+              ]
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+              child: buildSectionHeadline(context, "Popular", "The best destination for you", horizontalCards),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+              child: buildSectionHeadline(context, "Nearest Places", "The best destination close to you", horizontalCards)
+            ),
+            // Thêm các phần khác tương tự...
+          ],
         ),
       ),
     );
@@ -127,9 +240,8 @@ class UserHeader extends StatelessWidget {
   Widget _buildProfileContainer() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F9),
+        color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(22.r),
-        border: Border.all(color: Colors.black, width: 1.w),
       ),
       padding: EdgeInsets.fromLTRB(8.w, 4.w, 12.w, 4.w), // Điều chỉnh padding
       child: Row(
@@ -160,7 +272,7 @@ class UserHeader extends StatelessWidget {
   Widget _buildNotificationButton(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F9),
+        color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: IconButton(

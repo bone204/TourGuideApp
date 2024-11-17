@@ -14,23 +14,15 @@ class LocationPicker extends StatelessWidget {
         ),
         SizedBox(height: 4.h),
         Container(
-          width: 228.w,
-          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
+          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFFF7F7F9),
             borderRadius: BorderRadius.circular(16.r),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0x0ff00000).withOpacity(0.25),
-                blurRadius: 4.r,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: Row(
             children: [
               Icon(Icons.location_on_outlined, size: 24.sp),
-              SizedBox(width: 6.w),
+              SizedBox(width: 12.w),
               SizedBox(
                 width: 170.w,
                 child: Text(
