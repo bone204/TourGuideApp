@@ -2,27 +2,53 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 
 class ImagePickerWidget extends StatefulWidget {
   final String title;
+  final String initialImagePath;
+  final ValueChanged<String> onImagePicked;
 
-  const ImagePickerWidget({Key? key, required this.title}) : super(key: key);
+  const ImagePickerWidget({
+    Key? key,
+    required this.title,
+    this.initialImagePath = '',
+    required this.onImagePicked,
+  }) : super(key: key);
 
   @override
   _ImagePickerWidgetState createState() => _ImagePickerWidgetState();
 }
 
 class _ImagePickerWidgetState extends State<ImagePickerWidget> {
-  XFile? _businessRegisterPhoto;
+  String? _selectedImagePath;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedImagePath = widget.initialImagePath;
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: source);
     if (image != null) {
       setState(() {
-        _businessRegisterPhoto = image;
+        _selectedImagePath = image.path;
       });
+      widget.onImagePicked(_selectedImagePath!); // Trả về đường dẫn cục bộ
+    }
+  }
+
+  Future<String> _uploadImageToFirebase(File imageFile) async {
+    try {
+      final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}');
+      final uploadTask = await storageRef.putFile(imageFile);
+      return await uploadTask.ref.getDownloadURL();
+    } catch (e) {
+      print('Lỗi khi tải ảnh lên: $e');
+      return '';
     }
   }
 
@@ -78,7 +104,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
               color: const Color(0xFFF7F7F9),
               borderRadius: BorderRadius.circular(16.r),
             ),
-            child: _businessRegisterPhoto == null
+            child: _selectedImagePath == null || _selectedImagePath!.isEmpty
                 ? Center(
                     child: Container(
                       width: 60.0,
@@ -97,7 +123,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                     ),
                   )
                 : Image.file(
-                    File(_businessRegisterPhoto!.path),
+                    File(_selectedImagePath!),
                     fit: BoxFit.cover,
                   ),
           ),

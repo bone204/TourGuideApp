@@ -14,6 +14,8 @@ class MyVehicleScreen extends StatefulWidget {
 }
 
 class _MyVehicleScreenState extends State<MyVehicleScreen> {
+  bool _isRegistered = false;
+
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Khởi tạo ScreenUtil
@@ -59,40 +61,57 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
             ),
           ),
         ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 100.h),
-          child: Align(
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                ClipRRect(
-                  child: Image.asset(
-                    'assets/img/my_vehicle_1.png',
-                    height: 192.h,
-                    width: 192.w,
-                    fit: BoxFit.fill,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 100.h),
+            child: Align(
+              alignment: Alignment.center,
+              child: Column(
+                children: [
+                  ClipRRect(
+                    child: Image.asset(
+                      'assets/img/my_vehicle_1.png',
+                      height: 192.h,
+                      width: 192.w,
+                      fit: BoxFit.fill,
+                    ),
                   ),
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  AppLocalizations.of(context).translate("You haven't registered any vehicles yet."),
-                  style: TextStyle(
-                    color: const Color(0xFF6C6C6C),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.sp,
+                  SizedBox(height: 16.h),
+                  Text(
+                    AppLocalizations.of(context).translate("You haven't registered any vehicles yet."),
+                    style: TextStyle(
+                      color: const Color(0xFF6C6C6C),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.sp,
+                    ),
                   ),
-                ),
-                SizedBox(height: 16.h),
-                CustomElevatedButton(
-                  text: "Register now",
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => VehicleRentalRegisterScreen()),
-                    );
-                  },
-                ),
-              ],
+                  SizedBox(height: 16.h),
+                  if (!_isRegistered)
+                    CustomElevatedButton(
+                      text: "Register now",
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const VehicleRentalRegisterScreen()),
+                        );
+
+                        if (result == true) {
+                          setState(() {
+                            _isRegistered = true;
+                          });
+                        }
+                      },
+                    ),
+                  if (_isRegistered)
+                    CustomElevatedButton(
+                      text: "Add Vehicle",
+                      onPressed: () {
+                        // Logic để thêm xe mới
+                        // Ví dụ: Navigator.push đến màn hình thêm xe
+                      },
+                    ),
+                ],
+              ),
             ),
           ),
         )
