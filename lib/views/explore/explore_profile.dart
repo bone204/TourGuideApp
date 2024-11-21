@@ -103,7 +103,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const String ACCESS_TOKEN = 'sk.eyJ1IjoiYm9uZTA1MDEyMDA0IiwiYSI6ImNtMzFuOWo1ZzB1Z2kybXNqajI1bnoxYm8ifQ.5wLAbHwyDCoPYsLlDvb2EA';
+    const String ACCESS_TOKEN = 'pk.eyJ1IjoidGhvbmd0dWxlbjEzNCIsImEiOiJjbTNwOTd4dWEwY2l1MnJxMWt0dnRla2pqIn0.9o3fO8SYcsRxRYH0-Qtfhg';
     MapboxOptions.setAccessToken(ACCESS_TOKEN);
 
     CameraOptions camera = CameraOptions(

@@ -1,8 +1,11 @@
-<resoures>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">My Tour Guide App</string>
 
-    
+
     <string name="facebook_app_id">1067287637927737</string>
     <string name="fb_login_protocol_scheme">fb1067287637927737</string>
     <string name="facebook_client_token">bd3b9bae2925213b51e71c8fe5ef2e11</string>
-</resoures>
+
+    <string name="mapbox_access_token" translatable="false" tools:ignore="UnusedResources">pk.eyJ1IjoidGhvbmd0dWxlbjEzNCIsImEiOiJjbTNwOTd4dWEwY2l1MnJxMWt0dnRla2pqIn0.9o3fO8SYcsRxRYH0-Qtfhg</string>
+
+</resources>
