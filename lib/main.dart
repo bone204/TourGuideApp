@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart'; 
 import 'package:tourguideapp/viewmodels/accountInfo_viewmodel.dart';
+import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
+import 'package:tourguideapp/viewmodels/constract_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/personInfo_viewmodel.dart';
@@ -63,6 +65,8 @@ class MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => AccountInfoViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()), 
         ChangeNotifierProvider(create: (_) => PersonInfoViewModel()),
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => ContractViewModel()),
       ],
       child: MaterialApp(
         title: 'Tour Guide App',

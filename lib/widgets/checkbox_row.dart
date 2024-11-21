@@ -8,8 +8,17 @@ class CheckboxRow extends StatelessWidget {
   final String title;
   final String link;
   final VoidCallback onTitleTap;
+  final ValueChanged<bool?> onChanged;
+  final bool value;
 
-  const CheckboxRow({super.key, required this.title, required this.link, required this.onTitleTap});
+  const CheckboxRow({
+    super.key,
+    required this.title,
+    required this.link,
+    required this.onTitleTap,
+    required this.onChanged,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +26,10 @@ class CheckboxRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const CustomCheckbox(),
+        CustomCheckbox(
+          value: value,
+          onChanged: onChanged,
+        ),
         Expanded(
           child: Text.rich(
             TextSpan(
