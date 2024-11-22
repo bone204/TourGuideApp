@@ -153,7 +153,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
           'citizenFrontPhoto': _citizenPhotoFrontPath,
           'citizenBackPhoto': _citizenPhotoBackPath,
           'contractTerm': '1 year', 
-          'contractStatus': 'Pending Aprroval', 
+          'contractStatus': 'Pending Approval', 
         });
 
         if (kDebugMode) {
