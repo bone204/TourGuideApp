@@ -10,6 +10,7 @@ class ContractModel {
   final String citizenFrontPhoto;
   final String citizenBackPhoto;
   final String contractTerm;
+  final String contractStatus;
   ContractModel({
     required this.contractId,
     required this.userId,
@@ -22,6 +23,7 @@ class ContractModel {
     required this.citizenFrontPhoto,
     required this.citizenBackPhoto,
     required this.contractTerm,
+    required this.contractStatus,
   });
   Map<String, dynamic> toMap() {
     return {
@@ -36,6 +38,7 @@ class ContractModel {
       'citizenFrontPhoto': citizenFrontPhoto,
       'citizenBackPhoto': citizenBackPhoto,
       'contractTerm': contractTerm,
+      'contractStatus': contractStatus,
     };
   }
   factory ContractModel.fromMap(Map<String, dynamic> map) {
@@ -51,6 +54,7 @@ class ContractModel {
       citizenFrontPhoto: map['citizenFrontPhoto'] ?? '',
       citizenBackPhoto: map['citizenBackPhoto'] ?? '',
       contractTerm: map['contractTerm'] ?? '',
+      contractStatus: map['contractStatus'] ?? '',
     );
   }
 }

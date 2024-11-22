@@ -11,8 +11,9 @@ class ContractViewModel extends ChangeNotifier {
   }
 
   Future<void> createContractForUser(String userId, Map<String, dynamic> contractData) async {
+    final contractId = await _generateContractId();
     final newContract = ContractModel(
-      contractId: DateTime.now().millisecondsSinceEpoch.toString(),
+      contractId: contractId,
       userId: userId,
       businessType: contractData['businessType'],
       businessName: contractData['businessName'],
@@ -23,6 +24,7 @@ class ContractViewModel extends ChangeNotifier {
       citizenFrontPhoto: contractData['citizenFrontPhoto'],
       citizenBackPhoto: contractData['citizenBackPhoto'],
       contractTerm: contractData['contractTerm'],
+      contractStatus: contractData['contractStatus'],
     );
 
     _contracts.add(newContract);
@@ -31,7 +33,7 @@ class ContractViewModel extends ChangeNotifier {
     // Lưu hợp đồng vào Firestore
     try {
       await FirebaseFirestore.instance
-          .collection('contracts')
+          .collection('CONTRACT')
           .doc(newContract.contractId)
           .set(newContract.toMap());
       if (kDebugMode) {
@@ -42,6 +44,13 @@ class ContractViewModel extends ChangeNotifier {
         print("Lỗi khi lưu hợp đồng vào Firestore: $e");
       }
     }
+  }
+
+  Future<String> _generateContractId() async {
+    final querySnapshot = await FirebaseFirestore.instance.collection('CONTRACT').get();
+    final currentCounter = querySnapshot.size + 1; // Đếm số lượng tài liệu và tăng thêm 1
+
+    return 'C${currentCounter.toString().padLeft(4, '0')}';
   }
 
   Future<Map<String, dynamic>?> getUserData(String userId) async {

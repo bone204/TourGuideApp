@@ -4,12 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
-import 'package:tourguideapp/viewmodels/constract_viewmodel.dart';
+import 'package:tourguideapp/viewmodels/contract_viewmodel.dart';
 import 'package:tourguideapp/widgets/checkbox_row.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -37,6 +36,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
   final TextEditingController _taxCodeController = TextEditingController();
   final TextEditingController _bankAccountNumberController = TextEditingController();
   final TextEditingController _bankAccountNameController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _citizenIdController = TextEditingController();
@@ -49,8 +49,6 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
   bool _isCheckbox1Checked = false;
   bool _isCheckbox2Checked = false;
   bool _isCheckbox3Checked = false;
-
-  String? _selectedImagePath;
 
   @override
   void initState() {
@@ -67,7 +65,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
     if (currentUserId != null) {
         final userData = await contractViewModel.getUserData(currentUserId);
         if (userData != null) {
-            _businessNameController.text = userData['fullName'] ?? '';
+            _fullNameController.text = userData['fullName'] ?? '';
             _emailController.text = userData['email'] ?? '';
             _phoneNumberController.text = userData['phoneNumber'] ?? '';
             _citizenIdController.text = userData['citizenId'] ?? '';
@@ -155,6 +153,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
           'citizenFrontPhoto': _citizenPhotoFrontPath,
           'citizenBackPhoto': _citizenPhotoBackPath,
           'contractTerm': '1 year', 
+          'contractStatus': 'Pending Aprroval', 
         });
 
         if (kDebugMode) {
@@ -177,7 +176,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
 
   Future<String> _uploadImageToFirebase(File imageFile) async {
     try {
-      final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}');
+      final storageRef = FirebaseStorage.instance.ref().child('Photos/${DateTime.now().millisecondsSinceEpoch}');
       final uploadTask = await storageRef.putFile(imageFile);
       return await uploadTask.ref.getDownloadURL();
     } catch (e) {
@@ -444,7 +443,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildTextField(
-                controller: _businessNameController,
+                controller: _fullNameController,
                 label: AppLocalizations.of(context).translate("Full Name"),
                 isEditing: true,
                 validator: (value) {
@@ -541,16 +540,17 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               ),
               SizedBox(height: 16.h),
               _buildTextField(
-                controller: _businessAddressController,
-                label: AppLocalizations.of(context).translate("Business Address"),
+                controller: _businessNameController,
+                label: AppLocalizations.of(context).translate("Business Name"),
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your business address';
+                    return 'Please enter your business name';
                   }
                   return null;
                 },
               ),
+              SizedBox(height: 16.h),
               SizedBox(height: 16.h),
               _buildDropdown(
                 label: AppLocalizations.of(context).translate("Business Province Region"),
@@ -560,6 +560,18 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                   setState(() {
                     _selectedBusinessRegion = newValue!;
                   });
+                },
+              ),
+              SizedBox(height: 16.h),
+              _buildTextField(
+                controller: _businessAddressController,
+                label: AppLocalizations.of(context).translate("Business Address"),
+                isEditing: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your business address';
+                  }
+                  return null;
                 },
               ),
               SizedBox(height: 16.h),
@@ -678,42 +690,6 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildImagePicker() {
-    return GestureDetector(
-      onTap: () async {
-        // Logic để chọn ảnh
-        final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-        if (pickedFile != null) {
-          setState(() {
-            _selectedImagePath = pickedFile.path;
-          });
-        }
-      },
-      child: _selectedImagePath == null || _selectedImagePath!.isEmpty
-          ? Center(
-              child: Container(
-                width: 60.0,
-                height: 60.0,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF007BFF), width: 2.0),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.add,
-                    size: 30,
-                    color: Color(0xFF007BFF),
-                  ),
-                ),
-              ),
-            )
-          : Image.file(
-              File(_selectedImagePath!),
-              fit: BoxFit.cover,
-            ),
     );
   }
 }
