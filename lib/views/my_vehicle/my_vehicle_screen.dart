@@ -35,7 +35,6 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
             .collection('CONTRACT')
             .where('userId', isEqualTo: currentUserId)
             .get();
-
         if (querySnapshot.docs.isNotEmpty) {
           final doc = querySnapshot.docs.first;
           setState(() {

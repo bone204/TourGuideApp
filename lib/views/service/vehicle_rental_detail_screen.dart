@@ -133,7 +133,7 @@ class VehicleRentalDetail extends StatelessWidget {
             InfoTextField(
               size: 335,
               labelText: AppLocalizations.of(context).translate("Location"),
-              text: "VCLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+              text: "75 Westerdam, Nha Trang",
               icon: Icons.location_on_outlined,
             ),
             SizedBox(height: 26.h),

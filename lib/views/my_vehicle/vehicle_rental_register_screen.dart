@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/models/user_model.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/contract_viewmodel.dart';
 import 'package:tourguideapp/widgets/checkbox_row.dart';
@@ -11,6 +12,8 @@ import 'package:tourguideapp/widgets/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class VehicleRentalRegisterScreen extends StatefulWidget {
   const VehicleRentalRegisterScreen({super.key});
@@ -58,22 +61,33 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
   }
 
   void _loadUserData() async {
-    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-    final contractViewModel = Provider.of<ContractViewModel>(context, listen: false);
-    final currentUserId = authViewModel.currentUserId;
+    User? firebaseUser = FirebaseAuth.instance.currentUser;
 
-    if (currentUserId != null) {
-        final userData = await contractViewModel.getUserData(currentUserId);
-        if (userData != null) {
-            _fullNameController.text = userData['fullName'] ?? '';
-            _emailController.text = userData['email'] ?? '';
-            _phoneNumberController.text = userData['phoneNumber'] ?? '';
-            _citizenIdController.text = userData['citizenId'] ?? '';
-        }
-    } else {
+    if (firebaseUser != null) {
+      // Truy vấn Firestore để lấy thông tin người dùng
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .get();
+
+      if (userDoc.exists) {
+        // Chuyển đổi dữ liệu từ Firestore thành UserModel
+        UserModel currentUser = UserModel.fromMap(userDoc.data() as Map<String, dynamic>);
+
+        // Cập nhật các TextEditingController với thông tin người dùng
+        _fullNameController.text = currentUser.fullName;
+        _emailController.text = currentUser.email;
+        _phoneNumberController.text = currentUser.phoneNumber;
+        _citizenIdController.text = currentUser.citizenId;
+      } else {
         if (kDebugMode) {
-            print("Người dùng không đăng nhập");
+          print('User document does not exist');
         }
+      }
+    } else {
+      if (kDebugMode) {
+        print('No user is currently signed in');
+      }
     }
   }
 
@@ -788,3 +802,5 @@ Widget _buildDropdown({
     ],
   );
 }
+
+

@@ -15,6 +15,4 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  // Thêm các phương thức khác nếu cần, ví dụ: đăng nhập, đăng xuất, v.v.
 }
