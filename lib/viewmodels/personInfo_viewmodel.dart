@@ -4,6 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 
 class PersonInfoViewModel extends ChangeNotifier {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  
   final TextEditingController fullnameController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
   final TextEditingController citizenIdController = TextEditingController();
@@ -14,59 +17,89 @@ class PersonInfoViewModel extends ChangeNotifier {
   
   bool isEditing = false;
 
+  PersonInfoViewModel() {
+    _auth.authStateChanges().listen((user) {
+      if (user != null) {
+        loadData();
+      } else {
+        _clearData();
+      }
+    });
+  }
+
   // Load data from Firestore
   Future<void> loadData() async {
-    // Lấy userId từ Firebase Authentication
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+    User? user = _auth.currentUser;
+    if (user != null) {
+      try {
+        // Sử dụng userId trực tiếp từ FirebaseAuth
+        String uid = user.uid;
 
-    if (userId != null) {
-      // Get user data from Firestore
-      var userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-      if (userDoc.exists) {
-        // Cập nhật giá trị của các controller
-        fullnameController.text = userDoc['fullName'] ?? '';
-        genderController.text = userDoc['gender'] ?? '';
-        citizenIdController.text = userDoc['citizenId'] ?? '';
-        phoneNumberController.text = userDoc['phoneNumber'] ?? '';
-        addressController.text = userDoc['address'] ?? '';
-        nationalityController.text = userDoc['nationality'] ?? '';
-        birthdayController.text = userDoc['birthday'] ?? '';
-      } else {
-        // Xử lý khi tài liệu không tồn tại
-        if (kDebugMode) {
-          print('User document does not exist');
+        // Truy vấn thông tin người dùng bằng userId từ collection 'USER'
+        DocumentSnapshot doc = await _firestore.collection('USER').doc(uid).get();
+        if (doc.exists) {
+          Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+          // Cập nhật giá trị của các controller
+          fullnameController.text = data?['fullName'] ?? '';
+          genderController.text = data?['gender'] ?? '';
+          citizenIdController.text = data?['citizenId'] ?? '';
+          phoneNumberController.text = data?['phoneNumber'] ?? '';
+          addressController.text = data?['address'] ?? '';
+          nationalityController.text = data?['nationality'] ?? '';
+          birthdayController.text = data?['birthday'] ?? '';
+        } else {
+          if (kDebugMode) {
+            print('User document does not exist');
+          }
+          _clearData();
         }
-      }
-    } else {
-      // Xử lý khi người dùng không được xác thực
-      if (kDebugMode) {
-        print('User is not authenticated');
+      } catch (e) {
+        if (kDebugMode) {
+          print('Lỗi khi đọc thông tin người dùng: $e');
+        }
+        _clearData();
       }
     }
   }
 
   // Save data to Firestore
   Future<void> saveData() async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+    User? user = _auth.currentUser;
+    if (user != null) {
+      try {
+        // Sử dụng userId trực tiếp từ FirebaseAuth
+        String uid = user.uid;
 
-    if (userId != null) {
-      await FirebaseFirestore.instance.collection('users').doc(userId).update({
-        'fullName': fullnameController.text,
-        'gender': genderController.text,
-        'citizenId': citizenIdController.text,
-        'phoneNumber': phoneNumberController.text,
-        'address': addressController.text,
-        'nationality': nationalityController.text,
-        'birthday': birthdayController.text,
-      });
-      isEditing = false;
-      notifyListeners();
-    } else {
-      // Xử lý khi người dùng không được xác thực
-      if (kDebugMode) {
-        print('User is not authenticated');
+        // Cập nhật thông tin người dùng bằng userId trong collection 'USER'
+        await _firestore.collection('USER').doc(uid).update({
+          'fullName': fullnameController.text,
+          'gender': genderController.text,
+          'citizenId': citizenIdController.text,
+          'phoneNumber': phoneNumberController.text,
+          'address': addressController.text,
+          'nationality': nationalityController.text,
+          'birthday': birthdayController.text,
+        });
+        isEditing = false;
+        notifyListeners();
+      } catch (e) {
+        if (kDebugMode) {
+          print('Lỗi khi cập nhật thông tin người dùng: $e');
+        }
       }
     }
+  }
+
+  // Clear data
+  void _clearData() {
+    fullnameController.text = '';
+    genderController.text = '';
+    citizenIdController.text = '';
+    phoneNumberController.text = '';
+    addressController.text = '';
+    nationalityController.text = '';
+    birthdayController.text = '';
+    notifyListeners();
   }
 
   // Toggle edit mode

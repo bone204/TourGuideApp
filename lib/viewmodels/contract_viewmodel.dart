@@ -1,16 +1,85 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/models/contract_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ContractViewModel extends ChangeNotifier {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final List<ContractModel> _contracts = [];
+  List<ContractModel> get contracts => _contracts;
+  StreamSubscription<QuerySnapshot>? _contractSubscription;
 
-  Future<bool> checkContractExistsForUser(String userId) async {
-    return _contracts.any((contract) => contract.userId == userId);
+  ContractViewModel() {
+    // Lắng nghe sự thay đổi trạng thái đăng nhập
+    _auth.authStateChanges().listen((user) {
+      if (user != null) {
+        _initContractStream(user.uid);
+      } else {
+        // Hủy subscription cũ và xóa dữ liệu khi đăng xuất
+        _clearContractData();
+      }
+    });
   }
 
-  Future<void> createContractForUser(String userId, Map<String, dynamic> contractData) async {
+  void _initContractStream(String uid) async {
+    // Hủy subscription cũ nếu có
+    await _contractSubscription?.cancel();
+    
+    // Lấy userId từ uid
+    try {
+      QuerySnapshot userSnapshot = await _firestore
+          .collection('USER')
+          .where('uid', isEqualTo: uid)
+          .limit(1)
+          .get();
+
+      if (userSnapshot.docs.isNotEmpty) {
+        String userId = userSnapshot.docs.first['userId'];
+        
+        // Tạo subscription mới
+        _contractSubscription = _firestore
+            .collection('CONTRACT')
+            .where('userId', isEqualTo: userId)
+            .snapshots()
+            .listen((snapshot) {
+          _contracts.clear();
+          for (var doc in snapshot.docs) {
+            _contracts.add(ContractModel.fromMap(doc.data() as Map<String, dynamic>));
+          }
+          notifyListeners();
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Lỗi khi khởi tạo contract stream: $e");
+      }
+    }
+  }
+
+  void _clearContractData() {
+    _contractSubscription?.cancel();
+    _contractSubscription = null;
+    _contracts.clear();
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _contractSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> createContractForUser(String uid, Map<String, dynamic> contractData) async {
+    String? userId = await _getUserIdFromUid(uid);
+    if (userId == null) {
+      if (kDebugMode) {
+        print("Không tìm thấy userId cho uid: $uid");
+      }
+      return;
+    }
+
     final contractId = await _generateContractId();
     final newContract = ContractModel(
       contractId: contractId,
@@ -30,7 +99,6 @@ class ContractViewModel extends ChangeNotifier {
     _contracts.add(newContract);
     notifyListeners();
 
-    // Lưu hợp đồng vào Firestore
     try {
       await FirebaseFirestore.instance
           .collection('CONTRACT')
@@ -46,28 +114,33 @@ class ContractViewModel extends ChangeNotifier {
     }
   }
 
-  Future<String> _generateContractId() async {
-    final querySnapshot = await FirebaseFirestore.instance.collection('CONTRACT').get();
-    final currentCounter = querySnapshot.size + 1; // Đếm số lượng tài liệu và tăng thêm 1
-
-    return 'C${currentCounter.toString().padLeft(4, '0')}';
-  }
-
-  Future<Map<String, dynamic>?> getUserData(String userId) async {
+  Future<String?> _getUserIdFromUid(String uid) async {
     try {
-      DocumentSnapshot doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-      if (doc.exists) {
-        return doc.data() as Map<String, dynamic>?;
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('USER')
+          .where('uid', isEqualTo: uid)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.first['userId'] as String?;
       } else {
         if (kDebugMode) {
-          print("Tài liệu người dùng không tồn tại");
+          print("Không tìm thấy tài liệu người dùng với uid: $uid");
         }
+        return null;
       }
     } catch (e) {
       if (kDebugMode) {
-        print("Lỗi khi đọc thông tin người dùng: $e");
+        print("Lỗi khi tìm userId: $e");
       }
+      return null;
     }
-    return null;
+  }
+
+  Future<String> _generateContractId() async {
+    final querySnapshot = await FirebaseFirestore.instance.collection('CONTRACT').get();
+    final currentCounter = querySnapshot.size + 1;
+    return 'C${currentCounter.toString().padLeft(4, '0')}';
   }
 }

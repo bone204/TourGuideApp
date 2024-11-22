@@ -66,7 +66,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
     if (firebaseUser != null) {
       // Truy vấn Firestore để lấy thông tin người dùng
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users')
+          .collection('USER')
           .doc(firebaseUser.uid)
           .get();
 

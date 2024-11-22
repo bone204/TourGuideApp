@@ -68,10 +68,10 @@ class LoginViewModel extends ChangeNotifier {
 
       // Check if user exists in Firestore
       if (user != null) {
-        DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
+        DocumentSnapshot doc = await _firestore.collection('USER').doc(user.uid).get();
         if (!doc.exists) {
           // If user does not exist, create a new account
-          await _firestore.collection('users').doc(user.uid).set({
+          await _firestore.collection('USER').doc(user.uid).set({
             'name': googleUser.displayName ?? 'Unknown',
             'email': user.email,
             'profileImageUrl': googleUser.photoUrl ?? '',
@@ -128,9 +128,9 @@ class LoginViewModel extends ChangeNotifier {
         // Check if user is null
         if (user != null) {
           // Optional: Save additional user data in Firestore
-          DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
+          DocumentSnapshot doc = await _firestore.collection('USER').doc(user.uid).get();
           if (!doc.exists) {
-            await _firestore.collection('users').doc(user.uid).set({
+            await _firestore.collection('USER').doc(user.uid).set({
               'name': user.displayName ?? 'Unknown',
               'email': user.email ?? 'No Email', 
               'profileImageUrl': '', 

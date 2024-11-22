@@ -19,9 +19,13 @@ class FirebaseAuthService {
       User? user = credential.user;
 
       if (user != null) {
+        // Lấy userId mới
+        String newUserId = await _generateNewUserId();
+
         // Nếu đăng ký thành công, tạo đối tượng UserModel
         UserModel newUser = UserModel(
-          userId: user.uid,
+          userId: newUserId,
+          uid: user.uid,  
           name: name,
           fullName: fullName,
           email: email,
@@ -51,6 +55,29 @@ class FirebaseAuthService {
     }
   }
 
+  Future<String> _generateNewUserId() async {
+    try {
+      // Truy vấn Firestore để lấy userId lớn nhất
+      QuerySnapshot snapshot = await _firestore.collection('USER')
+        .orderBy('userId', descending: true)
+        .limit(1)
+        .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        String lastUserId = snapshot.docs.first['userId'];
+        int lastIdNumber = int.parse(lastUserId.substring(1));
+        return 'U${(lastIdNumber + 1).toString().padLeft(5, '0')}';
+      } else {
+        return 'U00001'; // Nếu không có user nào, bắt đầu từ U00001
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Lỗi khi tạo userId mới: $e');
+      }
+      throw Exception("Lỗi khi tạo userId mới: $e");
+    }
+  }
+
   // Đăng nhập bằng email và mật khẩu
   Future<User?> signInWithEmailAndPassword(String email, String password) async {
     try {
@@ -77,11 +104,11 @@ class FirebaseAuthService {
   // Lưu thông tin người dùng vào Firestore
   Future<void> saveUserData(UserModel user) async {
     try {
-      await _firestore.collection('users').doc(user.userId).set(user.toMap());
+      await _firestore.collection('USER').doc(user.uid).set(user.toMap());
     } catch (e) {
       if (kDebugMode) {
         print('Lỗi khi lưu thông tin người dùng: $e');
-      } // In lỗi ra console
+      }
       throw Exception("Lỗi khi lưu thông tin người dùng: $e");
     }
   }
@@ -89,7 +116,7 @@ class FirebaseAuthService {
   // Lấy thông tin người dùng từ Firestore
   Future<UserModel?> getUserData(String userId) async {
     try {
-      DocumentSnapshot snapshot = await _firestore.collection('users').doc(userId).get();
+      DocumentSnapshot snapshot = await _firestore.collection('USER').doc(userId).get();
       if (snapshot.exists) {
         return UserModel.fromMap(snapshot.data() as Map<String, dynamic>);
       }
