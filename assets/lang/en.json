@@ -117,6 +117,8 @@
     "Gender": "Gender",
     "Address": "Address",
     "Nationality": "Nationality",
-    "Birthday": "Birthday"
+    "Birthday": "Birthday",
+    "Review": "Review",
+    "Find Destination": "Find Destination"
   }
   

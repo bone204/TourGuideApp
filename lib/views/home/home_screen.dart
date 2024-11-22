@@ -137,6 +137,24 @@ class HomeScreen extends StatelessWidget {
                               Expanded(
                                 child: Row(
                                   children: [
+                                    // Expanded(
+                                    //   child: HomeNavigator(
+                                    //     image: 'assets/img/restaurant_home.png', 
+                                    //     text: "Find Restaurant"
+                                    //   ),
+                                    // ),
+                                    // Expanded(
+                                    //   child: HomeNavigator(
+                                    //     image: 'assets/img/delivery_home.png', 
+                                    //     text: "Fast Delivery"
+                                    //   ),
+                                    // ),
+                                    // Expanded(
+                                    //   child: HomeNavigator(
+                                    //     image: 'assets/img/hotel_home.png', 
+                                    //     text: "Find Hotel"
+                                    //   ),
+                                    // ),
                                     Expanded(
                                       child: HomeNavigator(
                                         image: 'assets/img/restaurant_home.png', 
@@ -145,14 +163,14 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                     Expanded(
                                       child: HomeNavigator(
-                                        image: 'assets/img/delivery_home.png', 
-                                        text: "Fast Delivery"
+                                        image: 'assets/img/destination.png', 
+                                        text: "Find Destination"
                                       ),
                                     ),
                                     Expanded(
                                       child: HomeNavigator(
-                                        image: 'assets/img/hotel_home.png', 
-                                        text: "Find Hotel"
+                                        image: 'assets/img/review.png', 
+                                        text: "Review"
                                       ),
                                     ),
                                   ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
+import 'package:tourguideapp/color/colors.dart';
 import 'custom_bottom_bar_clip.dart'; 
 import 'package:tourguideapp/localization/app_localizations.dart';
 
@@ -28,8 +29,8 @@ class NavigationExample extends StatelessWidget {
           type: BottomNavigationBarType.fixed, 
           currentIndex: currentIndex,
           onTap: onTap,
-          selectedItemColor: const Color(0xFF24BAEC), 
-          unselectedItemColor: const Color(0xFF7D848D), 
+          selectedItemColor: AppColors.primaryColor, 
+          unselectedItemColor: AppColors.grey, 
           selectedLabelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold), // Use ScreenUtil for font size
           unselectedLabelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold), // Use ScreenUtil for font size
           showUnselectedLabels: true,
@@ -37,10 +38,12 @@ class NavigationExample extends StatelessWidget {
           items: [
             BottomNavigationBarItem(
               icon: Column(
-                mainAxisSize: MainAxisSize.min, // Use min to avoid extra space
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.home, size: 24.sp),
-                  SizedBox(height: 4.h), // Spacing of 8 logical pixels
+                  currentIndex == 0
+                      ? Image.asset('assets/img/Logo_blue.png', width: 24.w, height: 24.h)
+                      : Image.asset('assets/img/Logo_grey.png', width: 24.w, height: 24.h),
+                  SizedBox(height: 4.h),
                 ],
               ),
               label: AppLocalizations.of(context).translate('Home'),
