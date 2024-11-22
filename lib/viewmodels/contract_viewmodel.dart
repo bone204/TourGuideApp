@@ -10,17 +10,39 @@ class ContractViewModel extends ChangeNotifier {
   final List<ContractModel> _contracts = [];
   List<ContractModel> get contracts => _contracts;
   StreamSubscription<QuerySnapshot>? _contractSubscription;
+  String? _currentUserId;
 
   ContractViewModel() {
     // Lắng nghe sự thay đổi trạng thái đăng nhập
-    _auth.authStateChanges().listen((user) {
+    _auth.authStateChanges().listen((user) async {
       if (user != null) {
+        // Cập nhật userId mới khi user thay đổi
+        await _updateCurrentUserId(user.uid);
         _initContractStream(user.uid);
       } else {
-        // Hủy subscription cũ và xóa dữ liệu khi đăng xuất
+        _currentUserId = null;
         _clearContractData();
       }
     });
+  }
+
+  Future<void> _updateCurrentUserId(String uid) async {
+    try {
+      QuerySnapshot userSnapshot = await _firestore
+          .collection('USER')
+          .where('uid', isEqualTo: uid)
+          .limit(1)
+          .get();
+
+      if (userSnapshot.docs.isNotEmpty) {
+        _currentUserId = userSnapshot.docs.first['userId'];
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Lỗi khi cập nhật userId: $e");
+      }
+    }
   }
 
   void _initContractStream(String uid) async {
@@ -72,10 +94,10 @@ class ContractViewModel extends ChangeNotifier {
   }
 
   Future<void> createContractForUser(String uid, Map<String, dynamic> contractData) async {
-    String? userId = await _getUserIdFromUid(uid);
-    if (userId == null) {
+    // Sử dụng userId hiện tại thay vì query lại
+    if (_currentUserId == null) {
       if (kDebugMode) {
-        print("Không tìm thấy userId cho uid: $uid");
+        print("Không tìm thấy userId hiện tại");
       }
       return;
     }
@@ -83,7 +105,7 @@ class ContractViewModel extends ChangeNotifier {
     final contractId = await _generateContractId();
     final newContract = ContractModel(
       contractId: contractId,
-      userId: userId,
+      userId: _currentUserId!, // Sử dụng userId hiện tại
       businessType: contractData['businessType'],
       businessName: contractData['businessName'],
       businessProvince: contractData['businessProvince'],
@@ -111,30 +133,6 @@ class ContractViewModel extends ChangeNotifier {
       if (kDebugMode) {
         print("Lỗi khi lưu hợp đồng vào Firestore: $e");
       }
-    }
-  }
-
-  Future<String?> _getUserIdFromUid(String uid) async {
-    try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('USER')
-          .where('uid', isEqualTo: uid)
-          .limit(1)
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        return querySnapshot.docs.first['userId'] as String?;
-      } else {
-        if (kDebugMode) {
-          print("Không tìm thấy tài liệu người dùng với uid: $uid");
-        }
-        return null;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Lỗi khi tìm userId: $e");
-      }
-      return null;
     }
   }
 
