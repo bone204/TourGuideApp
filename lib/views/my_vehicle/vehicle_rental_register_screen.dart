@@ -140,49 +140,47 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
         _showErrorDialog('Please agree to all terms and conditions.');
         return;
       }
-      final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-      final contractViewModel = Provider.of<ContractViewModel>(context, listen: false);
-      
-      final currentUserId = authViewModel.currentUserId;
 
-      if (currentUserId != null) {
-        // Tải ảnh lên Firebase Storage và lấy URL
-        if (_businessRegisterPhotoPath.isNotEmpty) {
-          _businessRegisterPhotoPath = await _uploadImageToFirebase(File(_businessRegisterPhotoPath));
-        }
-        if (_citizenPhotoFrontPath.isNotEmpty) {
-          _citizenPhotoFrontPath = await _uploadImageToFirebase(File(_citizenPhotoFrontPath));
-        }
-        if (_citizenPhotoBackPath.isNotEmpty) {
-          _citizenPhotoBackPath = await _uploadImageToFirebase(File(_citizenPhotoBackPath));
-        }
+      try {
+        final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+        final contractViewModel = Provider.of<ContractViewModel>(context, listen: false);
+        final currentUserId = authViewModel.currentUserId;
 
-        await contractViewModel.createContractForUser(currentUserId, {
-          'businessType': _selectedBusinessType,
-          'businessName': _businessNameController.text,
-          'businessProvince': _selectedBusinessRegion,
-          'businessAddress': _businessAddressController.text,
-          'taxCode': _taxCodeController.text,
-          'businessRegisterPhoto': _businessRegisterPhotoPath,
-          'citizenFrontPhoto': _citizenPhotoFrontPath,
-          'citizenBackPhoto': _citizenPhotoBackPath,
-          'contractTerm': '1 year', 
-          'contractStatus': 'Pending Approval', 
-        });
+        if (currentUserId != null) {
+          // Hiển thị loading indicator
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(child: CircularProgressIndicator()),
+          );
 
+          // Tạo contract
+          await contractViewModel.createContractForUser(currentUserId, {
+            'businessType': _selectedBusinessType,
+            'businessName': _businessNameController.text,
+            'businessProvince': _selectedBusinessRegion,
+            'businessAddress': _businessAddressController.text,
+            'taxCode': _taxCodeController.text,
+            'businessRegisterPhoto': _businessRegisterPhotoPath,
+            'citizenFrontPhoto': _citizenPhotoFrontPath,
+            'citizenBackPhoto': _citizenPhotoBackPath,
+            'contractTerm': '1 year', 
+            'contractStatus': 'Pending Approval', 
+          });
+
+          // Đóng loading indicator
+          Navigator.of(context).pop();
+
+          // Chuyển hướng sau khi thành công
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        // Đóng loading indicator nếu có lỗi
+        Navigator.of(context).pop();
+        
+        _showErrorDialog('Có lỗi xảy ra khi tạo hợp đồng. Vui lòng thử lại.');
         if (kDebugMode) {
-          print('Registration completed!');
-        }
-
-        setState(() {
-          _isContractRegistered = true;
-        });
-
-        // Trả về kết quả cho MyVehicleScreen
-        Navigator.of(context).pop(true);
-      } else {
-        if (kDebugMode) {
-          print('User ID is not available.');
+          print("Lỗi khi tạo hợp đồng: $e");
         }
       }
     }

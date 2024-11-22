@@ -28,15 +28,22 @@ class ContractViewModel extends ChangeNotifier {
 
   Future<void> _updateCurrentUserId(String uid) async {
     try {
-      QuerySnapshot userSnapshot = await _firestore
-          .collection('USER')
-          .where('uid', isEqualTo: uid)
-          .limit(1)
-          .get();
+      // Thử lấy userId vài lần nếu không tìm thấy ngay
+      for (int i = 0; i < 3; i++) {
+        QuerySnapshot userSnapshot = await _firestore
+            .collection('USER')
+            .where('uid', isEqualTo: uid)
+            .limit(1)
+            .get();
 
-      if (userSnapshot.docs.isNotEmpty) {
-        _currentUserId = userSnapshot.docs.first['userId'];
-        notifyListeners();
+        if (userSnapshot.docs.isNotEmpty) {
+          _currentUserId = userSnapshot.docs.first['userId'];
+          notifyListeners();
+          break;
+        }
+
+        // Đợi một chút trước khi thử lại
+        await Future.delayed(const Duration(seconds: 1));
       }
     } catch (e) {
       if (kDebugMode) {
@@ -94,45 +101,54 @@ class ContractViewModel extends ChangeNotifier {
   }
 
   Future<void> createContractForUser(String uid, Map<String, dynamic> contractData) async {
-    // Sử dụng userId hiện tại thay vì query lại
-    if (_currentUserId == null) {
-      if (kDebugMode) {
-        print("Không tìm thấy userId hiện tại");
-      }
-      return;
-    }
-
-    final contractId = await _generateContractId();
-    final newContract = ContractModel(
-      contractId: contractId,
-      userId: _currentUserId!, // Sử dụng userId hiện tại
-      businessType: contractData['businessType'],
-      businessName: contractData['businessName'],
-      businessProvince: contractData['businessProvince'],
-      businessAddress: contractData['businessAddress'],
-      taxCode: contractData['taxCode'],
-      businessRegisterPhoto: contractData['businessRegisterPhoto'],
-      citizenFrontPhoto: contractData['citizenFrontPhoto'],
-      citizenBackPhoto: contractData['citizenBackPhoto'],
-      contractTerm: contractData['contractTerm'],
-      contractStatus: contractData['contractStatus'],
-    );
-
-    _contracts.add(newContract);
-    notifyListeners();
-
     try {
-      await FirebaseFirestore.instance
+      // Đợi và lấy userId hiện tại nếu chưa có
+      if (_currentUserId == null) {
+        await _updateCurrentUserId(uid);
+      }
+
+      if (_currentUserId == null) {
+        if (kDebugMode) {
+          print("Không tìm thấy userId hiện tại");
+        }
+        return;
+      }
+
+      // Thêm delay ngắn để đảm bảo dữ liệu user đã được lưu
+      await Future.delayed(const Duration(seconds: 1));
+
+      final contractId = await _generateContractId();
+      final newContract = ContractModel(
+        contractId: contractId,
+        userId: _currentUserId!,
+        businessType: contractData['businessType'],
+        businessName: contractData['businessName'],
+        businessProvince: contractData['businessProvince'],
+        businessAddress: contractData['businessAddress'],
+        taxCode: contractData['taxCode'],
+        businessRegisterPhoto: contractData['businessRegisterPhoto'],
+        citizenFrontPhoto: contractData['citizenFrontPhoto'],
+        citizenBackPhoto: contractData['citizenBackPhoto'],
+        contractTerm: contractData['contractTerm'],
+        contractStatus: contractData['contractStatus'],
+      );
+
+      await _firestore
           .collection('CONTRACT')
           .doc(newContract.contractId)
           .set(newContract.toMap());
+
+      _contracts.add(newContract);
+      notifyListeners();
+
       if (kDebugMode) {
-        print("Hợp đồng đã được lưu vào Firestore");
+        print("Hợp đồng đã được lưu vào Firestore với userId: $_currentUserId");
       }
     } catch (e) {
       if (kDebugMode) {
-        print("Lỗi khi lưu hợp đồng vào Firestore: $e");
+        print("Lỗi khi tạo hợp đồng: $e");
       }
+      rethrow; // Ném lỗi để UI có thể xử lý
     }
   }
 
