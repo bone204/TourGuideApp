@@ -4,19 +4,19 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 class CustomTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
-  final TextEditingController controller; // Thêm tham số controller
+  final TextEditingController controller; 
 
   const CustomTextField({
     super.key,
     required this.hintText,
-    required this.controller, // Yêu cầu controller
+    required this.controller,
     this.obscureText = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: controller, // Liên kết controller với TextFormField
+      controller: controller, 
       obscureText: obscureText,
       decoration: InputDecoration(
         hintText: hintText,

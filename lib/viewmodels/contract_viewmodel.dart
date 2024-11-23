@@ -157,4 +157,24 @@ class ContractViewModel extends ChangeNotifier {
     final currentCounter = querySnapshot.size + 1;
     return 'C${currentCounter.toString().padLeft(4, '0')}';
   }
+
+  Future<String> getUserFullName(String userId) async {
+    try {
+      final userDoc = await _firestore
+          .collection('USER')
+          .where('userId', isEqualTo: userId)
+          .limit(1)
+          .get();
+
+      if (userDoc.docs.isNotEmpty) {
+        return userDoc.docs.first['fullName'] ?? 'Unknown';
+      }
+      return 'Unknown';
+    } catch (e) {
+      if (kDebugMode) {
+        print("Lỗi khi lấy thông tin user: $e");
+      }
+      return 'Unknown';
+    }
+  }
 }

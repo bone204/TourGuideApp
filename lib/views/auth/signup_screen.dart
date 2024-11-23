@@ -50,7 +50,7 @@ class SignupScreen extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             CustomTextField(
-                              hintText: AppLocalizations.of(context).translate('Fullname'), 
+                              hintText: AppLocalizations.of(context).translate('Username'), 
                               controller: _usernameController,
                             ),
                             SizedBox(height: 16.h), 

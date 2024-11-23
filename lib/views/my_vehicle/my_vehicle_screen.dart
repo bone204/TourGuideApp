@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
+import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
 import 'package:tourguideapp/views/my_vehicle/vehicle_rental_register_screen.dart';
@@ -97,15 +98,98 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
   }
 
   Widget _buildPendingApprovalView() {
-    return Center(
-      child: Text(
-        "Đang đăng ký...",
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-          fontSize: 20.sp,
-        ),
-      ),
+    return Consumer<ContractViewModel>(
+      builder: (context, contractViewModel, child) {
+        return FutureBuilder<String>(
+          future: contractViewModel.getUserFullName(contractViewModel.contracts.first.userId),
+          builder: (context, snapshot) {
+            final fullName = snapshot.data ?? 'Unknown';
+            
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+              height: 140.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.r),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.r),
+                      child: Image.asset(
+                        'assets/img/pending_approval.png',
+                        height: 116.h,
+                        width: 116.w,
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context).translate("Vehicle Rental Register"),
+                            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: AppColors.black),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Row(
+                            children: [
+                              Icon(Icons.calendar_month, size: 16.sp),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Text(
+                                  "26/11/2024",
+                                  style: TextStyle(fontSize: 12.sp, color: AppColors.grey),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            "Registrant: $fullName",
+                            style: TextStyle(fontSize: 12.sp, color: AppColors.black),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Container(
+                            width: double.infinity,
+                            height: 40.h,
+                            decoration: BoxDecoration(
+                              color: AppColors.secondaryColor,
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Center(
+                              child: Text(
+                                AppLocalizations.of(context).translate("Pending Approval"),
+                                style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
