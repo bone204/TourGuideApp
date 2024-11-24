@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
-import 'package:tourguideapp/widgets/textfield.dart';
+import 'package:tourguideapp/widgets/info_text_field.dart';
+
 
 class VehicleRentalDetail extends StatelessWidget {
   final String model;

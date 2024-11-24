@@ -16,7 +16,21 @@ class PersonInfoViewModel extends ChangeNotifier {
   final TextEditingController birthdayController = TextEditingController();
   
   bool isEditing = false;
-
+  
+  String? _gender;
+  String? get gender => _gender;
+  set gender(String? value) {
+    _gender = value;
+    notifyListeners();
+  }
+  
+  String? _nationality;
+  String? get nationality => _nationality;
+  set nationality(String? value) {
+    _nationality = value;
+    notifyListeners();
+  }
+  
   PersonInfoViewModel() {
     _auth.authStateChanges().listen((user) {
       if (user != null) {
@@ -80,7 +94,6 @@ class PersonInfoViewModel extends ChangeNotifier {
           'nationality': nationalityController.text,
           'birthday': birthdayController.text,
         });
-        isEditing = false;
         notifyListeners();
       } catch (e) {
         if (kDebugMode) {
@@ -102,9 +115,10 @@ class PersonInfoViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Toggle edit mode
-  void toggleEditing() {
-    isEditing = !isEditing;
-    notifyListeners();
+  Icon getFieldIcon(String text) {
+    if (text.trim().isEmpty) {
+      return const Icon(Icons.warning_amber_rounded, color: Colors.red);
+    }
+    return const Icon(Icons.check_circle, color: Colors.green);
   }
 }
