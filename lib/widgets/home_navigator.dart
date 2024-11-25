@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/views/service/vehicle_rental_screen.dart';
+import 'package:tourguideapp/views/service/rental/vehicle_rental_screen.dart';
+import 'package:tourguideapp/views/service/travel/travel_screen.dart';
 
 class HomeNavigator extends StatelessWidget {
   final String image;
@@ -17,6 +18,15 @@ class HomeNavigator extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => const VehicleRentalScreen(),
+            ),
+          );
+        }
+
+        if (text == "Travel") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const TravelScreen(),
             ),
           );
         }

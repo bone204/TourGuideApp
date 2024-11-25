@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tourguideapp/views/service/vehicle_rental_screen.dart';
+import 'package:tourguideapp/views/service/rental/vehicle_rental_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../localization/app_localizations.dart';
 import '../../widgets/interactive_row_widget.dart';

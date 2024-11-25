@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/views/service/vehicle_rental_detail_screen.dart';
+import 'package:tourguideapp/views/service/rental/vehicle_rental_detail_screen.dart';
 
 class VehicleCardData {
   final String model;
