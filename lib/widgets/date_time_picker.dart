@@ -63,7 +63,12 @@ class DateTimePicker extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.calendar_month, size: 24.sp),
+                      Image.asset(
+                        'assets/img/calendar.png',
+                        width: 24.w,
+                        height: 24.h,
+                        fit: BoxFit.cover,
+                      ),
                       SizedBox(width: 12.w),
                       Text(
                         "${_getDayAbbreviation(selectedDate, context)}, ${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}",
