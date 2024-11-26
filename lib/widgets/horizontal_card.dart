@@ -55,13 +55,13 @@ class HorizontalCard extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 14.h),
-              Container(
-                color: const Color(0xFFFFFFFF),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           data.placeName,
@@ -92,6 +92,7 @@ class HorizontalCard extends StatelessWidget {
                       ],
                     ),
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Row(
                           children: [

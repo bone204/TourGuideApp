@@ -15,6 +15,7 @@ class ImageStackWidget extends StatelessWidget {
     return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           for (int i = 0; i < images.length; i++)
             Align(

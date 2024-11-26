@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/accountInfo_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/contract_viewmodel.dart';
+import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/personInfo_viewmodel.dart';
@@ -67,6 +68,7 @@ class MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => PersonInfoViewModel()),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => ContractViewModel()),
+        ChangeNotifierProvider(create: (_) => DestinationsViewModel()),
       ],
       child: MaterialApp(
         title: 'Tour Guide App',

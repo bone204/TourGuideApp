@@ -8,195 +8,195 @@ import 'package:tourguideapp/widgets/home_navigator.dart';
 import 'package:tourguideapp/widgets/horizontal_card.dart';
 import 'package:tourguideapp/widgets/horizontal_card_list_view.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; 
+import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Gọi fetchDestinations một lần duy nhất khi khởi tạo
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_isInitialized) {
+        final destinationsViewModel = Provider.of<DestinationsViewModel>(context, listen: false);
+        destinationsViewModel.fetchDestinations();
+        _isInitialized = true;
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812)); // Khởi tạo ScreenUtil
+    ScreenUtil.init(context, designSize: const Size(375, 812));
 
     final homeViewModel = Provider.of<HomeViewModel>(context);
-
-    final List<HorizontalCardData> horizontalCards = [
-      HorizontalCardData(
-        imageUrl: 'https://www.pullman-danang.com/wp-content/uploads/sites/86/2023/03/hue-city-g228d128fd_1920.jpg',
-        placeName: 'Kinh Thành Huế',
-        description: 'Thừa Thiên Huế',
-        rating: 4.5,
-      ),
-      HorizontalCardData(
-        imageUrl: 'https://vnpay.vn/s1/statics.vnpay.vn/2023/9/01gg1bq72tx21695660244678.jpg',
-        placeName: 'Nhà thờ Đá',
-        description: 'Nha Trang',
-        rating: 4.5,
-      ),
-      HorizontalCardData(
-        imageUrl: 'https://ik.imagekit.io/tvlk/xpe-asset/AyJ40ZAo1DOyPyKLZ9c3RGQHTP2oT4ZXW+QmPVVkFQiXFSv42UaHGzSmaSzQ8DO5QIbWPZuF+VkYVRk6gh-Vg4ECbfuQRQ4pHjWJ5Rmbtkk=/2001357730516/Ba-Na-Hills-%2528Vietnam-Golden-Bridge%2529---Day-Tour-fe2e456e-05a1-4081-96df-c8fff570575b.png?tr=q-60,c-at_max,w-1280,h-720&_src=imagekit',
-        placeName: 'Cầu Vàng',
-        description: 'Đà Nẵng',
-        rating: 4.5,
-      ),
-      HorizontalCardData(
-        imageUrl: 'https://topquangngai.vn/wp-content/uploads/2022/08/mot-ngay-nang-tren-deo-violac-quang-ngai-296275938_164623472787479_2300489940475416046_n.jpg',
-        placeName: 'Đèo Vi Ô Lắc',
-        description: 'Quảng Ngãi',
-        rating: 4.5,
-      ),
-    ];
+    final destinationsViewModel = Provider.of<DestinationsViewModel>(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    width: double.infinity,
-                    height: 310.h,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    width: double.infinity,
-                    height: 232.h,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(topLeft: Radius.zero, topRight: Radius.zero, bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Color(0xFF66B2FF),
-                          Color(0xFF007BFF),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(20.w, 20.w, 20.w, 10.h),
-                    child: Column(
-                      children: [
-                        UserHeader(
-                          name: homeViewModel.name,
-                          profileImageUrl: homeViewModel.profileImageUrl,
-                        ),
-                        SizedBox(height: 40.h),
-                        Container(
-                          width: 335.w,
-                          height: 164.h,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16.r), 
+      body: destinationsViewModel.isLoading 
+        ? const Center(child: CircularProgressIndicator())
+        : destinationsViewModel.error.isNotEmpty
+          ? Center(child: Text(destinationsViewModel.error))
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          width: double.infinity,
+                          height: 310.h,
+                          decoration: const BoxDecoration(
                             color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF000000).withOpacity(0.25),
-                                blurRadius: 4.r,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const Column(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: HomeNavigator(
-                                        image: 'assets/img/car_home.png', 
-                                        text: "Car Rental"
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: HomeNavigator(
-                                        image: 'assets/img/motorbike_home.png', 
-                                        text: "Motorbike Rental"
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: HomeNavigator(
-                                        image: 'assets/img/travel_home.png', 
-                                        text: "Travel"
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    // Expanded(
-                                    //   child: HomeNavigator(
-                                    //     image: 'assets/img/restaurant_home.png', 
-                                    //     text: "Find Restaurant"
-                                    //   ),
-                                    // ),
-                                    // Expanded(
-                                    //   child: HomeNavigator(
-                                    //     image: 'assets/img/delivery_home.png', 
-                                    //     text: "Fast Delivery"
-                                    //   ),
-                                    // ),
-                                    // Expanded(
-                                    //   child: HomeNavigator(
-                                    //     image: 'assets/img/hotel_home.png', 
-                                    //     text: "Find Hotel"
-                                    //   ),
-                                    // ),
-                                    Expanded(
-                                      child: HomeNavigator(
-                                        image: 'assets/img/restaurant_home.png', 
-                                        text: "Find Restaurant"
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: HomeNavigator(
-                                        image: 'assets/img/destination.png', 
-                                        text: "Find Destination"
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: HomeNavigator(
-                                        image: 'assets/img/review.png', 
-                                        text: "Review"
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
                           ),
                         ),
-                      ]
+                      ),
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          width: double.infinity,
+                          height: 232.h,
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.only(topLeft: Radius.zero, topRight: Radius.zero, bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Color(0xFF66B2FF),
+                                Color(0xFF007BFF),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SafeArea(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(20.w, 20.w, 20.w, 10.h),
+                          child: Column(
+                            children: [
+                              UserHeader(
+                                name: homeViewModel.name,
+                                profileImageUrl: homeViewModel.profileImageUrl,
+                              ),
+                              SizedBox(height: 40.h),
+                              Container(
+                                width: 335.w,
+                                height: 164.h,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16.r), 
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF000000).withOpacity(0.25),
+                                      blurRadius: 4.r,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: const Column(
+                                  children: [
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: HomeNavigator(
+                                              image: 'assets/img/car_home.png', 
+                                              text: "Car Rental"
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: HomeNavigator(
+                                              image: 'assets/img/motorbike_home.png', 
+                                              text: "Motorbike Rental"
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: HomeNavigator(
+                                              image: 'assets/img/travel_home.png', 
+                                              text: "Travel"
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          // Expanded(
+                                          //   child: HomeNavigator(
+                                          //     image: 'assets/img/restaurant_home.png', 
+                                          //     text: "Find Restaurant"
+                                          //   ),
+                                          // ),
+                                          // Expanded(
+                                          //   child: HomeNavigator(
+                                          //     image: 'assets/img/delivery_home.png', 
+                                          //     text: "Fast Delivery"
+                                          //   ),
+                                          // ),
+                                          // Expanded(
+                                          //   child: HomeNavigator(
+                                          //     image: 'assets/img/hotel_home.png', 
+                                          //     text: "Find Hotel"
+                                          //   ),
+                                          // ),
+                                          Expanded(
+                                            child: HomeNavigator(
+                                              image: 'assets/img/restaurant_home.png', 
+                                              text: "Find Restaurant"
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: HomeNavigator(
+                                              image: 'assets/img/destination.png', 
+                                              text: "Find Destination"
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: HomeNavigator(
+                                              image: 'assets/img/review.png', 
+                                              text: "Review"
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ]
+                          ),
+                        ),
+                      ),
+                    ]
+                  ),
+                  // Popular Destinations
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+                    child: buildSectionHeadline(
+                      context, 
+                      "Destinations", 
+                      "Explore beautiful places", 
+                      destinationsViewModel.horizontalCardsData
                     ),
                   ),
-                ),
-              ]
+                ],
+              ),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
-              child: buildSectionHeadline(context, "Popular", "The best destination for you", horizontalCards),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
-              child: buildSectionHeadline(context, "Nearest Places", "The best destination close to you", horizontalCards)
-            ),
-            // Thêm các phần khác tương tự...
-          ],
-        ),
-      ),
     );
   }
 
