@@ -71,28 +71,34 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
               _buildSearchBar(),
               SizedBox(height: 10.h),
               FavouriteCardListView(
-                cardDataList: favouriteViewModel.favouriteCards.map((horizontalCard) {
+                cardDataList: favouriteViewModel.favouriteDestinations.map((destination) {
                   return FavouriteCardData(
-                    placeName: horizontalCard.placeName,
-                    imageUrl: horizontalCard.imageUrl,
-                    description: horizontalCard.description,
+                    placeName: destination.destinationName,
+                    imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
+                    description: destination.province,
                   );
                 }).toList(),
                 onCardTap: (favouriteCardData) {
+                  final destination = favouriteViewModel.favouriteDestinations.firstWhere(
+                    (d) => d.destinationName == favouriteCardData.placeName,
+                  );
+
                   final horizontalCardData = HorizontalCardData(
                     placeName: favouriteCardData.placeName,
                     imageUrl: favouriteCardData.imageUrl,
                     description: favouriteCardData.description,
-                    rating: 0, // Thêm giá trị mặc định cho rating nếu cần
+                    rating: 4.5,
                   );
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => DestinationDetailPage(
-                        data: horizontalCardData,
-                        isFavourite: favouriteViewModel.isFavourite(horizontalCardData),
+                        cardData: horizontalCardData,
+                        destinationData: destination,
+                        isFavourite: favouriteViewModel.isFavourite(destination),
                         onFavouriteToggle: (isFavourite) {
-                          favouriteViewModel.toggleFavourite(horizontalCardData);
+                          favouriteViewModel.toggleFavourite(destination);
                         },
                       ),
                     ),

@@ -202,6 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget buildSectionHeadline(BuildContext context, String title, String subtitle, List<HorizontalCardData> cardDataList) {
     final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
+    final destinationsViewModel = Provider.of<DestinationsViewModel>(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,14 +216,19 @@ class _HomeScreenState extends State<HomeScreen> {
         HorizontalCardListView(
           cardDataList: cardDataList,
           onCardTap: (cardData) {
+            final destination = destinationsViewModel.destinations.firstWhere(
+              (dest) => dest.destinationName == cardData.placeName,
+            );
+            
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => DestinationDetailPage(
-                  data: cardData,
-                  isFavourite: favouriteViewModel.isFavourite(cardData),
+                  cardData: cardData,
+                  destinationData: destination,
+                  isFavourite: favouriteViewModel.isFavourite(destination),
                   onFavouriteToggle: (isFavourite) {
-                    favouriteViewModel.toggleFavourite(cardData);
+                    favouriteViewModel.toggleFavourite(destination);
                   },
                 ),
               ),

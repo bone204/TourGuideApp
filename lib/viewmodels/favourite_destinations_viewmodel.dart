@@ -1,21 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/widgets/horizontal_card.dart';
 
 class FavouriteDestinationsViewModel extends ChangeNotifier {
-  List<HorizontalCardData> _favouriteCards = [];
+  List<DestinationModel> _favouriteDestinations = [];
 
-  List<HorizontalCardData> get favouriteCards => _favouriteCards;
+  List<DestinationModel> get favouriteDestinations => _favouriteDestinations;
 
-  void toggleFavourite(HorizontalCardData data) {
-    if (_favouriteCards.any((card) => card.placeName == data.placeName)) {
-      _favouriteCards.removeWhere((card) => card.placeName == data.placeName);
+  List<HorizontalCardData> get favouriteCards => _favouriteDestinations.map((destination) {
+    return HorizontalCardData(
+      imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
+      placeName: destination.destinationName,
+      description: destination.province,
+      rating: 4.5,
+    );
+  }).toList();
+
+  void toggleFavourite(DestinationModel destination) {
+    if (_favouriteDestinations.any((d) => d.destinationId == destination.destinationId)) {
+      _favouriteDestinations.removeWhere((d) => d.destinationId == destination.destinationId);
     } else {
-      _favouriteCards.add(data);
+      _favouriteDestinations.add(destination);
     }
     notifyListeners();
   }
 
-  bool isFavourite(HorizontalCardData data) {
-    return _favouriteCards.any((card) => card.placeName == data.placeName);
+  bool isFavourite(DestinationModel destination) {
+    return _favouriteDestinations.any((d) => d.destinationId == destination.destinationId);
   }
 }
