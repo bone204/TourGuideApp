@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as developer;
 import 'package:tourguideapp/models/destination_model.dart';
-import 'package:tourguideapp/widgets/horizontal_card.dart';
+import 'package:tourguideapp/widgets/home_card.dart';
 
 class DestinationsViewModel extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -16,8 +16,8 @@ class DestinationsViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get error => _error;
 
-  List<HorizontalCardData> get horizontalCardsData => _destinations.map((destination) {
-    return HorizontalCardData(
+  List<HomeCardData> get horizontalCardsData => _destinations.map((destination) {
+    return HomeCardData(
       imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
       placeName: destination.destinationName,
       description: destination.province,

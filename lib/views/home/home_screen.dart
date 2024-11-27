@@ -5,8 +5,8 @@ import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/home_navigator.dart';
-import 'package:tourguideapp/widgets/horizontal_card.dart';
-import 'package:tourguideapp/widgets/horizontal_card_list_view.dart';
+import 'package:tourguideapp/widgets/home_card.dart';
+import 'package:tourguideapp/widgets/home_card_list_view.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; 
 import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 
@@ -200,7 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget buildSectionHeadline(BuildContext context, String title, String subtitle, List<HorizontalCardData> cardDataList) {
+  Widget buildSectionHeadline(BuildContext context, String title, String subtitle, List<HomeCardData> cardDataList) {
     final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
     final destinationsViewModel = Provider.of<DestinationsViewModel>(context);
 
@@ -213,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
           viewAllColor: const Color(0xFFFF7029),
         ),
         SizedBox(height: 12.h),
-        HorizontalCardListView(
+        HomeCardListView(
           cardDataList: cardDataList,
           onCardTap: (cardData) {
             final destination = destinationsViewModel.destinations.firstWhere(

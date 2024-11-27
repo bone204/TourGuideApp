@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/widgets/custom_like_button.dart';
-import 'package:tourguideapp/widgets/horizontal_card.dart';
+import 'package:tourguideapp/widgets/home_card.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 
 class DestinationDetailPage extends StatelessWidget {
-  final HorizontalCardData cardData;
+  final HomeCardData cardData;
   final DestinationModel destinationData;
   final bool isFavourite;
   final ValueChanged<bool> onFavouriteToggle;

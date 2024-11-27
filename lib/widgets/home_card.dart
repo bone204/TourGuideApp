@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/widgets/image_stack.dart';
 
-class HorizontalCardData {
+class HomeCardData {
   final String imageUrl;
   final String placeName;
   final String description;
   final double rating;
 
-  HorizontalCardData({
+  HomeCardData({
     required this.imageUrl,
     required this.placeName,
     required this.description,
@@ -16,11 +16,11 @@ class HorizontalCardData {
   });
 }
 
-class HorizontalCard extends StatelessWidget {
-  final HorizontalCardData data;
+class HomeCard extends StatelessWidget {
+  final HomeCardData data;
   final VoidCallback onTap; // Thêm onTap callback
 
-  const HorizontalCard({required this.data, required this.onTap, super.key});
+  const HomeCard({required this.data, required this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {

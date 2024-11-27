@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:tourguideapp/models/destination_model.dart';
-import 'package:tourguideapp/widgets/horizontal_card.dart';
+import 'package:tourguideapp/widgets/home_card.dart';
 
 class FavouriteDestinationsViewModel extends ChangeNotifier {
   List<DestinationModel> _favouriteDestinations = [];
 
   List<DestinationModel> get favouriteDestinations => _favouriteDestinations;
 
-  List<HorizontalCardData> get favouriteCards => _favouriteDestinations.map((destination) {
-    return HorizontalCardData(
+  List<HomeCardData> get favouriteCards => _favouriteDestinations.map((destination) {
+    return HomeCardData(
       imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
       placeName: destination.destinationName,
       description: destination.province,

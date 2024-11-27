@@ -4,7 +4,7 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/widgets/favourite_card_list.dart';
-import 'package:tourguideapp/widgets/horizontal_card.dart';
+import 'package:tourguideapp/widgets/home_card.dart';
 import '../../widgets/custom_icon_button.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
@@ -83,7 +83,7 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                     (d) => d.destinationName == favouriteCardData.placeName,
                   );
 
-                  final horizontalCardData = HorizontalCardData(
+                  final homeCardData = HomeCardData(
                     placeName: favouriteCardData.placeName,
                     imageUrl: favouriteCardData.imageUrl,
                     description: favouriteCardData.description,
@@ -94,7 +94,7 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => DestinationDetailPage(
-                        cardData: horizontalCardData,
+                        cardData: homeCardData,
                         destinationData: destination,
                         isFavourite: favouriteViewModel.isFavourite(destination),
                         onFavouriteToggle: (isFavourite) {
