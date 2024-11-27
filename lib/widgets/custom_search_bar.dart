@@ -5,12 +5,14 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 
 class CustomSearchBar extends StatelessWidget {
   final TextEditingController? controller;
+  final String hintText;
   final Function(String)? onChanged;
   final EdgeInsetsGeometry? margin;
 
   const CustomSearchBar({
     Key? key,
     this.controller,
+    required this.hintText,
     this.onChanged,
     this.margin,
   }) : super(key: key);
@@ -29,7 +31,7 @@ class CustomSearchBar extends StatelessWidget {
         controller: controller,
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: AppLocalizations.of(context).translate('Search province to travel'),
+          hintText: AppLocalizations.of(context).translate(hintText),
           hintStyle: TextStyle(fontSize: 16.sp, color: AppColors.grey),
           labelStyle: TextStyle(fontSize: 16.sp, color: AppColors.black),
           prefixIcon: Icon(Icons.search_sharp, size: 28.sp, color: AppColors.grey,),

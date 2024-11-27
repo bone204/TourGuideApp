@@ -119,6 +119,20 @@
     "Nationality": "Nationality",
     "Birthday": "Birthday",
     "Review": "Review",
-    "Find Destination": "Find Destination"
+    "Find Destination": "Find Destination",
+
+    "Male": "Male",
+    "Female": "Female",
+    "Other": "Other",
+
+    "Edit Information": "Edit Information",
+    "Motorbike Rental": "Motorbike Rental",
+    "Travel": "Travel",
+    "Find Restaurant": "Find Restaurant",
+    "Search province to travel": "Search province to travel",
+    "Identification (Front Photo)": "Identification (Front Photo)",
+    "Identification (Back Photo)": "Identification (Back Photo)",
+    "Business Address": "Business Address",
+    "Suggested Route": "Suggested Route"
   }
   

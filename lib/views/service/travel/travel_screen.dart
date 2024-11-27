@@ -85,6 +85,7 @@ class _TravelScreenState extends State<TravelScreen> {
             children: [
               CustomSearchBar(
                 controller: _searchController,
+                hintText: "Search province to travel",
                 onChanged: (value) {
                   _viewModel.searchProvinces(value);
                 },

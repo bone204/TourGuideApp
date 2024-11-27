@@ -10,7 +10,7 @@
     "Rental": "Thuê Xe",
     "Explore": "Khám Phá",
     "Services": "Dịch Vụ",
-    "Car Rental": "Thuê Xe",
+    "Car Rental": "Thuê Ô Tô",
 
     "Favourite Destinations": "Điểm Đến Yêu Thích",
     "Travel History": "Lịch Sử Du Lịch",
@@ -119,6 +119,20 @@
     "Nationality": "Quốc Tịch",
     "Birthday": "Ngày Sinh",
     "Review": "Đánh Giá",
-    "Find Destination": "Tìm Địa Điểm"
+    "Find Destination": "Tìm Địa Điểm",
+
+    "Male": "Nam",
+    "Female": "Nữ",
+    "Other": "Khác",
+
+    "Edit Information": "Chỉnh Sửa Thông Tin",
+    "Motorbike Rental": "Thuê Xe Máy",
+    "Travel": "Du Lịch",
+    "Find Restaurant": "Tìm Nhà Hàng",
+    "Search province to travel": "Tìm tỉnh muốn du lịch",
+    "Identification (Front Photo)": "Ảnh CCCD (Mặt Trước)",
+    "Identification (Back Photo)": "Ảnh CCCD (Mặt Sau)",
+    "Business Address": "Địa Chỉ Kinh Doanh",
+    "Suggested Route": "Lộ Trình Gợi Ý"
 }
   

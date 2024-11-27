@@ -67,10 +67,10 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                             }
                           },
                           child: Text(
-                            'Confirm',
+                            AppLocalizations.of(context).translate("Confirm"),
                             style: TextStyle(
                               color: AppColors.green,
-                              fontSize: 16.sp,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -119,7 +119,11 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                           CustomComboBox(
                             hintText: AppLocalizations.of(context).translate("Gender"),
                             value: viewModel.gender,
-                            items: const ['Male', 'Female', 'Other'],
+                            items: [
+                              AppLocalizations.of(context).translate("Male"),
+                              AppLocalizations.of(context).translate("Female"), 
+                              AppLocalizations.of(context).translate("Other")
+                            ],
                             onChanged: (value) {
                               viewModel.gender = value;
                               viewModel.genderController.text = value ?? '';

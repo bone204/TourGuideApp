@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/widgets/image_stack.dart';
 
 class HomeCardData {
@@ -18,7 +19,7 @@ class HomeCardData {
 
 class HomeCard extends StatelessWidget {
   final HomeCardData data;
-  final VoidCallback onTap; // Thêm onTap callback
+  final VoidCallback onTap; 
 
   const HomeCard({required this.data, required this.onTap, super.key});
 
@@ -26,7 +27,7 @@ class HomeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
     return GestureDetector(
-      onTap: onTap, // Gọi hàm onTap khi nhấn vào card
+      onTap: onTap, 
       child: Container(
         width: 268.w, 
         margin: EdgeInsets.only(right: 10.w), 
@@ -60,45 +61,54 @@ class HomeCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          data.placeName,
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF000000),
+                    SizedBox(
+                      width: 190.w,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            data.placeName,
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF000000),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-                        ),
-                        SizedBox(height: 8.h),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.location_on_outlined,
-                              color: const Color(0xFF7D848D),
-                              size: 15.sp,
-                            ),
-                            SizedBox(width: 2.w),
-                            Text(
-                              data.description,
-                              style: TextStyle(
+                          SizedBox(height: 8.h),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
                                 color: const Color(0xFF7D848D),
-                                fontSize: 15.sp,
+                                size: 15.sp,
                               ),
-                            ),
-                          ],
-                        )
-                      ],
+                              SizedBox(width: 2.w),
+                              Expanded(
+                                child: Text(
+                                  data.description,
+                                  style: TextStyle(
+                                    color: const Color(0xFF7D848D),
+                                    fontSize: 15.sp,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Icon(
-                              Icons.star_rate,
-                              color: Colors.yellow,
+                              Icons.star,
+                              color: AppColors.yellow,
                               size: 12.sp,
                             ),
                             SizedBox(width: 2.w),
