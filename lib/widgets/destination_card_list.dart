@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/widgets/destination_card.dart';
 
-class DestinationsCardListView extends StatelessWidget {
+class DestinationCardListView extends StatelessWidget {
   final List<DestinationCardData> cardDataList;
 
-  const DestinationsCardListView({required this.cardDataList, super.key});
+  const DestinationCardListView({required this.cardDataList, super.key});
 
   @override
   Widget build(BuildContext context) {

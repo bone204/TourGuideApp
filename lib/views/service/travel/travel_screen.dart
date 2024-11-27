@@ -3,8 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/custom_search_bar.dart';
+import 'package:tourguideapp/widgets/province_card.dart';
 import 'package:tourguideapp/widgets/province_list_card.dart';
 import 'package:tourguideapp/viewmodels/province_view_model.dart';
+import 'package:tourguideapp/views/service/travel/suggest_route_screen.dart';
 
 class TravelScreen extends StatefulWidget {
   const TravelScreen({super.key});
@@ -121,7 +123,28 @@ class _TravelScreenState extends State<TravelScreen> {
 
                   return Expanded(
                     child: ProvinceListCard(
-                      cards: _viewModel.provinceCards,
+                      cards: _viewModel.provinceCards.map((card) {
+                        return ProvinceCard(
+                          name: card.name,
+                          imageUrl: card.imageUrl,
+                          rating: card.rating,
+                          isFavorite: card.isFavorite,
+                          onFavoritePressed: () {
+                            // Xử lý favorite
+                          },
+                          onTap: () {
+                            // Điều hướng đến SuggestRouteScreen
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SuggestRouteScreen(
+                                  provinceName: card.name,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
                     ),
                   );
                 },

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/destination_card.dart';
-import 'package:tourguideapp/widgets/destinations_card_list.dart';
+import 'package:tourguideapp/widgets/destination_card_list.dart';
 // import 'package:tourguideapp/widgets/interactive_row_widget.dart';
 import '../../widgets/custom_icon_button.dart';
 
@@ -117,7 +117,7 @@ class _TravelHistoryScreenState extends State<TravelHistoryScreen> {
             children: [
               _buildSearchBar(),
               SizedBox(height: 10.h),
-              DestinationsCardListView(cardDataList: destinationCards),
+              DestinationCardListView(cardDataList: destinationCards),
             ]
           ),
         )

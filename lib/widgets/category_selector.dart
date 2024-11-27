@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/widgets/category_button.dart';
 
 class CategorySelector extends StatelessWidget {
-  final List<String> categories; // Receive the categories list
+  final List<String> categories;
   final String selectedCategory;
   final Function(String) onCategorySelected;
 
@@ -16,16 +16,17 @@ class CategorySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812));
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: categories.map((category) {
-          return CategoryButton(
-            category: category,
-            isSelected: selectedCategory == category,
-            onTap: onCategorySelected,
+          return Padding(
+            padding: EdgeInsets.only(right: 12.w),
+            child: CategoryButton(
+              category: category,
+              isSelected: selectedCategory == category,
+              onTap: onCategorySelected,
+            ),
           );
         }).toList(),
       ),

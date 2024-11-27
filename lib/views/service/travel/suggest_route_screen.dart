@@ -2,49 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart'; 
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/viewmodels/route_viewmodel.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/range_date_time_picker.dart';
 import 'package:tourguideapp/widgets/route_card.dart';
+import 'package:tourguideapp/views/service/travel/travel_route_screen.dart';
 
 class SuggestRouteScreen extends StatefulWidget {
-  const SuggestRouteScreen({super.key});
+  final String provinceName;
   
+  const SuggestRouteScreen({
+    super.key,
+    required this.provinceName,
+  });
 
   @override
   _SuggestRouteScreenState createState() => _SuggestRouteScreenState();
 }
 
 class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
+  final RouteViewModel _routeViewModel = RouteViewModel();
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 7));
 
-  final List<Map<String, dynamic>> routes = [
-    {
-      'name': 'by: Traveline',
-      'rating': 4.5,
-    },
-    {
-      'name': 'by: Thông Joker',
-      'rating': 4.7,
-    },
-    {
-      'name': 'by: Thông Tulen',
-      'rating': 4.3,
-    },
-    {
-      'name': 'by: Thiện Tank',
-      'rating': 4.8,
-    },
-  ];
-
-  // Hàm tự động tạo imagePath
-  String _getImagePath(int index) {
-    return 'assets/img/bg_route_${index + 1}.png';
-  }
-
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -75,7 +57,7 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
                       ),
                       Center(
                         child: Text(
-                          AppLocalizations.of(context).translate('Nha Trang'),
+                          widget.provinceName,
                           style: TextStyle(
                             color: AppColors.black,
                             fontWeight: FontWeight.bold,
@@ -107,26 +89,37 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
               ),
               SizedBox(height: 20.h),
               Text(
-                  AppLocalizations.of(context).translate('Suggested Route'),
-                  style: TextStyle(
-                    color: AppColors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24.sp,
+                AppLocalizations.of(context).translate('Suggested Route'),
+                style: TextStyle(
+                  color: AppColors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24.sp,
                 ),
               ),
               SizedBox(height: 20.h),
               Expanded(
                 child: ListView.builder(
-                  itemCount: routes.length,
+                  itemCount: _routeViewModel.routes.length,
                   itemBuilder: (context, index) {
+                    final route = _routeViewModel.routes[index];
                     return Padding(
                       padding: EdgeInsets.only(bottom: 16.h),
                       child: RouteCard(
-                        name: routes[index]['name'],
-                        imagePath: _getImagePath(index), // Tự động tạo imagePath
-                        rating: routes[index]['rating'],
+                        name: route['name'],
+                        imagePath: _routeViewModel.getImagePath(index),
+                        rating: route['rating'],
                         onTap: () {
-                          // Xử lý khi tap vào route
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TravelRouteScreen(
+                                routeTitle: _routeViewModel.getDisplayTitle(route['name']),
+                                startDate: _startDate,
+                                endDate: _endDate,
+                                provinceName: widget.provinceName,
+                              ),
+                            ),
+                          );
                         },
                       ),
                     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/color/colors.dart';
 
 class CategoryButton extends StatelessWidget {
   final String category;
@@ -16,18 +16,27 @@ class CategoryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812));
-    return ElevatedButton(
-      onPressed: () => onTap(category),
-      style: ElevatedButton.styleFrom(
-        fixedSize: Size(100.w, 40.h),
-        backgroundColor: isSelected ? const Color(0xFF007BFF) : Colors.white,
-        foregroundColor: isSelected ? Colors.white : const Color(0xFF007BFF),
-        side: const BorderSide(color: Color(0xFF007BFF)),
-        padding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+    return GestureDetector(
+      onTap: () => onTap(category),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.w),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF007BFF) : Colors.white,
+          border: Border.all(
+            color: const Color(0xFF007BFF),
+            width: isSelected ? 0 : 2,
+          ),
+          borderRadius: BorderRadius.circular(30.r),
+        ),
+        child: Text(
+          'Day ${category.split('_')[0]}',
+          style: TextStyle(
+            color: isSelected ? Colors.white : AppColors.primaryColor,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      child: Center(child: Text(AppLocalizations.of(context).translate(category), style: TextStyle(fontSize: 14.sp))),
     );
   }
 }
