@@ -69,7 +69,13 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 30.h),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              AppLocalizations.of(context).translate("Budget"),
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 28.h),
             BudgetSlider(),
             SizedBox(height: 24.h),
             RentOptionSelector(
