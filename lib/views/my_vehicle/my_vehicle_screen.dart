@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUti
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
+import 'package:tourguideapp/views/my_vehicle/vehicle_register_screen.dart';
 import 'package:tourguideapp/views/my_vehicle/vehicle_rental_register_screen.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:provider/provider.dart';
@@ -220,9 +221,17 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
             SizedBox(height: 16.h),
             CustomElevatedButton(
               text: "Add Vehicle",
-              onPressed: () {
-                // Logic để thêm xe mới
-                // Ví dụ: Navigator.push đến màn hình thêm xe
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const VehicleRegisterScreen()),
+                );
+
+                if (result == true) {
+                  setState(() {
+                    // _contractStatus = 'Pending Approval';
+                  });
+                }
               },
             ),
           ],
