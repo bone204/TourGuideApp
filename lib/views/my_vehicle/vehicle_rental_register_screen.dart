@@ -7,7 +7,9 @@ import 'package:tourguideapp/models/user_model.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/contract_viewmodel.dart';
 import 'package:tourguideapp/widgets/checkbox_row.dart';
+import 'package:tourguideapp/widgets/custom_combo_box.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
+import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -442,6 +444,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
             children: [
               _buildTextField(
                 controller: _fullNameController,
+                hintText: AppLocalizations.of(context).translate("Enter your full name"),
                 label: AppLocalizations.of(context).translate("Full Name"),
                 isEditing: true,
                 validator: (value) {
@@ -454,6 +457,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _emailController,
+                hintText: AppLocalizations.of(context).translate("Enter your email"),
                 label: 'Email',
                 isEditing: true,
                 validator: (value) {
@@ -466,6 +470,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _phoneNumberController,
+                hintText: AppLocalizations.of(context).translate("Enter your phone number"),
                 label: AppLocalizations.of(context).translate("Phone Number"),
                 isEditing: true,
                 validator: (value) {
@@ -478,6 +483,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _citizenIdController,
+                hintText: AppLocalizations.of(context).translate("Enter your identification number"),
                 label: AppLocalizations.of(context).translate("Identification Number"),
                 isEditing: true,
                 validator: (value) {
@@ -539,6 +545,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _businessNameController,
+                hintText: AppLocalizations.of(context).translate("Enter business name"),
                 label: AppLocalizations.of(context).translate("Business Name"),
                 isEditing: true,
                 validator: (value) {
@@ -564,6 +571,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               _buildTextField(
                 controller: _businessAddressController,
                 label: AppLocalizations.of(context).translate("Business Address"),
+                hintText: AppLocalizations.of(context).translate("Enter business address"),
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -575,6 +583,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _taxCodeController,
+                hintText: AppLocalizations.of(context).translate("Enter tax code"),
                 label: AppLocalizations.of(context).translate("Tax Code"),
                 isEditing: true,
                 validator: (value) {
@@ -615,6 +624,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
             children: [
               _buildTextField(
                 controller: _bankAccountNumberController,
+                hintText: AppLocalizations.of(context).translate("Enter bank account number"),
                 label: AppLocalizations.of(context).translate("Bank Account Number"),
                 isEditing: true,
                 validator: (value) {
@@ -627,6 +637,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _bankAccountNameController,
+                hintText: AppLocalizations.of(context).translate("Enter bank account name"),
                 label: AppLocalizations.of(context).translate("Bank Account Name"),
                 isEditing: true,
                 validator: (value) {
@@ -692,7 +703,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
   }
 }
 
-Widget _buildTextField({required TextEditingController controller, required String label, required bool isEditing, required Function(String?) validator}) {
+Widget _buildTextField({required TextEditingController controller, required String label, required String hintText, required bool isEditing, required Function(String?) validator}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -704,34 +715,9 @@ Widget _buildTextField({required TextEditingController controller, required Stri
         ),
       ),
       SizedBox(height: 12.h),
-      TextFormField(
-        enabled: isEditing,
+      CustomTextField(
         controller: controller,
-        style: TextStyle(
-          fontSize: 16.sp,
-          color: Colors.black,
-        ),
-        decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.r),
-            borderSide: BorderSide.none,
-          ),
-          filled: true,
-          fillColor: const Color(0xFFF7F7F9),
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
-          suffixIcon: Icon(
-            Icons.edit,
-            color: const Color(0xFF5D6679),
-            size: 24.sp,
-          ),
-        ),
-        validator: (value) {
-          // Đảm bảo hàm validator trả về String? (có thể là null hoặc String)
-          if (value == null || value.isEmpty) {
-            return 'This field cannot be empty';
-          }
-          return null; // Trả về null nếu không có lỗi
-        },
+        hintText: hintText,
       ),
     ],
   );
@@ -754,34 +740,11 @@ Widget _buildDropdown({
         ),
       ),
       SizedBox(height: 12.h),
-      SizedBox(
-        width: double.infinity,
-        child: DropdownButtonFormField<String>(
-          value: selectedItem,
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: BorderSide.none,
-            ),
-            filled: true,
-            fillColor: const Color(0xFFF7F7F9),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
-          ),
-          items: items.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(
-                value,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: Colors.black,
-                ),
-              ),
-            );
-          }).toList(),
-          icon: const Icon(CupertinoIcons.chevron_down),
-        ),
+      CustomComboBox(
+        hintText: label,
+        value: selectedItem,
+        items: items,
+        onChanged: onChanged,
       ),
     ],
   );
