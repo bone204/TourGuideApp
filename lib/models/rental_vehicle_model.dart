@@ -1,54 +1,78 @@
 class RentalVehicleModel {
-  final String licensePlate;
   final String vehicleId;
-  final int manufactureYear;
+  final String userId;
+  final String licensePlate;
+  final String vehicleRegistration;
+  final String vehicleType;
+  final int maxSeats;
+  final String vehicleBrand;
+  final String vehicleModel;
+  final String description;
+  final String vehicleRegistrationFrontPhoto;
+  final String vehicleRegistrationBackPhoto;
   final double hourPrice;
   final double dayPrice;
-  final String vehicleRegistrationFront;
-  final String vehicleRegistrationBack;
+  final List<String> requirements; 
   final String contractId;
-  final List<String> requirements; // List of rental requirements
   final String status;
 
   RentalVehicleModel({
-    required this.licensePlate,
     required this.vehicleId,
-    required this.manufactureYear,
+    required this.userId,
+    required this.licensePlate,
+    required this.vehicleRegistration,
+    required this.vehicleType,
+    required this.maxSeats,
+    required this.vehicleBrand,
+    required this.vehicleModel,
+    required this.description,
+    required this.vehicleRegistrationFrontPhoto,
+    required this.vehicleRegistrationBackPhoto,
     required this.hourPrice,
     required this.dayPrice,
-    required this.vehicleRegistrationFront,
-    required this.vehicleRegistrationBack,
-    required this.contractId,
     required this.requirements,
+    required this.contractId,
     required this.status,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'licensePlate': licensePlate,
       'vehicleId': vehicleId,
-      'manufactureYear': manufactureYear,
+      'userId': userId,
+      'licensePlate': licensePlate,
+      'vehicleRegistration': vehicleRegistration,
+      'vehicleType': vehicleType,
+      'maxSeats': maxSeats,
+      'vehicleBrand': vehicleBrand,
+      'vehicleModel': vehicleModel,
+      'description': description,
+      'vehicleRegistrationFrontPhoto': vehicleRegistrationFrontPhoto,
+      'vehicleRegistrationBackPhoto': vehicleRegistrationBackPhoto,
       'hourPrice': hourPrice,
       'dayPrice': dayPrice,
-      'vehicleRegistrationFront': vehicleRegistrationFront,
-      'vehicleRegistrationBack': vehicleRegistrationBack,
-      'contractId': contractId,
       'requirements': requirements,
+      'contractId': contractId,
       'status': status,
     };
   }
 
   factory RentalVehicleModel.fromMap(Map<String, dynamic> map) {
     return RentalVehicleModel(
-      licensePlate: map['licensePlate'] ?? '',
       vehicleId: map['vehicleId'] ?? '',
-      manufactureYear: map['manufactureYear'] ?? 0,
+      userId: map['userId'] ?? '',
+      licensePlate: map['licensePlate'] ?? '',
+      vehicleRegistration: map['vehicleRegistration'] ?? '',
+      vehicleType: map['vehicleType'] ?? '',
+      maxSeats: (map['maxSeats'] ?? 0).toInt(),
+      vehicleBrand: map['vehicleBrand'] ?? '',
+      vehicleModel: map['vehicleModel'] ?? '',
+      description: map['description'] ?? '',
+      vehicleRegistrationFrontPhoto: map['vehicleRegistrationFrontPhoto'] ?? '',
+      vehicleRegistrationBackPhoto: map['vehicleRegistrationBackPhoto'] ?? '',
       hourPrice: (map['hourPrice'] ?? 0.0).toDouble(),
       dayPrice: (map['dayPrice'] ?? 0.0).toDouble(),
-      vehicleRegistrationFront: map['vehicleRegistrationFront'] ?? '',
-      vehicleRegistrationBack: map['vehicleRegistrationBack'] ?? '',
-      contractId: map['contractId'] ?? '',
       requirements: List<String>.from(map['requirements'] ?? []),
+      contractId: map['contractId'] ?? '',
       status: map['status'] ?? '',
     );
   }

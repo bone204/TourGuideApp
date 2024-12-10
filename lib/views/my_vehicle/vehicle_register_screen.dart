@@ -2,13 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
+import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:tourguideapp/widgets/custom_combo_box.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/image_picker.dart';
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 
 class VehicleRegisterScreen extends StatefulWidget {
@@ -25,6 +27,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
   bool _isContractRegistered = false;
 
   // Variables for dropdown selections
+  String _selectedVehicleType = 'Car'; 
   String _selectedMaxSeats = '5';
   String _selectedVehicleBrand = 'Toyota';
   String _selectedVehicleModel = 'S 500 Sedan';
@@ -117,60 +120,52 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
     }
   }
 
-  void _handleTitleTap() {
-    if (kDebugMode) {
-      print('Title tapped!');
-    }
-  }
-
   void _completeRegistration() async {
     if (_formKey.currentState?.validate() ?? false) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              'Thành công',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content: Text(
-              'Hehe',
-              style: TextStyle(
-                fontSize: 16.sp,
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: Text(
-                  'OK',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    color: const Color(0xFF007BFF),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Đóng dialog
-                  Navigator.of(context).pop(); // Quay về màn hình trước
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
+      try {
+        final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+        final rentalVehicleViewModel = Provider.of<RentalVehicleViewModel>(context, listen: false);
+        final currentUserId = authViewModel.currentUserId;
 
-  Future<String> _uploadImageToFirebase(File imageFile) async {
-    try {
-      final storageRef = FirebaseStorage.instance.ref().child('Photos/${DateTime.now().millisecondsSinceEpoch}');
-      final uploadTask = await storageRef.putFile(imageFile);
-      return await uploadTask.ref.getDownloadURL();
-    } catch (e) {
-      print('Lỗi khi tải ảnh lên: $e');
-      return '';
+        if (currentUserId != null) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(child: CircularProgressIndicator()),
+          );
+
+          await rentalVehicleViewModel.createRentalVehicleForUser(currentUserId, {
+            'licensePlate': _licensePlateController.text,
+            'vehicleRegistration': _vehicleRegistrationController.text,
+            'vehicleType': _selectedVehicleType,
+            'maxSeats': int.parse(_selectedMaxSeats),
+            'vehicleBrand': _selectedVehicleBrand,
+            'vehicleModel': _selectedVehicleModel,
+            'description': _descriptionController.text,
+            'vehicleRegistrationFrontPhoto': _vehicleRegistrationPhotoFrontPath,
+            'vehicleRegistrationBackPhoto': _vehicleRegistrationPhotoBackPath,
+            'hourPrice': double.parse(_actualPricePerHourController.text),
+            'dayPrice': double.parse(_actualPricePerDayController.text),
+            'requirements': _requirementController.text.split(',').map((e) => e.trim()).toList(),
+            'contractId': '1',
+            'status': "Pending Approval"
+          });
+
+          // Đóng loading indicator
+          Navigator.of(context).pop();
+
+          // Chuyển hướng sau khi thành công
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        // Đóng loading indicator nếu có lỗi
+        Navigator.of(context).pop();
+        
+        _showErrorDialog('Có lỗi xảy ra khi tạo hợp đồng. Vui lòng thử lại.');
+        if (kDebugMode) {
+          print("Lỗi khi đăng ký xe cho thuê: $e");
+        }
+      }
     }
   }
 
@@ -444,6 +439,12 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               CustomTextField(
                 controller: _licensePlateController,
                 hintText: AppLocalizations.of(context).translate("Enter license plate"),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your license plate';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 16.h),
               Text(
@@ -457,25 +458,131 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               CustomTextField(
                 controller: _vehicleRegistrationController,
                 hintText: AppLocalizations.of(context).translate("Enter vehicle registration"),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your vehicle registration';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 16.h),
-              Text(
-                AppLocalizations.of(context).translate("Max Seats"),
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 12.h),
-              CustomComboBox(
-                value: _selectedMaxSeats,
-                hintText: AppLocalizations.of(context).translate("Select max seats"),
-                items: const ['1', '2', '3', '4', '5'],
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedMaxSeats = newValue!;
-                  });
-                },
+              Row(
+                children: [
+                  // Phần Vehicle Type
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context).translate("Vehicle Type"),
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 12.h),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 88.w, 
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedVehicleType = 'Car';
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 12.h),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: _selectedVehicleType == 'Car' 
+                                      ? AppColors.primaryColor 
+                                      : AppColors.grey,
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Car',
+                                    style: TextStyle(
+                                      color: _selectedVehicleType == 'Car' 
+                                        ? AppColors.primaryColor 
+                                        : AppColors.black,
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          SizedBox(
+                            width: 88.w, // Giới hạn chiều rộng của nút Motorbike
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedVehicleType = 'Motorbike';
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 12.h),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: _selectedVehicleType == 'Motorbike' 
+                                      ? AppColors.primaryColor 
+                                      : AppColors.grey,
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Motorbike',
+                                    style: TextStyle(
+                                      color: _selectedVehicleType == 'Motorbike' 
+                                        ? AppColors.primaryColor 
+                                        : AppColors.black,
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 12.w),
+                  // Phần Max Seats
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context).translate("Max Seats"),
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 12.h),
+                        CustomComboBox(
+                          value: _selectedMaxSeats,
+                          hintText: AppLocalizations.of(context).translate("Select max seats"),
+                          items: const ['1', '2', '3', '4', '5'],
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedMaxSeats = newValue!;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 16.h),
               Text(
@@ -591,6 +698,12 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 controller: _pricePerHourController,
                 hintText: AppLocalizations.of(context).translate("Enter price per hour"),
                 keyboardType: TextInputType.number, 
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your hourly rental rate';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 16.h),
               Text(
@@ -605,6 +718,12 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 controller: _pricePerDayController,
                 hintText: AppLocalizations.of(context).translate("Enter price per day"),
                 keyboardType: TextInputType.number, 
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your daily rental rate';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 16.h),
               Text(

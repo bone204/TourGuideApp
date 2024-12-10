@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUti
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
+import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:tourguideapp/views/my_vehicle/vehicle_register_screen.dart';
 import 'package:tourguideapp/views/my_vehicle/vehicle_rental_register_screen.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
@@ -24,33 +25,46 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
   }
 
   Widget _buildBody() {
-    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-    final currentUid = authViewModel.currentUserId;
+  final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+  final currentUid = authViewModel.currentUserId;
 
-    if (currentUid == null) {
-      return _buildRegisterView();
-    }
+  if (currentUid == null) {
+    return _buildRegisterView();
+  }
 
-    return Consumer<ContractViewModel>(
-      builder: (context, contractViewModel, child) {
-        if (contractViewModel.contracts.isEmpty) {
-          return _buildRegisterView();
-        }
+  return Consumer2<ContractViewModel, RentalVehicleViewModel>(
+    builder: (context, contractViewModel, rentalVehicleViewModel, child) {
+      if (contractViewModel.contracts.isEmpty) {
+        return _buildRegisterView();
+      }
 
-        final contractStatus = contractViewModel.contracts.first.contractStatus;
+      final contractStatus = contractViewModel.contracts.first.contractStatus;
 
-        if (contractStatus == 'Pending Approval') {
-          return _buildPendingApprovalView();
-        }
+      if (contractStatus == 'Pending Approval') {
+        return _buildPendingApprovalView();
+      }
 
-        if (contractStatus == 'Approved') {
+      if (contractStatus == 'Approved') {
+        // Kiểm tra trạng thái của xe
+        if (rentalVehicleViewModel.vehicles.isEmpty) {
           return _buildAddCarView();
         }
 
-        return _buildRegisterView();
-      },
-    );
-  }
+        final vehicleStatus = rentalVehicleViewModel.vehicles.first.status;
+
+        if (vehicleStatus == 'Pending Approval') {
+          return _buildVehiclePendingApprovalView();
+        }
+
+        if (vehicleStatus == 'Approved') {
+          return _buildVehicleApprovedView();
+        }
+      }
+
+      return _buildRegisterView();
+    },
+  );
+}
 
   Widget _buildRegisterView() {
     return Padding(
@@ -239,6 +253,24 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
       ),
     );
   }
+
+  Widget _buildVehiclePendingApprovalView() {
+  return Center(
+    child: Text(
+      AppLocalizations.of(context).translate("Your vehicle registration is pending approval."),
+      style: TextStyle(fontSize: 16.sp, color: AppColors.grey),
+    ),
+  );
+}
+
+Widget _buildVehicleApprovedView() {
+  return Center(
+    child: Text(
+      AppLocalizations.of(context).translate("Your vehicle registration has been approved."),
+      style: TextStyle(fontSize: 16.sp, color: AppColors.primaryColor),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {

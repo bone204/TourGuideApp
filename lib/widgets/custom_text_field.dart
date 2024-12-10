@@ -7,11 +7,13 @@ class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final Widget? suffixIcon;
   final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
 
   const CustomTextField({
     super.key,
     required this.hintText,
     required this.controller,
+    this.validator,
     this.obscureText = false,
     this.suffixIcon,
     this.keyboardType,
@@ -39,8 +41,19 @@ class CustomTextField extends StatelessWidget {
           borderSide: const BorderSide(color: Colors.red, width: 2.0),
           borderRadius: BorderRadius.circular(8.0),
         ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black, width: 2.0),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
         suffixIcon: suffixIcon,
       ),
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'This field cannot be empty';
+        }
+        return null;
+      },
     );
   }
 }

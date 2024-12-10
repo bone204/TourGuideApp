@@ -10,8 +10,6 @@ import 'package:tourguideapp/widgets/checkbox_row.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -128,7 +126,6 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
   }
 
   void _handleTitleTap() {
-    // Logic bạn muốn thực hiện khi nhấn vào tiêu đề
     if (kDebugMode) {
       print('Title tapped!');
     }
@@ -183,17 +180,6 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
           print("Lỗi khi tạo hợp đồng: $e");
         }
       }
-    }
-  }
-
-  Future<String> _uploadImageToFirebase(File imageFile) async {
-    try {
-      final storageRef = FirebaseStorage.instance.ref().child('Photos/${DateTime.now().millisecondsSinceEpoch}');
-      final uploadTask = await storageRef.putFile(imageFile);
-      return await uploadTask.ref.getDownloadURL();
-    } catch (e) {
-      print('Lỗi khi tải ảnh lên: $e');
-      return '';
     }
   }
 
