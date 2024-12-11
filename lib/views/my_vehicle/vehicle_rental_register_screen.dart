@@ -622,6 +622,17 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildDropdown(
+                label: AppLocalizations.of(context).translate("Bank Name"),
+                items: ['Bank 1', 'Bank 2', 'Bank 3'],
+                selectedItem: _selectedBankName,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedBankName = newValue!;
+                  });
+                },
+              ),
+              SizedBox(height: 16.h),
               _buildTextField(
                 controller: _bankAccountNumberController,
                 hintText: AppLocalizations.of(context).translate("Enter bank account number"),
@@ -645,17 +656,6 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                     return 'Please enter your bank account name';
                   }
                   return null;
-                },
-              ),
-              SizedBox(height: 16.h),
-              _buildDropdown(
-                label: AppLocalizations.of(context).translate("Bank Name"),
-                items: ['Bank 1', 'Bank 2', 'Bank 3'],
-                selectedItem: _selectedBankName,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedBankName = newValue!;
-                  });
                 },
               ),
               SizedBox(height: 26.h),

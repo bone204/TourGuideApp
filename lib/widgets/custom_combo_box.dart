@@ -9,7 +9,7 @@ class CustomComboBox extends StatelessWidget {
   const CustomComboBox({
     super.key,
     required this.hintText,
-    required this.value,
+    this.value,
     required this.items,
     required this.onChanged,
   });
@@ -17,7 +17,7 @@ class CustomComboBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      value: value,
+      value: value != null && items.contains(value) ? value : null,
       hint: Text(hintText),
       items: items.map((String item) {
         return DropdownMenuItem(
@@ -40,4 +40,4 @@ class CustomComboBox extends StatelessWidget {
       ),
     );
   }
-} 
+}

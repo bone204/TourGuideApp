@@ -27,15 +27,15 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
   bool _isContractRegistered = false;
 
   // Variables for dropdown selections
-  String _selectedVehicleType = 'Car'; 
+  String _selectedVehicleType = 'Car';
   String _selectedMaxSeats = '5';
-  String _selectedVehicleBrand = 'Toyota';
-  String _selectedVehicleModel = 'S 500 Sedan';
+  String? _selectedVehicleBrand;
+  String? _selectedVehicleModel;
+  String? _selectedVehicleColor;
 
   // Định nghĩa các TextEditingController cụ thể
   final TextEditingController _pricePerDayController = TextEditingController();
   final TextEditingController _pricePerHourController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _licensePlateController = TextEditingController();
   final TextEditingController _vehicleRegistrationController = TextEditingController();
   final TextEditingController _requirementController = TextEditingController();
@@ -49,12 +49,25 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
   final TextEditingController _actualPricePerHourController = TextEditingController();
   final TextEditingController _actualPricePerDayController = TextEditingController();
 
+  void _onVehicleTypeChanged(String newType) {
+    setState(() {
+      _selectedVehicleType = newType;
+      _selectedVehicleBrand = null;
+      _selectedVehicleModel = null;
+      _selectedVehicleColor = null;
+    });
+    
+    // Load lại danh sách brand dựa trên loại xe mới
+    final locale = Localizations.localeOf(context).languageCode;
+    Provider.of<RentalVehicleViewModel>(context, listen: false)
+        .loadVehicleInformation(_selectedVehicleType, locale);
+  }
+
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
     
-    // Cập nhật listener cho giá theo giờ
     _pricePerHourController.addListener(() {
       String value = _pricePerHourController.text.replaceAll('₫', '').replaceAll(',', '').trim();
       if (value.isNotEmpty) {
@@ -72,7 +85,6 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
       }
     });
 
-    // Cập nhật listener cho giá theo ngày
     _pricePerDayController.addListener(() {
       String value = _pricePerDayController.text.replaceAll('₫', '').replaceAll(',', '').trim();
       if (value.isNotEmpty) {
@@ -86,6 +98,16 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
         );
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // Di chuyển code load dữ liệu vào đây
+    final locale = Localizations.localeOf(context).languageCode;
+    Provider.of<RentalVehicleViewModel>(context, listen: false)
+        .loadVehicleInformation(_selectedVehicleType, locale);
   }
 
   void _nextStep() {
@@ -134,22 +156,27 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
             builder: (context) => const Center(child: CircularProgressIndicator()),
           );
 
-          await rentalVehicleViewModel.createRentalVehicleForUser(currentUserId, {
-            'licensePlate': _licensePlateController.text,
-            'vehicleRegistration': _vehicleRegistrationController.text,
-            'vehicleType': _selectedVehicleType,
-            'maxSeats': int.parse(_selectedMaxSeats),
-            'vehicleBrand': _selectedVehicleBrand,
-            'vehicleModel': _selectedVehicleModel,
-            'description': _descriptionController.text,
-            'vehicleRegistrationFrontPhoto': _vehicleRegistrationPhotoFrontPath,
-            'vehicleRegistrationBackPhoto': _vehicleRegistrationPhotoBackPath,
-            'hourPrice': double.parse(_actualPricePerHourController.text),
-            'dayPrice': double.parse(_actualPricePerDayController.text),
-            'requirements': _requirementController.text.split(',').map((e) => e.trim()).toList(),
-            'contractId': '1',
-            'status': "Pending Approval"
-          });
+          final locale = Localizations.localeOf(context).languageCode;
+          await rentalVehicleViewModel.createRentalVehicleForUser(
+            currentUserId,
+            {
+              'licensePlate': _licensePlateController.text,
+              'vehicleRegistration': _vehicleRegistrationController.text,
+              'vehicleType': _selectedVehicleType,
+              'maxSeats': int.parse(_selectedMaxSeats),
+              'vehicleBrand': _selectedVehicleBrand,
+              'vehicleModel': _selectedVehicleModel,
+              'vehicleColor': _selectedVehicleColor,
+              'vehicleRegistrationFrontPhoto': _vehicleRegistrationPhotoFrontPath,
+              'vehicleRegistrationBackPhoto': _vehicleRegistrationPhotoBackPath,
+              'hourPrice': double.parse(_actualPricePerHourController.text),
+              'dayPrice': double.parse(_actualPricePerDayController.text),
+              'requirements': _requirementController.text.split(',').map((e) => e.trim()).toList(),
+              'contractId': '1',
+              'status': "Pending Approval"
+            },
+            locale
+          );
 
           // Đóng loading indicator
           Navigator.of(context).pop();
@@ -483,31 +510,27 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                       Row(
                         children: [
                           SizedBox(
-                            width: 88.w, 
+                            width: 88.w,
                             child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _selectedVehicleType = 'Car';
-                                });
-                              },
+                              onTap: () => _onVehicleTypeChanged('Car'),
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 12.h),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: _selectedVehicleType == 'Car' 
-                                      ? AppColors.primaryColor 
-                                      : AppColors.grey,
+                                    color: _selectedVehicleType == 'Car'
+                                        ? AppColors.primaryColor
+                                        : AppColors.grey,
                                     width: 2,
                                   ),
                                   borderRadius: BorderRadius.circular(8.r),
                                 ),
                                 child: Center(
                                   child: Text(
-                                    'Car',
+                                    AppLocalizations.of(context).translate('Car'),
                                     style: TextStyle(
-                                      color: _selectedVehicleType == 'Car' 
-                                        ? AppColors.primaryColor 
-                                        : AppColors.black,
+                                      color: _selectedVehicleType == 'Car'
+                                          ? AppColors.primaryColor
+                                          : AppColors.black,
                                       fontSize: 13.sp,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -518,31 +541,27 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                           ),
                           SizedBox(width: 8.w),
                           SizedBox(
-                            width: 88.w, // Giới hạn chiều rộng của nút Motorbike
+                            width: 88.w,
                             child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _selectedVehicleType = 'Motorbike';
-                                });
-                              },
+                              onTap: () => _onVehicleTypeChanged('Motorbike'),
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 12.h),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: _selectedVehicleType == 'Motorbike' 
-                                      ? AppColors.primaryColor 
-                                      : AppColors.grey,
+                                    color: _selectedVehicleType == 'Motorbike'
+                                        ? AppColors.primaryColor
+                                        : AppColors.grey,
                                     width: 2,
                                   ),
                                   borderRadius: BorderRadius.circular(8.r),
                                 ),
                                 child: Center(
                                   child: Text(
-                                    'Motorbike',
+                                    AppLocalizations.of(context).translate('Motorbike'),
                                     style: TextStyle(
-                                      color: _selectedVehicleType == 'Motorbike' 
-                                        ? AppColors.primaryColor 
-                                        : AppColors.black,
+                                      color: _selectedVehicleType == 'Motorbike'
+                                          ? AppColors.primaryColor
+                                          : AppColors.black,
                                       fontSize: 13.sp,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -593,14 +612,20 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 ),
               ),
               SizedBox(height: 12.h),
-              CustomComboBox(
-                value: _selectedVehicleBrand,
-                hintText: AppLocalizations.of(context).translate("Select vehicle brand"),
-                items: const ['Toyota', 'Mazda', 'Vinfast'],
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedVehicleBrand = newValue!;
-                  });
+              Consumer<RentalVehicleViewModel>(
+                builder: (context, viewModel, child) {
+                  return CustomComboBox(
+                    value: _selectedVehicleBrand,
+                    hintText: AppLocalizations.of(context).translate("Select vehicle brand"),
+                    items: viewModel.availableBrands,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedVehicleBrand = newValue;
+                        _selectedVehicleModel = null;
+                        _selectedVehicleColor = null;
+                      });
+                    },
+                  );
                 },
               ),
               SizedBox(height: 16.h),
@@ -612,28 +637,49 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 ),
               ),
               SizedBox(height: 12.h),
-              CustomComboBox(
-                value: _selectedVehicleModel,
-                hintText: AppLocalizations.of(context).translate("Select vehicle model"),
-                items: const ['S 500 Sedan', 'Hehe', 'Hihi'],
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedVehicleModel = newValue!;
-                  });
+              Consumer<RentalVehicleViewModel>(
+                builder: (context, viewModel, child) {
+                  final models = _selectedVehicleBrand != null 
+                      ? viewModel.getModelsForBrand(_selectedVehicleBrand!)
+                      : <String>[];
+                  return CustomComboBox(
+                    value: _selectedVehicleModel,
+                    hintText: AppLocalizations.of(context).translate("Select vehicle model"),
+                    items: models,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedVehicleModel = newValue;
+                        _selectedVehicleColor = null;
+                      });
+                    },
+                  );
                 },
               ),
               SizedBox(height: 16.h),
               Text(
-                AppLocalizations.of(context).translate("Description"),
+                AppLocalizations.of(context).translate("Vehicle Color"),
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               SizedBox(height: 12.h),
-              CustomTextField(
-                controller: _descriptionController,
-                hintText: AppLocalizations.of(context).translate("Enter description"),
+              Consumer<RentalVehicleViewModel>(
+                builder: (context, viewModel, child) {
+                  final colors = _selectedVehicleModel != null 
+                      ? viewModel.getColorsForModel(_selectedVehicleModel!)
+                      : <String>[];
+                  return CustomComboBox(
+                    value: _selectedVehicleColor,
+                    hintText: AppLocalizations.of(context).translate("Select vehicle color"),
+                    items: colors,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedVehicleColor = newValue;
+                      });
+                    },
+                  );
+                },
               ),
             ],
           ),

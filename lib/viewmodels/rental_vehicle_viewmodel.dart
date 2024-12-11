@@ -11,6 +11,103 @@ class RentalVehicleViewModel extends ChangeNotifier {
   List<RentalVehicleModel> get vehicles => _vehicles;
   StreamSubscription<QuerySnapshot>? _rentalVehicleSubscription;
   String? _currentUserId;
+  final Map<String, List<String>> _brandModels = {};
+  final Map<String, List<String>> _modelColors = {};
+  List<String> _availableBrands = [];
+
+  List<String> get availableBrands => _availableBrands;
+
+  List<String> getModelsForBrand(String brand) {
+    return _brandModels[brand] ?? [];
+  }
+
+  List<String> getColorsForModel(String model) {
+    return _modelColors[model] ?? [];
+  }
+
+  String _convertVehicleTypeToFirestore(String displayType, String locale) {
+    if (locale == 'vi') {
+      return displayType; // Giữ nguyên nếu là tiếng Việt
+    }
+    // Chuyển đổi từ tiếng Anh sang tiếng Việt để query
+    switch (displayType) {
+      case 'Car':
+        return 'Ô tô';
+      case 'Motorbike':
+        return 'Xe máy';
+      default:
+        return displayType;
+    }
+  }
+
+  String _convertFirestoreTypeToDisplay(String dbType, String locale) {
+    if (locale == 'vi') {
+      return dbType; // Giữ nguyên nếu là tiếng Việt
+    }
+    // Chuyển đổi từ tiếng Việt sang tiếng Anh để hiển thị
+    switch (dbType) {
+      case 'Ô tô':
+        return 'Car';
+      case 'Xe máy':
+        return 'Motorbike';
+      default:
+        return dbType;
+    }
+  }
+
+  Future<void> loadVehicleInformation(String selectedType, String locale) async {
+    try {
+      final firestoreType = _convertVehicleTypeToFirestore(selectedType, locale);
+      
+      final snapshot = await _firestore
+          .collection('VEHICLE_INFORMATION')
+          .where('type', isEqualTo: firestoreType)
+          .get();
+      
+      // Tạo map tạm thời để lưu trữ dữ liệu
+      final Map<String, Set<String>> brandModelsTemp = {};
+      final Map<String, Set<String>> modelColorsTemp = {};
+      final Set<String> brandsSet = {};
+
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final brand = data['brand'] as String;
+        final model = data['model'] as String;
+        final color = data['color'] as String;
+
+        brandsSet.add(brand);
+        
+        // Thêm model vào brand
+        if (!brandModelsTemp.containsKey(brand)) {
+          brandModelsTemp[brand] = {};
+        }
+        brandModelsTemp[brand]!.add(model);
+
+        // Thêm color vào model
+        if (!modelColorsTemp.containsKey(model)) {
+          modelColorsTemp[model] = {};
+        }
+        modelColorsTemp[model]!.add(color);
+      }
+
+      // Chuyển đổi Set thành List và cập nhật state
+      _availableBrands = brandsSet.toList()..sort();
+      _brandModels.clear();
+      _modelColors.clear();
+
+      brandModelsTemp.forEach((brand, models) {
+        _brandModels[brand] = models.toList()..sort();
+      });
+
+      modelColorsTemp.forEach((model, colors) {
+        _modelColors[model] = colors.toList()..sort();
+      });
+
+      notifyListeners();
+    } catch (e, stack) {
+      _logError("Error loading vehicle information", e, stack);
+    }
+  }
 
   RentalVehicleViewModel() {
     _auth.authStateChanges().listen((user) async {
@@ -92,10 +189,17 @@ class RentalVehicleViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  Future<void> createRentalVehicleForUser(String uid, Map<String, dynamic> vehicleData) async {
+  Future<void> createRentalVehicleForUser(String uid, Map<String, dynamic> vehicleData, String locale) async {
     try {
       if (kDebugMode) {
         print("Dữ liệu vehicleData: $vehicleData");
+      }
+
+      // Kiểm tra các giá trị bắt buộc
+      if (vehicleData['vehicleBrand'] == null ||
+          vehicleData['vehicleModel'] == null ||
+          vehicleData['vehicleColor'] == null) {
+        throw Exception("Thiếu thông tin xe cần thiết");
       }
 
       if (_currentUserId == null) {
@@ -103,36 +207,36 @@ class RentalVehicleViewModel extends ChangeNotifier {
       }
 
       if (_currentUserId == null) {
-        throw Exception("UserId not found for the given UID");
+        throw Exception("Không tìm thấy UserId cho UID đã cho");
       }
 
       await Future.delayed(const Duration(seconds: 1));
 
-      final vehicleId = await _generateVehicleId();
+      final vehicleRegisterId = await _generateVehicleId();
       final newRentalVehicle = RentalVehicleModel(
-        vehicleId: vehicleId,
+        vehicleRegisterId: vehicleRegisterId,
         userId: _currentUserId!,
-        licensePlate: vehicleData['licensePlate'],
-        vehicleRegistration: vehicleData['vehicleRegistration'],
-        vehicleType: vehicleData['vehicleType'],
-        maxSeats: vehicleData['maxSeats'],
+        licensePlate: vehicleData['licensePlate'] ?? '',
+        vehicleRegistration: vehicleData['vehicleRegistration'] ?? '',
+        vehicleType: _convertFirestoreTypeToDisplay(vehicleData['vehicleType'], locale),
+        maxSeats: vehicleData['maxSeats'] ?? 0,
         vehicleBrand: vehicleData['vehicleBrand'],
         vehicleModel: vehicleData['vehicleModel'],
-        description: vehicleData['description'],
-        vehicleRegistrationFrontPhoto: vehicleData['vehicleRegistrationFrontPhoto'],
-        vehicleRegistrationBackPhoto: vehicleData['vehicleRegistrationBackPhoto'],
-        hourPrice: vehicleData['hourPrice'],
-        dayPrice: vehicleData['dayPrice'],
-        requirements: vehicleData['requirements'],
-        contractId: vehicleData['contractId'],
-        status: vehicleData['status'],
+        vehicleColor: vehicleData['vehicleColor'],
+        vehicleRegistrationFrontPhoto: vehicleData['vehicleRegistrationFrontPhoto'] ?? '',
+        vehicleRegistrationBackPhoto: vehicleData['vehicleRegistrationBackPhoto'] ?? '',
+        hourPrice: (vehicleData['hourPrice'] ?? 0).toDouble(),
+        dayPrice: (vehicleData['dayPrice'] ?? 0).toDouble(),
+        requirements: List<String>.from(vehicleData['requirements'] ?? []),
+        contractId: vehicleData['contractId'] ?? '',
+        status: vehicleData['status'] ?? 'Pending Approval',
       );
 
-      await _firestore.collection('RENTAL_VEHICLE').doc(newRentalVehicle.vehicleId).set(newRentalVehicle.toMap());
+      await _firestore.collection('RENTAL_VEHICLE').doc(newRentalVehicle.vehicleRegisterId).set(newRentalVehicle.toMap());
       _vehicles.add(newRentalVehicle);
       notifyListeners();
     } on FirebaseException catch (e, stack) {
-      _logError("FirebaseException when creating rental vehicle", e, stack);
+      _logError("Error creating rental vehicle", e, stack);
       rethrow;
     } catch (e, stack) {
       _logError("Unexpected error when creating rental vehicle", e, stack);
@@ -144,7 +248,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
     try {
       final querySnapshot = await _firestore.collection('RENTAL_VEHICLE').get();
       final currentCounter = querySnapshot.size + 1;
-      return 'V${currentCounter.toString().padLeft(4, '0')}';
+      return 'VR${currentCounter.toString().padLeft(4, '0')}';
     } on FirebaseException catch (e, stack) {
       _logError("FirebaseException when generating vehicle ID", e, stack);
       rethrow;

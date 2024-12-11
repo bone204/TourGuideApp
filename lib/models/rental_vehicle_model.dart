@@ -1,5 +1,5 @@
 class RentalVehicleModel {
-  final String vehicleId;
+  final String vehicleRegisterId;
   final String userId;
   final String licensePlate;
   final String vehicleRegistration;
@@ -7,7 +7,7 @@ class RentalVehicleModel {
   final int maxSeats;
   final String vehicleBrand;
   final String vehicleModel;
-  final String description;
+  final String vehicleColor;
   final String vehicleRegistrationFrontPhoto;
   final String vehicleRegistrationBackPhoto;
   final double hourPrice;
@@ -17,7 +17,7 @@ class RentalVehicleModel {
   final String status;
 
   RentalVehicleModel({
-    required this.vehicleId,
+    required this.vehicleRegisterId,
     required this.userId,
     required this.licensePlate,
     required this.vehicleRegistration,
@@ -25,7 +25,7 @@ class RentalVehicleModel {
     required this.maxSeats,
     required this.vehicleBrand,
     required this.vehicleModel,
-    required this.description,
+    required this.vehicleColor,
     required this.vehicleRegistrationFrontPhoto,
     required this.vehicleRegistrationBackPhoto,
     required this.hourPrice,
@@ -37,7 +37,7 @@ class RentalVehicleModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'vehicleId': vehicleId,
+      'vehicleRegisterId': vehicleRegisterId,
       'userId': userId,
       'licensePlate': licensePlate,
       'vehicleRegistration': vehicleRegistration,
@@ -45,7 +45,7 @@ class RentalVehicleModel {
       'maxSeats': maxSeats,
       'vehicleBrand': vehicleBrand,
       'vehicleModel': vehicleModel,
-      'description': description,
+      'vehicleColor': vehicleColor,
       'vehicleRegistrationFrontPhoto': vehicleRegistrationFrontPhoto,
       'vehicleRegistrationBackPhoto': vehicleRegistrationBackPhoto,
       'hourPrice': hourPrice,
@@ -58,7 +58,7 @@ class RentalVehicleModel {
 
   factory RentalVehicleModel.fromMap(Map<String, dynamic> map) {
     return RentalVehicleModel(
-      vehicleId: map['vehicleId'] ?? '',
+      vehicleRegisterId: map['vehicleRegisterId'] ?? '',
       userId: map['userId'] ?? '',
       licensePlate: map['licensePlate'] ?? '',
       vehicleRegistration: map['vehicleRegistration'] ?? '',
@@ -66,7 +66,7 @@ class RentalVehicleModel {
       maxSeats: (map['maxSeats'] ?? 0).toInt(),
       vehicleBrand: map['vehicleBrand'] ?? '',
       vehicleModel: map['vehicleModel'] ?? '',
-      description: map['description'] ?? '',
+      vehicleColor: map['vehicleColor'] ?? '',
       vehicleRegistrationFrontPhoto: map['vehicleRegistrationFrontPhoto'] ?? '',
       vehicleRegistrationBackPhoto: map['vehicleRegistrationBackPhoto'] ?? '',
       hourPrice: (map['hourPrice'] ?? 0.0).toDouble(),
