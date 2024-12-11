@@ -7,6 +7,7 @@ import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
+import 'package:tourguideapp/viewmodels/contract_viewmodel.dart';
 import 'package:tourguideapp/widgets/custom_combo_box.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
@@ -147,6 +148,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
       try {
         final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
         final rentalVehicleViewModel = Provider.of<RentalVehicleViewModel>(context, listen: false);
+        final contractViewModel = Provider.of<ContractViewModel>(context, listen: false);
         final currentUserId = authViewModel.currentUserId;
 
         if (currentUserId != null) {
@@ -155,6 +157,11 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
             barrierDismissible: false,
             builder: (context) => const Center(child: CircularProgressIndicator()),
           );
+
+          String contractId = '1';
+          if (contractViewModel.contracts.isNotEmpty) {
+            contractId = contractViewModel.contracts.first.contractId;
+          }
 
           final locale = Localizations.localeOf(context).languageCode;
           await rentalVehicleViewModel.createRentalVehicleForUser(
@@ -172,7 +179,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               'hourPrice': double.parse(_actualPricePerHourController.text),
               'dayPrice': double.parse(_actualPricePerDayController.text),
               'requirements': _requirementController.text.split(',').map((e) => e.trim()).toList(),
-              'contractId': '1',
+              'contractId': contractId,
               'status': "Pending Approval"
             },
             locale

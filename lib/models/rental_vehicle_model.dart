@@ -15,6 +15,7 @@ class RentalVehicleModel {
   final List<String> requirements; 
   final String contractId;
   final String status;
+  final String vehicleId;
 
   RentalVehicleModel({
     required this.vehicleRegisterId,
@@ -33,6 +34,7 @@ class RentalVehicleModel {
     required this.requirements,
     required this.contractId,
     required this.status,
+    required this.vehicleId,
   });
 
   Map<String, dynamic> toMap() {
@@ -53,6 +55,7 @@ class RentalVehicleModel {
       'requirements': requirements,
       'contractId': contractId,
       'status': status,
+      'vehicleId': vehicleId,
     };
   }
 
@@ -74,6 +77,7 @@ class RentalVehicleModel {
       requirements: List<String>.from(map['requirements'] ?? []),
       contractId: map['contractId'] ?? '',
       status: map['status'] ?? '',
+      vehicleId: map['vehicleId'] ?? '',
     );
   }
 }

@@ -10,6 +10,7 @@ import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/custom_icon_button.dart';
 import 'package:tourguideapp/viewmodels/contract_viewmodel.dart';
+import 'package:tourguideapp/widgets/rental_vehicle_card.dart';
 
 class MyVehicleScreen extends StatefulWidget {
   const MyVehicleScreen({super.key});
@@ -25,46 +26,39 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
   }
 
   Widget _buildBody() {
-  final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-  final currentUid = authViewModel.currentUserId;
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+    final currentUid = authViewModel.currentUserId;
 
-  if (currentUid == null) {
-    return _buildRegisterView();
-  }
-
-  return Consumer2<ContractViewModel, RentalVehicleViewModel>(
-    builder: (context, contractViewModel, rentalVehicleViewModel, child) {
-      if (contractViewModel.contracts.isEmpty) {
-        return _buildRegisterView();
-      }
-
-      final contractStatus = contractViewModel.contracts.first.contractStatus;
-
-      if (contractStatus == 'Pending Approval') {
-        return _buildPendingApprovalView();
-      }
-
-      if (contractStatus == 'Approved') {
-        // Kiểm tra trạng thái của xe
-        if (rentalVehicleViewModel.vehicles.isEmpty) {
-          return _buildAddCarView();
-        }
-
-        final vehicleStatus = rentalVehicleViewModel.vehicles.first.status;
-
-        if (vehicleStatus == 'Pending Approval') {
-          return _buildVehiclePendingApprovalView();
-        }
-
-        if (vehicleStatus == 'Approved') {
-          return _buildVehicleApprovedView();
-        }
-      }
-
+    if (currentUid == null) {
       return _buildRegisterView();
-    },
-  );
-}
+    }
+
+    return Consumer2<ContractViewModel, RentalVehicleViewModel>(
+      builder: (context, contractViewModel, rentalVehicleViewModel, child) {
+        if (contractViewModel.contracts.isEmpty) {
+          return _buildRegisterView();
+        }
+
+        final contractStatus = contractViewModel.contracts.first.contractStatus;
+
+        if (contractStatus == 'Pending Approval') {
+          return _buildPendingApprovalView();
+        }
+
+        if (contractStatus == 'Approved') {
+          // Kiểm tra trạng thái của xe
+          if (rentalVehicleViewModel.vehicles.isEmpty) {
+            return _buildAddCarView();
+          }
+
+          // Hiển thị vehicle card bất kể trạng thái xe
+          return _buildVehicleView();
+        }
+
+        return _buildRegisterView();
+      },
+    );
+  }
 
   Widget _buildRegisterView() {
     return Padding(
@@ -254,23 +248,14 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
     );
   }
 
-  Widget _buildVehiclePendingApprovalView() {
-  return Center(
-    child: Text(
-      AppLocalizations.of(context).translate("Your vehicle registration is pending approval."),
-      style: TextStyle(fontSize: 16.sp, color: AppColors.grey),
-    ),
-  );
-}
-
-Widget _buildVehicleApprovedView() {
-  return Center(
-    child: Text(
-      AppLocalizations.of(context).translate("Your vehicle registration has been approved."),
-      style: TextStyle(fontSize: 16.sp, color: AppColors.primaryColor),
-    ),
-  );
-}
+  Widget _buildVehicleView() {
+    return Consumer<RentalVehicleViewModel>(
+      builder: (context, viewModel, child) {
+        final vehicle = viewModel.vehicles.first;
+        return RentalVehicleCard(vehicle: vehicle);
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

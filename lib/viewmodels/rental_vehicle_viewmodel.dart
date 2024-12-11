@@ -27,7 +27,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
 
   String _convertVehicleTypeToFirestore(String displayType, String locale) {
     if (locale == 'vi') {
-      return displayType; // Giữ nguyên nếu là tiếng Việt
+      return displayType; // Giữ nguyên nếu là ti��ng Việt
     }
     // Chuyển đổi từ tiếng Anh sang tiếng Việt để query
     switch (displayType) {
@@ -195,11 +195,40 @@ class RentalVehicleViewModel extends ChangeNotifier {
         print("Dữ liệu vehicleData: $vehicleData");
       }
 
-      // Kiểm tra các giá trị bắt buộc
-      if (vehicleData['vehicleBrand'] == null ||
-          vehicleData['vehicleModel'] == null ||
-          vehicleData['vehicleColor'] == null) {
-        throw Exception("Thiếu thông tin xe cần thiết");
+      // Lấy vehicleId từ VEHICLE_INFORMATION
+      String vehicleId = '';
+      final vehicleSnapshot = await _firestore
+          .collection('VEHICLE_INFORMATION')
+          .where('brand', isEqualTo: vehicleData['vehicleBrand'])
+          .where('model', isEqualTo: vehicleData['vehicleModel'])
+          .where('color', isEqualTo: vehicleData['vehicleColor'])
+          .get();
+
+      if (kDebugMode) {
+        print("Query conditions:");
+        print("Brand: ${vehicleData['vehicleBrand']}");
+        print("Model: ${vehicleData['vehicleModel']}");
+        print("Color: ${vehicleData['vehicleColor']}");
+        print("Found documents: ${vehicleSnapshot.docs.length}");
+        
+        for (var doc in vehicleSnapshot.docs) {
+          print("Document ID: ${doc.id}");
+          print("Document data: ${doc.data()}");
+        }
+      }
+
+      if (vehicleSnapshot.docs.isNotEmpty) {
+        // Lấy document đầu tiên khớp với điều kiện
+        final vehicleDoc = vehicleSnapshot.docs.first;
+        vehicleId = vehicleDoc.id;
+        
+        if (kDebugMode) {
+          print("Selected vehicle document ID: $vehicleId");
+          print("Vehicle data: ${vehicleDoc.data()}");
+          print("Photo URL: ${vehicleDoc.data()['photo']}");
+        }
+      } else {
+        throw Exception("Không tìm thấy thông tin xe phù hợp");
       }
 
       if (_currentUserId == null) {
@@ -209,8 +238,6 @@ class RentalVehicleViewModel extends ChangeNotifier {
       if (_currentUserId == null) {
         throw Exception("Không tìm thấy UserId cho UID đã cho");
       }
-
-      await Future.delayed(const Duration(seconds: 1));
 
       final vehicleRegisterId = await _generateVehicleId();
       final newRentalVehicle = RentalVehicleModel(
@@ -230,16 +257,22 @@ class RentalVehicleViewModel extends ChangeNotifier {
         requirements: List<String>.from(vehicleData['requirements'] ?? []),
         contractId: vehicleData['contractId'] ?? '',
         status: vehicleData['status'] ?? 'Pending Approval',
+        vehicleId: vehicleId,
       );
 
-      await _firestore.collection('RENTAL_VEHICLE').doc(newRentalVehicle.vehicleRegisterId).set(newRentalVehicle.toMap());
+      if (kDebugMode) {
+        print("Saving rental vehicle with vehicleId: ${vehicleId}");
+      }
+
+      await _firestore
+          .collection('RENTAL_VEHICLE')
+          .doc(newRentalVehicle.vehicleRegisterId)
+          .set(newRentalVehicle.toMap());
+        
       _vehicles.add(newRentalVehicle);
       notifyListeners();
-    } on FirebaseException catch (e, stack) {
-      _logError("Error creating rental vehicle", e, stack);
-      rethrow;
     } catch (e, stack) {
-      _logError("Unexpected error when creating rental vehicle", e, stack);
+      _logError("Error creating rental vehicle", e, stack);
       rethrow;
     }
   }
@@ -283,6 +316,50 @@ class RentalVehicleViewModel extends ChangeNotifier {
     if (kDebugMode) {
       print("$message: $error");
       print("Stack trace: $stack");
+    }
+  }
+
+  Future<String> getVehiclePhoto(String vehicleId) async {
+    try {
+      if (kDebugMode) {
+        print("Getting photo for vehicleId: $vehicleId");
+      }
+
+      // Kiểm tra vehicleId có giá trị hợp lệ
+      if (vehicleId.isEmpty) {
+        return 'assets/img/car_default.png';
+      }
+
+      final doc = await _firestore
+          .collection('VEHICLE_INFORMATION')
+          .doc(vehicleId)
+          .get();
+
+      if (doc.exists) {
+        final data = doc.data();
+        final photo = data?['photo'] as String?;
+        
+        if (kDebugMode) {
+          print("Document found with ID: $vehicleId");
+          print("Photo URL: $photo");
+        }
+        
+        if (photo != null && photo.isNotEmpty) {
+          return photo;
+        }
+      } else {
+        if (kDebugMode) {
+          print("No document found for vehicleId: $vehicleId");
+        }
+      }
+      
+      return 'assets/img/car_default.png';
+    } catch (e, stack) {
+      if (kDebugMode) {
+        print("Error getting vehicle photo: $e");
+        print("Stack trace: $stack");
+      }
+      return 'assets/img/car_default.png';
     }
   }
 }
