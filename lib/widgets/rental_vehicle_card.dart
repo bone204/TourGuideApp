@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/rental_vehicle_model.dart';
-import 'package:tourguideapp/views/service/rental/vehicle_rental_detail_screen.dart';
-import 'package:tourguideapp/views/service/rental/vehicle_detail_screen.dart';
+import 'package:tourguideapp/views/my_vehicle/my_vehicle_detail_screen.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -15,6 +15,51 @@ class RentalVehicleCard extends StatelessWidget {
     Key? key,
     required this.vehicle,
   }) : super(key: key);
+
+  Widget _buildActionButton(BuildContext context) {
+    switch (vehicle.status) {
+      case 'Pending Approval':
+        return ElevatedButton(
+          onPressed: null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.secondaryColor,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+            disabledBackgroundColor: AppColors.secondaryColor,
+            disabledForegroundColor: Colors.white,
+          ),
+          child: Text(
+            AppLocalizations.of(context).translate("Pending"),
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+            )
+          )
+        );
+      case 'Free':
+        return ElevatedButton(
+          onPressed: () {
+            if (kDebugMode) {
+              print("Button Pressed");
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primaryColor,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+          ),
+          child: Text(
+            AppLocalizations.of(context).translate("Rent"),
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+            )
+          )
+        );
+      default:
+        return const SizedBox.shrink();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,17 +199,14 @@ class RentalVehicleCard extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => VehicleDetailScreen(
-                                model: "${vehicle.vehicleBrand} ${vehicle.vehicleModel}",
-                                imagePath: 'assets/img/car_default.png',
-                              ),
+                              builder: (context) => MyVehicleDetailScreen(vehicle: vehicle),
                             ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF007BFF),
-                          side: const BorderSide(color: Color(0xFF007BFF)),
+                          foregroundColor: AppColors.primaryColor,
+                          side: const BorderSide(color: AppColors.primaryColor),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
                         ),
                         child: Text(
@@ -175,33 +217,7 @@ class RentalVehicleCard extends StatelessWidget {
                         )
                       ),
                       SizedBox(width: 10.w),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => VehicleRentalDetail(
-                                model: "${vehicle.vehicleBrand} ${vehicle.vehicleModel}",
-                                imagePath: 'assets/img/car_default.png',
-                                startDate: DateTime.now(),
-                                endDate: DateTime.now().add(const Duration(days: 7)),
-                              ),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF007BFF),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
-                        ),
-                        child: Text(
-                          AppLocalizations.of(context).translate("Rent"),
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                          )
-                        )
-                      ),
+                      _buildActionButton(context),
                     ],
                   )
                 ],

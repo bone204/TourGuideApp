@@ -14,6 +14,7 @@ import 'package:tourguideapp/widgets/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
 
 class VehicleRentalRegisterScreen extends StatefulWidget {
   const VehicleRentalRegisterScreen({super.key});
@@ -23,6 +24,7 @@ class VehicleRentalRegisterScreen extends StatefulWidget {
 }
 
 class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScreen> {
+  final Map<String, dynamic> contractData = {};
   PageController _pageController = PageController();
   int _currentStep = 0;
   final List<bool> _stepCompleted = [false, false, false];
@@ -135,8 +137,12 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
 
   void _completeRegistration() async {
     if (_formKey.currentState?.validate() ?? false) {
-      if (!_isCheckbox1Checked || !_isCheckbox2Checked || !_isCheckbox3Checked) {
-        _showErrorDialog('Please agree to all terms and conditions.');
+      // Kiểm tra xem đã chọn đủ ảnh chưa
+      if (_citizenPhotoFrontPath.isEmpty || 
+          _citizenPhotoBackPath.isEmpty || 
+          _businessRegisterPhotoPath.isEmpty) {
+        _showErrorDialog(AppLocalizations.of(context)
+            .translate('Please upload all required photos'));
         return;
       }
 
@@ -146,37 +152,38 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
         final currentUserId = authViewModel.currentUserId;
 
         if (currentUserId != null) {
-          // Hiển thị loading indicator
           showDialog(
             context: context,
             barrierDismissible: false,
             builder: (context) => const Center(child: CircularProgressIndicator()),
           );
 
-          // Tạo contract
-          await contractViewModel.createContractForUser(currentUserId, {
+          // Cập nhật contractData với tất cả thông tin cần thiết
+          contractData.addAll({
             'businessType': _selectedBusinessType,
             'businessName': _businessNameController.text,
             'businessProvince': _selectedBusinessRegion,
             'businessAddress': _businessAddressController.text,
             'taxCode': _taxCodeController.text,
-            'businessRegisterPhoto': _businessRegisterPhotoPath,
-            'citizenFrontPhoto': _citizenPhotoFrontPath,
-            'citizenBackPhoto': _citizenPhotoBackPath,
-            'contractTerm': '1 year', 
-            'contractStatus': 'Pending Approval', 
+            'contractTerm': '1 year',
+            'contractStatus': 'Pending Approval',
+            // Ảnh đã được thêm trong onImagePicked của ImagePickerWidget
           });
 
-          // Đóng loading indicator
-          Navigator.of(context).pop();
+          if (kDebugMode) {
+            print("Contract Data before upload: $contractData");
+            print("Business Photo: ${contractData['businessRegisterPhoto']}");
+            print("Citizen Front: ${contractData['citizenFrontPhoto']}");
+            print("Citizen Back: ${contractData['citizenBackPhoto']}");
+          }
 
-          // Chuyển hướng sau khi thành công
-          Navigator.of(context).pop();
+          await contractViewModel.createContractForUser(currentUserId, contractData);
+
+          Navigator.of(context).pop(); // Đóng loading indicator
+          Navigator.of(context).pop(); // Quay lại màn hình trước
         }
       } catch (e) {
-        // Đóng loading indicator nếu có lỗi
-        Navigator.of(context).pop();
-        
+        Navigator.of(context).pop(); // Đóng loading indicator nếu có lỗi
         _showErrorDialog('Có lỗi xảy ra khi tạo hợp đồng. Vui lòng thử lại.');
         if (kDebugMode) {
           print("Lỗi khi tạo hợp đồng: $e");
@@ -497,9 +504,10 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               ImagePickerWidget(
                 title: AppLocalizations.of(context).translate("Identification (Front Photo)"),
                 initialImagePath: _citizenPhotoFrontPath,
-                onImagePicked: (String url) {
+                onImagePicked: (String path) {
                   setState(() {
-                    _citizenPhotoFrontPath = url;
+                    _citizenPhotoFrontPath = path;
+                    contractData['citizenFrontPhoto'] = File(path);
                   });
                 },
               ),
@@ -507,12 +515,10 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               ImagePickerWidget(
                 title: AppLocalizations.of(context).translate("Identification (Back Photo)"),
                 initialImagePath: _citizenPhotoBackPath,
-                onImagePicked: (String url) {
+                onImagePicked: (String path) {
                   setState(() {
-                    _citizenPhotoBackPath = url;
-                    if (kDebugMode) {
-                      print(_citizenPhotoBackPath);
-                    }
+                    _citizenPhotoBackPath = path;
+                    contractData['citizenBackPhoto'] = File(path);
                   });
                 },
               ),
@@ -597,12 +603,10 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               ImagePickerWidget(
                 title: AppLocalizations.of(context).translate("Business Register Photo"),
                 initialImagePath: _businessRegisterPhotoPath,
-                onImagePicked: (String url) {
+                onImagePicked: (String path) {
                   setState(() {
-                    _businessRegisterPhotoPath = url;
-                    if (kDebugMode) {
-                      print(_businessRegisterPhotoPath);
-                    }
+                    _businessRegisterPhotoPath = path;
+                    contractData['businessRegisterPhoto'] = File(path);
                   });
                 },
               ),

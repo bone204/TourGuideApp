@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/models/contract_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart' as path;
 
 class ContractViewModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
   final List<ContractModel> _contracts = [];
   List<ContractModel> get contracts => _contracts;
   StreamSubscription<QuerySnapshot>? _contractSubscription;
@@ -100,24 +104,72 @@ class ContractViewModel extends ChangeNotifier {
     super.dispose();
   }
 
+  Future<String> uploadContractPhoto(File photo, String contractId, String type) async {
+    try {
+      String fileName = '${contractId}_${type}_${DateTime.now().millisecondsSinceEpoch}${path.extension(photo.path)}';
+      
+      final storageRef = _storage.ref().child('photos/$fileName');
+      
+      await storageRef.putFile(photo);
+      String downloadUrl = await storageRef.getDownloadURL();
+      
+      if (kDebugMode) {
+        print("Contract photo uploaded successfully: $downloadUrl");
+      }
+      
+      return downloadUrl;
+    } catch (e, stack) {
+      if (kDebugMode) {
+        print("Error uploading contract photo: $e");
+        print("Stack trace: $stack");
+      }
+      rethrow;
+    }
+  }
+
   Future<void> createContractForUser(String uid, Map<String, dynamic> contractData) async {
     try {
-      // Đợi và lấy userId hiện tại nếu chưa có
       if (_currentUserId == null) {
         await _updateCurrentUserId(uid);
       }
 
       if (_currentUserId == null) {
-        if (kDebugMode) {
-          print("Không tìm thấy userId hiện tại");
-        }
-        return;
+        throw Exception("Không tìm thấy UserId cho UID đã cho");
       }
 
-      // Thêm delay ngắn để đảm bảo dữ liệu user đã được lưu
-      await Future.delayed(const Duration(seconds: 1));
-
       final contractId = await _generateContractId();
+
+      // Upload các ảnh
+      String businessRegisterPhotoUrl = '';
+      if (contractData['businessRegisterPhoto'] != null && 
+          contractData['businessRegisterPhoto'] is File) {
+        businessRegisterPhotoUrl = await uploadContractPhoto(
+          contractData['businessRegisterPhoto'] as File,
+          contractId,
+          'business'
+        );
+      }
+
+      String citizenFrontPhotoUrl = '';
+      if (contractData['citizenFrontPhoto'] != null && 
+          contractData['citizenFrontPhoto'] is File) {
+        citizenFrontPhotoUrl = await uploadContractPhoto(
+          contractData['citizenFrontPhoto'] as File,
+          contractId,
+          'citizen_front'
+        );
+      }
+
+      String citizenBackPhotoUrl = '';
+      if (contractData['citizenBackPhoto'] != null && 
+          contractData['citizenBackPhoto'] is File) {
+        citizenBackPhotoUrl = await uploadContractPhoto(
+          contractData['citizenBackPhoto'] as File,
+          contractId,
+          'citizen_back'
+        );
+      }
+
       final newContract = ContractModel(
         contractId: contractId,
         userId: _currentUserId!,
@@ -126,9 +178,9 @@ class ContractViewModel extends ChangeNotifier {
         businessProvince: contractData['businessProvince'],
         businessAddress: contractData['businessAddress'],
         taxCode: contractData['taxCode'],
-        businessRegisterPhoto: contractData['businessRegisterPhoto'],
-        citizenFrontPhoto: contractData['citizenFrontPhoto'],
-        citizenBackPhoto: contractData['citizenBackPhoto'],
+        businessRegisterPhoto: businessRegisterPhotoUrl,
+        citizenFrontPhoto: citizenFrontPhotoUrl,
+        citizenBackPhoto: citizenBackPhotoUrl,
         contractTerm: contractData['contractTerm'],
         contractStatus: contractData['contractStatus'],
       );
@@ -140,15 +192,12 @@ class ContractViewModel extends ChangeNotifier {
 
       _contracts.add(newContract);
       notifyListeners();
-
+    } catch (e, stack) {
       if (kDebugMode) {
-        print("Hợp đồng đã được lưu vào Firestore với userId: $_currentUserId");
+        print("Error creating contract: $e");
+        print("Stack trace: $stack");
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Lỗi khi tạo hợp đồng: $e");
-      }
-      rethrow; // Ném lỗi để UI có thể xử lý
+      rethrow;
     }
   }
 

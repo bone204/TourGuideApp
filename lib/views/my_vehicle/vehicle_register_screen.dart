@@ -13,6 +13,7 @@ import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
 
 class VehicleRegisterScreen extends StatefulWidget {
   const VehicleRegisterScreen({super.key});
@@ -22,6 +23,7 @@ class VehicleRegisterScreen extends StatefulWidget {
 }
 
 class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
+  final Map<String, dynamic> vehicleData = {};
   PageController _pageController = PageController();
   int _currentStep = 0;
   final List<bool> _stepCompleted = [false, false, false];
@@ -113,9 +115,14 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
 
   void _nextStep() {
     if (_formKey.currentState?.validate() ?? false) {
-      if (_currentStep == 1 && (_vehicleRegistrationPhotoFrontPath.isEmpty || _vehicleRegistrationPhotoBackPath.isEmpty)) {
-        _showErrorDialog('Please upload both front and back photos of your vehicle registration.');
-        return;
+      if (_currentStep == 1) {
+        // Kiểm tra xem cả 2 ảnh đã được chọn chưa
+        if (vehicleData['vehicleRegistrationFrontPhoto'] == null || 
+            vehicleData['vehicleRegistrationBackPhoto'] == null) {
+          _showErrorDialog(AppLocalizations.of(context)
+              .translate('Please upload both front and back photos of your vehicle registration.'));
+          return;
+        }
       }
       if (_currentStep < 2) {
         setState(() {
@@ -145,6 +152,14 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
 
   void _completeRegistration() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Kiểm tra lại một lần nữa xem có đủ ảnh không
+      if (vehicleData['vehicleRegistrationFrontPhoto'] == null || 
+          vehicleData['vehicleRegistrationBackPhoto'] == null) {
+        _showErrorDialog(AppLocalizations.of(context)
+            .translate('Please upload both front and back photos of your vehicle registration.'));
+        return;
+      }
+
       try {
         final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
         final rentalVehicleViewModel = Provider.of<RentalVehicleViewModel>(context, listen: false);
@@ -163,38 +178,41 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
             contractId = contractViewModel.contracts.first.contractId;
           }
 
+          // Cập nhật vehicleData với tất cả thông tin cần thiết
+          vehicleData.addAll({
+            'licensePlate': _licensePlateController.text,
+            'vehicleRegistration': _vehicleRegistrationController.text,
+            'vehicleType': _selectedVehicleType,
+            'maxSeats': int.parse(_selectedMaxSeats),
+            'vehicleBrand': _selectedVehicleBrand,
+            'vehicleModel': _selectedVehicleModel,
+            'vehicleColor': _selectedVehicleColor,
+            'hourPrice': double.parse(_actualPricePerHourController.text),
+            'dayPrice': double.parse(_actualPricePerDayController.text),
+            'requirements': _requirementController.text.split(',').map((e) => e.trim()).toList(),
+            'contractId': contractId,
+            'status': "Pending Approval"
+            // Không cần thêm ảnh vào đây vì đã được thêm khi chọn ảnh
+          });
+
+          if (kDebugMode) {
+            print("Vehicle Data before upload: $vehicleData");
+            print("Front Photo: ${vehicleData['vehicleRegistrationFrontPhoto']}");
+            print("Back Photo: ${vehicleData['vehicleRegistrationBackPhoto']}");
+          }
+
           final locale = Localizations.localeOf(context).languageCode;
           await rentalVehicleViewModel.createRentalVehicleForUser(
             currentUserId,
-            {
-              'licensePlate': _licensePlateController.text,
-              'vehicleRegistration': _vehicleRegistrationController.text,
-              'vehicleType': _selectedVehicleType,
-              'maxSeats': int.parse(_selectedMaxSeats),
-              'vehicleBrand': _selectedVehicleBrand,
-              'vehicleModel': _selectedVehicleModel,
-              'vehicleColor': _selectedVehicleColor,
-              'vehicleRegistrationFrontPhoto': _vehicleRegistrationPhotoFrontPath,
-              'vehicleRegistrationBackPhoto': _vehicleRegistrationPhotoBackPath,
-              'hourPrice': double.parse(_actualPricePerHourController.text),
-              'dayPrice': double.parse(_actualPricePerDayController.text),
-              'requirements': _requirementController.text.split(',').map((e) => e.trim()).toList(),
-              'contractId': contractId,
-              'status': "Pending Approval"
-            },
+            vehicleData,
             locale
           );
 
-          // Đóng loading indicator
-          Navigator.of(context).pop();
-
-          // Chuyển hướng sau khi thành công
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(); // Đóng loading indicator
+          Navigator.of(context).pop(); // Quay lại màn hình trước
         }
       } catch (e) {
-        // Đóng loading indicator nếu có lỗi
-        Navigator.of(context).pop();
-        
+        Navigator.of(context).pop(); // Đóng loading indicator nếu có lỗi
         _showErrorDialog('Có lỗi xảy ra khi tạo hợp đồng. Vui lòng thử lại.');
         if (kDebugMode) {
           print("Lỗi khi đăng ký xe cho thuê: $e");
@@ -707,9 +725,10 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               ImagePickerWidget(
                 title: AppLocalizations.of(context).translate("Vehicle Registration Photo (Front)"),
                 initialImagePath: _vehicleRegistrationPhotoFrontPath,
-                onImagePicked: (String url) {
+                onImagePicked: (String path) {
                   setState(() {
-                    _vehicleRegistrationPhotoFrontPath = url;
+                    _vehicleRegistrationPhotoFrontPath = path;
+                    vehicleData['vehicleRegistrationFrontPhoto'] = File(path);
                   });
                 },
               ),
@@ -717,9 +736,10 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               ImagePickerWidget(
                 title: AppLocalizations.of(context).translate("Vehicle Registration Photo (Back)"),
                 initialImagePath: _vehicleRegistrationPhotoBackPath,
-                onImagePicked: (String url) {
+                onImagePicked: (String path) {
                   setState(() {
-                    _vehicleRegistrationPhotoBackPath = url;
+                    _vehicleRegistrationPhotoBackPath = path;
+                    vehicleData['vehicleRegistrationBackPhoto'] = File(path);
                   });
                 },
               ),

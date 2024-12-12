@@ -76,7 +76,7 @@ class RentalVehicleModel {
       dayPrice: (map['dayPrice'] ?? 0.0).toDouble(),
       requirements: List<String>.from(map['requirements'] ?? []),
       contractId: map['contractId'] ?? '',
-      status: map['status'] ?? '',
+      status: map['status'] ?? 'Pending Approval',
       vehicleId: map['vehicleId'] ?? '',
     );
   }

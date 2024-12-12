@@ -29,7 +29,7 @@ class CategoryButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(30.r),
         ),
         child: Text(
-          'Day ${category.split('_')[0]}',
+          category,
           style: TextStyle(
             color: isSelected ? Colors.white : AppColors.primaryColor,
             fontSize: 16.sp,

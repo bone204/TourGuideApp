@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart' as path;
 import 'package:tourguideapp/models/rental_vehicle_model.dart';
 
 class RentalVehicleViewModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
   final List<RentalVehicleModel> _vehicles = [];
   List<RentalVehicleModel> get vehicles => _vehicles;
   StreamSubscription<QuerySnapshot>? _rentalVehicleSubscription;
@@ -27,7 +31,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
 
   String _convertVehicleTypeToFirestore(String displayType, String locale) {
     if (locale == 'vi') {
-      return displayType; // Giữ nguyên nếu là ti��ng Việt
+      return displayType; // Giữ nguyên nếu là tiếng Việt
     }
     // Chuyển đổi từ tiếng Anh sang tiếng Việt để query
     switch (displayType) {
@@ -164,15 +168,20 @@ class RentalVehicleViewModel extends ChangeNotifier {
             .listen((snapshot) {
           _vehicles.clear();
           for (var doc in snapshot.docs) {
-            _vehicles.add(RentalVehicleModel.fromMap(doc.data() as Map<String, dynamic>));
+            var data = doc.data();
+            if (data['status'] != null) {
+              _vehicles.add(RentalVehicleModel.fromMap(data));
+            }
           }
           notifyListeners();
+        }, onError: (error) {
+          if (kDebugMode) {
+            print("Error in rental vehicle stream: $error");
+          }
         });
       }
-    } on FirebaseException catch (e, stack) {
-      _logError("FirebaseException when initializing rental vehicle stream", e, stack);
     } catch (e, stack) {
-      _logError("Unexpected error when initializing rental vehicle stream", e, stack);
+      _logError("Error initializing rental vehicle stream", e, stack);
     }
   }
 
@@ -187,6 +196,29 @@ class RentalVehicleViewModel extends ChangeNotifier {
   void dispose() {
     _rentalVehicleSubscription?.cancel();
     super.dispose();
+  }
+
+  Future<String> uploadVehiclePhoto(File photo, String vehicleRegisterId, String type) async {
+    try {
+      String fileName = '${vehicleRegisterId}_${type}_${DateTime.now().millisecondsSinceEpoch}${path.extension(photo.path)}';
+      
+      final storageRef = _storage.ref().child('photos/$fileName');
+      
+      await storageRef.putFile(photo);
+      String downloadUrl = await storageRef.getDownloadURL();
+      
+      if (kDebugMode) {
+        print("Vehicle photo uploaded successfully: $downloadUrl");
+      }
+      
+      return downloadUrl;
+    } catch (e, stack) {
+      if (kDebugMode) {
+        print("Error uploading vehicle photo: $e");
+        print("Stack trace: $stack");
+      }
+      rethrow;
+    }
   }
 
   Future<void> createRentalVehicleForUser(String uid, Map<String, dynamic> vehicleData, String locale) async {
@@ -240,6 +272,29 @@ class RentalVehicleViewModel extends ChangeNotifier {
       }
 
       final vehicleRegisterId = await _generateVehicleId();
+
+      // Upload ảnh đăng ký xe mặt trước
+      String frontPhotoUrl = '';
+      if (vehicleData['vehicleRegistrationFrontPhoto'] != null && 
+          vehicleData['vehicleRegistrationFrontPhoto'] is File) {
+        frontPhotoUrl = await uploadVehiclePhoto(
+          vehicleData['vehicleRegistrationFrontPhoto'] as File,
+          vehicleRegisterId,
+          'registration_front'
+        );
+      }
+
+      // Upload ảnh đăng ký xe mặt sau
+      String backPhotoUrl = '';
+      if (vehicleData['vehicleRegistrationBackPhoto'] != null && 
+          vehicleData['vehicleRegistrationBackPhoto'] is File) {
+        backPhotoUrl = await uploadVehiclePhoto(
+          vehicleData['vehicleRegistrationBackPhoto'] as File,
+          vehicleRegisterId,
+          'registration_back'
+        );
+      }
+
       final newRentalVehicle = RentalVehicleModel(
         vehicleRegisterId: vehicleRegisterId,
         userId: _currentUserId!,
@@ -250,8 +305,8 @@ class RentalVehicleViewModel extends ChangeNotifier {
         vehicleBrand: vehicleData['vehicleBrand'],
         vehicleModel: vehicleData['vehicleModel'],
         vehicleColor: vehicleData['vehicleColor'],
-        vehicleRegistrationFrontPhoto: vehicleData['vehicleRegistrationFrontPhoto'] ?? '',
-        vehicleRegistrationBackPhoto: vehicleData['vehicleRegistrationBackPhoto'] ?? '',
+        vehicleRegistrationFrontPhoto: frontPhotoUrl,
+        vehicleRegistrationBackPhoto: backPhotoUrl,
         hourPrice: (vehicleData['hourPrice'] ?? 0).toDouble(),
         dayPrice: (vehicleData['dayPrice'] ?? 0).toDouble(),
         requirements: List<String>.from(vehicleData['requirements'] ?? []),
@@ -360,6 +415,32 @@ class RentalVehicleViewModel extends ChangeNotifier {
         print("Stack trace: $stack");
       }
       return 'assets/img/car_default.png';
+    }
+  }
+
+  Future<void> updateVehicleStatus(String vehicleRegisterId, String newStatus) async {
+    try {
+      await _firestore
+          .collection('RENTAL_VEHICLE')
+          .doc(vehicleRegisterId)
+          .update({'status': newStatus});
+    } catch (e, stack) {
+      _logError("Error updating vehicle status", e, stack);
+      rethrow;
+    }
+  }
+
+  Future<void> deleteOldPhoto(String photoUrl) async {
+    try {
+      if (photoUrl.isNotEmpty && photoUrl.startsWith('https://firebasestorage.googleapis.com')) {
+        final ref = _storage.refFromURL(photoUrl);
+        await ref.delete();
+        if (kDebugMode) {
+          print("Old photo deleted successfully");
+        }
+      }
+    } catch (e, stack) {
+      _logError("Error deleting old photo", e, stack);
     }
   }
 }
