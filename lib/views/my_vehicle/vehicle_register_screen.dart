@@ -30,7 +30,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
   bool _isContractRegistered = false;
 
   // Variables for dropdown selections
-  String _selectedVehicleType = 'Car';
+  String _selectedVehicleType = 'Ô tô';
   String _selectedMaxSeats = '5';
   String? _selectedVehicleBrand;
   String? _selectedVehicleModel;
@@ -52,7 +52,13 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
   final TextEditingController _actualPricePerHourController = TextEditingController();
   final TextEditingController _actualPricePerDayController = TextEditingController();
 
+  bool _isInitialized = false;
+
   void _onVehicleTypeChanged(String newType) {
+    if (kDebugMode) {
+      print('Vehicle type changed to: $newType');
+    }
+    
     setState(() {
       _selectedVehicleType = newType;
       _selectedVehicleBrand = null;
@@ -60,10 +66,9 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
       _selectedVehicleColor = null;
     });
     
-    // Load lại danh sách brand dựa trên loại xe mới
     final locale = Localizations.localeOf(context).languageCode;
     Provider.of<RentalVehicleViewModel>(context, listen: false)
-        .loadVehicleInformation(_selectedVehicleType, locale);
+        .loadVehicleInformation(newType, locale);
   }
 
   @override
@@ -71,16 +76,20 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
     super.initState();
     _pageController = PageController();
     
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final locale = Localizations.localeOf(context).languageCode;
+      setState(() {
+        _selectedVehicleType = locale == 'en' ? 'Car' : 'Ô tô';
+      });
+      Provider.of<RentalVehicleViewModel>(context, listen: false)
+          .loadVehicleInformation(_selectedVehicleType, locale);
+    });
+
     _pricePerHourController.addListener(() {
       String value = _pricePerHourController.text.replaceAll('₫', '').replaceAll(',', '').trim();
       if (value.isNotEmpty) {
-        // Cập nhật giá trị thực không có định dạng
         _actualPricePerHourController.text = value;
-        
-        // Thêm dấu phân cách hàng nghìn
         String formattedValue = NumberFormat('#,###').format(int.tryParse(value) ?? 0);
-        
-        // Cập nhật giá trị hiển thị với định dạng
         _pricePerHourController.value = TextEditingValue(
           text: '$formattedValue ₫',
           selection: TextSelection.collapsed(offset: formattedValue.length),
@@ -92,9 +101,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
       String value = _pricePerDayController.text.replaceAll('₫', '').replaceAll(',', '').trim();
       if (value.isNotEmpty) {
         _actualPricePerDayController.text = value;
-        
         String formattedValue = NumberFormat('#,###').format(int.tryParse(value) ?? 0);
-        
         _pricePerDayController.value = TextEditingValue(
           text: '$formattedValue ₫',
           selection: TextSelection.collapsed(offset: formattedValue.length),
@@ -107,10 +114,12 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     
-    // Di chuyển code load dữ liệu vào đây
-    final locale = Localizations.localeOf(context).languageCode;
-    Provider.of<RentalVehicleViewModel>(context, listen: false)
-        .loadVehicleInformation(_selectedVehicleType, locale);
+    if (!_isInitialized) {
+      final locale = Localizations.localeOf(context).languageCode;
+      Provider.of<RentalVehicleViewModel>(context, listen: false)
+          .loadVehicleInformation(_selectedVehicleType, locale);
+      _isInitialized = true;
+    }
   }
 
   void _nextStep() {
@@ -152,7 +161,6 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
 
   void _completeRegistration() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // Kiểm tra lại một lần nữa xem có đủ ảnh không
       if (vehicleData['vehicleRegistrationFrontPhoto'] == null || 
           vehicleData['vehicleRegistrationBackPhoto'] == null) {
         _showErrorDialog(AppLocalizations.of(context)
@@ -161,24 +169,26 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
       }
 
       try {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => WillPopScope(
+            onWillPop: () async => false,
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+        );
+
         final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
         final rentalVehicleViewModel = Provider.of<RentalVehicleViewModel>(context, listen: false);
         final contractViewModel = Provider.of<ContractViewModel>(context, listen: false);
         final currentUserId = authViewModel.currentUserId;
 
         if (currentUserId != null) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => const Center(child: CircularProgressIndicator()),
-          );
-
           String contractId = '1';
           if (contractViewModel.contracts.isNotEmpty) {
             contractId = contractViewModel.contracts.first.contractId;
           }
 
-          // Cập nhật vehicleData với tất cả thông tin cần thiết
           vehicleData.addAll({
             'licensePlate': _licensePlateController.text,
             'vehicleRegistration': _vehicleRegistrationController.text,
@@ -192,14 +202,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
             'requirements': _requirementController.text.split(',').map((e) => e.trim()).toList(),
             'contractId': contractId,
             'status': "Pending Approval"
-            // Không cần thêm ảnh vào đây vì đã được thêm khi chọn ảnh
           });
-
-          if (kDebugMode) {
-            print("Vehicle Data before upload: $vehicleData");
-            print("Front Photo: ${vehicleData['vehicleRegistrationFrontPhoto']}");
-            print("Back Photo: ${vehicleData['vehicleRegistrationBackPhoto']}");
-          }
 
           final locale = Localizations.localeOf(context).languageCode;
           await rentalVehicleViewModel.createRentalVehicleForUser(
@@ -208,12 +211,12 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
             locale
           );
 
-          Navigator.of(context).pop(); // Đóng loading indicator
-          Navigator.of(context).pop(); // Quay lại màn hình trước
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
         }
       } catch (e) {
-        Navigator.of(context).pop(); // Đóng loading indicator nếu có lỗi
-        _showErrorDialog('Có lỗi xảy ra khi tạo hợp đồng. Vui lòng thử lại.');
+        Navigator.of(context).pop();
+        _showErrorDialog('Có lỗi xảy ra khi đăng ký xe. Vui lòng thử lại.');
         if (kDebugMode) {
           print("Lỗi khi đăng ký xe cho thuê: $e");
         }
@@ -806,6 +809,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              SizedBox(height: 12.h),
               CustomExpandableTextField(
                 controller: _requirementController,
                 hintText: AppLocalizations.of(context).translate("Enter vehicle rental requirements"),

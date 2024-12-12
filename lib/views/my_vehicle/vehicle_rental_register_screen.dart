@@ -15,6 +15,9 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
+import 'package:tourguideapp/models/province_model.dart';
+import 'package:tourguideapp/models/bank_model.dart';
+import 'package:tourguideapp/viewmodels/bank_viewmodel.dart';
 
 class VehicleRentalRegisterScreen extends StatefulWidget {
   const VehicleRentalRegisterScreen({super.key});
@@ -32,8 +35,8 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
 
   // Variables for dropdown selections
   String _selectedBusinessType = 'Type 1';
-  String _selectedBusinessRegion = 'Region 1';
-  String _selectedBankName = 'Bank 1';
+  String? _selectedBankId;
+  List<BankModel> _banks = [];
 
   // Định nghĩa các TextEditingController cụ thể
   final TextEditingController _businessNameController = TextEditingController();
@@ -55,11 +58,62 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
   bool _isCheckbox2Checked = false;
   bool _isCheckbox3Checked = false;
 
+  // Thêm biến để lưu danh sách tỉnh
+  List<Province> _provinces = [];
+  String? _selectedProvinceId;
+
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
     _loadUserData();
+    _loadProvinces();
+    _loadBanks();
+  }
+
+  // Thêm hàm load danh sách tỉnh
+  Future<void> _loadProvinces() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('PROVINCE')
+          .get();
+      
+      setState(() {
+        _provinces = snapshot.docs
+            .map((doc) => Province.fromMap({
+                  ...doc.data(),
+                  'provinceId': doc.id,
+                }))
+            .toList();
+        
+        // Tự động chọn tỉnh đầu tiên nếu có dữ liệu
+        if (_provinces.isNotEmpty) {
+          _selectedProvinceId = _provinces.first.provinceId;
+          contractData['businessProvinceId'] = _selectedProvinceId;
+        }
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading provinces: $e');
+      }
+    }
+  }
+
+  Future<void> _loadBanks() async {
+    try {
+      final bankViewModel = Provider.of<BankViewModel>(context, listen: false);
+      await bankViewModel.loadBanks();
+      setState(() {
+        _banks = bankViewModel.banks;
+        if (_banks.isNotEmpty) {
+          _selectedBankId = _banks.first.bankId;
+        }
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading banks: $e');
+      }
+    }
   }
 
   void _loadUserData() async {
@@ -96,11 +150,11 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
   void _nextStep() {
     if (_formKey.currentState?.validate() ?? false) {
       if (_currentStep == 0 && (_citizenPhotoFrontPath.isEmpty || _citizenPhotoBackPath.isEmpty)) {
-        _showErrorDialog('Please upload both front and back photos of your identification.');
+        _showErrorDialog(AppLocalizations.of(context).translate('Please upload both front and back photos of your identification.'));
         return;
       }
       if (_currentStep == 1 && _businessRegisterPhotoPath.isEmpty) {
-        _showErrorDialog('Please upload the business register photo.');
+        _showErrorDialog(AppLocalizations.of(context).translate('Please upload the business register photo.'));
         return;
       }
       if (_currentStep < 2) {
@@ -158,11 +212,17 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
             builder: (context) => const Center(child: CircularProgressIndicator()),
           );
 
+          // Lấy tên tỉnh từ ID đã chọn
+          final selectedProvince = _provinces.firstWhere(
+            (p) => p.provinceId == _selectedProvinceId,
+            orElse: () => _provinces.first,
+          );
+
           // Cập nhật contractData với tất cả thông tin cần thiết
           contractData.addAll({
             'businessType': _selectedBusinessType,
             'businessName': _businessNameController.text,
-            'businessProvince': _selectedBusinessRegion,
+            'businessProvince': selectedProvince.provinceName, // Sử dụng tên tỉnh đã chọn
             'businessAddress': _businessAddressController.text,
             'taxCode': _taxCodeController.text,
             'contractTerm': '1 year',
@@ -456,7 +516,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your full name';
+                    return AppLocalizations.of(context).translate("Please enter your full name");
                   }
                   return null;
                 },
@@ -465,11 +525,11 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               _buildTextField(
                 controller: _emailController,
                 hintText: AppLocalizations.of(context).translate("Enter your email"),
-                label: 'Email',
+                label: AppLocalizations.of(context).translate("Email"),
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
+                    return AppLocalizations.of(context).translate("Please enter your email");
                   }
                   return null;
                 },
@@ -482,7 +542,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your phone number';
+                    return AppLocalizations.of(context).translate("Please enter your phone number");
                   }
                   return null;
                 },
@@ -495,7 +555,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your identification number';
+                    return AppLocalizations.of(context).translate("Please enter your identification number");
                   }
                   return null;
                 },
@@ -540,7 +600,11 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
             children: [
               _buildDropdown(
                 label: AppLocalizations.of(context).translate("Business Type"),
-                items: ['Type 1', 'Type 2', 'Type 3'],
+                items: [
+                  AppLocalizations.of(context).translate("Individual"),
+                  AppLocalizations.of(context).translate("Company"),
+                  AppLocalizations.of(context).translate("Business Household")
+                ],
                 selectedItem: _selectedBusinessType,
                 onChanged: (String? newValue) {
                   setState(() {
@@ -556,7 +620,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your business name';
+                    return AppLocalizations.of(context).translate("Please enter your business name");
                   }
                   return null;
                 },
@@ -565,12 +629,30 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildDropdown(
                 label: AppLocalizations.of(context).translate("Business Province Region"),
-                items: ['Region 1', 'Region 2', 'Region 3'],
-                selectedItem: _selectedBusinessRegion,
+                items: _provinces.map((p) => p.provinceName).toList(),
+                selectedItem: _provinces
+                    .firstWhere(
+                      (p) => p.provinceId == _selectedProvinceId,
+                      orElse: () => _provinces.isNotEmpty ? _provinces.first : Province(
+                        provinceId: '',
+                        provinceName: '',
+                        city: '',
+                        district: [],
+                        imageUrl: Province.defaultImageUrl,
+                        rating: 0,
+                      ),
+                    )
+                    .provinceName,
                 onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedBusinessRegion = newValue!;
-                  });
+                  if (newValue != null) {
+                    setState(() {
+                      _selectedProvinceId = _provinces
+                          .firstWhere((p) => p.provinceName == newValue)
+                          .provinceId;
+                      contractData['businessProvinceId'] = _selectedProvinceId;
+                      contractData['businessProvinceName'] = newValue;
+                    });
+                  }
                 },
               ),
               SizedBox(height: 16.h),
@@ -581,7 +663,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your business address';
+                    return AppLocalizations.of(context).translate("Please enter your business address");
                   }
                   return null;
                 },
@@ -594,7 +676,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your tax code';
+                    return AppLocalizations.of(context).translate("Please enter your tax code");
                   }
                   return null;
                 },
@@ -628,12 +710,36 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
             children: [
               _buildDropdown(
                 label: AppLocalizations.of(context).translate("Bank Name"),
-                items: ['Bank 1', 'Bank 2', 'Bank 3'],
-                selectedItem: _selectedBankName,
+                items: _banks.map((bank) => "${bank.bankName} - ${bank.bankSubName}").toList(),
+                selectedItem: "${_banks
+                    .firstWhere(
+                      (b) => b.bankId == _selectedBankId,
+                      orElse: () => _banks.isNotEmpty ? _banks.first : BankModel(
+                        bankId: '',
+                        bankName: '',
+                        bankSubName: '',
+                      ),
+                    )
+                    .bankName} - ${_banks
+                    .firstWhere(
+                      (b) => b.bankId == _selectedBankId,
+                      orElse: () => _banks.isNotEmpty ? _banks.first : BankModel(
+                        bankId: '',
+                        bankName: '',
+                        bankSubName: '',
+                      ),
+                    )
+                    .bankSubName}",
                 onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedBankName = newValue!;
-                  });
+                  if (newValue != null) {
+                    setState(() {
+                      final bankName = newValue.split(' - ')[0];
+                      _selectedBankId = _banks
+                          .firstWhere((b) => b.bankName == bankName)
+                          .bankId;
+                      contractData['bankId'] = _selectedBankId;
+                    });
+                  }
                 },
               ),
               SizedBox(height: 16.h),
@@ -644,7 +750,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your bank account number';
+                    return AppLocalizations.of(context).translate("Please enter your bank account number");
                   }
                   return null;
                 },
@@ -657,7 +763,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your bank account name';
+                    return AppLocalizations.of(context).translate("Please enter your bank account name");
                   }
                   return null;
                 },

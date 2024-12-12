@@ -22,7 +22,14 @@ class CustomComboBox extends StatelessWidget {
       items: items.map((String item) {
         return DropdownMenuItem(
           value: item,
-          child: Text(item),
+          child: Text(
+            item,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: const TextStyle(
+              fontSize: 16,
+            ),
+          ),
         );
       }).toList(),
       onChanged: onChanged,
@@ -38,6 +45,7 @@ class CustomComboBox extends StatelessWidget {
           borderRadius: BorderRadius.circular(8.0),
         ),
       ),
+      isExpanded: true,
     );
   }
 }

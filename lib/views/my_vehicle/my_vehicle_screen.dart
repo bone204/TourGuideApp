@@ -251,8 +251,35 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
   Widget _buildVehicleView() {
     return Consumer<RentalVehicleViewModel>(
       builder: (context, viewModel, child) {
-        final vehicle = viewModel.vehicles.first;
-        return RentalVehicleCard(vehicle: vehicle);
+        return SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(top: 8.h),
+            child: Column(
+              children: [
+                // Hiển thị danh sách các xe
+                ...viewModel.vehicles.map((vehicle) => 
+                  RentalVehicleCard(vehicle: vehicle)
+                ).toList(),
+                
+                // Thêm nút Add Vehicle
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                  child: CustomElevatedButton(
+                    text: "Add Vehicle",
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const VehicleRegisterScreen()
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
   }

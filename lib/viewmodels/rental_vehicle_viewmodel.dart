@@ -15,101 +15,160 @@ class RentalVehicleViewModel extends ChangeNotifier {
   List<RentalVehicleModel> get vehicles => _vehicles;
   StreamSubscription<QuerySnapshot>? _rentalVehicleSubscription;
   String? _currentUserId;
-  final Map<String, List<String>> _brandModels = {};
-  final Map<String, List<String>> _modelColors = {};
   List<String> _availableBrands = [];
+  Map<String, List<String>> _modelsByBrand = {};
+  Map<String, List<String>> _colorsByModel = {};
 
   List<String> get availableBrands => _availableBrands;
 
   List<String> getModelsForBrand(String brand) {
-    return _brandModels[brand] ?? [];
+    return _modelsByBrand[brand] ?? [];
   }
 
   List<String> getColorsForModel(String model) {
-    return _modelColors[model] ?? [];
+    return _colorsByModel[model] ?? [];
   }
 
   String _convertVehicleTypeToFirestore(String displayType, String locale) {
-    if (locale == 'vi') {
-      return displayType; // Giữ nguyên nếu là tiếng Việt
+    if (locale == 'en') {
+      // Chuyển đổi từ tiếng Anh sang tiếng Việt để query
+      switch (displayType) {
+        case 'Car':
+          return 'Ô tô';
+        case 'Motorbike':
+          return 'Xe máy';
+        default:
+          return displayType;
+      }
     }
-    // Chuyển đổi từ tiếng Anh sang tiếng Việt để query
-    switch (displayType) {
-      case 'Car':
-        return 'Ô tô';
-      case 'Motorbike':
-        return 'Xe máy';
-      default:
-        return displayType;
-    }
+    // Nếu là tiếng Việt thì giữ nguyên
+    return displayType;
   }
 
   String _convertFirestoreTypeToDisplay(String dbType, String locale) {
-    if (locale == 'vi') {
-      return dbType; // Giữ nguyên nếu là tiếng Việt
+    if (locale == 'en') {
+      // Chuyển đổi từ tiếng Việt sang tiếng Anh để hiển thị
+      switch (dbType) {
+        case 'Ô tô':
+          return 'Car';
+        case 'Xe máy':
+          return 'Motorbike';
+        default:
+          return dbType;
+      }
     }
-    // Chuyển đổi từ tiếng Việt sang tiếng Anh để hiển thị
-    switch (dbType) {
-      case 'Ô tô':
-        return 'Car';
-      case 'Xe máy':
-        return 'Motorbike';
-      default:
-        return dbType;
+    // Nếu là tiếng Việt thì giữ nguyên
+    return dbType;
+  }
+
+  // Chỉ giữ lại translations cho màu sắc
+  final Map<String, String> _colorTranslations = {
+    'Đen': 'Black',
+    'Trắng': 'White',
+    'Đỏ': 'Red',
+    'Xanh Dương': 'Blue',
+    'Xanh Lá': 'Green',
+    'Bạc': 'Silver',
+    'Xám': 'Gray',
+    'Nâu': 'Brown',
+    'Vàng': 'Yellow',
+    'Cam': 'Orange',
+    'Tím': 'Purple',
+    'Hồng': 'Pink',
+    'Kem': 'Beige',
+    'Đồng': 'Bronze',
+    'Vàng Cát': 'Sand',
+  };
+
+  String _translateColor(String colorName, String targetLocale) {
+    if (targetLocale == 'vi') {
+      // Chuyển từ tiếng Anh sang tiếng Việt
+      return _colorTranslations.entries
+          .firstWhere(
+            (entry) => entry.value == colorName,
+            orElse: () => MapEntry(colorName, colorName)
+          )
+          .key;
+    } else {
+      // Chuyển từ tiếng Việt sang tiếng Anh
+      return _colorTranslations[colorName] ?? colorName;
     }
   }
 
-  Future<void> loadVehicleInformation(String selectedType, String locale) async {
+  Future<void> loadVehicleInformation(String vehicleType, String locale) async {
     try {
-      final firestoreType = _convertVehicleTypeToFirestore(selectedType, locale);
-      
+      if (kDebugMode) {
+        print('Loading vehicle information...');
+        print('Vehicle type: $vehicleType');
+        print('Locale: $locale');
+      }
+
+      final queryType = _convertVehicleTypeToFirestore(vehicleType, locale);
+
+      // Lấy tất cả xe theo loại xe đã chọn
       final snapshot = await _firestore
           .collection('VEHICLE_INFORMATION')
-          .where('type', isEqualTo: firestoreType)
+          .where('type', isEqualTo: queryType)
           .get();
-      
-      // Tạo map tạm thời để lưu trữ dữ liệu
-      final Map<String, Set<String>> brandModelsTemp = {};
-      final Map<String, Set<String>> modelColorsTemp = {};
-      final Set<String> brandsSet = {};
 
+      // Reset lists
+      _availableBrands = [];
+      _modelsByBrand = {};
+      _colorsByModel = {};
+
+      // Tổ chức dữ liệu theo cấu trúc phân cấp
+      Map<String, Set<String>> brandModels = {};    // Map brand -> Set of models
+      Map<String, Set<String>> modelColors = {};    // Map model -> Set of colors
+
+      // Xử lý từng document
       for (var doc in snapshot.docs) {
         final data = doc.data();
         final brand = data['brand'] as String;
         final model = data['model'] as String;
         final color = data['color'] as String;
 
-        brandsSet.add(brand);
+        // Thêm brand nếu chưa có
+        if (!brandModels.containsKey(brand)) {
+          brandModels[brand] = {};
+        }
         
         // Thêm model vào brand
-        if (!brandModelsTemp.containsKey(brand)) {
-          brandModelsTemp[brand] = {};
-        }
-        brandModelsTemp[brand]!.add(model);
+        brandModels[brand]!.add(model);
 
         // Thêm color vào model
-        if (!modelColorsTemp.containsKey(model)) {
-          modelColorsTemp[model] = {};
+        if (!modelColors.containsKey(model)) {
+          modelColors[model] = {};
         }
-        modelColorsTemp[model]!.add(color);
+        if (locale == 'en') {
+          modelColors[model]!.add(_translateColor(color, locale));
+        } else {
+          modelColors[model]!.add(color);
+        }
       }
 
-      // Chuyển đổi Set thành List và cập nhật state
-      _availableBrands = brandsSet.toList()..sort();
-      _brandModels.clear();
-      _modelColors.clear();
-
-      brandModelsTemp.forEach((brand, models) {
-        _brandModels[brand] = models.toList()..sort();
+      // Chuyển đổi từ Set sang List và sắp xếp
+      _availableBrands = brandModels.keys.toList()..sort();
+      
+      brandModels.forEach((brand, models) {
+        _modelsByBrand[brand] = models.toList()..sort();
       });
 
-      modelColorsTemp.forEach((model, colors) {
-        _modelColors[model] = colors.toList()..sort();
+      modelColors.forEach((model, colors) {
+        _colorsByModel[model] = colors.toList()..sort();
       });
+
+      if (kDebugMode) {
+        print('Available brands: $_availableBrands');
+        print('Models by brand: $_modelsByBrand');
+        print('Colors by model: $_colorsByModel');
+      }
 
       notifyListeners();
-    } catch (e, stack) {
-      _logError("Error loading vehicle information", e, stack);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading vehicle information:');
+        print(e.toString());
+      }
     }
   }
 
@@ -224,75 +283,97 @@ class RentalVehicleViewModel extends ChangeNotifier {
   Future<void> createRentalVehicleForUser(String uid, Map<String, dynamic> vehicleData, String locale) async {
     try {
       if (kDebugMode) {
-        print("Dữ liệu vehicleData: $vehicleData");
+        print("Bắt đầu tạo rental vehicle...");
       }
 
-      // Lấy vehicleId từ VEHICLE_INFORMATION
-      String vehicleId = '';
-      final vehicleSnapshot = await _firestore
-          .collection('VEHICLE_INFORMATION')
-          .where('brand', isEqualTo: vehicleData['vehicleBrand'])
-          .where('model', isEqualTo: vehicleData['vehicleModel'])
-          .where('color', isEqualTo: vehicleData['vehicleColor'])
-          .get();
+      // Chuyển đổi vehicleType về dạng lưu trong Firestore
+      final queryType = _convertVehicleTypeToFirestore(vehicleData['vehicleType'], locale);
+
+      // Đảm bảo color luôn là tiếng Việt khi query
+      String queryColor;
+      if (locale == 'en') {
+        // Nếu đang ở English, chuyển color từ English sang Vietnamese
+        queryColor = _colorTranslations.entries
+            .firstWhere(
+              (entry) => entry.value == vehicleData['vehicleColor'],
+              orElse: () => MapEntry(vehicleData['vehicleColor'], vehicleData['vehicleColor'])
+            )
+            .key;
+      } else {
+        // Nếu đang ở Vietnamese, giữ nguyên
+        queryColor = vehicleData['vehicleColor'];
+      }
 
       if (kDebugMode) {
         print("Query conditions:");
+        print("Type: $queryType");
         print("Brand: ${vehicleData['vehicleBrand']}");
         print("Model: ${vehicleData['vehicleModel']}");
-        print("Color: ${vehicleData['vehicleColor']}");
-        print("Found documents: ${vehicleSnapshot.docs.length}");
-        
-        for (var doc in vehicleSnapshot.docs) {
-          print("Document ID: ${doc.id}");
-          print("Document data: ${doc.data()}");
-        }
+        print("Color (original): ${vehicleData['vehicleColor']}");
+        print("Color (query in Vietnamese): $queryColor");
       }
 
-      if (vehicleSnapshot.docs.isNotEmpty) {
-        // Lấy document đầu tiên khớp với điều kiện
-        final vehicleDoc = vehicleSnapshot.docs.first;
-        vehicleId = vehicleDoc.id;
-        
-        if (kDebugMode) {
-          print("Selected vehicle document ID: $vehicleId");
-          print("Vehicle data: ${vehicleDoc.data()}");
-          print("Photo URL: ${vehicleDoc.data()['photo']}");
-        }
-      } else {
-        throw Exception("Không tìm thấy thông tin xe phù hợp");
+      // Query với color tiếng Việt
+      final vehicleSnapshot = await _firestore
+          .collection('VEHICLE_INFORMATION')
+          .where('type', isEqualTo: queryType)
+          .where('brand', isEqualTo: vehicleData['vehicleBrand'])
+          .where('model', isEqualTo: vehicleData['vehicleModel'])
+          .where('color', isEqualTo: queryColor)  // Sử dụng màu tiếng Việt
+          .get();
+
+      if (kDebugMode) {
+        print("Found documents: ${vehicleSnapshot.docs.length}");
+      }
+
+      String vehicleId;
+      if (vehicleSnapshot.docs.isEmpty) {
+        throw Exception("Không tìm thấy thông tin xe phù hợp trong hệ thống");
+      }
+      
+      // Lấy vehicleId từ document đầu tiên khớp với điều kiện
+      vehicleId = vehicleSnapshot.docs.first.id;
+
+      if (kDebugMode) {
+        print("Found vehicleId: $vehicleId");
       }
 
       if (_currentUserId == null) {
         await _updateCurrentUserId(uid);
-      }
-
-      if (_currentUserId == null) {
-        throw Exception("Không tìm thấy UserId cho UID đã cho");
+        if (_currentUserId == null) {
+          throw Exception("Không tìm thấy UserId cho UID đã cho");
+        }
       }
 
       final vehicleRegisterId = await _generateVehicleId();
 
-      // Upload ảnh đăng ký xe mặt trước
+      // Upload ảnh đăng ký xe
       String frontPhotoUrl = '';
-      if (vehicleData['vehicleRegistrationFrontPhoto'] != null && 
-          vehicleData['vehicleRegistrationFrontPhoto'] is File) {
-        frontPhotoUrl = await uploadVehiclePhoto(
-          vehicleData['vehicleRegistrationFrontPhoto'] as File,
-          vehicleRegisterId,
-          'registration_front'
-        );
-      }
-
-      // Upload ảnh đăng ký xe mặt sau
       String backPhotoUrl = '';
-      if (vehicleData['vehicleRegistrationBackPhoto'] != null && 
-          vehicleData['vehicleRegistrationBackPhoto'] is File) {
-        backPhotoUrl = await uploadVehiclePhoto(
-          vehicleData['vehicleRegistrationBackPhoto'] as File,
-          vehicleRegisterId,
-          'registration_back'
-        );
+      
+      try {
+        if (vehicleData['vehicleRegistrationFrontPhoto'] != null && 
+            vehicleData['vehicleRegistrationFrontPhoto'] is File) {
+          frontPhotoUrl = await uploadVehiclePhoto(
+            vehicleData['vehicleRegistrationFrontPhoto'] as File,
+            vehicleRegisterId,
+            'registration_front'
+          );
+        }
+
+        if (vehicleData['vehicleRegistrationBackPhoto'] != null && 
+            vehicleData['vehicleRegistrationBackPhoto'] is File) {
+          backPhotoUrl = await uploadVehiclePhoto(
+            vehicleData['vehicleRegistrationBackPhoto'] as File,
+            vehicleRegisterId,
+            'registration_back'
+          );
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print("Lỗi khi upload ảnh: $e");
+        }
+        rethrow;
       }
 
       final newRentalVehicle = RentalVehicleModel(
@@ -315,19 +396,19 @@ class RentalVehicleViewModel extends ChangeNotifier {
         vehicleId: vehicleId,
       );
 
-      if (kDebugMode) {
-        print("Saving rental vehicle with vehicleId: ${vehicleId}");
-      }
-
       await _firestore
           .collection('RENTAL_VEHICLE')
           .doc(newRentalVehicle.vehicleRegisterId)
           .set(newRentalVehicle.toMap());
+
+      if (kDebugMode) {
+        print("Đã tạo rental vehicle thành công!");
+      }
         
-      _vehicles.add(newRentalVehicle);
-      notifyListeners();
-    } catch (e, stack) {
-      _logError("Error creating rental vehicle", e, stack);
+    } catch (e) {
+      if (kDebugMode) {
+        print("Lỗi trong quá trình tạo rental vehicle: $e");
+      }
       rethrow;
     }
   }
