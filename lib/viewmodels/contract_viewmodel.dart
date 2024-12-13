@@ -185,10 +185,27 @@ class ContractViewModel extends ChangeNotifier {
         contractStatus: contractData['contractStatus'],
       );
 
+      // Lưu contract
       await _firestore
           .collection('CONTRACT')
           .doc(newContract.contractId)
           .set(newContract.toMap());
+
+      // Cập nhật thông tin ngân hàng vào USER collection
+      await _firestore
+          .collection('USER')
+          .where('userId', isEqualTo: _currentUserId)
+          .get()
+          .then((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          final userDoc = snapshot.docs.first;
+          userDoc.reference.update({
+            'bankName': contractData['bankName'],
+            'bankAccountNumber': contractData['bankAccountNumber'],
+            'bankAccountName': contractData['bankAccountName'],
+          });
+        }
+      });
 
       _contracts.add(newContract);
       notifyListeners();

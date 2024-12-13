@@ -201,15 +201,21 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
       }
 
       try {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Center(child: CircularProgressIndicator()),
+        );
+
         final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
         final contractViewModel = Provider.of<ContractViewModel>(context, listen: false);
         final currentUserId = authViewModel.currentUserId;
 
         if (currentUserId != null) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => const Center(child: CircularProgressIndicator()),
+          // Lấy tên ngân hàng từ bankId đã chọn
+          final selectedBank = _banks.firstWhere(
+            (bank) => bank.bankId == _selectedBankId,
+            orElse: () => _banks.first,
           );
 
           // Lấy tên tỉnh từ ID đã chọn
@@ -222,20 +228,16 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
           contractData.addAll({
             'businessType': _selectedBusinessType,
             'businessName': _businessNameController.text,
-            'businessProvince': selectedProvince.provinceName, // Sử dụng tên tỉnh đã chọn
+            'businessProvince': selectedProvince.provinceName,
             'businessAddress': _businessAddressController.text,
             'taxCode': _taxCodeController.text,
             'contractTerm': '1 year',
             'contractStatus': 'Pending Approval',
-            // Ảnh đã được thêm trong onImagePicked của ImagePickerWidget
+            // Thêm thông tin ngân hàng
+            'bankName': selectedBank.bankName,
+            'bankAccountNumber': _bankAccountNumberController.text,
+            'bankAccountName': _bankAccountNameController.text,
           });
-
-          if (kDebugMode) {
-            print("Contract Data before upload: $contractData");
-            print("Business Photo: ${contractData['businessRegisterPhoto']}");
-            print("Citizen Front: ${contractData['citizenFrontPhoto']}");
-            print("Citizen Back: ${contractData['citizenBackPhoto']}");
-          }
 
           await contractViewModel.createContractForUser(currentUserId, contractData);
 
@@ -243,7 +245,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
           Navigator.of(context).pop(); // Quay lại màn hình trước
         }
       } catch (e) {
-        Navigator.of(context).pop(); // Đóng loading indicator nếu có lỗi
+        Navigator.of(context).pop();
         _showErrorDialog('Có lỗi xảy ra khi tạo hợp đồng. Vui lòng thử lại.');
         if (kDebugMode) {
           print("Lỗi khi tạo hợp đồng: $e");

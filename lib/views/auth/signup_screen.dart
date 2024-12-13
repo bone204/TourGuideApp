@@ -85,7 +85,7 @@ class SignupScreen extends StatelessWidget {
                                         '',
                                         '',
                                         '',
-                                        '' 
+                                        '',
                                       );
 
                                       if (user != null) {
