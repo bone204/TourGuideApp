@@ -19,42 +19,72 @@ class RentalVehicleCard extends StatelessWidget {
   Widget _buildActionButton(BuildContext context) {
     switch (vehicle.status) {
       case 'Pending Approval':
-        return ElevatedButton(
-          onPressed: null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.secondaryColor,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
-            disabledBackgroundColor: AppColors.secondaryColor,
-            disabledForegroundColor: Colors.white,
+        return SizedBox(
+          width: 100.w,
+          child: ElevatedButton(
+            onPressed: null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.secondaryColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+              disabledBackgroundColor: AppColors.secondaryColor,
+              disabledForegroundColor: Colors.white,
+            ),
+            child: Text(
+              AppLocalizations.of(context).translate("Pending"),
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          child: Text(
-            AppLocalizations.of(context).translate("Pending"),
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.bold,
-            )
-          )
         );
-      case 'Free':
-        return ElevatedButton(
-          onPressed: () {
-            if (kDebugMode) {
-              print("Button Pressed");
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryColor,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+      case 'Available':
+        return SizedBox(
+          width: 100.w,
+          child: ElevatedButton(
+            onPressed: null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.secondaryColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+              disabledBackgroundColor: AppColors.secondaryColor,
+              disabledForegroundColor: Colors.white,
+            ),
+            child: Text(
+              AppLocalizations.of(context).translate("Available"),
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          child: Text(
-            AppLocalizations.of(context).translate("Rent"),
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.bold,
-            )
-          )
+        );
+      case 'Rent':
+        return SizedBox(
+          width: 100.w,
+          child: ElevatedButton(
+            onPressed: () {
+              if (kDebugMode) {
+                print("Button Pressed");
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+            ),
+            child: Text(
+              AppLocalizations.of(context).translate("Rent"),
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         );
       default:
         return const SizedBox.shrink();
@@ -114,7 +144,7 @@ class RentalVehicleCard extends StatelessWidget {
                         }
                         
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                          return const Center(child: CircularProgressIndicator());
                         }
                         
                         final imagePath = snapshot.data ?? 'assets/img/car_default.png';
@@ -194,27 +224,32 @@ class RentalVehicleCard extends StatelessWidget {
                   SizedBox(height: 16.h),
                   Row(
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MyVehicleDetailScreen(vehicle: vehicle),
+                      SizedBox(
+                        width: 60.w,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MyVehicleDetailScreen(vehicle: vehicle),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: AppColors.primaryColor,
+                            side: const BorderSide(color: AppColors.primaryColor),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+                            padding: EdgeInsets.symmetric(horizontal: 8.w),
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context).translate("Detail"),
+                            style: TextStyle(
+                              fontSize: 14.sp,
                             ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppColors.primaryColor,
-                          side: const BorderSide(color: AppColors.primaryColor),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        child: Text(
-                          AppLocalizations.of(context).translate("Detail"),
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                          )
-                        )
                       ),
                       SizedBox(width: 10.w),
                       _buildActionButton(context),

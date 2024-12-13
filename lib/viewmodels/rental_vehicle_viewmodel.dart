@@ -25,39 +25,39 @@ class RentalVehicleViewModel extends ChangeNotifier {
     return _modelsByBrand[brand] ?? [];
   }
 
-  List<String> getColorsForModel(String model) {
-    return _colorsByModel[model] ?? [];
+  List<String> getColorsForModel(String model, String locale) {
+    final colors = _colorsByModel[model] ?? [];
+    if (locale == 'en') {
+      return colors.map((color) => getDisplayColor(color, locale)).toList();
+    }
+    return colors;
   }
 
   String _convertVehicleTypeToFirestore(String displayType, String locale) {
-    if (locale == 'en') {
-      // Chuyển đổi từ tiếng Anh sang tiếng Việt để query
-      switch (displayType) {
-        case 'Car':
-          return 'Ô tô';
-        case 'Motorbike':
-          return 'Xe máy';
-        default:
-          return displayType;
-      }
+    // Luôn convert về tiếng Việt để lưu
+    switch (displayType) {
+      case 'Car':
+      case 'Ô tô':
+        return 'Ô tô';
+      case 'Motorbike':
+      case 'Xe máy':
+        return 'Xe máy';
+      default:
+        return displayType;
     }
-    // Nếu là tiếng Việt thì giữ nguyên
-    return displayType;
   }
 
   String _convertFirestoreTypeToDisplay(String dbType, String locale) {
     if (locale == 'en') {
-      // Chuyển đổi từ tiếng Việt sang tiếng Anh để hiển thị
       switch (dbType) {
-        case 'Ô tô':
+        case 'Car':
           return 'Car';
-        case 'Xe máy':
+        case 'Motorbike':
           return 'Motorbike';
         default:
           return dbType;
       }
     }
-    // Nếu là tiếng Việt thì giữ nguyên
     return dbType;
   }
 
@@ -97,77 +97,49 @@ class RentalVehicleViewModel extends ChangeNotifier {
 
   Future<void> loadVehicleInformation(String vehicleType, String locale) async {
     try {
+      String queryType = _convertVehicleTypeToFirestore(vehicleType, 'vi');
+      
       if (kDebugMode) {
-        print('Loading vehicle information...');
-        print('Vehicle type: $vehicleType');
-        print('Locale: $locale');
+        print('Loading vehicle information for type: $queryType');
       }
 
-      final queryType = _convertVehicleTypeToFirestore(vehicleType, locale);
-
-      // Lấy tất cả xe theo loại xe đã chọn
       final snapshot = await _firestore
           .collection('VEHICLE_INFORMATION')
           .where('type', isEqualTo: queryType)
           .get();
 
-      // Reset lists
-      _availableBrands = [];
-      _modelsByBrand = {};
-      _colorsByModel = {};
+      Map<String, Set<String>> brandModels = {};
+      Map<String, Set<String>> modelColors = {};
 
-      // Tổ chức dữ liệu theo cấu trúc phân cấp
-      Map<String, Set<String>> brandModels = {};    // Map brand -> Set of models
-      Map<String, Set<String>> modelColors = {};    // Map model -> Set of colors
-
-      // Xử lý từng document
       for (var doc in snapshot.docs) {
         final data = doc.data();
         final brand = data['brand'] as String;
         final model = data['model'] as String;
         final color = data['color'] as String;
 
-        // Thêm brand nếu chưa có
         if (!brandModels.containsKey(brand)) {
           brandModels[brand] = {};
         }
-        
-        // Thêm model vào brand
         brandModels[brand]!.add(model);
 
-        // Thêm color vào model
         if (!modelColors.containsKey(model)) {
           modelColors[model] = {};
         }
-        if (locale == 'en') {
-          modelColors[model]!.add(_translateColor(color, locale));
-        } else {
-          modelColors[model]!.add(color);
-        }
+        modelColors[model]!.add(color);
       }
 
-      // Chuyển đổi từ Set sang List và sắp xếp
       _availableBrands = brandModels.keys.toList()..sort();
-      
-      brandModels.forEach((brand, models) {
-        _modelsByBrand[brand] = models.toList()..sort();
-      });
-
-      modelColors.forEach((model, colors) {
-        _colorsByModel[model] = colors.toList()..sort();
-      });
-
-      if (kDebugMode) {
-        print('Available brands: $_availableBrands');
-        print('Models by brand: $_modelsByBrand');
-        print('Colors by model: $_colorsByModel');
-      }
+      _modelsByBrand = Map.fromEntries(
+        brandModels.entries.map((e) => MapEntry(e.key, e.value.toList()..sort()))
+      );
+      _colorsByModel = Map.fromEntries(
+        modelColors.entries.map((e) => MapEntry(e.key, e.value.toList()..sort()))
+      );
 
       notifyListeners();
     } catch (e) {
       if (kDebugMode) {
-        print('Error loading vehicle information:');
-        print(e.toString());
+        print('Error loading vehicle information: $e');
       }
     }
   }
@@ -282,48 +254,34 @@ class RentalVehicleViewModel extends ChangeNotifier {
 
   Future<void> createRentalVehicleForUser(String uid, Map<String, dynamic> vehicleData, String locale) async {
     try {
-      if (kDebugMode) {
-        print("Bắt đầu tạo rental vehicle...");
-      }
-
-      // Chuyển đổi vehicleType về dạng lưu trong Firestore
-      final queryType = _convertVehicleTypeToFirestore(vehicleData['vehicleType'], locale);
-
-      // Đảm bảo color luôn là tiếng Việt khi query
-      String queryColor;
-      if (locale == 'en') {
-        // Nếu đang ở English, chuyển color từ English sang Vietnamese
-        queryColor = _colorTranslations.entries
-            .firstWhere(
-              (entry) => entry.value == vehicleData['vehicleColor'],
-              orElse: () => MapEntry(vehicleData['vehicleColor'], vehicleData['vehicleColor'])
-            )
-            .key;
-      } else {
-        // Nếu đang ở Vietnamese, giữ nguyên
-        queryColor = vehicleData['vehicleColor'];
-      }
+      String queryType = _convertVehicleTypeToFirestore(vehicleData['vehicleType'], 'vi');
+      String queryColor = locale == 'en' 
+          ? _translateColor(vehicleData['vehicleColor'], 'vi')
+          : vehicleData['vehicleColor'];
 
       if (kDebugMode) {
-        print("Query conditions:");
-        print("Type: $queryType");
-        print("Brand: ${vehicleData['vehicleBrand']}");
-        print("Model: ${vehicleData['vehicleModel']}");
-        print("Color (original): ${vehicleData['vehicleColor']}");
-        print("Color (query in Vietnamese): $queryColor");
+        print("\n=== Query conditions to find vehicleId ===");
+        print("type: $queryType");
+        print("brand: ${vehicleData['vehicleBrand']}");
+        print("model: ${vehicleData['vehicleModel']}");
+        print("color: $queryColor");
       }
 
-      // Query với color tiếng Việt
       final vehicleSnapshot = await _firestore
           .collection('VEHICLE_INFORMATION')
           .where('type', isEqualTo: queryType)
           .where('brand', isEqualTo: vehicleData['vehicleBrand'])
           .where('model', isEqualTo: vehicleData['vehicleModel'])
-          .where('color', isEqualTo: queryColor)  // Sử dụng màu tiếng Việt
+          .where('color', isEqualTo: queryColor)
           .get();
 
       if (kDebugMode) {
-        print("Found documents: ${vehicleSnapshot.docs.length}");
+        print("\n=== Found matching vehicles ===");
+        print("Number of matches: ${vehicleSnapshot.docs.length}");
+        if (vehicleSnapshot.docs.isNotEmpty) {
+          print("Selected vehicleId: ${vehicleSnapshot.docs.first.id}");
+        }
+        print("=====================================\n");
       }
 
       String vehicleId;
@@ -331,12 +289,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
         throw Exception("Không tìm thấy thông tin xe phù hợp trong hệ thống");
       }
       
-      // Lấy vehicleId từ document đầu tiên khớp với điều kiện
       vehicleId = vehicleSnapshot.docs.first.id;
-
-      if (kDebugMode) {
-        print("Found vehicleId: $vehicleId");
-      }
 
       if (_currentUserId == null) {
         await _updateCurrentUserId(uid);
@@ -381,11 +334,11 @@ class RentalVehicleViewModel extends ChangeNotifier {
         userId: _currentUserId!,
         licensePlate: vehicleData['licensePlate'] ?? '',
         vehicleRegistration: vehicleData['vehicleRegistration'] ?? '',
-        vehicleType: _convertFirestoreTypeToDisplay(vehicleData['vehicleType'], locale),
+        vehicleType: queryType,
         maxSeats: vehicleData['maxSeats'] ?? 0,
         vehicleBrand: vehicleData['vehicleBrand'],
         vehicleModel: vehicleData['vehicleModel'],
-        vehicleColor: vehicleData['vehicleColor'],
+        vehicleColor: queryColor,  // Lưu màu tiếng Việt
         vehicleRegistrationFrontPhoto: frontPhotoUrl,
         vehicleRegistrationBackPhoto: backPhotoUrl,
         hourPrice: (vehicleData['hourPrice'] ?? 0).toDouble(),
@@ -400,11 +353,6 @@ class RentalVehicleViewModel extends ChangeNotifier {
           .collection('RENTAL_VEHICLE')
           .doc(newRentalVehicle.vehicleRegisterId)
           .set(newRentalVehicle.toMap());
-
-      if (kDebugMode) {
-        print("Đã tạo rental vehicle thành công!");
-      }
-        
     } catch (e) {
       if (kDebugMode) {
         print("Lỗi trong quá trình tạo rental vehicle: $e");
@@ -461,11 +409,6 @@ class RentalVehicleViewModel extends ChangeNotifier {
         print("Getting photo for vehicleId: $vehicleId");
       }
 
-      // Kiểm tra vehicleId có giá trị hợp lệ
-      if (vehicleId.isEmpty) {
-        return 'assets/img/car_default.png';
-      }
-
       final doc = await _firestore
           .collection('VEHICLE_INFORMATION')
           .doc(vehicleId)
@@ -483,17 +426,12 @@ class RentalVehicleViewModel extends ChangeNotifier {
         if (photo != null && photo.isNotEmpty) {
           return photo;
         }
-      } else {
-        if (kDebugMode) {
-          print("No document found for vehicleId: $vehicleId");
-        }
       }
       
       return 'assets/img/car_default.png';
-    } catch (e, stack) {
+    } catch (e) {
       if (kDebugMode) {
         print("Error getting vehicle photo: $e");
-        print("Stack trace: $stack");
       }
       return 'assets/img/car_default.png';
     }
@@ -523,5 +461,69 @@ class RentalVehicleViewModel extends ChangeNotifier {
     } catch (e, stack) {
       _logError("Error deleting old photo", e, stack);
     }
+  }
+
+  Stream<List<RentalVehicleModel>> getAvailableVehicles(String category) {
+    // Convert category sang tiếng Việt để query
+    String queryType = _convertVehicleTypeToFirestore(category, 'vi');
+    
+    if (kDebugMode) {
+      print('Querying vehicles for category: $queryType');
+    }
+    
+    return _firestore
+        .collection('RENTAL_VEHICLE')
+        .where('status', isEqualTo: 'Available')
+        .where('vehicleType', isEqualTo: queryType)  // Query bằng type tiếng Việt
+        .snapshots()
+        .map((snapshot) {
+          if (kDebugMode) {
+            print('Found ${snapshot.docs.length} vehicles');
+            for (var doc in snapshot.docs) {
+              print('Vehicle ID: ${doc.data()['vehicleId']}');
+            }
+          }
+          return snapshot.docs
+              .map((doc) => RentalVehicleModel.fromMap(doc.data()))
+              .toList();
+        });
+  }
+
+  Future<Map<String, dynamic>> getVehicleDetails(String vehicleId) async {
+    try {
+      final doc = await _firestore
+          .collection('VEHICLE_INFORMATION')
+          .doc(vehicleId)
+          .get();
+
+      if (doc.exists) {
+        return doc.data() ?? {};
+      }
+      return {};
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error getting vehicle details: $e");
+      }
+      return {};
+    }
+  }
+
+  String getDisplayColor(String colorVi, String locale) {
+    return locale == 'en' ? _translateColor(colorVi, 'en') : colorVi;
+  }
+
+  // Thêm phương thức để hiển thị vehicleType theo ngôn ngữ
+  String getDisplayVehicleType(String vehicleTypeVi, String locale) {
+    if (locale == 'en') {
+      switch (vehicleTypeVi) {
+        case 'Ô tô':
+          return 'Car';
+        case 'Xe máy':
+          return 'Motorbike';
+        default:
+          return vehicleTypeVi;
+      }
+    }
+    return vehicleTypeVi;
   }
 }

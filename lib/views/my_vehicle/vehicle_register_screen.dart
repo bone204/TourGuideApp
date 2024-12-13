@@ -540,12 +540,12 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                           SizedBox(
                             width: 88.w,
                             child: GestureDetector(
-                              onTap: () => _onVehicleTypeChanged('Car'),
+                              onTap: () => _onVehicleTypeChanged('Ô tô'),
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 12.h),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: _selectedVehicleType == 'Car'
+                                    color: _selectedVehicleType == 'Ô tô'
                                         ? AppColors.primaryColor
                                         : AppColors.grey,
                                     width: 2,
@@ -556,7 +556,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                                   child: Text(
                                     AppLocalizations.of(context).translate('Car'),
                                     style: TextStyle(
-                                      color: _selectedVehicleType == 'Car'
+                                      color: _selectedVehicleType == 'Ô tô'
                                           ? AppColors.primaryColor
                                           : AppColors.black,
                                       fontSize: 13.sp,
@@ -571,12 +571,12 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                           SizedBox(
                             width: 88.w,
                             child: GestureDetector(
-                              onTap: () => _onVehicleTypeChanged('Motorbike'),
+                              onTap: () => _onVehicleTypeChanged('Xe máy'),
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 12.h),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: _selectedVehicleType == 'Motorbike'
+                                    color: _selectedVehicleType == 'Xe máy'
                                         ? AppColors.primaryColor
                                         : AppColors.grey,
                                     width: 2,
@@ -587,7 +587,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                                   child: Text(
                                     AppLocalizations.of(context).translate('Motorbike'),
                                     style: TextStyle(
-                                      color: _selectedVehicleType == 'Motorbike'
+                                      color: _selectedVehicleType == 'Xe máy'
                                           ? AppColors.primaryColor
                                           : AppColors.black,
                                       fontSize: 13.sp,
@@ -694,12 +694,13 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               SizedBox(height: 12.h),
               Consumer<RentalVehicleViewModel>(
                 builder: (context, viewModel, child) {
+                  final locale = Localizations.localeOf(context).languageCode;
                   final colors = _selectedVehicleModel != null 
-                      ? viewModel.getColorsForModel(_selectedVehicleModel!)
+                      ? viewModel.getColorsForModel(_selectedVehicleModel!, locale)
                       : <String>[];
                   return CustomComboBox(
                     value: _selectedVehicleColor,
-                    hintText: AppLocalizations.of(context).translate("Select vehicle color"),
+                    hintText: AppLocalizations.of(context).translate('Select vehicle color'),
                     items: colors,
                     onChanged: (String? newValue) {
                       setState(() {

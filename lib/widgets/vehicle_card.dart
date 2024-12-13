@@ -1,26 +1,43 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/service/rental/vehicle_rental_detail_screen.dart';
 import 'package:tourguideapp/views/service/rental/vehicle_detail_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 
 class VehicleCardData {
   final String model;
   final String transmission;
   final String seats;
   final String fuelType;
-  final String imagePath;
-  final DateTime startDate; 
-  final DateTime endDate; 
+  final String vehicleId;
+  final DateTime startDate;
+  final DateTime endDate;
+  final double price;
+  final String rentOption;
+  final double hourPrice;
+  final double dayPrice;
+  final List<String> requirements;
+  final String vehicleType;
+  final String vehicleColor;
 
   VehicleCardData({
     required this.model,
     required this.transmission,
     required this.seats,
     required this.fuelType,
-    required this.imagePath,
-    required this.startDate, 
-    required this.endDate
+    required this.vehicleId,
+    required this.startDate,
+    required this.endDate,
+    required this.price,
+    required this.rentOption,
+    required this.hourPrice,
+    required this.dayPrice,
+    required this.requirements,
+    required this.vehicleType,
+    required this.vehicleColor,
   });
 }
 
@@ -31,7 +48,8 @@ class VehicleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812));
+    Provider.of<RentalVehicleViewModel>(context, listen: false);
+    
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
       decoration: BoxDecoration(
@@ -54,24 +72,62 @@ class VehicleCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: EdgeInsets.only(left: 6.w),
-                  child: Text(
-                    data.model.length > 11 ? '${data.model.substring(0, 11)}...' : data.model,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
+                Text(
+                  data.model,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 12.h),
-                ClipRRect(
-                  child: Image.asset(
-                    data.imagePath,
-                    height: 70.h,
-                    width: 130.w,
-                    fit: BoxFit.fill,
-                  ),
+                Consumer<RentalVehicleViewModel>(
+                  builder: (context, viewModel, child) {
+                    return FutureBuilder<String>(
+                      future: viewModel.getVehiclePhoto(data.vehicleId),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        
+                        final imagePath = snapshot.data ?? 'assets/img/car_default.png';
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: imagePath.startsWith('assets/')
+                              ? Image.asset(
+                                  imagePath,
+                                  height: 70.h,
+                                  width: 130.w,
+                                  fit: BoxFit.fill,
+                                )
+                              : Image.network(
+                                  imagePath,
+                                  height: 70.h,
+                                  width: 130.w,
+                                  fit: BoxFit.fill,
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress.expectedTotalBytes != null
+                                            ? loadingProgress.cumulativeBytesLoaded / 
+                                              loadingProgress.expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'assets/img/car_default.png',
+                                      height: 70.h,
+                                      width: 130.w,
+                                      fit: BoxFit.fill,
+                                    );
+                                  },
+                                ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             ),
@@ -100,8 +156,12 @@ class VehicleCard extends StatelessWidget {
                   ),
                   SizedBox(height: 16.h),
                   Text(
-                    "500,000 ₫ / ngày",
-                    style: TextStyle(fontSize: 16.sp, color: const Color(0xFFFF7029), fontWeight: FontWeight.bold),
+                    "${data.price.toStringAsFixed(0)} ₫ / ${data.rentOption == 'Hourly' ? AppLocalizations.of(context).translate('hour') : AppLocalizations.of(context).translate('day')}",
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      color: const Color(0xFFFF7029),
+                      fontWeight: FontWeight.bold
+                    ),
                   ),
                   SizedBox(height: 16.h),
                   Row(
@@ -113,7 +173,13 @@ class VehicleCard extends StatelessWidget {
                             MaterialPageRoute(
                               builder: (context) => VehicleDetailScreen(
                                 model: data.model,
-                                imagePath: data.imagePath,
+                                imagePath: '',
+                                vehicleId: data.vehicleId,
+                                hourPrice: data.hourPrice,
+                                dayPrice: data.dayPrice,
+                                requirements: data.requirements,
+                                vehicleType: data.vehicleType,
+                                vehicleColor: data.vehicleColor,
                               ),
                             ),
                           );
@@ -139,9 +205,9 @@ class VehicleCard extends StatelessWidget {
                             MaterialPageRoute(
                               builder: (context) => VehicleRentalDetail(
                                 model: data.model,
-                                imagePath: data.imagePath,
-                                startDate: data.startDate, 
-                                endDate: data.endDate, 
+                                imagePath: '',
+                                startDate: data.startDate,
+                                endDate: data.endDate,
                               ),
                             ),
                           );
@@ -159,9 +225,9 @@ class VehicleCard extends StatelessWidget {
                           )
                         )
                       ),
-                  ],)
-              ],),
-            )
+                    ],)
+                ],),
+              )
           ],
         ),
       ),

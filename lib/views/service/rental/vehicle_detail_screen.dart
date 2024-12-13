@@ -3,19 +3,35 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
+import 'package:provider/provider.dart';
+import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 
 class VehicleDetailScreen extends StatelessWidget {
   final String model;
   final String imagePath;
+  final String vehicleId;
+  final double hourPrice;
+  final double dayPrice;
+  final List<String> requirements;
+  final String vehicleType;
+  final String vehicleColor;
 
   const VehicleDetailScreen({
     Key? key,
     required this.model,
     required this.imagePath,
+    required this.vehicleId,
+    required this.hourPrice,
+    required this.dayPrice,
+    required this.requirements,
+    required this.vehicleType,
+    required this.vehicleColor,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<RentalVehicleViewModel>(context, listen: false);
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.h),
@@ -56,88 +72,104 @@ class VehicleDetailScreen extends StatelessWidget {
       ),
       body: Container(
         color: AppColors.white,
-        child: Padding(
-          padding: EdgeInsets.all(20.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: ClipRRect(
-                  child: Image.asset(
-                    imagePath,
-                    height: 140.h,
-                    width: 260.w,
-                    fit: BoxFit.fill,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(20.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Consumer<RentalVehicleViewModel>(
+                    builder: (context, viewModel, child) {
+                      final locale = Localizations.localeOf(context).languageCode;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            viewModel.getDisplayVehicleType(vehicleType, locale),
+                            style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
+                          ),
+                          Text(
+                            viewModel.getDisplayColor(vehicleColor, locale),
+                            style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
-              ),
-              SizedBox(height: 30.h),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        "Rate:",
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.black,
-                        ),
-                      ),
-                      SizedBox(width: 30.w),
-                      ...List.generate(5, (index) => Padding(
-                        padding: EdgeInsets.only(right: 18.w),
-                        child: Icon(
-                          Icons.star,
-                          color: Colors.amber,
-                          size: 24.sp,
-                        ),
-                      )),
-                    ],
-                  ),
-                  SizedBox(height: 30.h),
-                  DetailRow(
-                    leftTitle: AppLocalizations.of(context).translate("Motorbike Type"),
-                    leftContent: "Scooter",
-                    rightTitle: AppLocalizations.of(context).translate("Accessories"),
-                    rightContent: "Helmet, raincoat",
-                  ),
-                  SizedBox(height: 16.h),
-                  DetailRow(
-                    leftTitle: AppLocalizations.of(context).translate("Price Per Day"),
-                    leftContent: "200,000 đ",
-                    rightTitle: AppLocalizations.of(context).translate("Price Per Hour"),
-                    rightContent: "30,000 đ",
-                  ),
-                  SizedBox(height: 16.h),
-                  Text(
-                    AppLocalizations.of(context).translate("Requirements"),
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 20.w),
-                    decoration: BoxDecoration(
-                      color: AppColors.lightGrey,
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                SizedBox(height: 30.h),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        _buildRequirementItem("Pets are not allowed in the vehicle"),
-                        SizedBox(height: 4.h),
-                        _buildRequirementItem("Do not bring raw items into the vehicle"),
+                        Text(
+                          "Rate:",
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.black,
+                          ),
+                        ),
+                        SizedBox(width: 30.w),
+                        ...List.generate(5, (index) => Padding(
+                          padding: EdgeInsets.only(right: 18.w),
+                          child: Icon(
+                            Icons.star,
+                            color: Colors.amber,
+                            size: 24.sp,
+                          ),
+                        )),
                       ],
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    SizedBox(height: 30.h),
+                    DetailRow(
+                      leftTitle: AppLocalizations.of(context).translate("Price Per Day"),
+                      leftContent: "${dayPrice.toStringAsFixed(0)} đ",
+                      rightTitle: AppLocalizations.of(context).translate("Price Per Hour"),
+                      rightContent: "${hourPrice.toStringAsFixed(0)} đ",
+                    ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      AppLocalizations.of(context).translate("Requirements"),
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    FutureBuilder<Map<String, dynamic>>(
+                      future: viewModel.getVehicleDetails(vehicleId),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+
+                        final requirements = List<String>.from(
+                          snapshot.data?['requirements'] ?? []
+                        );
+
+                        return Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 20.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.lightGrey,
+                            borderRadius: BorderRadius.circular(16.r),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: requirements.map((requirement) => 
+                              _buildRequirementItem(requirement)
+                            ).toList(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

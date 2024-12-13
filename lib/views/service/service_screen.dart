@@ -48,7 +48,11 @@ class ServiceScreen extends StatelessWidget {
         if (navigateToCarRental) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const VehicleRentalScreen()),
+            MaterialPageRoute(
+              builder: (context) => const VehicleRentalScreen(
+                initialCategory: 'Car',
+              ),
+            ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(

@@ -18,6 +18,7 @@ import 'dart:io';
 import 'package:tourguideapp/models/province_model.dart';
 import 'package:tourguideapp/models/bank_model.dart';
 import 'package:tourguideapp/viewmodels/bank_viewmodel.dart';
+import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 
 class VehicleRentalRegisterScreen extends StatefulWidget {
   const VehicleRentalRegisterScreen({super.key});
@@ -69,6 +70,10 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
     _loadUserData();
     _loadProvinces();
     _loadBanks();
+    
+    // Thêm dòng này để load thông tin xe
+    final viewModel = Provider.of<RentalVehicleViewModel>(context, listen: false);
+    viewModel.loadVehicleInformation('Car', 'vi'); // hoặc 'Motorbike' tùy loại xe
   }
 
   // Thêm hàm load danh sách tỉnh

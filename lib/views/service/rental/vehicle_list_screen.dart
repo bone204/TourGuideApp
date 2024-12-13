@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/models/rental_vehicle_model.dart';
+import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:tourguideapp/widgets/vehicle_card.dart';
-import 'package:tourguideapp/widgets/vehicle_card_list.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class VehicleListScreen extends StatelessWidget {
   final String selectedCategory;
   final DateTime startDate;
   final DateTime endDate;
+  final String rentOption;
 
   const VehicleListScreen({
     Key? key,
     required this.selectedCategory,
     required this.startDate,
     required this.endDate,
+    required this.rentOption,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final vehiclesDataList = _getVehiclesForCategory(selectedCategory);
-
     // Kiểm tra ngôn ngữ hiện tại và tạo chuỗi `availableText`
     String availableText;
     if (Localizations.localeOf(context).languageCode == 'vi') {
@@ -84,82 +86,57 @@ class VehicleListScreen extends StatelessWidget {
           ),
           SizedBox(height: 10.h),
           Expanded(
-            child: VehicleList(
-              vehiclesDataList: vehiclesDataList,
+            child: StreamBuilder<List<RentalVehicleModel>>(
+              stream: Provider.of<RentalVehicleViewModel>(context, listen: false)
+                  .getAvailableVehicles(selectedCategory),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+
+                final vehicles = snapshot.data ?? [];
+                if (vehicles.isEmpty) {
+                  return Center(
+                    child: Text(
+                      AppLocalizations.of(context).translate('No vehicles available'),
+                      style: TextStyle(fontSize: 16.sp),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: vehicles.length,
+                  itemBuilder: (context, index) {
+                    final vehicle = vehicles[index];
+                    return VehicleCard(
+                      data: VehicleCardData(
+                        model: vehicle.vehicleModel,
+                        transmission: vehicle.vehicleType,
+                        seats: '${vehicle.maxSeats} seats',
+                        fuelType: '',
+                        vehicleId: vehicle.vehicleId,
+                        startDate: startDate,
+                        endDate: endDate,
+                        price: rentOption == 'Hourly' ? vehicle.hourPrice : vehicle.dayPrice,
+                        rentOption: rentOption,
+                        hourPrice: vehicle.hourPrice,
+                        dayPrice: vehicle.dayPrice,
+                        requirements: vehicle.requirements,
+                        vehicleType: vehicle.vehicleType,
+                        vehicleColor: vehicle.vehicleColor,
+                      ),
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],
       ),
     );
-  }
-
-  List<VehicleCardData> _getVehiclesForCategory(String category) {
-    switch (category) {
-      case 'Car':
-        return [
-          VehicleCardData(
-            model: 'S 500 Sedan',
-            transmission: 'Automatic',
-            seats: '5 seats',
-            fuelType: 'Diesel',
-            imagePath: 'assets/img/icon-cx3.png',
-            startDate: startDate,
-            endDate: endDate,
-          ),
-          VehicleCardData(
-            model: 'GLA 250 SUV',
-            transmission: 'Automatic',
-            seats: '7 seats',
-            fuelType: 'Diesel',
-            imagePath: 'assets/img/icon-cx3.png',
-            startDate: startDate,
-            endDate: endDate,
-          ),
-        ];
-      case 'Motobike':
-        return [
-          VehicleCardData(
-            model: 'Honda CBR1000RR',
-            transmission: 'Manual',
-            seats: '2 seats',
-            fuelType: 'Petrol',
-            imagePath: 'assets/img/icon-cx3.png',
-            startDate: startDate,
-            endDate: endDate,
-          ),
-          VehicleCardData(
-            model: 'Yamaha MT-07',
-            transmission: 'Manual',
-            seats: '2 seats',
-            fuelType: 'Petrol',
-            imagePath: 'assets/img/icon-cx3.png',
-            startDate: startDate,
-            endDate: endDate,
-          ),
-        ];
-      case 'Bicycle':
-        return [
-          VehicleCardData(
-            model: 'Trek Domane SL 5',
-            transmission: 'Manual',
-            seats: '1 seat',
-            fuelType: 'Human',
-            imagePath: 'assets/img/icon-cx3.png',
-            startDate: startDate,
-            endDate: endDate,
-          ),
-          VehicleCardData(
-            model: 'Specialized Tarmac SL7',
-            transmission: 'Manual',
-            seats: '1 seat',
-            fuelType: 'Human',
-            imagePath: 'assets/img/icon-cx3.png',
-            startDate: startDate,
-            endDate: endDate,
-          ),
-        ];
-      default:
-        return [];
-    }
   }
 } 

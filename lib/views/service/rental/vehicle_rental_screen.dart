@@ -10,18 +10,29 @@ import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'vehicle_list_screen.dart';
 
 class VehicleRentalScreen extends StatefulWidget {
-  const VehicleRentalScreen({Key? key}) : super(key: key);
+  final String initialCategory;
+
+  const VehicleRentalScreen({
+    Key? key,
+    required this.initialCategory,
+  }) : super(key: key);
 
   @override
   State<VehicleRentalScreen> createState() => _VehicleRentalScreenState();
 }
 
 class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
-  String selectedCategory = 'Car';
-  final List<String> categories = ['Car', 'Motobike', 'Bicycle'];
+  late String selectedCategory;
+  final List<String> categories = ['Car', 'Motorbike'];
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now().add(const Duration(days: 1));
   String selectedRentOption = 'Hourly';
+
+  @override
+  void initState() {
+    super.initState();
+    selectedCategory = widget.initialCategory;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +62,9 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                     ),
                     Center(
                       child: Text(
-                        AppLocalizations.of(context).translate('Car Rental'),
+                        AppLocalizations.of(context).translate(
+                          selectedCategory == 'Car' ? 'Car Rental' : 'Motorbike Rental'
+                        ),
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -67,7 +80,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 30.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -126,6 +139,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                       selectedCategory: selectedCategory,
                       startDate: startDate,
                       endDate: endDate,
+                      rentOption: selectedRentOption,
                     ),
                   ),
                 );
