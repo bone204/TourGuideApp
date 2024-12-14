@@ -37,6 +37,7 @@ class RentalVehicleCard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
               overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
         );
@@ -200,9 +201,14 @@ class RentalVehicleCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        vehicle.vehicleType,
-                        style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
+                      Consumer<RentalVehicleViewModel>(
+                        builder: (context, viewModel, child) {
+                          return Text(
+                            viewModel.getDisplayVehicleType(vehicle.vehicleType, 
+                              Localizations.localeOf(context).languageCode),
+                            style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
+                          );
+                        }
                       ),
                       SizedBox(width: 6.w),
                       Text(
@@ -218,14 +224,14 @@ class RentalVehicleCard extends StatelessWidget {
                   ),
                   SizedBox(height: 16.h),
                   Text(
-                    "${vehicle.dayPrice.toStringAsFixed(0)} ₫ / ngày",
+                    "${vehicle.dayPrice.toStringAsFixed(0)} ₫ / ${AppLocalizations.of(context).translate('day')}",
                     style: TextStyle(fontSize: 16.sp, color: const Color(0xFFFF7029), fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 16.h),
                   Row(
                     children: [
                       SizedBox(
-                        width: 60.w,
+                        width: 70.w,
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.push(

@@ -81,19 +81,50 @@ class VehicleDetailScreen extends StatelessWidget {
                 Center(
                   child: Consumer<RentalVehicleViewModel>(
                     builder: (context, viewModel, child) {
-                      final locale = Localizations.localeOf(context).languageCode;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            viewModel.getDisplayVehicleType(vehicleType, locale),
-                            style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
-                          ),
-                          Text(
-                            viewModel.getDisplayColor(vehicleColor, locale),
-                            style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
-                          ),
-                        ],
+                      return FutureBuilder<String>(
+                        future: viewModel.getVehiclePhoto(vehicleId),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          
+                          final imagePath = snapshot.data ?? 'assets/img/car_default.png';
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(8.r),
+                            child: imagePath.startsWith('assets/')
+                                ? Image.asset(
+                                    imagePath,
+                                    height: 140.h,
+                                    width: 260.w,
+                                    fit: BoxFit.fill,
+                                  )
+                                : Image.network(
+                                    imagePath,
+                                    height: 140.h,
+                                    width: 260.w,
+                                    fit: BoxFit.fill,
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress.expectedTotalBytes != null
+                                              ? loadingProgress.cumulativeBytesLoaded / 
+                                                loadingProgress.expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        'assets/img/car_default.png',
+                                        height: 140.h,
+                                        width: 260.w,
+                                        fit: BoxFit.fill,
+                                      );
+                                    },
+                                  ),
+                          );
+                        },
                       );
                     },
                   ),
@@ -105,7 +136,7 @@ class VehicleDetailScreen extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          "Rate:",
+                          "${AppLocalizations.of(context).translate("Rate")}:",
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,

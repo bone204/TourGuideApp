@@ -115,7 +115,6 @@ class VehicleListScreen extends StatelessWidget {
                     return VehicleCard(
                       data: VehicleCardData(
                         model: vehicle.vehicleModel,
-                        transmission: vehicle.vehicleType,
                         seats: '${vehicle.maxSeats} seats',
                         fuelType: '',
                         vehicleId: vehicle.vehicleId,

@@ -186,6 +186,11 @@
     "Error": "Error",
     "OK": "OK",
     "Pending Approval": "Pending Approval",
-    "Registrant": "Registrant"
+    "Registrant": "Registrant",
+    "Rate": "Rate",
+    "Detail": "Detail",
+    "Rent": "Rent",
+    "hour": "hour",
+    "day": "day"
   }
   

@@ -65,7 +65,7 @@
     "Username": "Tên người dùng",
     "Search": "Tìm kiếm",
 
-    "Available": "khả dụng",
+    "Available": "Khả dụng",
     "Car": "Xe ô tô",
     "Motorbike": "Xe máy",
     "Bicycle": "Xe đạp",
@@ -200,6 +200,11 @@
     "Error": "Lỗi",
     "OK": "Đồng Ý",
     "Pending Approval": "Đang Chờ Duyệt",
-    "Registrant": "Người Đăng Ký"
+    "Registrant": "Người Đăng Ký",
+    "Rate": "Đánh Giá",
+    "Detail": "Chi Tiết",
+    "Rent": "Thuê",
+    "hour": "giờ",
+    "day": "ngày"
 }
   

@@ -67,77 +67,104 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Initialize ScreenUtil
+    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h),
-          child: AppBar(
+    return Stack(
+      children: [
+        SafeArea(
+          child: Scaffold(
             backgroundColor: Colors.white,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            flexibleSpace: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40.h,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft, 
-                        child: CustomIconButton(
-                          icon: Icons.chevron_left,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          AppLocalizations.of(context).translate('Select Language'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        body: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(), // Show loading indicator while changing language
-              )
-            : Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h), // Responsive padding
-                child: ListView(
+            appBar: PreferredSize(
+              preferredSize: Size.fromHeight(60.h),
+              child: AppBar(
+                backgroundColor: Colors.white,
+                elevation: 0,
+                automaticallyImplyLeading: false,
+                flexibleSpace: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    InteractiveRowWidget(
-                      leadingIcon: Icons.language,
-                      title: AppLocalizations.of(context).translate('English'),
-                      trailingIcon: Icons.check,
-                      onTap: () => _confirmLanguageChange(const Locale('en')),
-                      isSelected: _selectedLocale?.languageCode == 'en',
-                    ),
-                    SizedBox(height: 10.h),
-                    InteractiveRowWidget(
-                      leadingIcon: Icons.language,
-                      title: AppLocalizations.of(context).translate('Vietnamese'),
-                      trailingIcon: Icons.check,
-                      onTap: () => _confirmLanguageChange(const Locale('vi')),
-                      isSelected: _selectedLocale?.languageCode == 'vi',
+                    SizedBox(
+                      height: 40.h,
+                      child: Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft, 
+                            child: CustomIconButton(
+                              icon: Icons.chevron_left,
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              AppLocalizations.of(context).translate('Select Language'),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20.sp,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-      ),
+            ),
+            body: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+              child: ListView(
+                children: [
+                  InteractiveRowWidget(
+                    leadingIcon: Icons.language,
+                    title: AppLocalizations.of(context).translate('English'),
+                    trailingIcon: Icons.check,
+                    onTap: () => _confirmLanguageChange(const Locale('en')),
+                    isSelected: _selectedLocale?.languageCode == 'en',
+                  ),
+                  SizedBox(height: 10.h),
+                  InteractiveRowWidget(
+                    leadingIcon: Icons.language,
+                    title: AppLocalizations.of(context).translate('Vietnamese'),
+                    trailingIcon: Icons.check,
+                    onTap: () => _confirmLanguageChange(const Locale('vi')),
+                    isSelected: _selectedLocale?.languageCode == 'vi',
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (_isLoading)
+          Container(
+            color: Colors.black.withOpacity(0.5),
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.all(20.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(),
+                    SizedBox(height: 20.h),
+                    Text(
+                      AppLocalizations.of(context).translate('Changing language...'),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

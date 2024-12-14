@@ -9,7 +9,6 @@ import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 
 class VehicleCardData {
   final String model;
-  final String transmission;
   final String seats;
   final String fuelType;
   final String vehicleId;
@@ -25,7 +24,6 @@ class VehicleCardData {
 
   VehicleCardData({
     required this.model,
-    required this.transmission,
     required this.seats,
     required this.fuelType,
     required this.vehicleId,
@@ -138,9 +136,14 @@ class VehicleCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        data.transmission,
-                        style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
+                      Consumer<RentalVehicleViewModel>(
+                        builder: (context, viewModel, child) {
+                          return Text(
+                            viewModel.getDisplayVehicleType(data.vehicleType, 
+                              Localizations.localeOf(context).languageCode),
+                            style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
+                          );
+                        }
                       ),
                       SizedBox(width: 6.w),
                       Text(
@@ -171,15 +174,22 @@ class VehicleCard extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => VehicleDetailScreen(
-                                model: data.model,
-                                imagePath: '',
-                                vehicleId: data.vehicleId,
-                                hourPrice: data.hourPrice,
-                                dayPrice: data.dayPrice,
-                                requirements: data.requirements,
-                                vehicleType: data.vehicleType,
-                                vehicleColor: data.vehicleColor,
+                              builder: (context) => Consumer<RentalVehicleViewModel>(
+                                builder: (context, viewModel, child) {
+                                  return VehicleDetailScreen(
+                                    model: data.model,
+                                    imagePath: '',
+                                    vehicleId: data.vehicleId,
+                                    hourPrice: data.hourPrice,
+                                    dayPrice: data.dayPrice,
+                                    requirements: data.requirements,
+                                    vehicleType: viewModel.getDisplayVehicleType(
+                                      data.vehicleType,
+                                      Localizations.localeOf(context).languageCode
+                                    ),
+                                    vehicleColor: data.vehicleColor,
+                                  );
+                                }
                               ),
                             ),
                           );
