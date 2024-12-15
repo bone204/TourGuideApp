@@ -58,6 +58,22 @@ class AppLocalizations {
   String translate(String key) {
     return _localizedStrings[key] ?? key;
   }
+
+  String formatPrice(double price) {
+    if (locale.languageCode == 'vi') {
+      // Định dạng tiền tệ kiểu Việt Nam (dùng dấu chấm)
+      return price.toStringAsFixed(0).replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+        (Match m) => '${m[1]}.'
+      );
+    } else {
+      // Định dạng tiền tệ kiểu quốc tế (dùng dấu phẩy)
+      return price.toStringAsFixed(0).replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+        (Match m) => '${m[1]},'
+      );
+    }
+  }
 }
 
 class _AppLocalizationsDelegate
@@ -81,4 +97,5 @@ class _AppLocalizationsDelegate
   bool shouldReload(covariant LocalizationsDelegate<AppLocalizations> old) {
     return false;
   }
+
 }

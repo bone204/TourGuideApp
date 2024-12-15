@@ -56,7 +56,7 @@ class VehicleListScreen extends StatelessWidget {
                     ),
                     Center(
                       child: Text(
-                        'Vehicle List',
+                        AppLocalizations.of(context).translate('Vehicle List'),
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -115,7 +115,7 @@ class VehicleListScreen extends StatelessWidget {
                     return VehicleCard(
                       data: VehicleCardData(
                         model: vehicle.vehicleModel,
-                        seats: '${vehicle.maxSeats} seats',
+                        seats: '${vehicle.maxSeats}',
                         fuelType: '',
                         vehicleId: vehicle.vehicleId,
                         startDate: startDate,

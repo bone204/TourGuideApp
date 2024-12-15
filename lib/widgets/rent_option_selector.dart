@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
 class RentOptionSelector extends StatelessWidget {
   final String selectedOption;
@@ -80,7 +81,7 @@ class RentOptionSelector extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      title,
+                      AppLocalizations.of(context).translate(title),
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.bold,
@@ -90,7 +91,7 @@ class RentOptionSelector extends StatelessWidget {
                     SizedBox(height: 4.h),
                     Flexible(
                       child: Text(
-                        description,
+                        AppLocalizations.of(context).translate(description),
                         style: TextStyle(
                           fontSize: 12.sp,
                           color: const Color(0xFF6F7789),

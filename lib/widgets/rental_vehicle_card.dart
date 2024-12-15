@@ -224,7 +224,7 @@ class RentalVehicleCard extends StatelessWidget {
                   ),
                   SizedBox(height: 16.h),
                   Text(
-                    "${vehicle.dayPrice.toStringAsFixed(0)} ₫ / ${AppLocalizations.of(context).translate('day')}",
+                    "${AppLocalizations.of(context).formatPrice(vehicle.dayPrice)} ₫ / ${AppLocalizations.of(context).translate('day')}",
                     style: TextStyle(fontSize: 16.sp, color: const Color(0xFFFF7029), fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 16.h),

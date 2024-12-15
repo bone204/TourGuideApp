@@ -191,6 +191,27 @@
     "Detail": "Detail",
     "Rent": "Rent",
     "hour": "hour",
-    "day": "day"
+    "day": "day",
+    "Hourly": "Hourly",
+    "Daily": "Daily",
+    "Brand": "Brand",
+    "Model": "Model",
+    "Color": "Color",
+    "seats": "seats",
+    "Hourly Rent": "Hourly Rent",
+    "Daily Rent": "Daily Rent",
+    "Best for business appointments": "Best for business appointments",
+    "Best for travel": "Best for travel",
+
+    "Vehicle List": "Vehicle List",
+
+    "Filter by": "Filter by",
+    "All": "All",
+    "Rented": "Rented",
+    "Pending": "Pending",
+    "Sort by": "Sort by",
+    "Price: Low to High": "Price: Low to High",
+    "Price: High to Low": "Price: High to Low",
+    "Rating": "Rating"
   }
   

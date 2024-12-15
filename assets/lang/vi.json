@@ -205,6 +205,26 @@
     "Detail": "Chi Tiết",
     "Rent": "Thuê",
     "hour": "giờ",
-    "day": "ngày"
+    "day": "ngày",
+    "Hourly": "Theo giờ",
+    "Daily": "Theo ngày",
+    "Brand": "Hãng xe",
+    "Model": "Dòng xe",
+    "Color": "Màu sắc",
+    "seats": "chỗ ngồi",
+    "Hourly Rent": "Theo Giờ",
+    "Daily Rent": "Theo Ngày",
+    "Best for business appointments": "Phù hợp cho công việc",
+    "Best for travel": "Phù hợp cho du lịch",
+
+    "Vehicle List": "Danh Sách Xe",
+    "Filter by": "Lọc theo",
+    "All": "Tất cả",
+    "Rented": "Đã thuê",
+    "Pending": "Đang chờ",
+    "Sort by": "Sắp xếp theo",
+    "Price: Low to High": "Giá: Thấp đến cao",
+    "Price: High to Low": "Giá: Cao đến thấp",
+    "Rating": "Đánh giá"
 }
   

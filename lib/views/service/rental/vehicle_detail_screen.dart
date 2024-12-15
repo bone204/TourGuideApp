@@ -157,9 +157,9 @@ class VehicleDetailScreen extends StatelessWidget {
                     SizedBox(height: 30.h),
                     DetailRow(
                       leftTitle: AppLocalizations.of(context).translate("Price Per Day"),
-                      leftContent: "${dayPrice.toStringAsFixed(0)} đ",
+                      leftContent: "${AppLocalizations.of(context).formatPrice(dayPrice)} ₫", 
                       rightTitle: AppLocalizations.of(context).translate("Price Per Hour"),
-                      rightContent: "${hourPrice.toStringAsFixed(0)} đ",
+                      rightContent: "${AppLocalizations.of(context).formatPrice(hourPrice)} ₫",
                     ),
                     SizedBox(height: 16.h),
                     Text(

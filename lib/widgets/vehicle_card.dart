@@ -62,7 +62,7 @@ class VehicleCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.w, horizontal: 6.h),
+        padding: EdgeInsets.symmetric(vertical: 15.w, horizontal: 15.h),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -152,14 +152,21 @@ class VehicleCard extends StatelessWidget {
                       ),
                       SizedBox(width: 6.w),
                       Text(
-                        data.seats,
-                        style: TextStyle(fontSize: 14.sp,color: const Color(0xFF7D848D)),
+                        "${data.seats} ${AppLocalizations.of(context).translate('seats')}",
+                        style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
                       ),
                     ],
                   ),
                   SizedBox(height: 16.h),
                   Text(
-                    "${data.price.toStringAsFixed(0)} ₫ / ${data.rentOption == 'Hourly' ? AppLocalizations.of(context).translate('hour') : AppLocalizations.of(context).translate('day')}",
+                    (() {
+                      if (kDebugMode) {
+                        print("rentOption: ${data.rentOption}");
+                      } // Debug print
+                      return data.rentOption == 'Hourly' 
+                        ? "${AppLocalizations.of(context).formatPrice(data.hourPrice)} ₫ / ${AppLocalizations.of(context).translate('hour')}"
+                        : "${AppLocalizations.of(context).formatPrice(data.dayPrice)} ₫ / ${AppLocalizations.of(context).translate('day')}";
+                    })(),
                     style: TextStyle(
                       fontSize: 16.sp,
                       color: const Color(0xFFFF7029),
@@ -169,71 +176,81 @@ class VehicleCard extends StatelessWidget {
                   SizedBox(height: 16.h),
                   Row(
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Consumer<RentalVehicleViewModel>(
-                                builder: (context, viewModel, child) {
-                                  return VehicleDetailScreen(
-                                    model: data.model,
-                                    imagePath: '',
-                                    vehicleId: data.vehicleId,
-                                    hourPrice: data.hourPrice,
-                                    dayPrice: data.dayPrice,
-                                    requirements: data.requirements,
-                                    vehicleType: viewModel.getDisplayVehicleType(
-                                      data.vehicleType,
-                                      Localizations.localeOf(context).languageCode
-                                    ),
-                                    vehicleColor: data.vehicleColor,
-                                  );
-                                }
+                      SizedBox(
+                        width: 75.w,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Consumer<RentalVehicleViewModel>(
+                                  builder: (context, viewModel, child) {
+                                    return VehicleDetailScreen(
+                                      model: data.model,
+                                      imagePath: '',
+                                      vehicleId: data.vehicleId,
+                                      hourPrice: data.hourPrice,
+                                      dayPrice: data.dayPrice,
+                                      requirements: data.requirements,
+                                      vehicleType: viewModel.getDisplayVehicleType(
+                                        data.vehicleType,
+                                        Localizations.localeOf(context).languageCode
+                                      ),
+                                      vehicleColor: data.vehicleColor,
+                                    );
+                                  }
+                                ),
                               ),
+                            );
+                          }, 
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: const Color(0xFF007BFF),
+                            side: const BorderSide(color: Color(0xFF007BFF)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+                            padding: EdgeInsets.symmetric(horizontal: 8.w),
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context).translate("Detail"),
+                            style: TextStyle(
+                              fontSize: 14.sp,
                             ),
-                          );
-                        }, 
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF007BFF),
-                          side: const BorderSide(color: Color(0xFF007BFF)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
-                        ),
-                        child: Text(
-                          AppLocalizations.of(context).translate("Detail"),
-                          style: TextStyle(
-                            fontSize: 14.sp,
+                            overflow: TextOverflow.ellipsis,
                           )
-                        )
+                        ),
                       ),
-                      SizedBox(width: 10.w),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => VehicleRentalDetail(
-                                model: data.model,
-                                imagePath: '',
-                                startDate: data.startDate,
-                                endDate: data.endDate,
+                      SizedBox(width: 12.w),
+                      SizedBox(
+                        width: 75.w,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => VehicleRentalDetail(
+                                  model: data.model,
+                                  imagePath: '',
+                                  startDate: data.startDate,
+                                  endDate: data.endDate,
+                                ),
                               ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF007BFF),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+                            padding: EdgeInsets.symmetric(horizontal: 8.w),
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context).translate("Rent"),
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold,
                             ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF007BFF),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
-                        ),
-                        child: Text(
-                          AppLocalizations.of(context).translate("Rent"),
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
+                            overflow: TextOverflow.ellipsis,
                           )
-                        )
+                        ),
                       ),
                     ],)
                 ],),

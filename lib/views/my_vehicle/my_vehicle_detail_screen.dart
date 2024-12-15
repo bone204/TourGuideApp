@@ -22,10 +22,16 @@ class MyVehicleDetailScreen extends StatefulWidget {
 
 class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
   String selectedCategory = 'Information';
-  final List<String> categories = ['Information', 'Documentation', 'Rental Info'];
+  late List<String> categories;
 
   @override
   Widget build(BuildContext context) {
+    categories = [
+      AppLocalizations.of(context).translate('Information'),
+      AppLocalizations.of(context).translate('Documentation'), 
+      AppLocalizations.of(context).translate('Rental Info')
+    ];
+
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
     return SafeArea(
       child: Scaffold(
@@ -75,10 +81,16 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
               child: CategorySelector(
                 categories: categories,
-                selectedCategory: selectedCategory,
+                selectedCategory: AppLocalizations.of(context).translate(selectedCategory),
                 onCategorySelected: (category) {
                   setState(() {
-                    selectedCategory = category;
+                    if (category == AppLocalizations.of(context).translate('Information')) {
+                      selectedCategory = 'Information';
+                    } else if (category == AppLocalizations.of(context).translate('Documentation')) {
+                      selectedCategory = 'Documentation';
+                    } else {
+                      selectedCategory = 'Rental Info';
+                    }
                   });
                 },
               ),
