@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tourguideapp/views/explore/explore_profile.dart';
+import 'package:tourguideapp/views/explore/explore.dart';
 import 'package:tourguideapp/views/service/service_screen.dart';
 import '../../widgets/bottombar.dart'; 
 import 'home_screen.dart'; 
@@ -15,11 +15,15 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
   final List<Widget> _screens = [
     const HomeScreen(),
     ExploreScreen(),
-    const ServiceScreen(),  
-    // Do not include ProfileScreen here, handle navigation separately
+    const ServiceScreen(),
   ];
 
   void _onTabTapped(int index) {
@@ -27,7 +31,7 @@ class _MainScreenState extends State<MainScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const ProfileScreen(), // No need to wrap with ChangeNotifierProvider
+          builder: (context) => const ProfileScreen(),
         ),
       );
     } else {
@@ -40,7 +44,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _currentIndex != 3 ? _screens[_currentIndex] : Container(), // Conditional display
+      body: _currentIndex != 3 ? _screens[_currentIndex] : Container(),
       bottomNavigationBar: NavigationExample(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as developer;
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
+import 'package:flutter/foundation.dart';
 
 class DestinationsViewModel extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -16,24 +16,22 @@ class DestinationsViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get error => _error;
 
-  List<HomeCardData> get horizontalCardsData => _destinations.map((destination) {
-    return HomeCardData(
-      imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
-      placeName: destination.destinationName,
-      description: destination.province,
-      rating: 4.5,
-    );
-  }).toList();
-
   DestinationsViewModel() {
+    // Tự động fetch khi khởi tạo
     fetchDestinations();
   }
 
   Future<void> fetchDestinations() async {
+    if (_isLoading) return; // Tránh fetch nhiều lần
+
     try {
-      developer.log('Bắt đầu lắng nghe destinations');
       _isLoading = true;
+      _error = '';
       notifyListeners();
+
+      if (kDebugMode) {
+        print('Đang tải destinations...');
+      }
 
       // Hủy subscription cũ nếu có
       await _destinationSubscription?.cancel();
@@ -44,29 +42,46 @@ class DestinationsViewModel extends ChangeNotifier {
           .snapshots()
           .listen((snapshot) {
         _destinations = snapshot.docs.map((doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          return DestinationModel.fromMap(data);
+          if (kDebugMode) {
+            print('Đã tải destination: ${doc.data()}');
+          }
+          return DestinationModel.fromMap(doc.data());
         }).toList();
 
         _isLoading = false;
         _error = '';
         notifyListeners();
         
-        developer.log('Đã cập nhật ${_destinations.length} destinations');
+        if (kDebugMode) {
+          print('Đã tải ${_destinations.length} destinations');
+        }
       }, onError: (error) {
-        developer.log('Lỗi khi lắng nghe destinations: $error');
+        if (kDebugMode) {
+          print('Lỗi khi tải destinations: $error');
+        }
         _error = error.toString();
         _isLoading = false;
         notifyListeners();
       });
 
     } catch (e) {
-      developer.log('Lỗi khi thiết lập lắng nghe: $e');
+      if (kDebugMode) {
+        print('Lỗi khi thiết lập lắng nghe: $e');
+      }
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
     }
   }
+
+  List<HomeCardData> get horizontalCardsData => _destinations.map((destination) {
+    return HomeCardData(
+      imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
+      placeName: destination.destinationName,
+      description: destination.province,
+      rating: 4.5, // Có thể thay đổi theo logic của bạn
+    );
+  }).toList();
 
   @override
   void dispose() {
