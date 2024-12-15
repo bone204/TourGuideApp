@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:tourguideapp/models/contract_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -127,7 +128,7 @@ class ContractViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> createContractForUser(String uid, Map<String, dynamic> contractData) async {
+  Future<void> createContractForUser(String uid, Map<String, dynamic> contractData, String locale) async {
     try {
       if (_currentUserId == null) {
         await _updateCurrentUserId(uid);
@@ -242,5 +243,31 @@ class ContractViewModel extends ChangeNotifier {
       }
       return 'Unknown';
     }
+  }
+
+  // Thêm các hằng số cho contract status
+  final Map<String, String> _contractStatusTranslations = {
+    'Chờ duyệt': 'Pending Approval',
+    'Đã duyệt': 'Approved',
+    'Đã từ chối': 'Rejected',
+    'Đã hủy': 'Cancelled',
+    'Hết hạn': 'Expired',
+  };
+
+  String _convertContractStatusToFirestore(String displayStatus, String locale) {
+    if (locale == 'vi') return displayStatus;
+    
+    // Chuyển từ tiếng Anh sang tiếng Việt để lưu
+    return _contractStatusTranslations.entries
+        .firstWhere(
+          (entry) => entry.value == displayStatus,
+          orElse: () => MapEntry(displayStatus, displayStatus)
+        )
+        .key;
+  }
+
+  String getDisplayContractStatus(String firestoreStatus, String locale) {
+    if (locale == 'vi') return firestoreStatus;
+    return _contractStatusTranslations[firestoreStatus] ?? firestoreStatus;
   }
 }

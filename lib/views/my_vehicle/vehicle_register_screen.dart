@@ -201,7 +201,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
             'dayPrice': double.parse(_actualPricePerDayController.text),
             'requirements': _requirementController.text.split(',').map((e) => e.trim()).toList(),
             'contractId': contractId,
-            'status': "Pending Approval"
+            'status': 'Chờ duyệt'
           });
 
           final locale = Localizations.localeOf(context).languageCode;

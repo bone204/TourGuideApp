@@ -237,14 +237,15 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
             'businessAddress': _businessAddressController.text,
             'taxCode': _taxCodeController.text,
             'contractTerm': '1 year',
-            'contractStatus': 'Pending Approval',
+            'contractStatus': 'Chờ duyệt',
             // Thêm thông tin ngân hàng
             'bankName': selectedBank.bankName,
             'bankAccountNumber': _bankAccountNumberController.text,
             'bankAccountName': _bankAccountNameController.text,
           });
 
-          await contractViewModel.createContractForUser(currentUserId, contractData);
+          final locale = Localizations.localeOf(context).languageCode;
+          await contractViewModel.createContractForUser(currentUserId, contractData, locale);
 
           Navigator.of(context).pop(); // Đóng loading indicator
           Navigator.of(context).pop(); // Quay lại màn hình trước

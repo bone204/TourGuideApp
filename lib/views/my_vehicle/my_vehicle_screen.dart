@@ -35,17 +35,20 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
 
     return Consumer2<ContractViewModel, RentalVehicleViewModel>(
       builder: (context, contractViewModel, rentalVehicleViewModel, child) {
+        final locale = Localizations.localeOf(context).languageCode;
+        
         if (contractViewModel.contracts.isEmpty) {
           return _buildRegisterView();
         }
 
         final contractStatus = contractViewModel.contracts.first.contractStatus;
-
-        if (contractStatus == 'Pending Approval') {
+        final displayStatus = contractViewModel.getDisplayContractStatus(contractStatus, locale);
+        
+        if (displayStatus == (locale == 'vi' ? 'Chờ duyệt' : 'Pending Approval')) {
           return _buildPendingApprovalView();
         }
 
-        if (contractStatus == 'Approved') {
+        if (displayStatus == (locale == 'vi' ? 'Đã duyệt' : 'Approved')) {
           // Kiểm tra trạng thái của xe
           if (rentalVehicleViewModel.vehicles.isEmpty) {
             return _buildAddCarView();

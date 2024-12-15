@@ -212,6 +212,12 @@
     "Sort by": "Sort by",
     "Price: Low to High": "Price: Low to High",
     "Price: High to Low": "Price: High to Low",
-    "Rating": "Rating"
+    "Rating": "Rating",
+    "Chờ duyệt": "Pending Approval",
+    "Đã duyệt": "Approved",
+    "Đang cho thuê": "In Use",
+    "Khả dụng": "Available",
+    "Đã từ chối": "Rejected",
+    "Tạm ngưng": "Suspended"
   }
   

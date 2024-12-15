@@ -17,8 +17,11 @@ class RentalVehicleCard extends StatelessWidget {
   }) : super(key: key);
 
   Widget _buildActionButton(BuildContext context) {
-    switch (vehicle.status) {
-      case 'Pending Approval':
+    return Consumer<RentalVehicleViewModel>(
+      builder: (context, viewModel, child) {
+        final locale = Localizations.localeOf(context).languageCode;
+        final status = viewModel.getDisplayStatus(vehicle.status, locale);
+        
         return SizedBox(
           width: 100.w,
           child: ElevatedButton(
@@ -31,7 +34,7 @@ class RentalVehicleCard extends StatelessWidget {
               disabledForegroundColor: Colors.white,
             ),
             child: Text(
-              AppLocalizations.of(context).translate("Pending"),
+              AppLocalizations.of(context).translate(status),
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.bold,
@@ -41,55 +44,8 @@ class RentalVehicleCard extends StatelessWidget {
             ),
           ),
         );
-      case 'Available':
-        return SizedBox(
-          width: 100.w,
-          child: ElevatedButton(
-            onPressed: null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.secondaryColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
-              disabledBackgroundColor: AppColors.secondaryColor,
-              disabledForegroundColor: Colors.white,
-            ),
-            child: Text(
-              AppLocalizations.of(context).translate("Available"),
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.bold,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        );
-      case 'Rent':
-        return SizedBox(
-          width: 100.w,
-          child: ElevatedButton(
-            onPressed: () {
-              if (kDebugMode) {
-                print("Button Pressed");
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
-            ),
-            child: Text(
-              AppLocalizations.of(context).translate("Rent"),
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.bold,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        );
-      default:
-        return const SizedBox.shrink();
-    }
+      },
+    );
   }
 
   @override
@@ -203,9 +159,9 @@ class RentalVehicleCard extends StatelessWidget {
                     children: [
                       Consumer<RentalVehicleViewModel>(
                         builder: (context, viewModel, child) {
+                          final locale = Localizations.localeOf(context).languageCode;
                           return Text(
-                            viewModel.getDisplayVehicleType(vehicle.vehicleType, 
-                              Localizations.localeOf(context).languageCode),
+                            viewModel.getDisplayVehicleType(vehicle.vehicleType, locale),
                             style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
                           );
                         }

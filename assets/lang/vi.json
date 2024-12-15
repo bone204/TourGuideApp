@@ -199,7 +199,7 @@
     "Requirements": "Yêu Cầu",
     "Error": "Lỗi",
     "OK": "Đồng Ý",
-    "Pending Approval": "Đang Chờ Duyệt",
+    "Pending Approval": "Chờ duyệt",
     "Registrant": "Người Đăng Ký",
     "Rate": "Đánh Giá",
     "Detail": "Chi Tiết",
@@ -225,6 +225,11 @@
     "Sort by": "Sắp xếp theo",
     "Price: Low to High": "Giá: Thấp đến cao",
     "Price: High to Low": "Giá: Cao đến thấp",
-    "Rating": "Đánh giá"
+    "Rating": "Đánh giá",
+    "Đã duyệt": "Đã duyệt",
+    "Đang cho thuê": "Đang cho thuê",
+    "Khả dụng": "Khả dụng",
+    "Đã từ chối": "Đã từ chối",
+    "Tạm ngưng": "Tạm ngưng"
 }
   

@@ -329,6 +329,11 @@ class RentalVehicleViewModel extends ChangeNotifier {
         rethrow;
       }
 
+      // Đảm bảo status luôn là tiếng Việt khi lưu
+      String firestoreStatus = locale == 'vi' 
+          ? vehicleData['status'] 
+          : _convertStatusToFirestore(vehicleData['status'], locale);
+      
       final newRentalVehicle = RentalVehicleModel(
         vehicleRegisterId: vehicleRegisterId,
         userId: _currentUserId!,
@@ -345,7 +350,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
         dayPrice: (vehicleData['dayPrice'] ?? 0).toDouble(),
         requirements: List<String>.from(vehicleData['requirements'] ?? []),
         contractId: vehicleData['contractId'] ?? '',
-        status: vehicleData['status'] ?? 'Pending Approval',
+        status: firestoreStatus,
         vehicleId: vehicleId,
       );
 
@@ -473,7 +478,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
     
     return _firestore
         .collection('RENTAL_VEHICLE')
-        .where('status', isEqualTo: 'Available')
+        .where('status', isEqualTo: 'Khả dụng')
         .where('vehicleType', isEqualTo: queryType)  // Query bằng type tiếng Việt
         .snapshots()
         .map((snapshot) {
@@ -525,5 +530,31 @@ class RentalVehicleViewModel extends ChangeNotifier {
       }
     }
     return vehicleTypeVi;
+  }
+
+  // Thêm các hằng số cho status
+  final Map<String, String> _statusTranslations = {
+    'Chờ duyệt': 'Pending Approval',
+    'Đã duyệt': 'Approved',
+    'Đang cho thuê': 'In Use',
+    'Sẵn sàng': 'Available',
+    'Đã từ chối': 'Rejected',
+    'Tạm ngưng': 'Suspended',
+  };
+
+  String _convertStatusToFirestore(String displayStatus, String locale) {
+    if (locale == 'vi') return displayStatus;
+    
+    // Chuyển từ tiếng Anh sang tiếng Việt để lưu
+    return _statusTranslations.entries
+        .firstWhere(
+          (entry) => entry.value == displayStatus,
+          orElse: () => MapEntry(displayStatus, displayStatus)
+        )
+        .key;
+  }
+
+  String getDisplayStatus(String firestoreStatus, String locale) {
+    return firestoreStatus;
   }
 }
