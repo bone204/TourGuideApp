@@ -38,6 +38,25 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   Future<void> _determinePosition() async {
     try {
+      // Kiểm tra quyền truy cập vị trí
+      bool serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw 'Location services are disabled.';
+      }
+
+      geo.LocationPermission permission = await geo.Geolocator.checkPermission();
+      if (permission == geo.LocationPermission.denied) {
+        permission = await geo.Geolocator.requestPermission();
+        if (permission == geo.LocationPermission.denied) {
+          throw 'Location permissions are denied';
+        }
+      }
+
+      if (permission == geo.LocationPermission.deniedForever) {
+        throw 'Location permissions are permanently denied, we cannot request permissions.';
+      }
+
+      // Lấy vị trí hiện tại
       final position = await geo.Geolocator.getCurrentPosition();
       await _focusLocation(
         position.latitude,
@@ -52,32 +71,33 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   // Tạo hằng số cho zoom level
-  static const double MAP_ZOOM_LEVEL = 12.0;  // Khoảng 2600 ft
+  static const double MAP_ZOOM_LEVEL = 15.0;  // Tăng từ 12.0 lên 15.0
 
   Future<void> _focusLocation(double lat, double lng, String title) async {
     if (_mapController != null) {
       try {
         if (kDebugMode) {
-          print('Starting focus to: $title ($lat, $lng)');
+          print('Focusing to: $title');
+          print('Latitude: $lat, Longitude: $lng');
         }
 
         // Xóa marker cũ
         _annotationManager?.deleteAll();
 
-        // Di chuyển camera với cùng zoom level như khi focus vị trí hiện tại
+        // Di chuyển camera - đảm bảo thứ tự lng, lat cho Mapbox
         await _mapController!.easeTo(
           CameraOptions(
-            center: Point(coordinates: Position(lng, lat)),
-            zoom: MAP_ZOOM_LEVEL,  // Sử dụng cùng một zoom level
+            center: Point(coordinates: Position(lng, lat)),  // lng trước, lat sau cho Mapbox
+            zoom: MAP_ZOOM_LEVEL,
           ),
           MapAnimationOptions(duration: 1000),
         );
 
-        // Thêm marker
+        // Thêm marker - cũng lng trước
         _annotationManager ??= await _mapController!.annotations.createPointAnnotationManager();
         await _annotationManager!.create(
           PointAnnotationOptions(
-            geometry: Point(coordinates: Position(lng, lat)),
+            geometry: Point(coordinates: Position(lng, lat)),  // Mapbox cần lng trước
             iconImage: 'marker-stroked-15',
             iconSize: 2.0,
             textField: title,
@@ -87,7 +107,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
             textHaloWidth: 1.0,
           ),
         );
-
       } catch (e) {
         if (kDebugMode) {
           print('Error focusing location: $e');
@@ -144,16 +163,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         print('Longitude: ${result.longitude}');
                       }
 
-                      // Cập nhật UI trước
                       setState(() {
                         _searchController.text = result.name;
                         _searchResults.clear();
                       });
                       
-                      // Sau đó mới focus location
                       _focusLocation(
-                        result.latitude,
-                        result.longitude,
+                        result.latitude,   // Vĩ độ (12.xxx)
+                        result.longitude,  // Kinh độ (109.xxx)
                         result.name,
                       );
                     },
@@ -188,7 +205,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             children: [
               MapWidget(
                 cameraOptions: CameraOptions(
-                  center: Point(coordinates: Position(108.2772, 14.0583)),
+                  center: Point(coordinates: Position(107.5, 16.5)),
                   zoom: 5.0,
                 ),
                 onMapCreated: (MapboxMap controller) {
@@ -257,18 +274,29 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
     // Tìm kiếm
     final results = destinations.where((dest) {
+      if (kDebugMode) {
+        print('Raw coordinates from Firebase:');
+        print('${dest.destinationName}: lat=${dest.latitude}, lng=${dest.longitude}');
+      }
+      
       final normalizedName = _removeDiacritics(dest.destinationName.toLowerCase());
       final normalizedProvince = _removeDiacritics(dest.province.toLowerCase());
       return normalizedName.contains(normalizedQuery) || 
              normalizedProvince.contains(normalizedQuery);
-    }).take(5).map((dest) => SearchResult(  // Giới hạn số kết quả
+    }).take(5).map((dest) => SearchResult(
       name: dest.destinationName,
       address: '${dest.specificAddress}, ${dest.province}',
-      latitude: dest.latitude,
-      longitude: dest.longitude,
+      latitude: dest.longitude,   // Giữ nguyên như trong Firebase
+      longitude: dest.latitude, // Giữ nguyên như trong Firebase
     )).toList();
 
-    // Chỉ setState một lần
+    if (kDebugMode) {
+      print('Found ${results.length} results:');
+      for (var result in results) {
+        print('${result.name}: (${result.latitude}, ${result.longitude})');  // Log kết quả tìm kiếm
+      }
+    }
+
     setState(() {
       _searchResults = results;
     });
