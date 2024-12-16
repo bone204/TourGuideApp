@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart' as geo;
+import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +23,18 @@ class SearchResult {
     required this.latitude,
     required this.longitude,
   });
+}
+
+class CustomPointAnnotationClickListener extends OnPointAnnotationClickListener {
+  final Function(PointAnnotation) onClick;
+
+  CustomPointAnnotationClickListener(this.onClick);
+
+  @override
+  bool onPointAnnotationClick(PointAnnotation annotation) {
+    onClick(annotation);
+    return true;
+  }
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
@@ -73,7 +86,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   // Tạo hằng số cho zoom level
   static const double MAP_ZOOM_LEVEL = 15.0;  // Tăng từ 12.0 lên 15.0
 
-  Future<void> _focusLocation(double lat, double lng, String title) async {
+  Future<void> _focusLocation(double lat, double lng, String title, {DestinationModel? destination}) async {
     if (_mapController != null) {
       try {
         if (kDebugMode) {
@@ -93,9 +106,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
           MapAnimationOptions(duration: 1000),
         );
 
-        // Thêm marker - cũng lng trước
-        _annotationManager ??= await _mapController!.annotations.createPointAnnotationManager();
-        await _annotationManager!.create(
+        // Thêm marker với click listener
+        final marker = await _annotationManager!.create(
           PointAnnotationOptions(
             geometry: Point(coordinates: Position(lng, lat)),  // Mapbox cần lng trước
             iconImage: 'marker-stroked-15',
@@ -104,9 +116,27 @@ class _ExploreScreenState extends State<ExploreScreen> {
             textOffset: [0, 2.0],
             textColor: Colors.black.value,
             textHaloColor: Colors.white.value,
-            textHaloWidth: 1.0,
+            textHaloWidth: 1.0, // Màu đỏ để dễ nhìn
           ),
         );
+
+        // Thêm click listener cho marker
+        if (destination != null) {
+          _annotationManager!.addOnPointAnnotationClickListener(
+            CustomPointAnnotationClickListener((annotation) {
+              if (annotation.id == marker.id) {  // Sử dụng marker.id để kiểm tra
+                if (kDebugMode) {
+                  print('Marker clicked: ${annotation.id}');
+                }
+                _showDestinationInfo(destination);
+              }
+            }),
+          );
+        }
+
+        if (kDebugMode) {
+          print('Created marker at: $lat, $lng');
+        }
       } catch (e) {
         if (kDebugMode) {
           print('Error focusing location: $e');
@@ -159,9 +189,28 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     onTap: () {
                       if (kDebugMode) {
                         print('Selected location: ${result.name}');
-                        print('Latitude: ${result.latitude}');
-                        print('Longitude: ${result.longitude}');
                       }
+
+                      // Tìm destination tương ứng
+                      final destination = Provider.of<DestinationsViewModel>(context, listen: false)
+                          .destinations
+                          .firstWhere(
+                            (dest) => dest.destinationName == result.name,
+                            orElse: () => DestinationModel(
+                              destinationId: '',
+                              destinationName: result.name,
+                              province: '',
+                              specificAddress: result.address,
+                              descriptionViet: '',
+                              descriptionEng: '',
+                              photo: [],
+                              latitude: result.latitude,
+                              longitude: result.longitude,
+                              district: '',
+                              video: [],
+                              createdDate: '',
+                            ),
+                          );
 
                       setState(() {
                         _searchController.text = result.name;
@@ -169,9 +218,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       });
                       
                       _focusLocation(
-                        result.latitude,   // Vĩ độ (12.xxx)
-                        result.longitude,  // Kinh độ (109.xxx)
+                        result.latitude,
+                        result.longitude,
                         result.name,
+                        destination: destination, // Truyền destination vào
                       );
                     },
                   );
@@ -208,8 +258,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   center: Point(coordinates: Position(107.5, 16.5)),
                   zoom: 5.0,
                 ),
-                onMapCreated: (MapboxMap controller) {
+                onMapCreated: (MapboxMap controller) async {
                   _mapController = controller;
+                  // Tạo annotation manager ngay khi map được tạo
+                  _annotationManager = await controller.annotations.createPointAnnotationManager();
                 },
               ),
               // Search bar with suggestions
@@ -332,5 +384,84 @@ class _ExploreScreenState extends State<ExploreScreen> {
       _mapController!.loadStyleURI(styleUri);
     }
     Navigator.pop(context);
+  }
+
+  void _showDestinationInfo(DestinationModel destination) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: true,
+      enableDrag: true,
+      builder: (context) => Stack(
+        children: [
+          // Vùng tối có thể bấm để đóng
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              color: Colors.black54,
+            ),
+          ),
+          DraggableScrollableSheet(
+            initialChildSize: 0.6,
+            minChildSize: 0.3,
+            maxChildSize: 0.9,
+            builder: (context, scrollController) => Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Carousel ảnh
+                    SizedBox(
+                      height: 200,
+                      child: PageView.builder(
+                        itemCount: destination.photo.length,
+                        itemBuilder: (context, index) => Image.network(
+                          destination.photo[index],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            destination.destinationName,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${destination.specificAddress}, ${destination.province}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            destination.descriptionViet,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
