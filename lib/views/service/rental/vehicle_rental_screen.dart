@@ -27,11 +27,27 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now().add(const Duration(days: 1));
   String selectedRentOption = 'Hourly';
+  double minBudget = 0;
+  double maxBudget = 1000000;
+  String selectedProvince = '';
 
   @override
   void initState() {
     super.initState();
     selectedCategory = widget.initialCategory;
+  }
+
+  void onBudgetChanged(double min, double max) {
+    setState(() {
+      minBudget = min;
+      maxBudget = max;
+    });
+  }
+
+  void onProvinceSelected(String province) {
+    setState(() {
+      selectedProvince = province;
+    });
   }
 
   @override
@@ -89,7 +105,11 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
               style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 28.h),
-            BudgetSlider(),
+            BudgetSlider(
+              onBudgetChanged: onBudgetChanged,
+              initialMin: minBudget,
+              initialMax: maxBudget,
+            ),
             SizedBox(height: 24.h),
             RentOptionSelector(
               selectedOption: selectedRentOption,
@@ -111,6 +131,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                 });
               },
               title: "Start Date",
+              rentOption: selectedRentOption,
             ),
             SizedBox(height: 24.h),
             DateTimePicker(
@@ -119,15 +140,17 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                 setState(() {
                   if (date.isAfter(startDate)) {
                     endDate = date;
-                  } else {
-                    // Show error dialog
                   }
                 });
               },
               title: "End Date",
+              rentOption: selectedRentOption,
             ),
             SizedBox(height: 24.h),
-            LocationPicker(),
+            LocationPicker(
+              onProvinceSelected: onProvinceSelected,
+
+            ),
             SizedBox(height: 50.h),
             CustomElevatedButton(
               text: "Confirm",
@@ -140,6 +163,9 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                       startDate: startDate,
                       endDate: endDate,
                       rentOption: selectedRentOption,
+                      minBudget: minBudget,
+                      maxBudget: maxBudget,
+                      pickupProvince: selectedProvince,
                     ),
                   ),
                 );

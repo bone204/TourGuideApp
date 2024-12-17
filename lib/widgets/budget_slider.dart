@@ -5,14 +5,36 @@ import 'package:intl/intl.dart';
 import 'package:tourguideapp/color/colors.dart';
 
 class BudgetSlider extends StatefulWidget {
+  final Function(double, double) onBudgetChanged;
+  final double initialMin;
+  final double initialMax;
+
+  const BudgetSlider({
+    Key? key,
+    required this.onBudgetChanged,
+    required this.initialMin,
+    required this.initialMax,
+  }) : super(key: key);
+
   @override
-  _BudgetSliderState createState() => _BudgetSliderState();
+  State<BudgetSlider> createState() => _BudgetSliderState();
 }
 
 class _BudgetSliderState extends State<BudgetSlider> {
   double _lowerValue = 100000;
   double _upperValue = 900000;
   final NumberFormat _currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+
+  @override
+  void initState() {
+    super.initState();
+    print('===== BudgetSlider Logs =====');
+    print('Initial Min Value: ${widget.initialMin}');
+    print('Initial Max Value: ${widget.initialMax}');
+    print('Current Lower Value: $_lowerValue');
+    print('Current Upper Value: $_upperValue');
+    print('============================');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,10 +122,23 @@ class _BudgetSliderState extends State<BudgetSlider> {
         }),
       ),
       onDragging: (handlerIndex, lowerValue, upperValue) {
+        print('\n[Budget Slider Change]');
+        print('Handler Index: $handlerIndex'); // 0 là lower handle, 1 là upper handle
+        print('Previous Lower Value: $_lowerValue');
+        print('Previous Upper Value: $_upperValue');
+        print('New Lower Value: $lowerValue');
+        print('New Upper Value: $upperValue');
+        print('Formatted Lower Value: ${_currencyFormat.format(lowerValue)}');
+        print('Formatted Upper Value: ${_currencyFormat.format(upperValue)}');
+        
         setState(() {
           _lowerValue = lowerValue;
           _upperValue = upperValue;
         });
+        
+        widget.onBudgetChanged(lowerValue, upperValue);
+        print('Budget values updated and callback triggered');
+        print('============================');
       },
     );
   }

@@ -12,6 +12,9 @@ class VehicleListScreen extends StatelessWidget {
   final DateTime startDate;
   final DateTime endDate;
   final String rentOption;
+  final double minBudget;
+  final double maxBudget;
+  final String pickupProvince;
 
   const VehicleListScreen({
     Key? key,
@@ -19,6 +22,9 @@ class VehicleListScreen extends StatelessWidget {
     required this.startDate,
     required this.endDate,
     required this.rentOption,
+    required this.minBudget,
+    required this.maxBudget,
+    required this.pickupProvince,
   }) : super(key: key);
 
   @override
@@ -88,7 +94,15 @@ class VehicleListScreen extends StatelessWidget {
           Expanded(
             child: StreamBuilder<List<RentalVehicleModel>>(
               stream: Provider.of<RentalVehicleViewModel>(context, listen: false)
-                  .getAvailableVehicles(selectedCategory),
+                  .getAvailableVehicles(
+                    selectedCategory,
+                    rentOption,
+                    minBudget,
+                    maxBudget,
+                    startDate,
+                    endDate,
+                    pickupProvince,
+                  ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());

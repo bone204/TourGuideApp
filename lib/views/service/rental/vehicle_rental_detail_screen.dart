@@ -10,6 +10,9 @@ class VehicleRentalDetail extends StatelessWidget {
   final String imagePath;
   final DateTime startDate;
   final DateTime endDate;
+  final String rentOption;
+  final String pickupLocation;
+  final double price;
 
   const VehicleRentalDetail({
     Key? key,
@@ -17,6 +20,9 @@ class VehicleRentalDetail extends StatelessWidget {
     required this.imagePath,
     required this.startDate,
     required this.endDate,
+    required this.rentOption,
+    required this.pickupLocation,
+    required this.price,
   }) : super(key: key);
 
   String _getDayAbbreviation(DateTime date, BuildContext context) {

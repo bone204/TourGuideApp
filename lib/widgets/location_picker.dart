@@ -6,6 +6,13 @@ import 'package:mapbox_search/mapbox_search.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 
 class LocationPicker extends StatefulWidget {
+  final Function(String) onProvinceSelected;
+
+  const LocationPicker({
+    Key? key,
+    required this.onProvinceSelected,
+  }) : super(key: key);
+
   @override
   _LocationPickerState createState() => _LocationPickerState();
 }
@@ -141,6 +148,7 @@ class _LocationPickerState extends State<LocationPicker> {
                               setState(() {
                                 selectedLocation = place.placeName ?? '';
                               });
+                              widget.onProvinceSelected(selectedLocation);
                               Navigator.pop(context);
                             },
                           );

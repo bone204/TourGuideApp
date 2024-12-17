@@ -468,7 +468,15 @@ class RentalVehicleViewModel extends ChangeNotifier {
     }
   }
 
-  Stream<List<RentalVehicleModel>> getAvailableVehicles(String category) {
+  Stream<List<RentalVehicleModel>> getAvailableVehicles(
+    String category,
+    String rentOption,
+    double minBudget,
+    double maxBudget,
+    DateTime startDate,
+    DateTime endDate,
+    String pickupProvince,
+  ) {
     // Convert category sang tiếng Việt để query
     String queryType = _convertVehicleTypeToFirestore(category, 'vi');
     
@@ -476,22 +484,111 @@ class RentalVehicleViewModel extends ChangeNotifier {
       print('Querying vehicles for category: $queryType');
     }
     
+    // Lấy danh sách các xe có trạng thái khả dụng và đúng loại xe
     return _firestore
         .collection('RENTAL_VEHICLE')
         .where('status', isEqualTo: 'Khả dụng')
-        .where('vehicleType', isEqualTo: queryType)  // Query bằng type tiếng Việt
+        .where('vehicleType', isEqualTo: queryType)
         .snapshots()
-        .map((snapshot) {
-          if (kDebugMode) {
-            print('Found ${snapshot.docs.length} vehicles');
-            for (var doc in snapshot.docs) {
-              print('Vehicle ID: ${doc.data()['vehicleId']}');
+        .asyncMap((vehicleSnapshot) async {
+          List<RentalVehicleModel> availableVehicles = [];
+          
+          for (var doc in vehicleSnapshot.docs) {
+            RentalVehicleModel vehicle = RentalVehicleModel.fromMap(doc.data());
+            
+            // Kiểm tra giá thuê có nằm trong khoảng budget không
+            double relevantPrice = rentOption == 'Hourly' ? vehicle.hourPrice : vehicle.dayPrice;
+            if (relevantPrice < minBudget || relevantPrice > maxBudget) {
+              continue;
             }
+
+            // Kiểm tra địa điểm
+            bool isLocationMatch = await _checkLocationMatch(vehicle.contractId, pickupProvince);
+            if (!isLocationMatch) {
+              continue;
+            }
+
+            // Kiểm tra thời gian có sẵn
+            bool isTimeAvailable = await _checkTimeAvailability(
+              vehicle.vehicleRegisterId,
+              startDate,
+              endDate,
+              rentOption
+            );
+            if (!isTimeAvailable) {
+              continue;
+            }
+
+            availableVehicles.add(vehicle);
           }
-          return snapshot.docs
-              .map((doc) => RentalVehicleModel.fromMap(doc.data()))
-              .toList();
+
+          return availableVehicles;
         });
+  }
+
+  Future<bool> _checkLocationMatch(String contractId, String fullAddress) async {
+    try {
+      final contractDoc = await _firestore
+          .collection('CONTRACT')
+          .doc(contractId)
+          .get();
+
+      if (!contractDoc.exists) return false;
+
+      final contractData = contractDoc.data() as Map<String, dynamic>;
+      String businessProvince = contractData['businessProvince'] as String;
+      
+      // Chuyển cả 2 chuỗi về lowercase để so sánh không phân biệt hoa thường
+      return fullAddress.toLowerCase().contains(businessProvince.toLowerCase());
+      
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error checking location match: $e");
+      }
+      return false;
+    }
+  }
+
+  Future<bool> _checkTimeAvailability(
+    String vehicleRegisterId,
+    DateTime startDate,
+    DateTime endDate,
+    String rentOption,
+  ) async {
+    try {
+      // Kiểm tra thời gian hợp lệ
+      if (rentOption == 'Hourly') {
+        // Kiểm tra giờ có nằm trong khoảng 6h-18h không
+        if (startDate.hour < 6 || endDate.hour > 18) {
+          return false;
+        }
+      }
+
+      // Lấy tất cả các bill liên quan đến xe trong khoảng thời gian
+      final billSnapshot = await _firestore
+          .collection('BILL')
+          .where('vehicleRegisterId', isEqualTo: vehicleRegisterId)
+          .get();
+
+      // Kiểm tra xem có trùng lịch với bill nào không
+      for (var doc in billSnapshot.docs) {
+        final billData = doc.data();
+        final billStartDate = DateTime.parse(billData['startDate']);
+        final billEndDate = DateTime.parse(billData['endDate']);
+
+        // Nếu có bất kỳ sự chồng chéo nào về thời gian
+        if (!(endDate.isBefore(billStartDate) || startDate.isAfter(billEndDate))) {
+          return false;
+        }
+      }
+
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error checking time availability: $e");
+      }
+      return false;
+    }
   }
 
   Future<Map<String, dynamic>> getVehicleDetails(String vehicleId) async {

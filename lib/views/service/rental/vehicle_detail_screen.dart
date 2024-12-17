@@ -15,6 +15,10 @@ class VehicleDetailScreen extends StatelessWidget {
   final List<String> requirements;
   final String vehicleType;
   final String vehicleColor;
+  final DateTime startDate;
+  final DateTime endDate;
+  final String rentOption;
+  final String pickupLocation;
 
   const VehicleDetailScreen({
     Key? key,
@@ -26,6 +30,10 @@ class VehicleDetailScreen extends StatelessWidget {
     required this.requirements,
     required this.vehicleType,
     required this.vehicleColor,
+    required this.startDate,
+    required this.endDate,
+    required this.rentOption,
+    required this.pickupLocation,
   }) : super(key: key);
 
   @override

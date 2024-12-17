@@ -197,6 +197,10 @@ class VehicleCard extends StatelessWidget {
                                         Localizations.localeOf(context).languageCode
                                       ),
                                       vehicleColor: data.vehicleColor,
+                                      startDate: data.startDate,
+                                      endDate: data.endDate,
+                                      rentOption: data.rentOption,
+                                      pickupLocation: '',
                                     );
                                   }
                                 ),
@@ -232,6 +236,9 @@ class VehicleCard extends StatelessWidget {
                                   imagePath: '',
                                   startDate: data.startDate,
                                   endDate: data.endDate,
+                                  rentOption: data.rentOption,
+                                  pickupLocation: '',
+                                  price: data.price,
                                 ),
                               ),
                             );
