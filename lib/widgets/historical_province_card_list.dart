@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/widgets/destination_card.dart';
+import 'package:tourguideapp/models/province_model.dart';
+import 'package:tourguideapp/widgets/historical_province_card.dart';
 
-class DestinationCardListView extends StatelessWidget {
-  final List<DestinationCardData> cardDataList;
+class HistoricalProvinceCardList extends StatelessWidget {
+  final List<Province> provinces;
+  final List<String> visitDates;
 
-  const DestinationCardListView({required this.cardDataList, super.key});
+  const HistoricalProvinceCardList({
+    required this.provinces,
+    required this.visitDates,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +25,14 @@ class DestinationCardListView extends StatelessWidget {
           crossAxisSpacing: 16.w, 
           childAspectRatio: 3,
         ),
-        itemCount: cardDataList.length,
+        itemCount: provinces.length,
         itemBuilder: (context, index) {
-          return DestinationCard(data: cardDataList[index]);
+          return HistoricalProvinceCard(
+            province: provinces[index],
+            visitDate: visitDates[index],
+          );
         },
       ),
     );
   }
-}
+} 
