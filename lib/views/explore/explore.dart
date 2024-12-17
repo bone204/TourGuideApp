@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart' as geo;
+import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -183,7 +184,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 itemBuilder: (context, index) {
                   final result = _searchResults[index];
                   return ListTile(
-                    leading: const Icon(Icons.location_on, color: Colors.blue),
+                    leading: const Icon(Icons.location_on, color: AppColors.primaryColor),
                     title: Text(result.name),
                     subtitle: Text(result.address),
                     onTap: () {
