@@ -4,6 +4,7 @@ import 'package:tourguideapp/main.dart';
 import 'package:tourguideapp/widgets/interactive_row_widget.dart';  // Import InteractiveRowWidget
 import '../../widgets/custom_icon_button.dart';  // Import CustomIconButton
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LanguageScreen extends StatefulWidget {
   const LanguageScreen({super.key});
@@ -28,18 +29,27 @@ class _LanguageScreenState extends State<LanguageScreen> {
       _isLoading = true;
     });
 
-    await Future.delayed(const Duration(seconds: 2)); // Simulate language loading time
+    await Future.delayed(const Duration(milliseconds: 500));
 
-    setState(() {
-      _selectedLocale = locale;
-      _isLoading = false;
-    });
-
-    MyApp.setLocale(context, locale);
+    if (mounted) {
+      setState(() {
+        _selectedLocale = locale;
+        _isLoading = false;
+      });
+      
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('languageCode', locale.languageCode);
+      
+      MyApp.setLocale(context, locale);
+    }
   }
 
   Future<void> _confirmLanguageChange(Locale locale) async {
-    return showDialog(
+    if (_selectedLocale?.languageCode == locale.languageCode) {
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -48,21 +58,20 @@ class _LanguageScreenState extends State<LanguageScreen> {
           actions: [
             TextButton(
               child: Text(AppLocalizations.of(context).translate('Cancel')),
-              onPressed: () {
-                Navigator.of(context).pop(); // Dismiss dialog
-              },
+              onPressed: () => Navigator.of(context).pop(false),
             ),
             TextButton(
               child: Text(AppLocalizations.of(context).translate('Confirm')),
-              onPressed: () {
-                Navigator.of(context).pop(); // Dismiss dialog
-                _onLocaleChange(locale);
-              },
+              onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
         );
       },
     );
+
+    if (confirmed == true) {
+      await _onLocaleChange(locale);
+    }
   }
 
   @override

@@ -496,7 +496,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
           for (var doc in vehicleSnapshot.docs) {
             RentalVehicleModel vehicle = RentalVehicleModel.fromMap(doc.data());
             
-            // Kiểm tra giá thuê có nằm trong khoảng budget không
+            // Kiểm tra giá thuê có nằm trong kho��ng budget không
             double relevantPrice = rentOption == 'Hourly' ? vehicle.hourPrice : vehicle.dayPrice;
             if (relevantPrice < minBudget || relevantPrice > maxBudget) {
               continue;
@@ -591,22 +591,32 @@ class RentalVehicleViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> getVehicleDetails(String vehicleId) async {
+  Future<Map<String, dynamic>> getVehicleDetails(String vehicleId, String locale) async {
     try {
-      final doc = await _firestore
-          .collection('VEHICLE_INFORMATION')
-          .doc(vehicleId)
-          .get();
-
+      final doc = await _firestore.collection('VEHICLE_INFORMATION').doc(vehicleId).get();
       if (doc.exists) {
-        return doc.data() ?? {};
+        final data = doc.data() as Map<String, dynamic>;
+        return {
+          'requirements': data['requirements'] ?? [],
+          'fuelType': getDisplayFuelType(data['fuelType'] ?? '', locale),
+          'transmission': getDisplayTransmission(data['transmission'] ?? '', locale),
+          'maxSpeed': data['maxSpeed'] ?? '',
+        };
       }
-      return {};
+      return {
+        'requirements': [],
+        'fuelType': '',
+        'transmission': '',
+        'maxSpeed': '',
+      };
     } catch (e) {
-      if (kDebugMode) {
-        print("Error getting vehicle details: $e");
-      }
-      return {};
+      print('Error getting vehicle details: $e');
+      return {
+        'requirements': [],
+        'fuelType': '',
+        'transmission': '',
+        'maxSpeed': '',
+      };
     }
   }
 
@@ -653,5 +663,37 @@ class RentalVehicleViewModel extends ChangeNotifier {
 
   String getDisplayStatus(String firestoreStatus, String locale) {
     return firestoreStatus;
+  }
+
+  // Thêm translations cho fuel type
+  final Map<String, String> _fuelTypeTranslations = {
+    'Xăng': 'Gasoline',
+    'Dầu': 'Diesel',
+    'Điện': 'Electric',
+    'Hybrid': 'Hybrid',
+  };
+
+  // Thêm translations cho transmission
+  final Map<String, String> _transmissionTranslations = {
+    'Tự động': 'Automatic',
+    'Số sàn': 'Manual',
+    'Số tự động': 'Automatic',
+    'Không': 'None'
+  };
+
+  // Thêm phương thức dịch fuel type
+  String getDisplayFuelType(String fuelTypeVi, String locale) {
+    if (locale == 'en') {
+      return _fuelTypeTranslations[fuelTypeVi] ?? fuelTypeVi;
+    }
+    return fuelTypeVi;
+  }
+
+  // Thêm phương thức dịch transmission
+  String getDisplayTransmission(String transmissionVi, String locale) {
+    if (locale == 'en') {
+      return _transmissionTranslations[transmissionVi] ?? transmissionVi;
+    }
+    return transmissionVi;
   }
 }

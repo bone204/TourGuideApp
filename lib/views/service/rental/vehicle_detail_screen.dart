@@ -179,7 +179,10 @@ class VehicleDetailScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 12.h),
                     FutureBuilder<Map<String, dynamic>>(
-                      future: viewModel.getVehicleDetails(vehicleId),
+                      future: viewModel.getVehicleDetails(
+                        vehicleId,
+                        Localizations.localeOf(context).languageCode
+                      ),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return const CircularProgressIndicator();

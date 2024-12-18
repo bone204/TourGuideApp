@@ -20,6 +20,7 @@ import 'views/auth/signup_screen.dart';
 import 'views/home/main_screen.dart';
 import 'views/settings/setting_screen.dart';
 import 'viewmodels/profile_viewmodel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ImagesPath {
   static const String kOnboarding1 = 'assets/images/img_1.jpg';
@@ -52,7 +53,23 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  Locale _locale = const Locale('en'); 
+  Locale _locale = const Locale('en');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedLanguage();
+  }
+
+  Future<void> _loadSavedLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? languageCode = prefs.getString('languageCode');
+    if (languageCode != null) {
+      setState(() {
+        _locale = Locale(languageCode);
+      });
+    }
+  }
 
   void setLocale(Locale locale) {
     setState(() {
@@ -62,6 +79,7 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ProvinceViewModel()),
@@ -97,7 +115,7 @@ class MyAppState extends State<MyApp> {
           }
           return supportedLocales.first;
         },
-        home: const OnBoardingScreen(), 
+        home: const OnBoardingScreen(),
         routes: {
           '/login': (context) => LoginScreen(),
           '/signup': (context) => SignupScreen(),

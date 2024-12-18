@@ -130,7 +130,6 @@ class VehicleListScreen extends StatelessWidget {
                       data: VehicleCardData(
                         model: vehicle.vehicleModel,
                         seats: '${vehicle.maxSeats}',
-                        fuelType: '',
                         vehicleId: vehicle.vehicleId,
                         startDate: startDate,
                         endDate: endDate,
@@ -141,6 +140,7 @@ class VehicleListScreen extends StatelessWidget {
                         requirements: vehicle.requirements,
                         vehicleType: vehicle.vehicleType,
                         vehicleColor: vehicle.vehicleColor,
+                        pickupLocation: pickupProvince,
                       ),
                     );
                   },

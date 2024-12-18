@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/info_text_field.dart';
 
@@ -13,6 +15,7 @@ class VehicleRentalDetail extends StatelessWidget {
   final String rentOption;
   final String pickupLocation;
   final double price;
+  final String vehicleId;
 
   const VehicleRentalDetail({
     Key? key,
@@ -23,6 +26,7 @@ class VehicleRentalDetail extends StatelessWidget {
     required this.rentOption,
     required this.pickupLocation,
     required this.price,
+    required this.vehicleId,
   }) : super(key: key);
 
   String _getDayAbbreviation(DateTime date, BuildContext context) {
@@ -38,12 +42,23 @@ class VehicleRentalDetail extends StatelessWidget {
     }
   }
 
-  String _getDurationText(BuildContext context, int durationDays) {
+  String _getDurationText(BuildContext context, Duration duration) {
     String languageCode = Localizations.localeOf(context).languageCode;
-    if (languageCode == 'vi') {
-      return "$durationDays ${durationDays == 1 ? 'ngày' : 'ngày'}"; // "1 ngày" hoặc "2 ngày"
+    
+    if (rentOption == 'Hourly') {
+      int hours = duration.inHours;
+      if (languageCode == 'vi') {
+        return "$hours ${hours == 1 ? 'giờ' : 'giờ'}";
+      } else {
+        return "$hours ${hours == 1 ? 'hour' : 'hours'}";
+      }
     } else {
-      return "$durationDays ${durationDays == 1 ? 'day' : 'days'}"; // "1 day" hoặc "2 days"
+      int days = duration.inDays + 1;
+      if (languageCode == 'vi') {
+        return "$days ${days == 1 ? 'ngày' : 'ngày'}";
+      } else {
+        return "$days ${days == 1 ? 'day' : 'days'}";
+      }
     }
   }
 
@@ -97,15 +112,58 @@ class VehicleRentalDetail extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: ClipRRect(
-                child: Image.asset(
-                  imagePath,
-                  height: 140.h,
-                  width: 260.w,
-                  fit: BoxFit.fill,
-                ),
-              ),
+            Consumer<RentalVehicleViewModel>(
+              builder: (context, viewModel, child) {
+                print('VehicleID in RentalDetail: $vehicleId');
+                return FutureBuilder<String>(
+                  future: viewModel.getVehiclePhoto(vehicleId),
+                  builder: (context, snapshot) {
+                    print('Photo URL: ${snapshot.data}');
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final imageUrl = snapshot.data ?? 'assets/img/car_default.png';
+                    return Center(
+                      child: ClipRRect(
+                        child: imageUrl.startsWith('assets/')
+                          ? Image.asset(
+                              imageUrl,
+                              height: 140.h,
+                              width: 260.w,
+                              fit: BoxFit.fill,
+                            )
+                          : Image.network(
+                              imageUrl,
+                              height: 140.h,
+                              width: 260.w,
+                              fit: BoxFit.fill,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded / 
+                                        loadingProgress.expectedTotalBytes!
+                                      : null,
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                print('Error loading image: $error');
+                                return Image.asset(
+                                  'assets/img/car_default.png',
+                                  height: 140.h,
+                                  width: 260.w,
+                                  fit: BoxFit.fill,
+                                );
+                              },
+                            ),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
             SizedBox(height: 20.h),
             Text(
@@ -117,30 +175,53 @@ class VehicleRentalDetail extends StatelessWidget {
             SingleChildScrollView(
               clipBehavior: Clip.none,
               scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildInteractiveRow(
-                      context,
-                      AppLocalizations.of(context).translate("Power"),
-                      'Detail 1'),
-                  SizedBox(width: 16.w),
-                  _buildInteractiveRow(
-                      context,
-                      AppLocalizations.of(context).translate("Max Speed"),
-                      'Detail 2'),
-                  SizedBox(width: 16.w),
-                  _buildInteractiveRow(
-                      context,
-                      AppLocalizations.of(context).translate("Acceleration"),
-                      'Detail 3'),
-                ],
+              child: Consumer<RentalVehicleViewModel>(
+                builder: (context, viewModel, child) {
+                  final locale = Localizations.localeOf(context).languageCode;
+                  return FutureBuilder<Map<String, dynamic>>(
+                    future: viewModel.getVehicleDetails(vehicleId, locale),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final details = snapshot.data ?? {
+                        'fuelType': '',
+                        'transmission': '',
+                        'maxSpeed': '',
+                      };
+
+                      return Row(
+                        children: [
+                          _buildInteractiveRow(
+                            context,
+                            AppLocalizations.of(context).translate("Fuel Type"),
+                            details['fuelType'] ?? '',
+                          ),
+                          SizedBox(width: 16.w),
+                          _buildInteractiveRow(
+                            context,
+                            AppLocalizations.of(context).translate("Transmission"),
+                            details['transmission'] ?? '',
+                          ),
+                          SizedBox(width: 16.w),
+                          _buildInteractiveRow(
+                            context,
+                            AppLocalizations.of(context).translate("Max Speed"),
+                            details['maxSpeed'] ?? '',
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
               ),
             ),
             SizedBox(height: 26.h),
             InfoTextField(
               size: 335,
               labelText: AppLocalizations.of(context).translate("Location"),
-              text: "75 Westerdam, Nha Trang",
+              text: pickupLocation,
               icon: Icons.location_on_outlined,
             ),
             SizedBox(height: 26.h),
@@ -157,7 +238,10 @@ class VehicleRentalDetail extends StatelessWidget {
                 InfoTextField(
                   size: 137,
                   labelText: AppLocalizations.of(context).translate("Duration"),
-                  text: _getDurationText(context, endDate.difference(startDate).inDays + 1), // Hiển thị số ngày với văn bản thích hợp
+                  text: _getDurationText(
+                    context, 
+                    endDate.difference(startDate)
+                  ),
                   icon: Icons.timer_outlined,
                 ),
               ],

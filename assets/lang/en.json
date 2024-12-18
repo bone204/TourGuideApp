@@ -76,7 +76,8 @@
     "End Date": "End Date",
 
     "Specs": "Specs",
-    "Power": "Power",
+    "Fuel Type": "Fuel Type",
+    "Transmission": "Transmission",
     "Max Speed": "Max Speed",
     "Acceleration": "Acceleration",
     "Duration": "Duration",

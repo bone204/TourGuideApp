@@ -10,7 +10,6 @@ import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 class VehicleCardData {
   final String model;
   final String seats;
-  final String fuelType;
   final String vehicleId;
   final DateTime startDate;
   final DateTime endDate;
@@ -21,11 +20,11 @@ class VehicleCardData {
   final List<String> requirements;
   final String vehicleType;
   final String vehicleColor;
+  final String pickupLocation;
 
   VehicleCardData({
     required this.model,
     required this.seats,
-    required this.fuelType,
     required this.vehicleId,
     required this.startDate,
     required this.endDate,
@@ -36,6 +35,7 @@ class VehicleCardData {
     required this.requirements,
     required this.vehicleType,
     required this.vehicleColor,
+    required this.pickupLocation,
   });
 }
 
@@ -237,8 +237,9 @@ class VehicleCard extends StatelessWidget {
                                   startDate: data.startDate,
                                   endDate: data.endDate,
                                   rentOption: data.rentOption,
-                                  pickupLocation: '',
+                                  pickupLocation: data.pickupLocation,
                                   price: data.price,
+                                  vehicleId: data.vehicleId,
                                 ),
                               ),
                             );

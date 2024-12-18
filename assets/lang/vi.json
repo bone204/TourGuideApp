@@ -75,8 +75,9 @@
     "Start Date": "Ngày nhận xe",
     "End Date": "Ngày trả xe",
 
-    "Specs": "Thông số kĩ thuật",
-    "Power": "Công Suất",
+    "Specs": "Thông Số Kĩ Thuật",
+    "Fuel Type": "Nhiên Liệu",
+    "Transmission": "Hộp Số",
     "Max Speed": "Tốc Độ Tối Đa",
     "Acceleration": "Gia Tốc",
     "Duration": "Thời Gian",
