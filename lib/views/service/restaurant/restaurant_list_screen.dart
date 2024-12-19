@@ -1,39 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
-import 'package:tourguideapp/widgets/hotel_card.dart';
+import 'package:tourguideapp/widgets/restaurant_card.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 
-class HotelListScreen extends StatelessWidget {
+class RestaurantListScreen extends StatelessWidget {
   // Dữ liệu mẫu
-  final List<HotelCardData> hotels = [
-    HotelCardData(
-      imageUrl: 'https://cdn3.ivivu.com/2022/08/Capella-Hanoi-ivivu.jpg',
-      hotelName: 'Vinpearl Resort',
+  final List<RestaurantCardData> restaurants = [
+    RestaurantCardData(
+      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmVzdGF1cmFudHxlbnwwfHwwfHx8MA%3D%3D',
+      restaurantName: 'Nhà hàng Biển Đông',
       rating: 4.5,
-      pricePerDay: 2500000,
+      pricePerPerson: 250000,
     ),
-    HotelCardData(
-      imageUrl: 'https://cdn3.ivivu.com/2022/08/Capella-Hanoi-ivivu.jpg',
-      hotelName: 'Mường Thanh Hotel',
+    RestaurantCardData(
+      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmVzdGF1cmFudHxlbnwwfHwwfHx8MA%3D%3D',
+      restaurantName: 'Quán Ngon Sài Gòn',
       rating: 4.0,
-      pricePerDay: 1500000,
+      pricePerPerson: 150000,
     ),
-    HotelCardData(
-      imageUrl: 'https://cdn3.ivivu.com/2022/08/Capella-Hanoi-ivivu.jpg',
-      hotelName: 'InterContinental',
+    RestaurantCardData(
+      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmVzdGF1cmFudHxlbnwwfHwwfHx8MA%3D%3D',
+      restaurantName: 'Nhà hàng Phố Cổ',
       rating: 5.0,
-      pricePerDay: 3500000,
+      pricePerPerson: 350000,
     ),
-    HotelCardData(
-      imageUrl: 'https://cdn3.ivivu.com/2022/08/Capella-Hanoi-ivivu.jpg',
-      hotelName: 'Sheraton Hotel',
+    RestaurantCardData(
+      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmVzdGF1cmFudHxlbnwwfHwwfHx8MA%3D%3D',
+      restaurantName: 'Quán Ẩm Thực Huế',
       rating: 4.8,
-      pricePerDay: 2800000,
+      pricePerPerson: 280000,
     ),
   ];
 
-  HotelListScreen({super.key});
+  RestaurantListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +63,7 @@ class HotelListScreen extends StatelessWidget {
                     ),
                     Center(
                       child: Text(
-                        AppLocalizations.of(context).translate('Hotel List'),
+                        AppLocalizations.of(context).translate('Restaurant List'),
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -87,9 +87,9 @@ class HotelListScreen extends StatelessWidget {
             mainAxisSpacing: 20.h,
             crossAxisSpacing: 0,
           ),
-          itemCount: hotels.length,
+          itemCount: restaurants.length,
           itemBuilder: (context, index) {
-            return HotelCard(data: hotels[index]);
+            return RestaurantCard(data: restaurants[index]);
           },
         ),
       ),

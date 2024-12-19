@@ -226,6 +226,18 @@
     "Tạm ngưng": "Suspended",
 
     "Hotel Booking": "Hotel Booking",
-    "Hotel List": "Hotel List"
+    "Restaurant Booking": "Restaurant Booking",
+    "Hotel List": "Hotel List",
+    "Check-in Time": "Check-in Time",
+
+    "Specialty": "Specialty",
+    "Select Specialty": "Select Specialty",
+    "Vietnamese Cuisine": "Vietnamese Cuisine",
+    "Japanese Cuisine": "Japanese Cuisine",
+    "Korean Cuisine": "Korean Cuisine",
+    "Chinese Cuisine": "Chinese Cuisine",
+    "Western Cuisine": "Western Cuisine",
+    "Seafood": "Seafood",
+    "Restaurant List": "Restaurant List"
   }
   

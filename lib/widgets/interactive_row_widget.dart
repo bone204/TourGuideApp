@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/color/colors.dart'; // Import ScreenUtil
 
 class InteractiveRowWidget extends StatelessWidget {
   final IconData leadingIcon;
@@ -23,8 +24,8 @@ class InteractiveRowWidget extends StatelessWidget {
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); 
 
     // Sử dụng màu sắc tuỳ theo trạng thái được chọn
-    final textColor = isSelected ? const Color(0xFF24BAEC) : Colors.black;
-    final iconColor = isSelected ? const Color(0xFF24BAEC) : Colors.grey;
+    final textColor = isSelected ? AppColors.primaryColor : AppColors.black;
+    final iconColor = isSelected ? AppColors.primaryColor : AppColors.grey;
 
     return GestureDetector(
       onTap: onTap,

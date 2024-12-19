@@ -236,7 +236,19 @@
     "Khả dụng": "Khả dụng",
     "Đã từ chối": "Đã từ chối",
     "Tạm ngưng": "Tạm ngưng",
+
     "Hotel Booking": "Đặt Khách Sạn",
-    "Hotel List": "Danh Sách Khách Sạn"
+    "Hotel List": "Danh Sách Khách Sạn",
+    "Restaurant Booking": "Đặt Nhà Hàng",
+    "Check-in Time": "Thời Gian Nhận Bàn",
+    "Specialty": "Ẩm thực",
+    "Select Specialty": "Chọn loại ẩm thực",
+    "Vietnamese Cuisine": "Ẩm thực Việt Nam",
+    "Japanese Cuisine": "Ẩm thực Nhật Bản",
+    "Korean Cuisine": "Ẩm thực Hàn Quốc", 
+    "Chinese Cuisine": "Ẩm thực Trung Hoa",
+    "Western Cuisine": "Ẩm thực phương Tây",
+    "Seafood": "Hải sản",
+    "Restaurant List": "Danh Sách Nhà Hàng"
 }
   
