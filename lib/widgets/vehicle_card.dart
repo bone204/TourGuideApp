@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/views/service/rental/vehicle_rental_detail_screen.dart';
-import 'package:tourguideapp/views/service/rental/vehicle_detail_screen.dart';
+import 'package:tourguideapp/views/service/rental_vehicle/vehicle_rental_detail_screen.dart';
+import 'package:tourguideapp/views/service/rental_vehicle/vehicle_detail_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 

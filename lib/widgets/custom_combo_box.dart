@@ -40,10 +40,10 @@ class CustomComboBox extends StatelessWidget {
           borderSide: BorderSide.none,
           borderRadius: BorderRadius.circular(8.0),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.black, width: 2.0),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
+        // focusedBorder: OutlineInputBorder(
+        //   borderSide: const BorderSide(color: Colors.black, width: 2.0),
+        //   borderRadius: BorderRadius.circular(8.0),
+        // ),
       ),
       isExpanded: true,
     );

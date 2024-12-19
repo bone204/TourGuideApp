@@ -74,6 +74,8 @@
     "Filter": "Filter",
     "Start Date": "Start Date",
     "End Date": "End Date",
+    "Check-in Date": "Check-in Date",
+    "Check-out Date": "Check-out Date",
 
     "Specs": "Specs",
     "Fuel Type": "Fuel Type",
@@ -130,6 +132,8 @@
     "Motorbike Rental": "Motorbike Rental",
     "Travel": "Travel",
     "Find Restaurant": "Find Restaurant",
+    "Find Hotel": "Find Hotel",
+    "Fast Delivery": "Fast Delivery",
     "Search province to travel": "Search province to travel",
     "Identification (Front Photo)": "Identification (Front Photo)",
     "Identification (Back Photo)": "Identification (Back Photo)",
@@ -219,6 +223,9 @@
     "Đang cho thuê": "In Use",
     "Khả dụng": "Available",
     "Đã từ chối": "Rejected",
-    "Tạm ngưng": "Suspended"
+    "Tạm ngưng": "Suspended",
+
+    "Hotel Booking": "Hotel Booking",
+    "Hotel List": "Hotel List"
   }
   

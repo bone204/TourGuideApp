@@ -74,6 +74,8 @@
     "Filter": "Lọc",
     "Start Date": "Ngày nhận xe",
     "End Date": "Ngày trả xe",
+    "Check-in Date": "Ngày Nhận Phòng",
+    "Check-out Date": "Ngày Trả Phòng",
 
     "Specs": "Thông Số Kĩ Thuật",
     "Fuel Type": "Nhiên Liệu",
@@ -130,6 +132,8 @@
     "Motorbike Rental": "Thuê Xe Máy",
     "Travel": "Du Lịch",
     "Find Restaurant": "Tìm Nhà Hàng",
+    "Find Hotel": "Tìm Khách Sạn",
+    "Fast Delivery": "Giao Hàng Nhanh",
     "Search province to travel": "Tìm tỉnh muốn du lịch",
     "Identification (Front Photo)": "Ảnh CCCD (Mặt Trước)",
     "Identification (Back Photo)": "Ảnh CCCD (Mặt Sau)",
@@ -231,6 +235,8 @@
     "Đang cho thuê": "Đang cho thuê",
     "Khả dụng": "Khả dụng",
     "Đã từ chối": "Đã từ chối",
-    "Tạm ngưng": "Tạm ngưng"
+    "Tạm ngưng": "Tạm ngưng",
+    "Hotel Booking": "Đặt Khách Sạn",
+    "Hotel List": "Danh Sách Khách Sạn"
 }
   

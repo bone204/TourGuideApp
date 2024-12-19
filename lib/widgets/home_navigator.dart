@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/views/service/rental/vehicle_rental_screen.dart';
+import 'package:tourguideapp/views/service/hotel/hotel_booking_screen.dart';
+import 'package:tourguideapp/views/service/rental_vehicle/vehicle_rental_screen.dart';
 
 import 'package:tourguideapp/views/service/travel/travel_screen.dart';
 
@@ -42,6 +43,15 @@ class HomeNavigator extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => const TravelScreen(),
+            ),
+          );
+        }
+
+        if (text == "Find Hotel") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HotelBookingScreen(),
             ),
           );
         }

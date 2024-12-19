@@ -136,24 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Expanded(
                                       child: Row(
                                         children: [
-                                          // Expanded(
-                                          //   child: HomeNavigator(
-                                          //     image: 'assets/img/restaurant_home.png', 
-                                          //     text: "Find Restaurant"
-                                          //   ),
-                                          // ),
-                                          // Expanded(
-                                          //   child: HomeNavigator(
-                                          //     image: 'assets/img/delivery_home.png', 
-                                          //     text: "Fast Delivery"
-                                          //   ),
-                                          // ),
-                                          // Expanded(
-                                          //   child: HomeNavigator(
-                                          //     image: 'assets/img/hotel_home.png', 
-                                          //     text: "Find Hotel"
-                                          //   ),
-                                          // ),
                                           Expanded(
                                             child: HomeNavigator(
                                               image: 'assets/img/restaurant_home.png', 
@@ -162,16 +144,34 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                           Expanded(
                                             child: HomeNavigator(
-                                              image: 'assets/img/destination.png', 
-                                              text: "Find Destination"
+                                              image: 'assets/img/delivery_home.png', 
+                                              text: "Fast Delivery"
                                             ),
                                           ),
                                           Expanded(
                                             child: HomeNavigator(
-                                              image: 'assets/img/review.png', 
-                                              text: "Review"
+                                              image: 'assets/img/hotel_home.png', 
+                                              text: "Find Hotel"
                                             ),
                                           ),
+                                          // Expanded(
+                                          //   child: HomeNavigator(
+                                          //     image: 'assets/img/restaurant_home.png', 
+                                          //     text: "Find Restaurant"
+                                          //   ),
+                                          // ),
+                                          // Expanded(
+                                          //   child: HomeNavigator(
+                                          //     image: 'assets/img/destination.png', 
+                                          //     text: "Find Destination"
+                                          //   ),
+                                          // ),
+                                          // Expanded(
+                                          //   child: HomeNavigator(
+                                          //     image: 'assets/img/review.png', 
+                                          //     text: "Review"
+                                          //   ),
+                                          // ),
                                         ],
                                       ),
                                     )
