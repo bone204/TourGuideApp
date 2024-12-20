@@ -249,6 +249,15 @@
     "Chinese Cuisine": "Ẩm thực Trung Hoa",
     "Western Cuisine": "Ẩm thực phương Tây",
     "Seafood": "Hải sản",
-    "Restaurant List": "Danh Sách Nhà Hàng"
+    "Restaurant List": "Danh Sách Nhà Hàng",
+    "Pickup Location": "Địa Điểm Lấy Hàng",
+    "Delivery Location": "Địa Điểm Giao Hàng",
+    "Recipient's Full Name": "Họ Tên Người Nhận",
+    "Enter recipient's full name": "Nhập họ tên người nhận",
+    "Recipient's Phone Number": "Số Điện Thoại Người Nhận",
+    "Enter recipient's phone number": "Nhập số điện thoại người nhận",
+    "Delivery Detail": "Chi Tiết Giao Hàng",
+    "Package Photos": "Hình Ảnh Kiện Hàng",
+    "Enter note for delivery": "Nhập ghi chú cho đơn hàng (không bắt buộc)"
 }
   

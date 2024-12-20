@@ -238,6 +238,18 @@
     "Chinese Cuisine": "Chinese Cuisine",
     "Western Cuisine": "Western Cuisine",
     "Seafood": "Seafood",
-    "Restaurant List": "Restaurant List"
-  }
+    "Restaurant List": "Restaurant List",
+
+    "Pickup Location": "Pickup Location",
+    "Delivery Location": "Delivery Location",
+
+    "Recipient's Full Name": "Recipient's Full Name",
+    "Enter recipient's full name": "Enter recipient's full name",
+    "Recipient's Phone Number": "Recipient's Phone Number", 
+    "Enter recipient's phone number": "Enter recipient's phone number",
+    "Delivery Detail": "Delivery Detail",
+
+    "Package Photos": "Package Photos",
+    "Enter note for delivery": "Enter note for delivery (optional)"
+}
   

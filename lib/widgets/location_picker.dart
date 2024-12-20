@@ -7,10 +7,12 @@ import 'package:tourguideapp/widgets/custom_icon_button.dart';
 
 class LocationPicker extends StatefulWidget {
   final Function(String) onProvinceSelected;
+  final String? title;
 
   const LocationPicker({
     Key? key,
     required this.onProvinceSelected,
+    required this.title,
   }) : super(key: key);
 
   @override
@@ -192,7 +194,7 @@ class _LocationPickerState extends State<LocationPicker> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context).translate('Location'),
+          widget.title ?? AppLocalizations.of(context).translate('Location'),
           style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 4.h),

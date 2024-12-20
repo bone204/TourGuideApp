@@ -179,6 +179,7 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
             ),
             SizedBox(height: 24.h),
             LocationPicker(
+              title: AppLocalizations.of(context).translate("Location"),
               onProvinceSelected: onProvinceSelected,
             ),
             SizedBox(height: 50.h),

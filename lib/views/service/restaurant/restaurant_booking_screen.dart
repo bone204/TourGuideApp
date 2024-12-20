@@ -178,6 +178,7 @@ class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
             _buildSpecialtyPicker(),
             SizedBox(height: 24.h),
             LocationPicker(
+              title: AppLocalizations.of(context).translate("Location"),
               onProvinceSelected: onProvinceSelected,
             ),
             SizedBox(height: 50.h),

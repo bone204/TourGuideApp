@@ -148,6 +148,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
             ),
             SizedBox(height: 24.h),
             LocationPicker(
+              title: AppLocalizations.of(context).translate("Location"),
               onProvinceSelected: onProvinceSelected,
 
             ),

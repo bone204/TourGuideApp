@@ -3,18 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:tourguideapp/color/colors.dart';
 
 
 class ImagePickerWidget extends StatefulWidget {
   final String title;
   final String initialImagePath;
   final ValueChanged<String> onImagePicked;
+  final bool isRequired;
 
   const ImagePickerWidget({
     Key? key,
     required this.title,
     this.initialImagePath = '',
     required this.onImagePicked,
+    this.isRequired = false,
   }) : super(key: key);
 
   @override
@@ -87,12 +90,25 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.title,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          children: [
+            Text(
+              widget.title,
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            if (widget.isRequired)
+              Text(
+                " (*)",
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.orange,
+                ),
+              ),
+          ],
         ),
         SizedBox(height: 12.h),
         InkWell(
