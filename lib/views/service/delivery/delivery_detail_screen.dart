@@ -18,7 +18,6 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
   final GlobalKey _contentKey = GlobalKey();
   double _contentHeight = 0;
   final TextEditingController _noteController = TextEditingController();
-
   @override
   void initState() {
     super.initState();

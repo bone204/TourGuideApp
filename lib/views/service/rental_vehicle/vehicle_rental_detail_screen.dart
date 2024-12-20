@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
+import 'package:tourguideapp/views/service/rental_vehicle/vehicle_rental_bill.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/info_text_field.dart';
 
@@ -268,7 +269,10 @@ class VehicleRentalDetail extends StatelessWidget {
             SizedBox(height: 26.h),
             ElevatedButton(
               onPressed: () {
-                
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (context) => const VehicleRentalBill())
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF007BFF),
