@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/color/colors.dart'; 
+import 'package:tourguideapp/color/colors.dart';
 
 class DeliveryInteractiveRow extends StatelessWidget {
   final String imageUrl;
@@ -22,8 +22,6 @@ class DeliveryInteractiveRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); 
-
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
@@ -35,18 +33,18 @@ class DeliveryInteractiveRow extends StatelessWidget {
               children: [
                 Image.asset(
                   imageUrl,
-                  height: 24.h, 
-                  width: 24.w, 
+                  height: 24.h,
+                  width: 24.w,
                   fit: BoxFit.cover,
                 ),
-                SizedBox(width: 12.w), 
+                SizedBox(width: 12.w),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 14.sp, // Sử dụng ScreenUtil
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.bold,
                         color: AppColors.black,
                       ),
@@ -55,15 +53,15 @@ class DeliveryInteractiveRow extends StatelessWidget {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        fontSize: 8.sp, // Sử dụng ScreenUtil
+                        fontSize: 8.sp,
                         color: AppColors.black,
                       ),
                     ),
-                  ]
+                  ],
                 ),
               ],
             ),
-            Icon(trailingIcon, color: AppColors.black, size: 24.sp), // Sử dụng ScreenUtil
+            Icon(trailingIcon , color: AppColors.black, size: 24.sp),
           ],
         ),
       ),

@@ -5,19 +5,116 @@ import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/delivery_interactive_row.dart';
+import 'package:tourguideapp/widgets/delivery_option_item.dart';
 import 'package:tourguideapp/widgets/image_picker.dart';
 
 class DeliveryDetailScreen extends StatefulWidget {
-  DeliveryDetailScreen({super.key});
+  const DeliveryDetailScreen({super.key});
 
   @override
   _DeliveryDetailScreenState createState() => _DeliveryDetailScreenState();
 }
 
+// Định nghĩa class cho delivery brand bên ngoài State class
+class DeliveryBrand {
+  final String id;
+  final String name;
+  final String image;
+  final String description;
+
+  const DeliveryBrand({
+    required this.id,
+    required this.name,
+    required this.image,
+    required this.description,
+  });
+}
+
+class VehicleType {
+  final String id;
+  final String name;
+  final String image;
+  final String description;
+
+  const VehicleType({
+    required this.id,
+    required this.name,
+    required this.image,
+    required this.description,
+  });
+}
+
+
 class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
   final GlobalKey _contentKey = GlobalKey();
   double _contentHeight = 0;
   final TextEditingController _noteController = TextEditingController();
+  String selectedBrandId = 'lalamove';
+  String selectedVehicleId = 'motorbike';
+
+  // Danh sách các brands
+  final List<DeliveryBrand> deliveryBrands = const [
+    DeliveryBrand(
+      id: 'jt',
+      name: 'J&T Express',
+      image: 'assets/img/Logo_J&TExpress.png',
+      description: 'JT Express offers fast and reliable delivery services across Vietnam and beyond with advanced technology',
+    ),
+    DeliveryBrand(
+      id: 'lalamove',
+      name: 'Lalamove', 
+      image: 'assets/img/Logo_Lalamove.png',
+      description: 'Lalamove provides on-demand, same-day delivery with flexible and affordable logistics solutions',
+    ),
+    DeliveryBrand(
+      id: 'ghtk',
+      name: 'GHTK',
+      image: 'assets/img/Logo_GHTK.png',
+      description: 'GHTK offers cost-effective, timely delivery solutions with wide coverage across Vietnam',
+    ),
+    DeliveryBrand(
+      id: 'nhattin',
+      name: 'Nhat Tin Express',
+      image: 'assets/img/Logo_NhatTin.png',
+      description: 'Nhat Tin Express delivers fast, safe, and professional logistics services nationwide',
+    ),
+  ];
+
+  final List<VehicleType> vehicleTypes = const [
+    VehicleType(
+      id: 'motorbike',
+      name: 'Motorbike',
+      image: 'assets/img/ic_motorbike.png',
+      description: 'Maximum cargo capacity of 30 kilograms\nMaximun dimensions of 0.5 x 0.4 x 0.5 meters',
+    ),
+    VehicleType(
+      id: 'van500',
+      name: 'Van 500kg',
+      image: 'assets/img/ic_truck.png',
+      description: 'Maximum cargo capacity of 500 kilograms\nMaximun dimensions of 1.7 x 1.2 x 1.2 meters',
+    ),
+    VehicleType(
+      id: 'van750',
+      name: 'Van 500kg',
+      image: 'assets/img/ic_truck.png',
+      description: 'Maximum cargo capacity of 750 kilograms\nMaximun dimensions of 2.1 x 1.3 x 1.3 meters',
+    ),
+    VehicleType(
+      id: 'van1000',
+      name: 'Van 1000kg',
+      image: 'assets/img/ic_truck.png',
+      description: 'Maximum cargo capacity of 1000 kilograms\nMaximun dimensions of 2.1 x 1.3 x 1.3 meters',
+    ),
+  ];
+
+  // Lấy brand đang được chọn
+  DeliveryBrand get selectedBrand => 
+    deliveryBrands.firstWhere((brand) => brand.id == selectedBrandId);
+
+    // Lấy vehicle type đang được chọn
+  VehicleType get selectedVehicle => 
+    vehicleTypes.firstWhere((types) => types.id == selectedVehicleId);
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +132,146 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
   void dispose() {
     _noteController.dispose();
     super.dispose();
+  }
+
+  void _showDeliveryBrandSelector() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: true,
+      enableDrag: true,
+      builder: (context) => Stack(
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(color: Colors.black54),
+          ),
+          DraggableScrollableSheet(
+            initialChildSize: 0.6,
+            minChildSize: 0.3,
+            maxChildSize: 0.9,
+            builder: (context, scrollController) => Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Delivery Brand',
+                      style: TextStyle(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    Expanded(
+                      child: ListView.separated(
+                        controller: scrollController,
+                        itemCount: deliveryBrands.length,
+                        separatorBuilder: (_, __) => SizedBox(height: 16.h),
+                        itemBuilder: (context, index) {
+                          final brand = deliveryBrands[index];
+                          return DeliveryOptionItem(
+                            option: DeliveryOption(
+                              id: brand.id,
+                              name: brand.name,
+                              image: brand.image,
+                              description: brand.description,
+                            ),
+                            isSelected: selectedBrandId == brand.id,
+                            onTap: () {
+                              setState(() {
+                                selectedBrandId = brand.id;
+                              });
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showVehicleTypeSelector() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: true,
+      enableDrag: true,
+      builder: (context) => Stack(
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(color: Colors.black54),
+          ),
+          DraggableScrollableSheet(
+            initialChildSize: 0.6,
+            minChildSize: 0.3,
+            maxChildSize: 0.9,
+            builder: (context, scrollController) => Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Delivery Vehicles',
+                      style: TextStyle(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    Expanded(
+                      child: ListView.separated(
+                        controller: scrollController,
+                        itemCount: vehicleTypes.length,
+                        separatorBuilder: (_, __) => SizedBox(height: 16.h),
+                        itemBuilder: (context, index) {
+                          final types = vehicleTypes[index];
+                          return DeliveryOptionItem(
+                            option: DeliveryOption(
+                              id: types.id,
+                              name: types.name,
+                              image: types.image,
+                              description: types.description,
+                            ),
+                            isSelected: selectedVehicleId == types.id,
+                            onTap: () {
+                              setState(() {
+                                selectedVehicleId = types.id;
+                              });
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -111,10 +348,11 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                       SizedBox(height: 24.h),
                       DeliveryInteractiveRow(
                         imageUrl: 'assets/img/ic_delivery_brand.png',
-                        title: "Lalamove",
+                        title: selectedBrand.name,
                         subtitle: "Delivery between November 16 - November 20",
                         trailingIcon: Icons.chevron_right,
-                        onTap: () => {},
+                        isSelected: true,
+                        onTap: _showDeliveryBrandSelector,
                       ),
                       SizedBox(height: 24.h),
                       const Divider(
@@ -124,12 +362,13 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                       SizedBox(height: 24.h),
                       DeliveryInteractiveRow(
                         imageUrl: 'assets/img/ic_delivery_vehicle_type.png',
-                        title: "Motorbike",
+                        title: selectedVehicle.name,
                         subtitle: "Maximum weight: 30 kg (50x40x50 cm)",
                         trailingIcon: Icons.chevron_right,
-                        onTap: () => {},
+                        isSelected: true,
+                        onTap: _showVehicleTypeSelector,
                       ),
-                    ]
+                    ],
                   ),
                 ),
               ),
