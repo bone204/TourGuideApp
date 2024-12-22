@@ -252,6 +252,28 @@ class RentalVehicleViewModel extends ChangeNotifier {
     }
   }
 
+  Future<int> getSeatingCapacity(String vehicleId) async {
+  try {
+    final doc = await _firestore.collection('VEHICLE_INFORMATION').doc(vehicleId).get();
+    if (doc.exists) {
+      final data = doc.data();
+      // Kiểm tra và chuyển seatingCapacity từ String sang int
+      String? seatingCapacityString = data?['seatingCapacity'];
+      if (seatingCapacityString != null) {
+        // Cố gắng chuyển đổi từ String sang int
+        return int.tryParse(seatingCapacityString) ?? 0;  // Trả về 0 nếu không thể chuyển đổi
+      }
+    }
+    return 0;
+  } catch (e) {
+    if (kDebugMode) {
+      print("Error getting seating capacity: $e");
+    }
+    return 0;
+  }
+}
+
+
   Future<void> createRentalVehicleForUser(String uid, Map<String, dynamic> vehicleData, String locale) async {
     try {
       String queryType = _convertVehicleTypeToFirestore(vehicleData['vehicleType'], 'vi');
@@ -290,6 +312,10 @@ class RentalVehicleViewModel extends ChangeNotifier {
       }
       
       vehicleId = vehicleSnapshot.docs.first.id;
+
+      int seatingCapacity = await getSeatingCapacity(vehicleId);
+
+      print("Seating capacity: $seatingCapacity");
 
       if (_currentUserId == null) {
         await _updateCurrentUserId(uid);
@@ -340,7 +366,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
         licensePlate: vehicleData['licensePlate'] ?? '',
         vehicleRegistration: vehicleData['vehicleRegistration'] ?? '',
         vehicleType: queryType,
-        maxSeats: vehicleData['maxSeats'] ?? 0,
+        maxSeats: seatingCapacity,
         vehicleBrand: vehicleData['vehicleBrand'],
         vehicleModel: vehicleData['vehicleModel'],
         vehicleColor: queryColor,  // Lưu màu tiếng Việt

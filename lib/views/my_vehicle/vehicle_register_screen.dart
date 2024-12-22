@@ -31,7 +31,6 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
 
   // Variables for dropdown selections
   String _selectedVehicleType = 'Ô tô';
-  String _selectedMaxSeats = '5';
   String? _selectedVehicleBrand;
   String? _selectedVehicleModel;
   String? _selectedVehicleColor;
@@ -193,7 +192,6 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
             'licensePlate': _licensePlateController.text,
             'vehicleRegistration': _vehicleRegistrationController.text,
             'vehicleType': _selectedVehicleType,
-            'maxSeats': int.parse(_selectedMaxSeats),
             'vehicleBrand': _selectedVehicleBrand,
             'vehicleModel': _selectedVehicleModel,
             'vehicleColor': _selectedVehicleColor,
@@ -520,118 +518,87 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 16.h),
+              SizedBox(height: 24.h),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Phần Vehicle Type
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Text(
+                    AppLocalizations.of(context).translate("Vehicle Type"),
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Row(
                     children: [
-                      Text(
-                        AppLocalizations.of(context).translate("Vehicle Type"),
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
+                      SizedBox(
+                        width: 88.w,
+                        child: GestureDetector(
+                          onTap: () => _onVehicleTypeChanged('Ô tô'),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: _selectedVehicleType == 'Ô tô'
+                                    ? AppColors.primaryColor
+                                    : AppColors.grey,
+                                width: 2,
+                              ),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Center(
+                              child: Text(
+                                AppLocalizations.of(context).translate('Car'),
+                                style: TextStyle(
+                                  color: _selectedVehicleType == 'Ô tô'
+                                      ? AppColors.primaryColor
+                                      : AppColors.black,
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 12.h),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 88.w,
-                            child: GestureDetector(
-                              onTap: () => _onVehicleTypeChanged('Ô tô'),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 12.h),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: _selectedVehicleType == 'Ô tô'
-                                        ? AppColors.primaryColor
-                                        : AppColors.grey,
-                                    width: 2,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    AppLocalizations.of(context).translate('Car'),
-                                    style: TextStyle(
-                                      color: _selectedVehicleType == 'Ô tô'
-                                          ? AppColors.primaryColor
-                                          : AppColors.black,
-                                      fontSize: 13.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                      SizedBox(width: 8.w),
+                      SizedBox(
+                        width: 88.w,
+                        child: GestureDetector(
+                          onTap: () => _onVehicleTypeChanged('Xe máy'),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: _selectedVehicleType == 'Xe máy'
+                                    ? AppColors.primaryColor
+                                    : AppColors.grey,
+                                width: 2,
+                              ),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Center(
+                              child: Text(
+                                AppLocalizations.of(context).translate('Motorbike'),
+                                style: TextStyle(
+                                  color: _selectedVehicleType == 'Xe máy'
+                                      ? AppColors.primaryColor
+                                      : AppColors.black,
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
                           ),
-                          SizedBox(width: 8.w),
-                          SizedBox(
-                            width: 88.w,
-                            child: GestureDetector(
-                              onTap: () => _onVehicleTypeChanged('Xe máy'),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 12.h),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: _selectedVehicleType == 'Xe máy'
-                                        ? AppColors.primaryColor
-                                        : AppColors.grey,
-                                    width: 2,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    AppLocalizations.of(context).translate('Motorbike'),
-                                    style: TextStyle(
-                                      color: _selectedVehicleType == 'Xe máy'
-                                          ? AppColors.primaryColor
-                                          : AppColors.black,
-                                      fontSize: 13.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
-                  SizedBox(width: 12.w),
-                  // Phần Max Seats
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context).translate("Max Seats"),
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 12.h),
-                        CustomComboBox(
-                          value: _selectedMaxSeats,
-                          hintText: AppLocalizations.of(context).translate("Select max seats"),
-                          items: const ['1', '2', '3', '4', '5'],
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedMaxSeats = newValue!;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
-              SizedBox(height: 16.h),
+              SizedBox(height: 24.h),
               Text(
                 AppLocalizations.of(context).translate("Vehicle Brand"),
                 style: TextStyle(
