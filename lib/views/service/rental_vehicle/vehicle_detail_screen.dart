@@ -138,61 +138,78 @@ class VehicleDetailScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 30.h),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                FutureBuilder<Map<String, dynamic>>(
+                  future: viewModel.getVehicleDetailsById(vehicleId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (!snapshot.hasData) {
+                      return const Center(child: Text("Error loading vehicle details"));
+                    }
+
+                    final vehicleDetails = snapshot.data!;
+                    final brand = vehicleDetails['brand'] ?? '';
+                    final fuelType = vehicleDetails['fuelType'] ?? '';
+                    final transmission = vehicleDetails['transmission'] ?? '';
+                    final maxSpeed = vehicleDetails['maxSpeed'] ?? '';
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Row(
+                          children: [
+                            Text(
+                              "${AppLocalizations.of(context).translate("Rate")}:",
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.black,
+                              ),
+                            ),
+                            SizedBox(width: 30.w),
+                            ...List.generate(5, (index) => Padding(
+                              padding: EdgeInsets.only(right: 18.w),
+                              child: Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 24.sp,
+                              ),
+                            )),
+                          ],
+                        ),
+                        SizedBox(height: 30.h),
+                        DetailRow(
+                          leftTitle: AppLocalizations.of(context).translate("Brand"),
+                          leftContent: AppLocalizations.of(context).translate(brand),
+                          rightTitle: AppLocalizations.of(context).translate("Fuel Type"),
+                          rightContent: AppLocalizations.of(context).translate(fuelType),
+                        ),
+                        SizedBox(height: 16.h),
+                        DetailRow(
+                          leftTitle: AppLocalizations.of(context).translate("Transmission"),
+                          leftContent: AppLocalizations.of(context).translate(transmission),
+                          rightTitle: AppLocalizations.of(context).translate("Max Speed"),
+                          rightContent: AppLocalizations.of(context).translate(maxSpeed),
+                        ),
+                        SizedBox(height: 16.h),
+                        DetailRow(
+                          leftTitle: AppLocalizations.of(context).translate("Price Per Day"),
+                          leftContent: "${AppLocalizations.of(context).formatPrice(dayPrice)} ₫", 
+                          rightTitle: AppLocalizations.of(context).translate("Price Per Hour"),
+                          rightContent: "${AppLocalizations.of(context).formatPrice(hourPrice)} ₫",
+                        ),
+                        SizedBox(height: 16.h),
                         Text(
-                          "${AppLocalizations.of(context).translate("Rate")}:",
+                          AppLocalizations.of(context).translate("Requirements"),
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.black,
                           ),
                         ),
-                        SizedBox(width: 30.w),
-                        ...List.generate(5, (index) => Padding(
-                          padding: EdgeInsets.only(right: 18.w),
-                          child: Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                            size: 24.sp,
-                          ),
-                        )),
-                      ],
-                    ),
-                    SizedBox(height: 30.h),
-                    DetailRow(
-                      leftTitle: AppLocalizations.of(context).translate("Price Per Day"),
-                      leftContent: "${AppLocalizations.of(context).formatPrice(dayPrice)} ₫", 
-                      rightTitle: AppLocalizations.of(context).translate("Price Per Hour"),
-                      rightContent: "${AppLocalizations.of(context).formatPrice(hourPrice)} ₫",
-                    ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      AppLocalizations.of(context).translate("Requirements"),
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 12.h),
-                    FutureBuilder<Map<String, dynamic>>(
-                      future: viewModel.getVehicleDetails(
-                        vehicleId,
-                        Localizations.localeOf(context).languageCode
-                      ),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        }
-
-                        final requirements = List<String>.from(
-                          snapshot.data?['requirements'] ?? []
-                        );
-
-                        return Container(
+                        SizedBox(height: 12.h),
+                        Container(
                           width: double.infinity,
                           padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 20.w),
                           decoration: BoxDecoration(
@@ -205,10 +222,10 @@ class VehicleDetailScreen extends StatelessWidget {
                               _buildRequirementItem(requirement)
                             ).toList(),
                           ),
-                        );
-                      },
-                    ),
-                  ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -222,16 +239,6 @@ class VehicleDetailScreen extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          margin: EdgeInsets.only(top: 6.h),
-          width: 4.w,
-          height: 4.w,
-          decoration: const BoxDecoration(
-            color: Colors.black,
-            shape: BoxShape.circle,
-          ),
-        ),
-        SizedBox(width: 8.w),
         Expanded(
           child: Text(
             text,

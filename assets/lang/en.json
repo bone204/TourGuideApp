@@ -251,6 +251,10 @@
 
     "Package Photos": "Package Photos",
     "Enter note for delivery": "Enter note for delivery (optional)",
-    "Payment Method": "Payment Method"
+    "Payment Method": "Payment Method",
+    "Tự động": "Automatic",
+    "Không": "None",
+    "Xăng": "Gasoline",
+    "Dầu": "Diesel"
 }
   

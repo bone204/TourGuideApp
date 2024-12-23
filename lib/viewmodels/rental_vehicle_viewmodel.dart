@@ -253,26 +253,56 @@ class RentalVehicleViewModel extends ChangeNotifier {
   }
 
   Future<int> getSeatingCapacity(String vehicleId) async {
-  try {
-    final doc = await _firestore.collection('VEHICLE_INFORMATION').doc(vehicleId).get();
-    if (doc.exists) {
-      final data = doc.data();
-      // Kiểm tra và chuyển seatingCapacity từ String sang int
-      String? seatingCapacityString = data?['seatingCapacity'];
-      if (seatingCapacityString != null) {
-        // Cố gắng chuyển đổi từ String sang int
-        return int.tryParse(seatingCapacityString) ?? 0;  // Trả về 0 nếu không thể chuyển đổi
+    try {
+      final doc = await _firestore.collection('VEHICLE_INFORMATION').doc(vehicleId).get();
+      if (doc.exists) {
+        final data = doc.data();
+        // Kiểm tra và chuyển seatingCapacity từ String sang int
+        String? seatingCapacityString = data?['seatingCapacity'];
+        if (seatingCapacityString != null) {
+          // Cố gắng chuyển đổi từ String sang int
+          return int.tryParse(seatingCapacityString) ?? 0;  // Trả về 0 nếu không thể chuyển đổi
+        }
       }
+      return 0;
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error getting seating capacity: $e");
+      }
+      return 0;
     }
-    return 0;
-  } catch (e) {
-    if (kDebugMode) {
-      print("Error getting seating capacity: $e");
-    }
-    return 0;
   }
-}
 
+  Future<Map<String, dynamic>> getVehicleDetailsById(String vehicleId) async {
+    try {
+      final doc = await _firestore.collection('VEHICLE_INFORMATION').doc(vehicleId).get();
+      if (doc.exists) {
+        final data = doc.data();
+        return {
+          'brand': data?['brand'] ?? '',
+          'fuelType': data?['fuelType'] ?? '',
+          'transmission': data?['transmission'] ?? '',
+          'maxSpeed': data?['maxSpeed'] ?? '',
+        };
+      }
+      return {
+        'brand': '',
+        'fuelType': '',
+        'transmission': '',
+        'maxSpeed': '',
+      };
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error getting vehicle details: $e");
+      }
+      return {
+        'brand': '',
+        'fuelType': '',
+        'transmission': '',
+        'maxSpeed': '',
+      };
+    }
+  }
 
   Future<void> createRentalVehicleForUser(String uid, Map<String, dynamic> vehicleData, String locale) async {
     try {

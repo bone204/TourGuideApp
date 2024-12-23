@@ -28,12 +28,8 @@ class CategorySelector extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primaryColor : Colors.white,
+                  color: isSelected ? AppColors.primaryColor : AppColors.lightGrey,
                   borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(
-                    color: AppColors.primaryColor,
-                    width: 1,
-                  ),
                 ),
                 child: Text(
                   category,
