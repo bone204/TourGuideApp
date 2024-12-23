@@ -6,6 +6,11 @@ import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 import 'package:provider/provider.dart';
+import 'dart:ui';
+import 'dart:typed_data' show Uint8List;
+import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart' show rootBundle;
+
 
 class ExploreScreen extends StatefulWidget {
   @override
@@ -90,60 +95,64 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Future<void> _focusLocation(double lat, double lng, String title, {DestinationModel? destination}) async {
     if (_mapController != null) {
       try {
-        if (kDebugMode) {
-          print('Focusing to: $title');
-          print('Latitude: $lat, Longitude: $lng');
-        }
+        await _annotationManager?.deleteAll();
 
-        // Xóa marker cũ
-        _annotationManager?.deleteAll();
-
-        // Di chuyển camera - đảm bảo thứ tự lng, lat cho Mapbox
         await _mapController!.easeTo(
           CameraOptions(
-            center: Point(coordinates: Position(lng, lat)),  // lng trước, lat sau cho Mapbox
+            center: Point(coordinates: Position(lng, lat)),
             zoom: MAP_ZOOM_LEVEL,
           ),
           MapAnimationOptions(duration: 1000),
         );
 
-        // Thêm marker với click listener
-        final marker = await _annotationManager!.create(
+        final ByteData bytes =
+        await rootBundle.load('assets/img/custom-icon.png');
+    final Uint8List imageData = bytes.buffer.asUint8List();
+
+
+        await _annotationManager?.create(
           PointAnnotationOptions(
-            geometry: Point(coordinates: Position(lng, lat)),  // Mapbox cần lng trước
-            iconImage: 'marker-stroked-15',
-            iconSize: 2.0,
+            geometry: Point(coordinates: Position(lng, lat)),
+            image: imageData,
+            iconSize: 0.3,
             textField: title,
             textOffset: [0, 2.0],
             textColor: Colors.black.value,
             textHaloColor: Colors.white.value,
-            textHaloWidth: 1.0, // Màu đỏ để dễ nhìn
+            textHaloWidth: 1.0,
           ),
         );
 
-        // Thêm click listener cho marker
         if (destination != null) {
-          _annotationManager!.addOnPointAnnotationClickListener(
+          _annotationManager?.addOnPointAnnotationClickListener(
             CustomPointAnnotationClickListener((annotation) {
-              if (annotation.id == marker.id) {  // Sử dụng marker.id để kiểm tra
-                if (kDebugMode) {
-                  print('Marker clicked: ${annotation.id}');
-                }
-                _showDestinationInfo(destination);
-              }
+              _showDestinationInfo(destination);
             }),
           );
         }
 
-        if (kDebugMode) {
-          print('Created marker at: $lat, $lng');
-        }
       } catch (e) {
         if (kDebugMode) {
           print('Error focusing location: $e');
         }
       }
     }
+  }
+
+  // Thêm phương thức để chuyển đổi widget thành bytes
+  Future<Uint8List> _captureWidget(Widget widget) async {
+    final repaintBoundary = RepaintBoundary(
+      child: SizedBox(
+        width: 80,  // Kích thước của marker
+        height: 80,
+        child: widget,
+      ),
+    );
+
+    final renderObject = repaintBoundary.createRenderObject(context);
+    final image = await renderObject.toImage(pixelRatio: 2.0);
+    final byteData = await image.toByteData(format: ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
   }
 
   Widget _buildSearchBar() {
@@ -238,7 +247,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget build(BuildContext context) {
     return Consumer<DestinationsViewModel>(
       builder: (context, destinationsVM, child) {
-
         if (destinationsVM.isLoading) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
@@ -259,13 +267,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   center: Point(coordinates: Position(107.5, 16.5)),
                   zoom: 5.0,
                 ),
-                onMapCreated: (MapboxMap controller) async {
-                  _mapController = controller;
-                  // Tạo annotation manager ngay khi map được tạo
-                  _annotationManager = await controller.annotations.createPointAnnotationManager();
-                },
+                onMapCreated: _onMapCreated,
               ),
-              // Search bar with suggestions
               Positioned(
                 top: 40,
                 left: 16,
@@ -297,7 +300,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   String _removeDiacritics(String text) {
     var vietnameseMap = {
-      'à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ẳ|ặ|ẵ|Ă|Â|À|Á|Ạ|Ả|Ã|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ằ|Ắ|Ặ|Ẳ|Ẵ': 'a',
+      'à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ẳ|ặ|ẵ|��|Â|À|Á|Ạ|Ả|Ã|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ằ|Ắ|Ặ|Ẳ|Ẵ': 'a',
       'è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ|È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ': 'e',
       'ì|í|ị|ỉ|ĩ|Ì|Í|Ị|Ỉ|Ĩ': 'i',
       'ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ợ|ở|ỡ|Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ': 'o',
@@ -392,77 +395,203 @@ class _ExploreScreenState extends State<ExploreScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      isDismissible: true,
-      enableDrag: true,
-      builder: (context) => Stack(
-        children: [
-          // Vùng tối có thể bấm để đóng
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              color: Colors.black54,
-            ),
-          ),
-          DraggableScrollableSheet(
-            initialChildSize: 0.6,
-            minChildSize: 0.3,
-            maxChildSize: 0.9,
-            builder: (context, scrollController) => Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              child: SingleChildScrollView(
-                controller: scrollController,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Carousel ảnh
-                    SizedBox(
-                      height: 200,
-                      child: PageView.builder(
-                        itemCount: destination.photo.length,
-                        itemBuilder: (context, index) => Image.network(
-                          destination.photo[index],
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.6,
+        maxChildSize: 0.9,
+        builder: (context, scrollController) {
+          return Stack(
+            children: [
+              // Header Image
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(destination.photo.first),
+                      fit: BoxFit.cover,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            destination.destinationName,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '${destination.specificAddress}, ${destination.province}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            destination.descriptionViet,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
-        ],
+              // Content
+              Container(
+                margin: const EdgeInsets.only(top: 180),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(35)),
+                ),
+                child: DefaultTabController(
+                  length: 4,
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(30, 30, 30, 0),
+                          child: Text(
+                            destination.destinationName,
+                            style: const TextStyle(
+                              fontSize: 18, 
+                              fontWeight: FontWeight.bold
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: Row(
+                            children: [
+                              Icon(Icons.location_on, color: Colors.grey[600]),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  '${destination.specificAddress}, ${destination.province}',
+                                  style: TextStyle(color: Colors.grey[600]),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 28),
+
+                        // TabBar
+                        const TabBar(
+                          labelColor: Colors.black,
+                          unselectedLabelColor: Colors.grey,
+                          indicatorColor: Colors.red,
+                          tabs: [
+                            Tab(text: 'About'),
+                            Tab(text: 'Review'),
+                            Tab(text: 'Photo'),
+                            Tab(text: 'Video'),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+
+                        // TabBarView
+                        SizedBox(
+                          height: 300,
+                          child: TabBarView(
+                            children: [
+                              // About
+                              SingleChildScrollView(
+                                padding: const EdgeInsets.symmetric(horizontal: 30),
+                                child: Text(
+                                  destination.descriptionViet,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                              // Review
+                              Center(child: Text('Reviews coming soon')),
+                              // Photos
+                              GridView.builder(
+                                padding: const EdgeInsets.symmetric(horizontal: 30),
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 8,
+                                  mainAxisSpacing: 8,
+                                ),
+                                itemCount: destination.photo.length,
+                                itemBuilder: (context, index) {
+                                  return ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      destination.photo[index],
+                                      fit: BoxFit.cover,
+                                    ),
+                                  );
+                                },
+                              ),
+                              // Videos
+                              GridView.builder(
+                                padding: const EdgeInsets.symmetric(horizontal: 30),
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 8,
+                                  mainAxisSpacing: 8,
+                                ),
+                                itemCount: destination.video.length,
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      Icons.play_circle_outline,
+                                      size: 30,
+                                      color: Colors.grey[600],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
+  }
+
+  // Thêm phương thức này đ��� load marker image từ URL
+
+
+// Future<void> _loadMarkerImage() async {
+//   if (_mapController != null) {
+//     try {
+//       // Tải hình ảnh từ URL
+//       final response = await http.get(Uri.parse(
+//           'https://cdn-icons-png.flaticon.com/512/684/684908.png'));
+      
+//       if (response.statusCode == 200) {
+//         final bytes = response.bodyBytes;
+
+//         // Thêm hình ảnh vào style của Map
+//         await _mapController!.style.addImage(
+//           "custom-marker",
+//           bytes,
+//           options: {
+//             'sdf': false // Chỉ định đây không phải hình ảnh SDF
+//           },
+//         );
+//       } else {
+//         if (kDebugMode) {
+//           print('Error: Unable to load image. HTTP status: ${response.statusCode}');
+//         }
+//       }
+//     } catch (e) {
+//       if (kDebugMode) {
+//         print('Error loading marker image: $e');
+//       }
+//     }
+//   } else {
+//     if (kDebugMode) {
+//       print('Error: MapController is null.');
+//     }
+//   }
+// }
+
+
+  // Thêm phương thức này để tạo MapboxMap
+  void _onMapCreated(MapboxMap controller) async {
+    _mapController = controller;
+    _annotationManager = await controller.annotations.createPointAnnotationManager();
+    // await _loadMarkerImage(); // Load marker image sau khi map được tạo
+    
   }
 }
