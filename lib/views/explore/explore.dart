@@ -8,7 +8,6 @@ import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui';
 import 'dart:typed_data' show Uint8List;
-import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
 
 
@@ -115,11 +114,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
             geometry: Point(coordinates: Position(lng, lat)),
             image: imageData,
             iconSize: 0.3,
-            textField: title,
-            textOffset: [0, 2.0],
-            textColor: Colors.black.value,
-            textHaloColor: Colors.white.value,
-            textHaloWidth: 1.0,
           ),
         );
 
@@ -158,6 +152,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget _buildSearchBar() {
     return Card(
       elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -183,60 +178,61 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
             onChanged: _onSearchChanged,
           ),
+          if (_searchResults.isNotEmpty) const Divider(height: 1),
           if (_searchResults.isNotEmpty)
-            Container(
-              constraints: const BoxConstraints(maxHeight: 300),
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
-                itemCount: _searchResults.length,
-                itemBuilder: (context, index) {
-                  final result = _searchResults[index];
-                  return ListTile(
-                    leading: const Icon(Icons.location_on, color: AppColors.primaryColor),
-                    title: Text(result.name),
-                    subtitle: Text(result.address),
-                    onTap: () {
-                      if (kDebugMode) {
-                        print('Selected location: ${result.name}');
-                      }
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const ClampingScrollPhysics(),
+              padding: EdgeInsets.zero,
+              itemCount: _searchResults.length,
+              itemBuilder: (context, index) {
+                final result = _searchResults[index];
+                return Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.location_on, color: AppColors.primaryColor),
+                      title: Text(result.name),
+                      subtitle: Text(result.address),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      onTap: () {
+                        final destination = Provider.of<DestinationsViewModel>(context, listen: false)
+                            .destinations
+                            .firstWhere(
+                              (dest) => dest.destinationName == result.name,
+                              orElse: () => DestinationModel(
+                                destinationId: '',
+                                destinationName: result.name,
+                                province: '',
+                                specificAddress: result.address,
+                                descriptionViet: '',
+                                descriptionEng: '',
+                                photo: [],
+                                latitude: result.latitude,
+                                longitude: result.longitude,
+                                district: '',
+                                video: [],
+                                createdDate: '',
+                              ),
+                            );
 
-                      // Tìm destination tương ứng
-                      final destination = Provider.of<DestinationsViewModel>(context, listen: false)
-                          .destinations
-                          .firstWhere(
-                            (dest) => dest.destinationName == result.name,
-                            orElse: () => DestinationModel(
-                              destinationId: '',
-                              destinationName: result.name,
-                              province: '',
-                              specificAddress: result.address,
-                              descriptionViet: '',
-                              descriptionEng: '',
-                              photo: [],
-                              latitude: result.latitude,
-                              longitude: result.longitude,
-                              district: '',
-                              video: [],
-                              createdDate: '',
-                            ),
-                          );
-
-                      setState(() {
-                        _searchController.text = result.name;
-                        _searchResults.clear();
-                      });
-                      
-                      _focusLocation(
-                        result.latitude,
-                        result.longitude,
-                        result.name,
-                        destination: destination, // Truyền destination vào
-                      );
-                    },
-                  );
-                },
-              ),
+                        setState(() {
+                          _searchController.text = result.name;
+                          _searchResults.clear();
+                        });
+                        
+                        _focusLocation(
+                          result.latitude,
+                          result.longitude,
+                          result.name,
+                          destination: destination,
+                        );
+                      },
+                    ),
+                    if (index < _searchResults.length - 1) 
+                      const Divider(height: 1, indent: 56),
+                  ],
+                );
+              },
             ),
         ],
       ),
@@ -324,7 +320,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       return;
     }
 
-    // Lấy destinations từ Provider một lần
+    // L��y destinations từ Provider một lần
     final destinations = Provider.of<DestinationsViewModel>(context, listen: false).destinations;
     final normalizedQuery = _removeDiacritics(query.toLowerCase());
 
@@ -395,31 +391,21 @@ class _ExploreScreenState extends State<ExploreScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.6,
-        maxChildSize: 0.9,
-        builder: (context, scrollController) {
-          return Stack(
-            children: [
-              // Header Image
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(destination.photo.first),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
-              // Content
-              Container(
-                margin: const EdgeInsets.only(top: 180),
+      builder: (context) => Stack(
+        children: [
+          // Vùng đen có thể bấm để đóng
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
+            ),
+          ),
+          DraggableScrollableSheet(
+            initialChildSize: 0.6,
+            minChildSize: 0.6,
+            maxChildSize: 0.9,
+            builder: (context, scrollController) {
+              return Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(35)),
@@ -455,6 +441,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        // Hiển thị ảnh đầu tiên
+                        Container(
+                          height: 200,
+                          width: double.infinity,
+                          margin: const EdgeInsets.symmetric(horizontal: 30),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            image: DecorationImage(
+                              image: NetworkImage(destination.photo.first),
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 28),
@@ -540,15 +540,15 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 
-  // Thêm phương thức này đ��� load marker image từ URL
+  // Thêm phương thức này để load marker image từ URL
 
 
 // Future<void> _loadMarkerImage() async {
