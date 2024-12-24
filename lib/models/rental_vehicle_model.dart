@@ -72,8 +72,12 @@ class RentalVehicleModel {
       vehicleColor: map['vehicleColor'] ?? '',
       vehicleRegistrationFrontPhoto: map['vehicleRegistrationFrontPhoto'] ?? '',
       vehicleRegistrationBackPhoto: map['vehicleRegistrationBackPhoto'] ?? '',
-      hourPrice: (map['hourPrice'] ?? 0.0).toDouble(),
-      dayPrice: (map['dayPrice'] ?? 0.0).toDouble(),
+      hourPrice: (map['hourPrice'] is int) 
+          ? (map['hourPrice'] as int).toDouble()
+          : (map['hourPrice'] ?? 0.0).toDouble(),
+      dayPrice: (map['dayPrice'] is int)
+          ? (map['dayPrice'] as int).toDouble()
+          : (map['dayPrice'] ?? 0.0).toDouble(),
       requirements: List<String>.from(map['requirements'] ?? []),
       contractId: map['contractId'] ?? '',
       status: map['status'] ?? 'Pending Approval',

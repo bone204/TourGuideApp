@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart'; 
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/views/my_vehicle/edit_vehicle_screen.dart';
 import '../../widgets/custom_icon_button.dart';
 import '../../widgets/category_selector.dart';
 import '../../models/rental_vehicle_model.dart';
 import '../../widgets/disable_textfield.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyVehicleDetailScreen extends StatefulWidget {
   final RentalVehicleModel vehicle;
@@ -23,6 +25,18 @@ class MyVehicleDetailScreen extends StatefulWidget {
 class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
   String selectedCategory = 'Information';
   late List<String> categories;
+  late Stream<RentalVehicleModel> vehicleStream;
+
+  @override
+  void initState() {
+    super.initState();
+    // Khởi tạo stream để lắng nghe thay đổi
+    vehicleStream = FirebaseFirestore.instance
+        .collection('RENTAL_VEHICLE')
+        .doc(widget.vehicle.vehicleRegisterId)
+        .snapshots()
+        .map((snapshot) => RentalVehicleModel.fromMap(snapshot.data()!));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +82,22 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                           ),
                         ),
                       ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: CustomIconButton(
+                          icon: Icons.edit,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditVehicleScreen(
+                                  vehicle: widget.vehicle,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -75,42 +105,48 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
             ),
           ),
         ),
-        body: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-              child: CategorySelector(
-                categories: categories,
-                selectedCategory: AppLocalizations.of(context).translate(selectedCategory),
-                onCategorySelected: (category) {
-                  setState(() {
-                    if (category == AppLocalizations.of(context).translate('Information')) {
-                      selectedCategory = 'Information';
-                    } else if (category == AppLocalizations.of(context).translate('Documentation')) {
-                      selectedCategory = 'Documentation';
-                    } else {
-                      selectedCategory = 'Rental Info';
-                    }
-                  });
-                },
-              ),
-            ),
-            Expanded(
-              child: _buildContent(),
-            ),
-          ],
+        body: StreamBuilder<RentalVehicleModel>(
+          stream: vehicleStream,
+          initialData: widget.vehicle,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final updatedVehicle = snapshot.data!;
+            return Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                  child: CategorySelector(
+                    categories: categories,
+                    selectedCategory: AppLocalizations.of(context).translate(selectedCategory),
+                    onCategorySelected: (category) {
+                      setState(() {
+                        if (category == AppLocalizations.of(context).translate('Information')) {
+                          selectedCategory = 'Information';
+                        } else if (category == AppLocalizations.of(context).translate('Documentation')) {
+                          selectedCategory = 'Documentation';
+                        } else {
+                          selectedCategory = 'Rental Info';
+                        }
+                      });
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: _buildContent(updatedVehicle),
+                ),
+              ],
+            );
+          },
         ),
-      )
+      ),
     );
   }
 
-  Widget _buildContent() {
-    final locale = Localizations.localeOf(context).languageCode;
-    final numberFormat = NumberFormat.currency(
-      locale: locale == 'vi' ? 'vi_VN' : 'en_US',
-      symbol: locale == 'vi' ? '₫' : '\$',
-      decimalDigits: 0,
-    );
+  Widget _buildContent(RentalVehicleModel vehicle) {
+    final numberFormat = NumberFormat('#,###');
 
     switch (selectedCategory) {
       case 'Information':
@@ -120,12 +156,12 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
             children: [
               DisabledTextField(
                 labelText: AppLocalizations.of(context).translate("License Plate"),
-                text: widget.vehicle.licensePlate,
+                text: vehicle.licensePlate,
               ),
               SizedBox(height: 16.h),
               DisabledTextField(
                 labelText: AppLocalizations.of(context).translate("Vehicle Registration"),
-                text: widget.vehicle.vehicleRegistration,
+                text: vehicle.vehicleRegistration,
               ),
               SizedBox(height: 16.h),
               Row(
@@ -133,14 +169,14 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                   Expanded(
                     child: DisabledTextField(
                       labelText: AppLocalizations.of(context).translate("Vehicle Type"),
-                      text: widget.vehicle.vehicleType,
+                      text: vehicle.vehicleType,
                     ),
                   ),
                   SizedBox(width: 16.w),
                   Expanded(
                     child: DisabledTextField(
                       labelText: AppLocalizations.of(context).translate("Max Seats"),
-                      text: widget.vehicle.maxSeats.toString(),
+                      text: vehicle.maxSeats.toString(),
                     ),
                   ),
                 ],
@@ -148,17 +184,17 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
               SizedBox(height: 16.h),
               DisabledTextField(
                 labelText: AppLocalizations.of(context).translate("Brand"),
-                text: widget.vehicle.vehicleBrand,
+                text: vehicle.vehicleBrand,
               ),
               SizedBox(height: 16.h),
               DisabledTextField(
                 labelText: AppLocalizations.of(context).translate("Model"),
-                text: widget.vehicle.vehicleModel,
+                text: vehicle.vehicleModel,
               ),
               SizedBox(height: 16.h),
               DisabledTextField(
                 labelText: AppLocalizations.of(context).translate("Color"),
-                text: widget.vehicle.vehicleColor,
+                text: vehicle.vehicleColor,
               ),
             ],
           ),
@@ -187,7 +223,7 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16.r),
                   child: Image.network(
-                    widget.vehicle.vehicleRegistrationFrontPhoto,
+                    vehicle.vehicleRegistrationFrontPhoto,
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
@@ -231,7 +267,7 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16.r),
                   child: Image.network(
-                    widget.vehicle.vehicleRegistrationBackPhoto,
+                    vehicle.vehicleRegistrationBackPhoto,
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
@@ -269,14 +305,14 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                   Expanded(
                     child: DisabledTextField(
                       labelText: AppLocalizations.of(context).translate("Price Per Hour"),
-                      text: numberFormat.format(widget.vehicle.hourPrice),
+                      text: '${numberFormat.format(vehicle.hourPrice)} ₫',
                     ),
                   ),
                   SizedBox(width: 16.w),
                   Expanded(
                     child: DisabledTextField(
                       labelText: AppLocalizations.of(context).translate("Price Per Day"),
-                      text: numberFormat.format(widget.vehicle.dayPrice),
+                      text: '${numberFormat.format(vehicle.dayPrice)} ₫',
                     ),
                   ),
                 ],
@@ -301,7 +337,7 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                       borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: Text(
-                      widget.vehicle.requirements.join("\n"),
+                      vehicle.requirements.join("\n"),
                       style: TextStyle(
                         fontSize: 16.sp,
                         color: Colors.black,

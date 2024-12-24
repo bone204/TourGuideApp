@@ -552,7 +552,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
           for (var doc in vehicleSnapshot.docs) {
             RentalVehicleModel vehicle = RentalVehicleModel.fromMap(doc.data());
             
-            // Kiểm tra giá thuê có nằm trong kho��ng budget không
+            // Kiểm tra giá thuê có nằm trong khoảng budget không
             double relevantPrice = rentOption == 'Hourly' ? vehicle.hourPrice : vehicle.dayPrice;
             if (relevantPrice < minBudget || relevantPrice > maxBudget) {
               continue;
@@ -751,5 +751,19 @@ class RentalVehicleViewModel extends ChangeNotifier {
       return _transmissionTranslations[transmissionVi] ?? transmissionVi;
     }
     return transmissionVi;
+  }
+
+  Future<void> updateVehicleDetails(String vehicleRegisterId, Map<String, dynamic> updates) async {
+    try {
+      await _firestore
+          .collection('RENTAL_VEHICLE')
+          .doc(vehicleRegisterId)
+          .update(updates);
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error updating vehicle details: $e");
+      }
+      rethrow;
+    }
   }
 }

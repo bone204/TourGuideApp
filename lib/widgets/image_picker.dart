@@ -11,6 +11,7 @@ class ImagePickerWidget extends StatefulWidget {
   final String initialImagePath;
   final ValueChanged<String> onImagePicked;
   final bool isRequired;
+  final bool isNetworkImage;
 
   const ImagePickerWidget({
     Key? key,
@@ -18,6 +19,7 @@ class ImagePickerWidget extends StatefulWidget {
     this.initialImagePath = '',
     required this.onImagePicked,
     this.isRequired = false,
+    this.isNetworkImage = false,
   }) : super(key: key);
 
   @override
@@ -138,10 +140,26 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                       ),
                     ),
                   )
-                : Image.file(
-                    File(_selectedImagePath!),
-                    fit: BoxFit.cover,
-                  ),
+                : widget.isNetworkImage
+                    ? Image.network(
+                        _selectedImagePath!,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                      )
+                    : Image.file(
+                        File(_selectedImagePath!),
+                        fit: BoxFit.cover,
+                      ),
           ),
         ),
       ],
