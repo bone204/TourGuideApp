@@ -18,6 +18,29 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   
+  // Helper function để format số điện thoại
+  String _formatPhoneNumber(String phoneNumber) {
+    if (phoneNumber.isEmpty) return '';
+    
+    // Danh sách mã vùng phổ biến
+    final commonCodes = ['+84', '+1', '+44', '+91'];
+    
+    // Tìm mã vùng trong số điện thoại
+    String countryCode = '+84'; // Mặc định
+    String number = phoneNumber;
+    
+    for (String code in commonCodes) {
+      if (phoneNumber.startsWith(code)) {
+        countryCode = code;
+        number = phoneNumber.substring(code.length);
+        break;
+      }
+    }
+    
+    // Format: (+84) 0914259475
+    return '($countryCode) $number';
+  }
+
   @override
   Widget build(BuildContext context) {
     
@@ -121,7 +144,7 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
                     SizedBox(height: 16.h),
                     DisabledTextField(
                       labelText: AppLocalizations.of(context).translate("Phone Number"),
-                      text: userData['phoneNumber'] ?? '',
+                      text: _formatPhoneNumber(userData['phoneNumber'] ?? ''),
                     ),
                     SizedBox(height: 16.h),
                     DisabledTextField(

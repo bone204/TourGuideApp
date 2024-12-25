@@ -31,6 +31,13 @@ class PersonInfoViewModel extends ChangeNotifier {
     notifyListeners();
   }
   
+  String _selectedCountryCode = '+84'; // Thêm biến để lưu mã vùng
+  String get selectedCountryCode => _selectedCountryCode;
+  set selectedCountryCode(String value) {
+    _selectedCountryCode = value;
+    notifyListeners();
+  }
+  
   PersonInfoViewModel() {
     _auth.authStateChanges().listen((user) {
       if (user != null) {
@@ -46,21 +53,47 @@ class PersonInfoViewModel extends ChangeNotifier {
     User? user = _auth.currentUser;
     if (user != null) {
       try {
-        // Sử dụng userId trực tiếp từ FirebaseAuth
         String uid = user.uid;
-
-        // Truy vấn thông tin người dùng bằng userId từ collection 'USER'
         DocumentSnapshot doc = await _firestore.collection('USER').doc(uid).get();
         if (doc.exists) {
           Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
-          // Cập nhật giá trị của các controller
+          
+          // Xử lý số điện thoại
+          String fullPhone = data?['phoneNumber'] ?? '';
+          if (fullPhone.isNotEmpty) {
+            // Loại bỏ khoảng trắng và ký tự không mong muốn
+            fullPhone = fullPhone.trim();
+            
+            // Kiểm tra các mã vùng phổ biến
+            final commonCodes = ['+84', '+1', '+44', '+91'];
+            bool foundCode = false;
+            
+            for (String code in commonCodes) {
+              if (fullPhone.startsWith(code)) {
+                _selectedCountryCode = code;
+                // Lấy phần số điện thoại sau mã vùng
+                phoneNumberController.text = fullPhone.substring(code.length);
+                foundCode = true;
+                break;
+              }
+            }
+            
+            // Nếu không tìm thấy mã vùng, giữ nguyên số điện thoại
+            if (!foundCode) {
+              _selectedCountryCode = '+84'; // Mặc định
+              phoneNumberController.text = fullPhone;
+            }
+          }
+
+          // Load các trường khác
           fullnameController.text = data?['fullName'] ?? '';
           genderController.text = data?['gender'] ?? '';
           citizenIdController.text = data?['citizenId'] ?? '';
-          phoneNumberController.text = data?['phoneNumber'] ?? '';
           addressController.text = data?['address'] ?? '';
           nationalityController.text = data?['nationality'] ?? '';
           birthdayController.text = data?['birthday'] ?? '';
+          
+          notifyListeners(); // Thông báo UI cập nhật
         } else {
           if (kDebugMode) {
             print('User document does not exist');
@@ -81,19 +114,24 @@ class PersonInfoViewModel extends ChangeNotifier {
     User? user = _auth.currentUser;
     if (user != null) {
       try {
-        // Sử dụng userId trực tiếp từ FirebaseAuth
         String uid = user.uid;
+        
+        // Đảm bảo số điện thoại không có khoảng trắng
+        String phoneNumber = phoneNumberController.text.trim();
+        
+        // Ghép mã vùng với số điện thoại
+        String fullPhoneNumber = _selectedCountryCode + phoneNumber;
 
-        // Cập nhật thông tin người dùng bằng userId trong collection 'USER'
         await _firestore.collection('USER').doc(uid).update({
           'fullName': fullnameController.text,
           'gender': genderController.text,
           'citizenId': citizenIdController.text,
-          'phoneNumber': phoneNumberController.text,
+          'phoneNumber': fullPhoneNumber,
           'address': addressController.text,
           'nationality': nationalityController.text,
           'birthday': birthdayController.text,
         });
+        
         notifyListeners();
       } catch (e) {
         if (kDebugMode) {

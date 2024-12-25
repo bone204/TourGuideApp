@@ -17,7 +17,6 @@ class EditPersonInfoScreen extends StatefulWidget {
 }
 
 class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
-  String _selectedCountryCode = '+84';
   final List<String> _countryCodes = ['+84', '+1', '+44', '+91'];
 
   @override
@@ -222,12 +221,10 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
         SizedBox(height: 12.h),
         CustomPhoneField(
           controller: viewModel.phoneNumberController,
-          selectedCountryCode: _selectedCountryCode,
+          selectedCountryCode: viewModel.selectedCountryCode,
           countryCodes: _countryCodes,
           onCountryCodeChanged: (newCode) {
-            setState(() {
-              _selectedCountryCode = newCode;
-            });
+            viewModel.selectedCountryCode = newCode;
           },
           hintText: AppLocalizations.of(context).translate('Phone Number'),
         ),
