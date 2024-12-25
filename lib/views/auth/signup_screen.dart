@@ -9,6 +9,7 @@ import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/social_icon_button.dart';
 import 'package:tourguideapp/localization/app_localizations.dart'; 
 import 'login_screen.dart';
+import 'package:tourguideapp/views/auth/phone_input_screen.dart';
 
 class SignupScreen extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
@@ -75,25 +76,19 @@ class SignupScreen extends StatelessWidget {
                               onPressed: signupViewModel.isLoading
                                   ? null
                                   : () async {
-                                      User? user = await signupViewModel.signUp(
-                                        _emailController.text,
-                                        _passwordController.text,
-                                        _usernameController.text,
-                                        '',
-                                        '',
-                                        '',
-                                        '',
-                                        '',
-                                        '',
-                                        '',
-                                      );
-
-                                      if (user != null) {
-                                        Navigator.pushNamed(context, "/home");
-                                      } else {
-                                        if (kDebugMode) {
-                                          print("Some error occurred");
-                                        }
+                                      if (_emailController.text.isNotEmpty &&
+                                          _passwordController.text.isNotEmpty &&
+                                          _usernameController.text.isNotEmpty) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => PhoneInputScreen(
+                                              email: _emailController.text,
+                                              password: _passwordController.text,
+                                              username: _usernameController.text,
+                                            ),
+                                          ),
+                                        );
                                       }
                                     },
                               style: ElevatedButton.styleFrom(

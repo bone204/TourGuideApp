@@ -8,9 +8,13 @@ class SignupViewModel extends ChangeNotifier {
   final FirebaseAuthService _auth = FirebaseAuthService();
   bool _isLoading = false;
   String? _errorMessage;
+  String? _verificationId;
+  int? _resendToken;
+  bool _isCodeSent = false;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  bool get isCodeSent => _isCodeSent;
 
   Future<User?> signUp(String email, String password, String name, String fullName, String address, String gender, String citizenId, String phoneNumber, String nationality, String birthday) async {
     _isLoading = true;
@@ -85,5 +89,112 @@ class SignupViewModel extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
     return null;
+  }
+
+  Future<bool> sendPhoneVerification(String phoneNumber) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        timeout: const Duration(seconds: 120),
+        forceResendingToken: _resendToken,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          try {
+            await FirebaseAuth.instance.signInWithCredential(credential);
+            _isCodeSent = true;
+            notifyListeners();
+          } catch (e) {
+            if (kDebugMode) {
+              print('Auto-verification error: $e');
+            }
+            _errorMessage = 'Auto-verification failed: $e';
+            notifyListeners();
+          }
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          if (kDebugMode) {
+            print('Verification Failed: ${e.message}');
+            print('Error code: ${e.code}');
+          }
+          
+          // Xử lý các mã lỗi cụ thể
+          switch (e.code) {
+            case 'invalid-phone-number':
+              _errorMessage = 'The provided phone number is invalid.';
+              break;
+            case 'too-many-requests':
+              _errorMessage = 'Too many requests. Please try again later.';
+              break;
+            case 'operation-not-allowed':
+              _errorMessage = 'Phone number authentication is not enabled.';
+              break;
+            default:
+              _errorMessage = e.message ?? 'An unknown error occurred.';
+          }
+          
+          _isCodeSent = false;
+          notifyListeners();
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          if (kDebugMode) {
+            print('Code sent to $phoneNumber');
+            print('VerificationId: $verificationId');
+          }
+          _verificationId = verificationId;
+          _resendToken = resendToken;
+          _isCodeSent = true;
+          notifyListeners();
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          if (kDebugMode) {
+            print('Auto retrieval timeout');
+          }
+          _verificationId = verificationId;
+          notifyListeners();
+        },
+      );
+
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error sending verification code: $e');
+      }
+      _errorMessage = 'Failed to send verification code: $e';
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> verifyOTP(String otp) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      if (_verificationId == null) {
+        _errorMessage = 'Verification ID not found';
+        return false;
+      }
+
+      // Create credential
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId!,
+        smsCode: otp,
+      );
+
+      // Sign in with credential
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      return true;
+    } catch (e) {
+      _errorMessage = 'Invalid OTP: $e';
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

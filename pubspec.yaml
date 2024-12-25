@@ -37,6 +37,9 @@ dependencies:
   flutter_xlider: ^3.5.0
   flutter_plugin_android_lifecycle: ^2.0.23
   mapbox_search: ^4.2.2
+  pin_code_fields: ^8.0.1
+  intl_phone_number_input: ^0.7.4
+  firebase_app_check: ^0.2.1+8
 
   # Localization dependencies
   flutter_localizations:
