@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
@@ -8,6 +9,7 @@ import '../../viewmodels/personInfo_viewmodel.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_combo_box.dart';
 import '../../widgets/custom_phone_field.dart';
+import '../../widgets/date_time_picker.dart';
 
 class EditPersonInfoScreen extends StatefulWidget {
   const EditPersonInfoScreen({super.key});
@@ -18,6 +20,37 @@ class EditPersonInfoScreen extends StatefulWidget {
 
 class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
   final List<String> _countryCodes = ['+84', '+1', '+44', '+91'];
+  final Map<String, String> genderTranslations = {
+    'Nam': 'Male',
+    'Nữ': 'Female',
+    'Khác': 'Other',
+  };
+
+  final Map<String, String> nationalityTranslations = {
+    'Việt Nam': 'Vietnamese',
+    'Mỹ': 'American',
+    'Anh': 'British',
+    'Trung Quốc': 'Chinese',
+    'Nhật Bản': 'Japanese',
+    'Hàn Quốc': 'Korean',
+  };
+
+  String _getDisplayValue(String vietnameseValue, Map<String, String> translations) {
+    if (Localizations.localeOf(context).languageCode == 'vi') {
+      return vietnameseValue;
+    }
+    return translations[vietnameseValue] ?? vietnameseValue;
+  }
+
+  String _getVietnameseValue(String? englishValue, Map<String, String> translations) {
+    if (Localizations.localeOf(context).languageCode == 'vi') {
+      return englishValue ?? '';
+    }
+    return translations.entries
+        .firstWhere((entry) => entry.value == englishValue,
+            orElse: () => const MapEntry('', ''))
+        .key;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,15 +150,26 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                           SizedBox(height: 8.h),
                           CustomComboBox(
                             hintText: AppLocalizations.of(context).translate("Gender"),
-                            value: viewModel.gender,
-                            items: [
-                              AppLocalizations.of(context).translate("Male"),
-                              AppLocalizations.of(context).translate("Female"), 
-                              AppLocalizations.of(context).translate("Other")
-                            ],
+                            value: viewModel.gender != null && viewModel.gender!.isNotEmpty
+                                ? (Localizations.localeOf(context).languageCode == 'vi' 
+                                    ? viewModel.gender 
+                                    : genderTranslations[viewModel.gender])
+                                : null,
+                            items: Localizations.localeOf(context).languageCode == 'vi'
+                                ? const ['Nam', 'Nữ', 'Khác']
+                                : const ['Male', 'Female', 'Other'],
                             onChanged: (value) {
-                              viewModel.gender = value;
-                              viewModel.genderController.text = value ?? '';
+                              if (Localizations.localeOf(context).languageCode == 'vi') {
+                                viewModel.gender = value;
+                                viewModel.genderController.text = value ?? '';
+                              } else {
+                                String? vietnameseValue = genderTranslations.entries
+                                    .firstWhere((entry) => entry.value == value,
+                                        orElse: () => const MapEntry('', ''))
+                                    .key;
+                                viewModel.gender = vietnameseValue;
+                                viewModel.genderController.text = vietnameseValue;
+                              }
                             },
                           ),
                         ],
@@ -146,11 +190,26 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                           SizedBox(height: 8.h),
                           CustomComboBox(
                             hintText: AppLocalizations.of(context).translate("Nationality"),
-                            value: viewModel.nationality,
-                            items: const ['Vietnamese', 'American', 'British', 'Other'],
+                            value: viewModel.nationality != null && viewModel.nationality!.isNotEmpty
+                                ? (Localizations.localeOf(context).languageCode == 'vi'
+                                    ? viewModel.nationality
+                                    : nationalityTranslations[viewModel.nationality])
+                                : null,
+                            items: Localizations.localeOf(context).languageCode == 'vi'
+                                ? const ['Việt Nam', 'Mỹ', 'Anh', 'Trung Quốc', 'Nhật Bản', 'Hàn Quốc']
+                                : const ['Vietnamese', 'American', 'British', 'Chinese', 'Japanese', 'Korean'],
                             onChanged: (value) {
-                              viewModel.nationality = value;
-                              viewModel.nationalityController.text = value ?? '';
+                              if (Localizations.localeOf(context).languageCode == 'vi') {
+                                viewModel.nationality = value;
+                                viewModel.nationalityController.text = value ?? '';
+                              } else {
+                                String? vietnameseValue = nationalityTranslations.entries
+                                    .firstWhere((entry) => entry.value == value,
+                                        orElse: () => const MapEntry('', ''))
+                                    .key;
+                                viewModel.nationality = vietnameseValue;
+                                viewModel.nationalityController.text = vietnameseValue;
+                              }
                             },
                           ),
                         ],
@@ -187,17 +246,15 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                   controller: viewModel.addressController,
                 ),
                 SizedBox(height: 16.h),
-                Text(
-                  AppLocalizations.of(context).translate("Birthday"),
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                CustomTextField(
-                  hintText: AppLocalizations.of(context).translate("Birthday"),
-                  controller: viewModel.birthdayController,
+                DateTimePicker(
+                  selectedDate: viewModel.birthdayController.text.isNotEmpty 
+                    ? DateFormat('dd/MM/yyyy').parse(viewModel.birthdayController.text)
+                    : DateTime.now(),
+                  onDateSelected: (DateTime date) {
+                    viewModel.birthdayController.text = DateFormat('dd/MM/yyyy').format(date);
+                  },
+                  title: "Birthday",
+                  rentOption: "Daily",
                 ),
               ],
             ),

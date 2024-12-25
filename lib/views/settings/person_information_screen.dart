@@ -18,6 +18,30 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   
+  // Thêm các map chuyển đổi
+  final Map<String, String> genderTranslations = {
+    'Nam': 'Male',
+    'Nữ': 'Female',
+    'Khác': 'Other',
+  };
+
+  final Map<String, String> nationalityTranslations = {
+    'Việt Nam': 'Vietnamese',
+    'Mỹ': 'American',
+    'Anh': 'British',
+    'Trung Quốc': 'Chinese',
+    'Nhật Bản': 'Japanese',
+    'Hàn Quốc': 'Korean',
+  };
+
+  // Hàm chuyển đổi giá trị hiển thị theo ngôn ngữ
+  String _getDisplayValue(String vietnameseValue, Map<String, String> translations) {
+    if (Localizations.localeOf(context).languageCode == 'vi') {
+      return vietnameseValue;
+    }
+    return translations[vietnameseValue] ?? vietnameseValue;
+  }
+
   // Helper function để format số điện thoại
   String _formatPhoneNumber(String phoneNumber) {
     if (phoneNumber.isEmpty) return '';
@@ -134,7 +158,7 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
                     SizedBox(height: 16.h),
                     DisabledTextField(
                       labelText: AppLocalizations.of(context).translate("Gender"),
-                      text: userData['gender'] ?? '',
+                      text: _getDisplayValue(userData['gender'] ?? '', genderTranslations),
                     ),
                     SizedBox(height: 16.h),
                     DisabledTextField(
@@ -154,7 +178,7 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
                     SizedBox(height: 16.h),
                     DisabledTextField(
                       labelText: AppLocalizations.of(context).translate("Nationality"),
-                      text: userData['nationality'] ?? '',
+                      text: _getDisplayValue(userData['nationality'] ?? '', nationalityTranslations),
                     ),
                     SizedBox(height: 16.h),
                     DisabledTextField(

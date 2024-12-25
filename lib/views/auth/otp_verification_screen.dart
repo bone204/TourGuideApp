@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/signup_viewmodel.dart';
-import 'package:tourguideapp/views/auth/personal_info_screen.dart';
+import 'package:tourguideapp/views/auth/personal_info_input_screen.dart';
 
 class OTPVerificationScreen extends StatelessWidget {
   final String email;

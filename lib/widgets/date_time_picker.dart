@@ -39,7 +39,7 @@ class DateTimePicker extends StatelessWidget {
       children: [
         Text(
           AppLocalizations.of(context).translate(title),
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8.h),
         Row(

@@ -17,95 +17,60 @@ class PersonInfoViewModel extends ChangeNotifier {
   
   bool isEditing = false;
   
-  String? _gender;
-  String? get gender => _gender;
-  set gender(String? value) {
-    _gender = value;
-    notifyListeners();
-  }
+  String? gender;
+  String? nationality;
+  String selectedCountryCode = '+84';
   
-  String? _nationality;
-  String? get nationality => _nationality;
-  set nationality(String? value) {
-    _nationality = value;
-    notifyListeners();
-  }
-  
-  String _selectedCountryCode = '+84'; // Thêm biến để lưu mã vùng
-  String get selectedCountryCode => _selectedCountryCode;
-  set selectedCountryCode(String value) {
-    _selectedCountryCode = value;
-    notifyListeners();
-  }
+  bool isLoading = true;
   
   PersonInfoViewModel() {
-    _auth.authStateChanges().listen((user) {
-      if (user != null) {
-        loadData();
-      } else {
-        _clearData();
-      }
-    });
+    _loadUserData();
   }
 
-  // Load data from Firestore
-  Future<void> loadData() async {
-    User? user = _auth.currentUser;
-    if (user != null) {
-      try {
-        String uid = user.uid;
-        DocumentSnapshot doc = await _firestore.collection('USER').doc(uid).get();
-        if (doc.exists) {
-          Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
-          
-          // Xử lý số điện thoại
-          String fullPhone = data?['phoneNumber'] ?? '';
-          if (fullPhone.isNotEmpty) {
-            // Loại bỏ khoảng trắng và ký tự không mong muốn
-            fullPhone = fullPhone.trim();
-            
-            // Kiểm tra các mã vùng phổ biến
-            final commonCodes = ['+84', '+1', '+44', '+91'];
-            bool foundCode = false;
-            
-            for (String code in commonCodes) {
-              if (fullPhone.startsWith(code)) {
-                _selectedCountryCode = code;
-                // Lấy phần số điện thoại sau mã vùng
-                phoneNumberController.text = fullPhone.substring(code.length);
-                foundCode = true;
-                break;
-              }
-            }
-            
-            // Nếu không tìm thấy mã vùng, giữ nguyên số điện thoại
-            if (!foundCode) {
-              _selectedCountryCode = '+84'; // Mặc định
-              phoneNumberController.text = fullPhone;
-            }
-          }
+  Future<void> _loadUserData() async {
+    try {
+      isLoading = true;
+      notifyListeners();
+      
+      final docSnapshot = await _firestore
+          .collection('USER')
+          .doc(_auth.currentUser?.uid)
+          .get();
 
-          // Load các trường khác
-          fullnameController.text = data?['fullName'] ?? '';
-          genderController.text = data?['gender'] ?? '';
-          citizenIdController.text = data?['citizenId'] ?? '';
-          addressController.text = data?['address'] ?? '';
-          nationalityController.text = data?['nationality'] ?? '';
-          birthdayController.text = data?['birthday'] ?? '';
-          
-          notifyListeners(); // Thông báo UI cập nhật
-        } else {
-          if (kDebugMode) {
-            print('User document does not exist');
-          }
-          _clearData();
+      if (docSnapshot.exists) {
+        final userData = docSnapshot.data() as Map<String, dynamic>;
+        
+        fullnameController.text = userData['fullName'] ?? '';
+        
+        // Cập nhật gender
+        String genderValue = userData['gender'] ?? '';
+        gender = genderValue;
+        genderController.text = genderValue;
+        
+        citizenIdController.text = userData['citizenId'] ?? '';
+        
+        // Xử lý số điện thoại
+        String fullPhone = userData['phoneNumber'] ?? '';
+        if (fullPhone.isNotEmpty) {
+          phoneNumberController.text = fullPhone.replaceFirst(selectedCountryCode, '');
         }
-      } catch (e) {
-        if (kDebugMode) {
-          print('Lỗi khi đọc thông tin người dùng: $e');
-        }
-        _clearData();
+        
+        addressController.text = userData['address'] ?? '';
+        
+        // Cập nhật nationality
+        String nationalityValue = userData['nationality'] ?? '';
+        nationality = nationalityValue;
+        nationalityController.text = nationalityValue;
+        
+        birthdayController.text = userData['birthday'] ?? '';
       }
+      
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      isLoading = false;
+      notifyListeners();
+      print('Error loading user data: $e');
     }
   }
 
@@ -120,7 +85,7 @@ class PersonInfoViewModel extends ChangeNotifier {
         String phoneNumber = phoneNumberController.text.trim();
         
         // Ghép mã vùng với số điện thoại
-        String fullPhoneNumber = _selectedCountryCode + phoneNumber;
+        String fullPhoneNumber = selectedCountryCode + phoneNumber;
 
         await _firestore.collection('USER').doc(uid).update({
           'fullName': fullnameController.text,
