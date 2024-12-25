@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/signup_viewmodel.dart';
+import 'package:tourguideapp/views/auth/personal_info_screen.dart';
 
 class OTPVerificationScreen extends StatelessWidget {
   final String email;
@@ -127,27 +128,18 @@ class OTPVerificationScreen extends StatelessWidget {
                 
                 if (otp.length == 6) {
                   bool verified = await signupViewModel.verifyOTP(otp);
-                  if (verified) {
-                    final user = await signupViewModel.signUp(
-                      email,
-                      password,
-                      username,
-                      '', // fullName
-                      '', // address
-                      '', // gender
-                      '', // citizenId
-                      phoneNumber,
-                      '', // nationality
-                      '', // birthday
+                  if (verified && context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PersonalInfoScreen(
+                          email: email,
+                          password: password,
+                          username: username,
+                          phoneNumber: phoneNumber,
+                        ),
+                      ),
                     );
-                    
-                    if (user != null && context.mounted) {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        '/home',
-                        (route) => false,
-                      );
-                    }
                   }
                 }
               },

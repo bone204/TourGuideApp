@@ -3,14 +3,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart'; 
 
 class DateTimePicker extends StatelessWidget {
-  final DateTime selectedDate;
+  final DateTime? selectedDate;
   final Function(DateTime) onDateSelected;
   final String title;
   final String rentOption;
 
   const DateTimePicker({
     Key? key, 
-    required this.selectedDate, 
+    this.selectedDate,
     required this.onDateSelected,
     required this.title,
     required this.rentOption,
@@ -32,10 +32,8 @@ class DateTimePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('Current DateTime: ${selectedDate.toString()}');
-    print('Rent Option: $rentOption');
+    final DateTime currentDate = selectedDate ?? DateTime.now();
 
-    ScreenUtil.init(context, designSize: const Size(375, 812));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -49,26 +47,14 @@ class DateTimePicker extends StatelessWidget {
             Expanded(
               child: GestureDetector(
                 onTap: () async {
-                  print('Opening Date Picker...');
                   final DateTime? pickedDate = await showDatePicker(
                     context: context,
-                    initialDate: selectedDate,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2101),
+                    initialDate: currentDate,
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
                   );
                   if (pickedDate != null) {
-                    print('Selected Date: ${pickedDate.toString()}');
-                    final newDateTime = DateTime(
-                      pickedDate.year,
-                      pickedDate.month,
-                      pickedDate.day,
-                      selectedDate.hour,
-                      selectedDate.minute,
-                    );
-                    print('New DateTime after date selection: ${newDateTime.toString()}');
-                    onDateSelected(newDateTime);
-                  } else {
-                    print('Date selection cancelled');
+                    onDateSelected(pickedDate);
                   }
                 },
                 child: Container(
@@ -87,7 +73,7 @@ class DateTimePicker extends StatelessWidget {
                       ),
                       SizedBox(width: 12.w),
                       Text(
-                        "${_getDayAbbreviation(selectedDate, context)}, ${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}",
+                        "${_getDayAbbreviation(currentDate, context)}, ${currentDate.day.toString().padLeft(2, '0')}/${currentDate.month.toString().padLeft(2, '0')}/${currentDate.year}",
                         style: TextStyle(fontSize: 14.sp),
                       ),
                     ],
@@ -102,7 +88,7 @@ class DateTimePicker extends StatelessWidget {
                   print('Opening Time Picker...');
                   final TimeOfDay? pickedTime = await showTimePicker(
                     context: context,
-                    initialTime: TimeOfDay.fromDateTime(selectedDate),
+                    initialTime: TimeOfDay.fromDateTime(currentDate),
                     builder: (BuildContext context, Widget? child) {
                       return MediaQuery(
                         data: MediaQuery.of(context).copyWith(
@@ -117,9 +103,9 @@ class DateTimePicker extends StatelessWidget {
                     print('Selected Time: ${pickedTime.format(context)}');
                     if (pickedTime.hour >= 6 && pickedTime.hour <= 18) {
                       final newDateTime = DateTime(
-                        selectedDate.year,
-                        selectedDate.month,
-                        selectedDate.day,
+                        currentDate.year,
+                        currentDate.month,
+                        currentDate.day,
                         pickedTime.hour,
                         pickedTime.minute,
                       );
@@ -151,7 +137,7 @@ class DateTimePicker extends StatelessWidget {
                       Icon(Icons.access_time, size: 24.w),
                       SizedBox(width: 12.w),
                       Text(
-                        _formatTime(TimeOfDay.fromDateTime(selectedDate)),
+                        _formatTime(TimeOfDay.fromDateTime(currentDate)),
                         style: TextStyle(fontSize: 14.sp),
                       ),
                     ],

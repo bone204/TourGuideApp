@@ -17,22 +17,28 @@ class SignupViewModel extends ChangeNotifier {
   bool get isCodeSent => _isCodeSent;
 
   Future<User?> signUp(String email, String password, String name, String fullName, String address, String gender, String citizenId, String phoneNumber, String nationality, String birthday) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
     try {
+      print('Starting signup process...');
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      print('Calling auth service with data:');
+      print('Email: $email');
+      print('Username: $name');
+      // ... in các thông tin khác
+
       User? user = await _auth.signUpWithEmailAndPassword(email, password, name, fullName, address, gender, citizenId, phoneNumber, nationality, birthday);
-      if (user != null) {
-        return user;
-      }
+      print('Signup result: ${user != null ? 'Success' : 'Failed'}');
+      return user;
     } catch (e) {
-      _errorMessage = 'Đăng ký không thành công. Vui lòng kiểm tra lại thông tin.';
+      print('Error during signup: $e');
+      _errorMessage = e.toString();
+      return null;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
-    return null;
   }
 
   Future<User?> signInWithGoogle() async {

@@ -1,0 +1,275 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:tourguideapp/viewmodels/signup_viewmodel.dart';
+import 'package:tourguideapp/widgets/custom_text_field.dart';
+import 'package:tourguideapp/widgets/custom_combo_box.dart';
+import 'package:tourguideapp/widgets/date_time_picker.dart';
+import 'package:intl/intl.dart';
+
+class PersonalInfoScreen extends StatefulWidget {
+  final String email;
+  final String password;
+  final String username;
+  final String phoneNumber;
+
+  const PersonalInfoScreen({
+    Key? key,
+    required this.email,
+    required this.password,
+    required this.username,
+    required this.phoneNumber,
+  }) : super(key: key);
+
+  @override
+  State<PersonalInfoScreen> createState() => _PersonalInfoScreenState();
+}
+
+class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
+  final TextEditingController _fullNameController = TextEditingController();
+  String? _selectedGender;
+  String? _selectedNationality;
+  DateTime? _selectedDate;
+  bool _isLoading = false;
+
+  final List<String> genders = ['Male', 'Female', 'Other'];
+  final List<String> nationalities = [
+    'Vietnamese',
+    'American',
+    'British',
+    'Chinese',
+    'Japanese',
+    'Korean',
+    // Add more nationalities as needed
+  ];
+
+  final Map<String, String> genderTranslations = {
+    'Male': 'Nam',
+    'Female': 'Nữ',
+    'Other': 'Khác',
+  };
+
+  final Map<String, String> nationalityTranslations = {
+    'Vietnamese': 'Việt Nam',
+    'American': 'Mỹ',
+    'British': 'Anh',
+    'Chinese': 'Trung Quốc',
+    'Japanese': 'Nhật Bản',
+    'Korean': 'Hàn Quốc',
+  };
+
+  // Hàm chuyển đổi giá trị sang tiếng Việt để lưu lên Firebase
+  String _getVietnameseValue(String? englishValue, Map<String, String> translations) {
+    return englishValue != null ? translations[englishValue] ?? englishValue : '';
+  }
+
+  // Hàm lấy giá trị hiển thị theo ngôn ngữ của app
+  String _getDisplayValue(String vietnameseValue, Map<String, String> translations) {
+    if (Localizations.localeOf(context).languageCode == 'vi') {
+      return vietnameseValue;
+    }
+    // Tìm key tiếng Anh từ value tiếng Việt
+    return translations.entries
+        .firstWhere((entry) => entry.value == vietnameseValue,
+            orElse: () => const MapEntry('', ''))
+        .key;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(20.w, 88.h, 20.w, 0.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 20.h),
+                Text(
+                  'Personal Information',
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'Please fill in your personal information',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                SizedBox(height: 32.h),
+                CustomTextField(
+                  hintText: 'Full Name',
+                  controller: _fullNameController,
+                ),
+                SizedBox(height: 16.h),
+                CustomComboBox(
+                  hintText: 'Gender',
+                  value: _selectedGender,
+                  items: genders,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGender = value;
+                    });
+                  },
+                ),
+                SizedBox(height: 16.h),
+                CustomComboBox(
+                  hintText: 'Nationality',
+                  value: _selectedNationality,
+                  items: nationalities,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedNationality = value;
+                    });
+                  },
+                ),
+                SizedBox(height: 16.h),
+                DateTimePicker(
+                  selectedDate: _selectedDate,
+                  onDateSelected: (DateTime date) {
+                    setState(() {
+                      _selectedDate = date;
+                    });
+                  },
+                  title: 'Birthday',
+                  rentOption: 'Daily',
+                ),
+                SizedBox(height: 32.h),
+                ElevatedButton(
+                  onPressed: _isLoading 
+                    ? null  // Disable button khi đang loading
+                    : () async {
+                        if (_fullNameController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please enter your full name'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+                        if (_selectedGender == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please select your gender'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+                        if (_selectedNationality == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please select your nationality'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+                        if (_selectedDate == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please select your birthday'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        setState(() {
+                          _isLoading = true;
+                        });
+
+                        try {
+                          final signupViewModel = context.read<SignupViewModel>();
+                          final user = await signupViewModel.signUp(
+                            widget.email,
+                            widget.password,
+                            widget.username,
+                            _fullNameController.text,
+                            '', // address
+                            _getVietnameseValue(_selectedGender, genderTranslations),
+                            '', // citizenId
+                            widget.phoneNumber,
+                            _getVietnameseValue(_selectedNationality, nationalityTranslations),
+                            DateFormat('dd/MM/yyyy').format(_selectedDate!),
+                          );
+
+                          if (!mounted) return;
+
+                          if (user != null) {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              '/home',
+                              (route) => false,
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Registration failed. Please try again.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error: ${e.toString()}'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        } finally {
+                          if (mounted) {
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          }
+                        }
+                      },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF007BFF),
+                    minimumSize: Size(double.infinity, 52.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                  child: _isLoading
+                    ? SizedBox(
+                        height: 20.h,
+                        width: 20.w,
+                        child: const CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(
+                        'Continue',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                ),
+              ],
+            ),
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+} 
