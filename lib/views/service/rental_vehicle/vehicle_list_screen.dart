@@ -131,6 +131,7 @@ class VehicleListScreen extends StatelessWidget {
                         model: vehicle.vehicleModel,
                         seats: '${vehicle.maxSeats}',
                         vehicleId: vehicle.vehicleId,
+                        vehicleRegisterId: vehicle.vehicleRegisterId,
                         startDate: startDate,
                         endDate: endDate,
                         price: rentOption == 'Hourly' ? vehicle.hourPrice : vehicle.dayPrice,

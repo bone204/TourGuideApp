@@ -7,7 +7,6 @@ import 'package:tourguideapp/views/service/rental_vehicle/vehicle_rental_bill.da
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/info_text_field.dart';
 
-
 class VehicleRentalDetail extends StatelessWidget {
   final String model;
   final String imagePath;
@@ -17,6 +16,9 @@ class VehicleRentalDetail extends StatelessWidget {
   final String pickupLocation;
   final double price;
   final String vehicleId;
+  final String vehicleRegisterId;
+  final double hourPrice;
+  final double dayPrice;
 
   const VehicleRentalDetail({
     Key? key,
@@ -28,6 +30,9 @@ class VehicleRentalDetail extends StatelessWidget {
     required this.pickupLocation,
     required this.price,
     required this.vehicleId,
+    required this.vehicleRegisterId,
+    required this.hourPrice,
+    required this.dayPrice,
   }) : super(key: key);
 
   String _getDayAbbreviation(DateTime date, BuildContext context) {
@@ -45,7 +50,7 @@ class VehicleRentalDetail extends StatelessWidget {
 
   String _getDurationText(BuildContext context, Duration duration) {
     String languageCode = Localizations.localeOf(context).languageCode;
-    
+
     if (rentOption == 'Hourly') {
       int hours = duration.inHours;
       if (languageCode == 'vi') {
@@ -62,7 +67,6 @@ class VehicleRentalDetail extends StatelessWidget {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -124,42 +128,48 @@ class VehicleRentalDetail extends StatelessWidget {
                       return const Center(child: CircularProgressIndicator());
                     }
 
-                    final imageUrl = snapshot.data ?? 'assets/img/car_default.png';
+                    final imageUrl =
+                        snapshot.data ?? 'assets/img/car_default.png';
                     return Center(
                       child: ClipRRect(
                         child: imageUrl.startsWith('assets/')
-                          ? Image.asset(
-                              imageUrl,
-                              height: 140.h,
-                              width: 260.w,
-                              fit: BoxFit.fill,
-                            )
-                          : Image.network(
-                              imageUrl,
-                              height: 140.h,
-                              width: 260.w,
-                              fit: BoxFit.fill,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded / 
-                                        loadingProgress.expectedTotalBytes!
-                                      : null,
-                                  ),
-                                );
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                print('Error loading image: $error');
-                                return Image.asset(
-                                  'assets/img/car_default.png',
-                                  height: 140.h,
-                                  width: 260.w,
-                                  fit: BoxFit.fill,
-                                );
-                              },
-                            ),
+                            ? Image.asset(
+                                imageUrl,
+                                height: 140.h,
+                                width: 260.w,
+                                fit: BoxFit.fill,
+                              )
+                            : Image.network(
+                                imageUrl,
+                                height: 140.h,
+                                width: 260.w,
+                                fit: BoxFit.fill,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  print('Error loading image: $error');
+                                  return Image.asset(
+                                    'assets/img/car_default.png',
+                                    height: 140.h,
+                                    width: 260.w,
+                                    fit: BoxFit.fill,
+                                  );
+                                },
+                              ),
                       ),
                     );
                   },
@@ -169,8 +179,7 @@ class VehicleRentalDetail extends StatelessWidget {
             SizedBox(height: 20.h),
             Text(
               AppLocalizations.of(context).translate("Specs"),
-              style: TextStyle(
-                  fontSize: 16.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 12.h),
             SingleChildScrollView(
@@ -186,11 +195,12 @@ class VehicleRentalDetail extends StatelessWidget {
                         return const Center(child: CircularProgressIndicator());
                       }
 
-                      final details = snapshot.data ?? {
-                        'fuelType': '',
-                        'transmission': '',
-                        'maxSpeed': '',
-                      };
+                      final details = snapshot.data ??
+                          {
+                            'fuelType': '',
+                            'transmission': '',
+                            'maxSpeed': '',
+                          };
 
                       return Row(
                         children: [
@@ -202,7 +212,8 @@ class VehicleRentalDetail extends StatelessWidget {
                           SizedBox(width: 16.w),
                           _buildInteractiveRow(
                             context,
-                            AppLocalizations.of(context).translate("Transmission"),
+                            AppLocalizations.of(context)
+                                .translate("Transmission"),
                             details['transmission'] ?? '',
                           ),
                           SizedBox(width: 16.w),
@@ -230,7 +241,8 @@ class VehicleRentalDetail extends StatelessWidget {
               children: [
                 InfoTextField(
                   size: 186,
-                  labelText: AppLocalizations.of(context).translate("Start Date"),
+                  labelText:
+                      AppLocalizations.of(context).translate("Start Date"),
                   text:
                       "${_getDayAbbreviation(startDate, context)}, ${startDate.day.toString().padLeft(2, '0')}/${startDate.month.toString().padLeft(2, '0')}/${startDate.year}",
                   icon: Icons.calendar_month,
@@ -239,10 +251,8 @@ class VehicleRentalDetail extends StatelessWidget {
                 InfoTextField(
                   size: 137,
                   labelText: AppLocalizations.of(context).translate("Duration"),
-                  text: _getDurationText(
-                    context, 
-                    endDate.difference(startDate)
-                  ),
+                  text:
+                      _getDurationText(context, endDate.difference(startDate)),
                   icon: Icons.timer_outlined,
                 ),
               ],
@@ -260,7 +270,8 @@ class VehicleRentalDetail extends StatelessWidget {
                 SizedBox(width: 11.h),
                 InfoTextField(
                   size: 137,
-                  labelText: AppLocalizations.of(context).translate("Pick-up Time"),
+                  labelText:
+                      AppLocalizations.of(context).translate("Pick-up Time"),
                   text: "08:00 AM",
                   icon: Icons.timer_outlined,
                 ),
@@ -268,33 +279,43 @@ class VehicleRentalDetail extends StatelessWidget {
             ),
             SizedBox(height: 26.h),
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(builder: (context) => const VehicleRentalBill())
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF007BFF),
-                foregroundColor: Colors.white,
-                minimumSize: Size(double.infinity, 50.h),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
-              ),
-              child: Text(
-                AppLocalizations.of(context).translate("Confirm"),
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                )
-              )
-            ),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => VehicleRentalBill(
+                                model: model,
+                                vehicleId: vehicleId,
+                                vehicleRegisterId: vehicleRegisterId,
+                                startDate: startDate,
+                                endDate: endDate,
+                                rentOption: rentOption,
+                                price: rentOption == 'Hourly'
+                                    ? hourPrice
+                                    : dayPrice,
+                                pickupLocation: pickupLocation,
+                              )));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF007BFF),
+                  foregroundColor: Colors.white,
+                  minimumSize: Size(double.infinity, 50.h),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.r)),
+                ),
+                child: Text(AppLocalizations.of(context).translate("Confirm"),
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                    ))),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInteractiveRow(BuildContext context, String title, String detail) {
+  Widget _buildInteractiveRow(
+      BuildContext context, String title, String detail) {
     return Container(
       width: 155.w,
       padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 16.w),
