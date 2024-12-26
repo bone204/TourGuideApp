@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/views/service/restaurant/restaurant_booking_bill.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/date_and_time_picker.dart';
 import 'package:tourguideapp/widgets/person_picker.dart';
+import 'package:tourguideapp/widgets/table_card.dart';
 
 class TableListScreen extends StatefulWidget {
   final String restaurantName;
@@ -115,32 +117,30 @@ class _TableListScreenState extends State<TableListScreen> {
               ],
             ),
           ),
-          // Expanded(
-          //   child: ListView.builder(
-          //     padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-          //     itemCount: 3,
-          //     itemBuilder: (context, index) {
-          //       return RoomCard(
-          //         name: 'Deluxe Room',
-          //         area: '22.0 m²',
-          //         bedType: '1 queen bed',
-          //         bathType: 'Shower',
-          //         maxPerson: 2,
-          //         roomsLeft: 1,
-          //         price: 650000,
-          //         imageUrl: 'https://dq5r178u4t83b.cloudfront.net/wp-content/uploads/sites/125/2021/08/11060441/deluxe_harbour_web.jpg',
-          //         onChoose: () {
-          //           Navigator.push(
-          //             context,
-          //             MaterialPageRoute(
-          //               builder: (context) => const HotelBookingBillScreen(),
-          //             ),
-          //           );
-          //         },
-          //       );
-          //     },
-          //   ),
-          // ),
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+              itemCount: 3,
+              itemBuilder: (context, index) {
+                return TableCard(
+                  name: 'VIP Table ${index + 1}',
+                  capacity: 4,
+                  location: 'Window Side',
+                  tablesLeft: 2,
+                  price: 450000,
+                  imageUrl: "https://www.mydomaine.com/thmb/9vOxtjXGcq8Ajsu4G5yF7PXHepw=/2000x0/filters:no_upscale():strip_icc()/dining-room-table-decor-ideas-21-mindy-gayer-marigold-project-6a8c8379f8c94eb785747e3305803588.jpg",
+                  onChoose: () {
+                     Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RestaurantBookingBillScreen(),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

@@ -1,27 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart';
-import 'package:tourguideapp/utils/currency_formatter.dart';
 
-class RoomCard extends StatelessWidget {
+class TableCard extends StatelessWidget {
   final String name;
-  final String area;
-  final String bedType;
-  final String bathType;
-  final int maxPerson;
-  final int roomsLeft;
+  final int capacity;
+  final String location;
+  final int tablesLeft;
   final double price;
   final String imageUrl;
   final VoidCallback onChoose;
 
-  const RoomCard({
+  const TableCard({
     Key? key,
     required this.name,
-    required this.area,
-    required this.bedType,
-    required this.bathType,
-    required this.maxPerson,
-    required this.roomsLeft,
+    required this.capacity,
+    required this.location,
+    required this.tablesLeft,
     required this.price,
     required this.imageUrl,
     required this.onChoose,
@@ -47,7 +42,6 @@ class RoomCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Room Image
             ClipRRect(
               borderRadius: BorderRadius.circular(16.r),
               child: Image.network(
@@ -65,24 +59,12 @@ class RoomCard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 16.h),
-            // Room Features
-            Row(
-              children: [
-                _buildFeature(Icons.square_foot, area),
-                SizedBox(width: 16.w),
-                _buildFeature(Icons.bed, bedType),
-                SizedBox(width: 16.w),
-                _buildFeature(Icons.shower, bathType),
-              ],
-            ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 10.h),
             const Divider(
               thickness: 1,
               color: AppColors.grey,
             ),
             SizedBox(height: 14.h),
-            // Person and Room Info
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -95,7 +77,7 @@ class RoomCard extends StatelessWidget {
                         Icon(Icons.person, size: 16.w, color: AppColors.grey),
                         SizedBox(width: 4.w),
                         Text(
-                          '$maxPerson person(s)',
+                          '$capacity person(s)',
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: AppColors.grey,
@@ -106,61 +88,39 @@ class RoomCard extends StatelessWidget {
                     SizedBox(height: 12.h),
                     Row(
                       children: [
-                        Icon(Icons.wifi, size: 16.w, color: AppColors.grey),
-                        SizedBox(width: 8.w),
-                        Icon(Icons.smoke_free, size: 16.w, color: AppColors.grey),
-                      ],
-                    ),
-                    SizedBox(height: 12.h),
-                    Row(
-                      children: [
-                        Icon(Icons.room_preferences, size: 16.w, color: AppColors.grey),
+                        Icon(Icons.table_bar, size: 16.w, color: AppColors.grey),
                         SizedBox(width: 4.w),
                         Text(
-                          '$roomsLeft room(s) left',
+                          '$tablesLeft table(s) left',
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: AppColors.grey,
                           ),
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
-                SizedBox(width: 16.w),
-                Column(
-                  children: [
-                    Text(
-                      CurrencyFormatter.format(price),
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.orange,
-                      ),
+                ElevatedButton(
+                  onPressed: onChoose,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
-                    SizedBox(height: 12.h),
-                    ElevatedButton(
-                      onPressed: onChoose,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 24.w,
-                          vertical: 8.h,
-                        ),
-                      ),
-                      child: Text(
-                        'Choose',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 24.w,
+                      vertical: 8.h,
                     ),
-                  ],
+                  ),
+                  child: Text(
+                    'Choose',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ),
