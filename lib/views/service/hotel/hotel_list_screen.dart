@@ -8,28 +8,46 @@ class HotelListScreen extends StatelessWidget {
   // Dữ liệu mẫu
   final List<HotelCardData> hotels = [
     HotelCardData(
-      imageUrl: 'https://cdn3.ivivu.com/2022/08/Capella-Hanoi-ivivu.jpg',
-      hotelName: 'Vinpearl Resort',
+      imageUrl: 'https://khachsandep.com.vn/storage/files/dothanhnga/anh1.jpg',
+      hotelName: 'Vinpearl Resort & Spa',
       rating: 4.5,
       pricePerDay: 2500000,
+      address: '208 Trần Phú, Lộc Thọ, Thành phố Nha Trang, Khánh Hòa',
     ),
     HotelCardData(
-      imageUrl: 'https://cdn3.ivivu.com/2022/08/Capella-Hanoi-ivivu.jpg',
-      hotelName: 'Mường Thanh Hotel',
+      imageUrl: 'https://khachsandep.com.vn/storage/files/dothanhnga/anh1.jpg',
+      hotelName: 'Mường Thanh Luxury',
       rating: 4.0,
       pricePerDay: 1500000,
+      address: '60 Trần Phú, Vĩnh Nguyên, Thành phố Nha Trang, Khánh Hòa',
     ),
     HotelCardData(
-      imageUrl: 'https://cdn3.ivivu.com/2022/08/Capella-Hanoi-ivivu.jpg',
+      imageUrl: 'https://khachsandep.com.vn/storage/files/dothanhnga/anh1.jpg',
       hotelName: 'InterContinental',
       rating: 5.0,
       pricePerDay: 3500000,
+      address: '32-34 Trần Phú, Vĩnh Nguyên, Thành phố Nha Trang, Khánh Hòa',
     ),
     HotelCardData(
-      imageUrl: 'https://cdn3.ivivu.com/2022/08/Capella-Hanoi-ivivu.jpg',
-      hotelName: 'Sheraton Hotel',
+      imageUrl: 'https://khachsandep.com.vn/storage/files/dothanhnga/anh1.jpg',
+      hotelName: 'Sheraton Hotel & Spa',
       rating: 4.8,
       pricePerDay: 2800000,
+      address: '26-28 Trần Phú, Xương Huân, Thành phố Nha Trang, Khánh Hòa',
+    ),
+    HotelCardData(
+      imageUrl: 'https://khachsandep.com.vn/storage/files/dothanhnga/anh1.jpg',
+      hotelName: 'Novotel Nha Trang',
+      rating: 4.2,
+      pricePerDay: 1800000,
+      address: '50 Trần Phú, Lộc Thọ, Thành phố Nha Trang, Khánh Hòa',
+    ),
+    HotelCardData(
+      imageUrl: 'https://khachsandep.com.vn/storage/files/dothanhnga/anh1.jpg',
+      hotelName: 'Diamond Bay Resort',
+      rating: 4.6,
+      pricePerDay: 2200000,
+      address: 'Phước Hạ, Phước Đồng, Thành phố Nha Trang, Khánh Hòa',
     ),
   ];
 

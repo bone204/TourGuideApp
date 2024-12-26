@@ -181,7 +181,7 @@
     "Select vehicle color": "Chọn màu xe",
     "Vehicle Registration Photo (Front)": "Ảnh Đăng Ký Xe (Mặt Trước)",
     "Vehicle Registration Photo (Back)": "Ảnh Đăng Ký Xe (Mặt Sau)",
-    "Enter price per hour": "Nhập giá theo giờ",
+    "Enter price per hour": "Nhập giá theo gi��",
     "Enter price per day": "Nhập giá theo ngày",
     "Please enter your hourly rental rate": "Vui lòng nhập giá thuê theo giờ",
     "Please enter your daily rental rate": "Vui lòng nhập giá thuê theo ngày",
@@ -263,6 +263,9 @@
     "Tự động": "Tự động",
     "Không": "Không",
     "Xăng": "Xăng",
-    "Dầu": "Dầu"
+    "Dầu": "Dầu",
+    "Favourites": "Yêu thích",
+    "Destinations": "Điểm đến",
+    "Hotels": "Khách sạn"
 }
   

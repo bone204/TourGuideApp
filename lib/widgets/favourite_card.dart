@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -46,8 +45,8 @@ class FavouriteCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8.r), 
                 child: Image.network(
                   data.imageUrl,
-                  height: 124.h, 
-                  width: 137.w, 
+                  height: 124.h,
+                  width: double.infinity,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -59,20 +58,28 @@ class FavouriteCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF000000),
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               SizedBox(height: 6.h),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
                     Icons.location_on_outlined,
                     color: const Color(0xFF7D848D),
                     size: 12.sp,
                   ),
-                  Text(
-                    data.description, 
-                    style: TextStyle(
-                      color: const Color(0xFF7D848D), 
-                      fontSize: 12.sp, 
+                  SizedBox(width: 4.w),
+                  Expanded(
+                    child: Text(
+                      data.description,
+                      style: TextStyle(
+                        color: const Color(0xFF7D848D),
+                        fontSize: 12.sp,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],

@@ -3,11 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUti
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
-import 'package:tourguideapp/widgets/favourite_card_list.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
 import '../../widgets/custom_icon_button.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
+import 'package:tourguideapp/widgets/hotel_card.dart';
+import 'package:tourguideapp/views/service/hotel/hotel_detail_screen.dart';
 
 class FavouriteDestinationsScreen extends StatefulWidget {
   const FavouriteDestinationsScreen({super.key});
@@ -21,7 +22,6 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
   Widget build(BuildContext context) {
     final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
 
-    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Khởi tạo ScreenUtil
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -39,7 +39,7 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                   child: Stack(
                     children: [
                       Align(
-                        alignment: Alignment.centerLeft, 
+                        alignment: Alignment.centerLeft,
                         child: CustomIconButton(
                           icon: Icons.chevron_left,
                           onPressed: () {
@@ -49,7 +49,7 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                       ),
                       Center(
                         child: Text(
-                          AppLocalizations.of(context).translate('Favourite Destinations'),
+                          AppLocalizations.of(context).translate('Favourites'),
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -64,49 +64,90 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
             ),
           ),
         ),
-        body: Padding(
-          padding: EdgeInsets.only(top: 20.h),
-          child: Column(
-            children: [
-              _buildSearchBar(),
-              SizedBox(height: 10.h),
-              FavouriteCardListView(
-                cardDataList: favouriteViewModel.favouriteDestinations.map((destination) {
-                  return FavouriteCardData(
-                    placeName: destination.destinationName,
-                    imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
-                    description: destination.province,
-                  );
-                }).toList(),
-                onCardTap: (favouriteCardData) {
-                  final destination = favouriteViewModel.favouriteDestinations.firstWhere(
-                    (d) => d.destinationName == favouriteCardData.placeName,
-                  );
+        body: Column(
+          children: [
+            _buildSearchBar(),
+            SizedBox(height: 10.h),
+            Expanded(
+              child: GridView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 20.h),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 161.w / 190.h,
+                  mainAxisSpacing: 20.h,
+                  crossAxisSpacing: 0,
+                ),
+                itemCount: favouriteViewModel.favouriteDestinations.length + 
+                          favouriteViewModel.favouriteHotels.length,
+                itemBuilder: (context, index) {
+                  if (index < favouriteViewModel.favouriteDestinations.length) {
+                    // Build Destination Card
+                    final destination = favouriteViewModel.favouriteDestinations[index];
+                    return GestureDetector(
+                      onTap: () {
+                        final homeCardData = HomeCardData(
+                          placeName: destination.destinationName,
+                          imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
+                          description: destination.province,
+                          rating: 4.5,
+                        );
 
-                  final homeCardData = HomeCardData(
-                    placeName: favouriteCardData.placeName,
-                    imageUrl: favouriteCardData.imageUrl,
-                    description: favouriteCardData.description,
-                    rating: 4.5,
-                  );
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DestinationDetailPage(
-                        cardData: homeCardData,
-                        destinationData: destination,
-                        isFavourite: favouriteViewModel.isFavourite(destination),
-                        onFavouriteToggle: (isFavourite) {
-                          favouriteViewModel.toggleFavourite(destination);
-                        },
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DestinationDetailPage(
+                              cardData: homeCardData,
+                              destinationData: destination,
+                              isFavourite: favouriteViewModel.isFavourite(destination),
+                              onFavouriteToggle: (isFavourite) {
+                                favouriteViewModel.toggleFavourite(destination);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      child: FavouriteCard(
+                        data: FavouriteCardData(
+                          placeName: destination.destinationName,
+                          imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
+                          description: destination.province,
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  } else {
+                    // Build Hotel Card using FavouriteCard
+                    final hotelIndex = index - favouriteViewModel.favouriteDestinations.length;
+                    final hotel = favouriteViewModel.favouriteHotels[hotelIndex];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HotelDetailScreen(
+                              data: HotelCardData(
+                                imageUrl: hotel.imageUrl,
+                                hotelName: hotel.hotelName,
+                                rating: hotel.rating,
+                                pricePerDay: hotel.pricePerDay,
+                                address: hotel.address,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: FavouriteCard(
+                        data: FavouriteCardData(
+                          placeName: hotel.hotelName,
+                          imageUrl: hotel.imageUrl,
+                          description: hotel.address,
+                        ),
+                      ),
+                    );
+                  }
                 },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

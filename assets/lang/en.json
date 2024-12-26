@@ -255,6 +255,10 @@
     "Tự động": "Automatic",
     "Không": "None",
     "Xăng": "Gasoline",
-    "Dầu": "Diesel"
+    "Dầu": "Diesel",
+
+    "Favourites": "Favourites",
+    "Destinations": "Destinations",
+    "Hotels": "Hotels"
 }
   

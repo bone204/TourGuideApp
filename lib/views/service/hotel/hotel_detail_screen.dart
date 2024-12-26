@@ -1,29 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/models/destination_model.dart';
+import 'package:tourguideapp/widgets/custom_elevated_button.dart';
+import 'package:tourguideapp/widgets/hotel_card.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/custom_like_button.dart';
-import 'package:tourguideapp/widgets/home_card.dart';
-import 'package:tourguideapp/widgets/custom_elevated_button.dart';
+import 'package:provider/provider.dart';
+import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
+import 'package:tourguideapp/models/hotel_model.dart';
 
-class DestinationDetailPage extends StatelessWidget {
-  final HomeCardData cardData;
-  final DestinationModel destinationData;
-  final bool isFavourite;
-  final ValueChanged<bool> onFavouriteToggle;
+class HotelDetailScreen extends StatefulWidget {
+  final HotelCardData data;
 
-  const DestinationDetailPage({
-    required this.cardData,
-    required this.destinationData,
-    required this.isFavourite,
-    required this.onFavouriteToggle,
-    super.key,
-  });
+  const HotelDetailScreen({
+    required this.data,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<HotelDetailScreen> createState() => _HotelDetailScreenState();
+}
+
+class _HotelDetailScreenState extends State<HotelDetailScreen> {
+  late HotelModel hotel;
+
+  @override
+  void initState() {
+    super.initState();
+    hotel = HotelModel(
+      hotelId: widget.data.hotelName,
+      hotelName: widget.data.hotelName,
+      imageUrl: widget.data.imageUrl,
+      rating: widget.data.rating,
+      pricePerDay: widget.data.pricePerDay,
+      address: widget.data.address,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
-    final currentLocale = Localizations.localeOf(context).languageCode;
+    final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
+    final isVietnamese = Localizations.localeOf(context).languageCode == 'vi';
 
     return Scaffold(
       body: Stack(
@@ -34,16 +51,17 @@ class DestinationDetailPage extends StatelessWidget {
             left: 0,
             right: 0,
             child: Container(
-              height: 400.h, // Fixed height for the image
+              height: 400.h,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(cardData.imageUrl),
+                  image: NetworkImage(widget.data.imageUrl),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
           ),
-          // DraggableScrollableSheet for content
+
+          // Content
           DraggableScrollableSheet(
             initialChildSize: 0.6,
             minChildSize: 0.6,
@@ -64,40 +82,69 @@ class DestinationDetailPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Hotel Name
                         Padding(
                           padding: EdgeInsets.fromLTRB(30.w, 30.h, 30.w, 0),
                           child: Text(
-                            cardData.placeName,
-                            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                            widget.data.hotelName,
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold
+                            ),
                           ),
                         ),
                         SizedBox(height: 10.h),
+
+                        // Price per day
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 30.w),
                           child: Row(
                             children: [
-                              Icon(Icons.location_on, color: Colors.grey[600]),
+                              Icon(
+                                Icons.location_on_outlined,
+                                color: Colors.grey[600],
+                                size: 16.sp,
+                              ),
                               SizedBox(width: 6.w),
-                              Text(cardData.description, style: TextStyle(color: Colors.grey[600])),
+                              Expanded(
+                                child: Text(
+                                  widget.data.address,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14.sp,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                         SizedBox(height: 10.h),
+
                         // Rating
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 30.w),
                           child: Row(
                             children: [
-                              Text(cardData.rating.toString(), style: TextStyle(color: Colors.grey[600], fontSize: 14.sp)),
+                              Text(
+                                widget.data.rating.toString(),
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14.sp
+                                ),
+                              ),
                               SizedBox(width: 10.w),
                               Row(
                                 children: List.generate(5, (index) {
                                   return Icon(
-                                    index < cardData.rating.round()
+                                    index < widget.data.rating.floor()
                                         ? Icons.star
-                                        : Icons.star_border,
+                                        : (index < widget.data.rating 
+                                            ? Icons.star_half
+                                            : Icons.star_border),
                                     color: Colors.amber,
-                                    size: 12.sp,
+                                    size: 16.sp,
                                   );
                                 }),
                               ),
@@ -112,12 +159,12 @@ class DestinationDetailPage extends StatelessWidget {
                           unselectedLabelColor: Colors.grey,
                           indicatorColor: Colors.red,
                           labelStyle: TextStyle(
-                            fontSize: 14.sp, 
-                            fontWeight: FontWeight.bold, 
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
                           ),
                           unselectedLabelStyle: TextStyle(
-                            fontSize: 14.sp, 
-                            fontWeight: FontWeight.bold, 
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
                           ),
                           tabs: const [
                             Tab(text: 'About'),
@@ -128,94 +175,50 @@ class DestinationDetailPage extends StatelessWidget {
                         ),
                         SizedBox(height: 10.h),
 
+                        // TabBarView content
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 30.w),
                           child: SizedBox(
                             height: 200.h,
                             child: TabBarView(
                               children: [
-                                // About - Hiển thị mô tả theo ngôn ngữ
+                                // About
                                 SingleChildScrollView(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(top: 10.h),
-                                    child: Text(
-                                      currentLocale == 'en' 
-                                          ? destinationData.descriptionEng
-                                          : destinationData.descriptionViet,
-                                      style: TextStyle(
-                                        color: Colors.grey[700], 
-                                        fontSize: 14.sp
-                                      ),
+                                  child: Text(
+                                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontSize: 14.sp
                                     ),
                                   ),
                                 ),
-                                
                                 // Review
-                                SingleChildScrollView(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(top: 10.h),
-                                    child: Text(
-                                      "Review: Duis aute irure dolor in reprehenderit in voluptate velit esse.",
-                                      style: TextStyle(
-                                        color: Colors.grey[700], 
-                                        fontSize: 14.sp
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                
-                                // Photo Gallery
+                                const Center(child: Text("Reviews coming soon")),
+                                // Photos
                                 GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
                                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 3,
                                     crossAxisSpacing: 8,
                                     mainAxisSpacing: 8,
                                   ),
-                                  itemCount: destinationData.photo.length,
+                                  itemCount: 6,
                                   itemBuilder: (context, index) {
                                     return ClipRRect(
                                       borderRadius: BorderRadius.circular(8.r),
                                       child: Image.network(
-                                        destinationData.photo[index],
+                                        widget.data.imageUrl,
                                         fit: BoxFit.cover,
                                       ),
                                     );
                                   },
                                 ),
-                                
-                                // Video Gallery
-                                GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: 8,
-                                    mainAxisSpacing: 8,
-                                  ),
-                                  itemCount: destinationData.video.length,
-                                  itemBuilder: (context, index) {
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(8.r),
-                                      ),
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.play_circle_outline,
-                                          size: 30.sp,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
+                                // Videos
+                                const Center(child: Text("Videos coming soon")),
                               ],
                             ),
                           ),
                         ),
-                        SizedBox(height: 30.h),
+                        SizedBox(height: 100.h), // Space for bottom button
                       ],
                     ),
                   ),
@@ -223,6 +226,8 @@ class DestinationDetailPage extends StatelessWidget {
               );
             },
           ),
+
+          // Back and Like buttons container
           Positioned(
             top: 44.h,
             left: 0,
@@ -237,23 +242,28 @@ class DestinationDetailPage extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                   ),
                   CustomLikeButton(
-                    isLiked: isFavourite,
-                    onLikeChanged: onFavouriteToggle,
+                    isLiked: favouriteViewModel.isHotelFavourite(hotel),
+                    onLikeChanged: (value) {
+                      favouriteViewModel.toggleFavouriteHotel(hotel);
+                    },
                   ),
                 ],
               ),
             ),
           ),
-          // Nút Save a Trip cố định ở đáy
+
+          // Book Now button
           Positioned(
             left: 0,
             right: 0,
             bottom: 20.h,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30.w),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: CustomElevatedButton(
-                text: "Save a Trip",
-                onPressed: () {},
+                text: isVietnamese ? "Đặt Ngay" : "Book Now",
+                onPressed: () {
+                  // Handle booking
+                },
               ),
             ),
           ),
