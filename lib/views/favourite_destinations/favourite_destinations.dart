@@ -4,11 +4,13 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
+import 'package:tourguideapp/widgets/restaurant_card.dart';
 import '../../widgets/custom_icon_button.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/widgets/hotel_card.dart';
 import 'package:tourguideapp/views/service/hotel/hotel_detail_screen.dart';
+import 'package:tourguideapp/views/service/restaurant/restaurant_detail_screen.dart';
 
 class FavouriteDestinationsScreen extends StatefulWidget {
   const FavouriteDestinationsScreen({super.key});
@@ -78,7 +80,8 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                   crossAxisSpacing: 0,
                 ),
                 itemCount: favouriteViewModel.favouriteDestinations.length + 
-                          favouriteViewModel.favouriteHotels.length,
+                          favouriteViewModel.favouriteHotels.length +
+                          favouriteViewModel.favouriteRestaurants.length,
                 itemBuilder: (context, index) {
                   if (index < favouriteViewModel.favouriteDestinations.length) {
                     // Build Destination Card
@@ -114,7 +117,8 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                         ),
                       ),
                     );
-                  } else {
+                  } else if (index < favouriteViewModel.favouriteDestinations.length + 
+                            favouriteViewModel.favouriteHotels.length) {
                     // Build Hotel Card using FavouriteCard
                     final hotelIndex = index - favouriteViewModel.favouriteDestinations.length;
                     final hotel = favouriteViewModel.favouriteHotels[hotelIndex];
@@ -140,6 +144,36 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                           placeName: hotel.hotelName,
                           imageUrl: hotel.imageUrl,
                           description: hotel.address,
+                        ),
+                      ),
+                    );
+                  } else {
+                    // Build Restaurant Card
+                    final restaurantIndex = index - favouriteViewModel.favouriteDestinations.length - 
+                                          favouriteViewModel.favouriteHotels.length;
+                    final restaurant = favouriteViewModel.favouriteRestaurants[restaurantIndex];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RestaurantDetailScreen(
+                              data: RestaurantCardData(
+                                imageUrl: restaurant.imageUrl,
+                                restaurantName: restaurant.restaurantName,
+                                rating: restaurant.rating,
+                                pricePerPerson: restaurant.pricePerPerson,
+                                address: restaurant.address,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: FavouriteCard(
+                        data: FavouriteCardData(
+                          placeName: restaurant.restaurantName,
+                          imageUrl: restaurant.imageUrl,
+                          description: restaurant.address,
                         ),
                       ),
                     );

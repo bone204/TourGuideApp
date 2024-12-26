@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/models/hotel_model.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
+import 'package:tourguideapp/models/restaurant_model.dart';
 
 class FavouriteDestinationsViewModel extends ChangeNotifier {
   List<DestinationModel> _favouriteDestinations = [];
   List<HotelModel> _favouriteHotels = [];
+  List<RestaurantModel> _favouriteRestaurants = [];
 
   List<DestinationModel> get favouriteDestinations => _favouriteDestinations;
   List<HotelModel> get favouriteHotels => _favouriteHotels;
+  List<RestaurantModel> get favouriteRestaurants => _favouriteRestaurants;
 
   List<HomeCardData> get favouriteCards => _favouriteDestinations.map((destination) {
     return HomeCardData(
@@ -43,5 +46,18 @@ class FavouriteDestinationsViewModel extends ChangeNotifier {
 
   bool isHotelFavourite(HotelModel hotel) {
     return _favouriteHotels.any((h) => h.hotelId == hotel.hotelId);
+  }
+
+  void toggleFavouriteRestaurant(RestaurantModel restaurant) {
+    if (_favouriteRestaurants.any((r) => r.restaurantId == restaurant.restaurantId)) {
+      _favouriteRestaurants.removeWhere((r) => r.restaurantId == restaurant.restaurantId);
+    } else {
+      _favouriteRestaurants.add(restaurant);
+    }
+    notifyListeners();
+  }
+
+  bool isRestaurantFavourite(RestaurantModel restaurant) {
+    return _favouriteRestaurants.any((r) => r.restaurantId == restaurant.restaurantId);
   }
 }

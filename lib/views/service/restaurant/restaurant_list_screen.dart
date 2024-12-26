@@ -8,28 +8,32 @@ class RestaurantListScreen extends StatelessWidget {
   // Dữ liệu mẫu
   final List<RestaurantCardData> restaurants = [
     RestaurantCardData(
-      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmVzdGF1cmFudHxlbnwwfHwwfHx8MA%3D%3D',
+      imageUrl: 'https://qul.imgix.net/ca169046-430e-4b8d-b218-3f0f73c446be/625936_sld.jpg',
       restaurantName: 'Nhà hàng Biển Đông',
       rating: 4.5,
       pricePerPerson: 250000,
+      address: '208 Trần Phú, Lộc Thọ, Thành phố Nha Trang, Khánh Hòa',
     ),
     RestaurantCardData(
-      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmVzdGF1cmFudHxlbnwwfHwwfHx8MA%3D%3D',
+      imageUrl: 'https://qul.imgix.net/ca169046-430e-4b8d-b218-3f0f73c446be/625936_sld.jpg',
       restaurantName: 'Quán Ngon Sài Gòn',
       rating: 4.0,
       pricePerPerson: 150000,
+      address: '208 Trần Phú, Lộc Thọ, Thành phố Nha Trang, Khánh Hòa',
     ),
     RestaurantCardData(
-      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmVzdGF1cmFudHxlbnwwfHwwfHx8MA%3D%3D',
+      imageUrl: 'https://qul.imgix.net/ca169046-430e-4b8d-b218-3f0f73c446be/625936_sld.jpg',
       restaurantName: 'Nhà hàng Phố Cổ',
       rating: 5.0,
       pricePerPerson: 350000,
+      address: '208 Trần Phú, Lộc Thọ, Thành phố Nha Trang, Khánh Hòa',
     ),
     RestaurantCardData(
-      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmVzdGF1cmFudHxlbnwwfHwwfHx8MA%3D%3D',
+      imageUrl: 'https://qul.imgix.net/ca169046-430e-4b8d-b218-3f0f73c446be/625936_sld.jpg',
       restaurantName: 'Quán Ẩm Thực Huế',
       rating: 4.8,
       pricePerPerson: 280000,
+      address: '208 Trần Phú, Lộc Thọ, Thành phố Nha Trang, Khánh Hòa',
     ),
   ];
 

@@ -23,7 +23,7 @@ class CustomLikeButton extends StatelessWidget {
       likeBuilder: (bool isLiked) {
         return Icon(
           Icons.favorite,
-          color: isLiked ? Colors.red : Colors.grey.withOpacity(0.5),
+          color: isLiked ? Colors.red : Colors.white,
           size: 30,
         );
       },
