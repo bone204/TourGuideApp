@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart';
+import 'package:tourguideapp/views/service/delivery/delivery_bill.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
@@ -283,6 +284,8 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
         child: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
           automaticallyImplyLeading: false,
           flexibleSpace: Column(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -411,7 +414,77 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
             ],
           ),
         ),
-      )
+      ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 4,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Total Price',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.black,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    '580.000 đ',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.orange,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: 16.w),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (context) => const DeliveryBill())
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 32.w,
+                    vertical: 12.h,
+                  ),
+                ),
+                child: Text(
+                  'Confirm',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
