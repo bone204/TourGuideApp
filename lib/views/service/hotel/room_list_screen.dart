@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/views/service/hotel/hotel_booking_bill.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/range_date_time_picker.dart';
@@ -125,7 +126,12 @@ class _RoomListScreenState extends State<RoomListScreen> {
                   price: 650000,
                   imageUrl: 'https://dq5r178u4t83b.cloudfront.net/wp-content/uploads/sites/125/2021/08/11060441/deluxe_harbour_web.jpg',
                   onChoose: () {
-                    // Xử lý khi nhấn nút Choose
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HotelBookingBillScreen(),
+                      ),
+                    );
                   },
                 );
               },
