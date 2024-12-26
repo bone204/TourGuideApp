@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/views/service/hotel/room_list_screen.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/widgets/hotel_card.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
@@ -262,7 +263,10 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
               child: CustomElevatedButton(
                 text: isVietnamese ? "Đặt Ngay" : "Book Now",
                 onPressed: () {
-                  // Handle booking
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (context) => RoomListScreen(hotelName: widget.data.hotelName))
+                  );
                 },
               ),
             ),

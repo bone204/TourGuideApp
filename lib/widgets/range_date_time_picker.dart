@@ -76,8 +76,8 @@ class RangeDateTimePicker extends StatelessWidget {
               children: [
                 Image.asset(
                   'assets/img/calendar.png',
-                  width: 24.w,
-                  height: 24.h,
+                  width: 16.w,
+                  height: 16.h,
                   fit: BoxFit.cover,
                 ),
                 SizedBox(width: 12.w),
@@ -87,15 +87,15 @@ class RangeDateTimePicker extends StatelessWidget {
                     children: [
                       Text(
                         _formatDate(startDate, context),
-                        style: TextStyle(fontSize: 16.sp),
+                        style: TextStyle(fontSize: 12.sp),
                       ),
                       Text(
                         " - ",
-                        style: TextStyle(fontSize: 16.sp),
+                        style: TextStyle(fontSize: 12.sp),
                       ),
                       Text(
                         _formatDate(endDate, context),
-                        style: TextStyle(fontSize: 16.sp),
+                        style: TextStyle(fontSize: 12.sp),
                       ),
                     ],
                   ),
