@@ -59,7 +59,7 @@ class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
       children: [
         Text(
           AppLocalizations.of(context).translate("Specialty"),
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 4.h),
         Container(
@@ -161,7 +161,7 @@ class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
           children: [
             Text(
               AppLocalizations.of(context).translate("Budget"),
-              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 28.h),
             BudgetSlider(

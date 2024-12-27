@@ -311,7 +311,7 @@ class _LocationPickerState extends State<LocationPicker> {
       children: [
         Text(
           widget.title ?? AppLocalizations.of(context).translate('Location'),
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8.h),
         GestureDetector(
@@ -333,7 +333,8 @@ class _LocationPickerState extends State<LocationPicker> {
                         : selectedLocation,
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: selectedLocation.isEmpty ? Colors.grey : Colors.black,
+                      color: selectedLocation.isEmpty ? AppColors.grey : AppColors.black,
+                      fontWeight: selectedLocation.isEmpty ? FontWeight.w600 : FontWeight.normal,
                     ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,

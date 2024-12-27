@@ -35,9 +35,9 @@ class _StyledTextFieldState extends State<StyledTextField> {
       children: [
         Text(
           widget.title,
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 4.h),
+        SizedBox(height: 8.h),
         GestureDetector(
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 16.w),

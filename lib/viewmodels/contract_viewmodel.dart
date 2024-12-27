@@ -184,6 +184,9 @@ class ContractViewModel extends ChangeNotifier {
         citizenBackPhoto: citizenBackPhotoUrl,
         contractTerm: contractData['contractTerm'],
         contractStatus: contractData['contractStatus'],
+        businessLocation: contractData['businessLocation'],
+        businessCity: contractData['businessCity'],
+        businessDistrict: contractData['businessDistrict'],
       );
 
       // Lưu contract

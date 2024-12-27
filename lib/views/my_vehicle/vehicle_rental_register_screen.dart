@@ -19,6 +19,7 @@ import 'package:tourguideapp/models/province_model.dart';
 import 'package:tourguideapp/models/bank_model.dart';
 import 'package:tourguideapp/viewmodels/bank_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
+import 'package:tourguideapp/widgets/location_picker.dart';
 
 class VehicleRentalRegisterScreen extends StatefulWidget {
   const VehicleRentalRegisterScreen({super.key});
@@ -62,6 +63,10 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
   // Thêm biến để lưu danh sách tỉnh
   List<Province> _provinces = [];
   String? _selectedProvinceId;
+
+  // Thêm state cho location
+  String selectedBusinessLocation = '';
+  Map<String, String> businessLocationDetails = {};
 
   @override
   void initState() {
@@ -634,33 +639,19 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                 },
               ),
               SizedBox(height: 16.h),
-              SizedBox(height: 16.h),
-              _buildDropdown(
-                label: AppLocalizations.of(context).translate("Business Province Region"),
-                items: _provinces.map((p) => p.provinceName).toList(),
-                selectedItem: _provinces
-                    .firstWhere(
-                      (p) => p.provinceId == _selectedProvinceId,
-                      orElse: () => _provinces.isNotEmpty ? _provinces.first : Province(
-                        provinceId: '',
-                        provinceName: '',
-                        city: '',
-                        district: [],
-                        imageUrl: Province.defaultImageUrl,
-                        rating: 0,
-                      ),
-                    )
-                    .provinceName,
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      _selectedProvinceId = _provinces
-                          .firstWhere((p) => p.provinceName == newValue)
-                          .provinceId;
-                      contractData['businessProvinceId'] = _selectedProvinceId;
-                      contractData['businessProvinceName'] = newValue;
-                    });
-                  }
+              LocationPicker(
+                title: AppLocalizations.of(context).translate("Business Region"),
+                onLocationSelected: (String location, Map<String, String> details) {
+                  setState(() {
+                    selectedBusinessLocation = location;
+                    businessLocationDetails = details;
+                    
+                    // Cập nhật contractData
+                    contractData['businessLocation'] = location;
+                    contractData['businessProvince'] = details['province'] ?? '';
+                    contractData['businessCity'] = details['city'] ?? '';
+                    contractData['businessDistrict'] = details['district'] ?? '';
+                  });
                 },
               ),
               SizedBox(height: 16.h),
