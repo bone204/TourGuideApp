@@ -26,8 +26,8 @@ class VehicleRentalScreen extends StatefulWidget {
 class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
   late String selectedCategory;
   final List<String> categories = ['Car', 'Motorbike'];
-  DateTime startDate = DateTime.now();
-  DateTime endDate = DateTime.now().add(const Duration(days: 1));
+  late DateTime startDate;
+  late DateTime endDate;
   String selectedRentOption = 'Hourly';
   double minBudget = 0;
   double maxBudget = 1000000;
@@ -36,13 +36,38 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
   Map<String, String> locationDetails = {};
   String selectedPackage = '4 Hours';
   final List<String> hourPackages = ['4 Hours', '8 Hours'];
-  TimeOfDay startTime = TimeOfDay.now();
-  TimeOfDay endTime = TimeOfDay.now();
+  TimeOfDay startTime = TimeOfDay(hour: 7, minute: 0);
+  TimeOfDay endTime = TimeOfDay(hour: 11, minute: 0);
 
   @override
   void initState() {
     super.initState();
     selectedCategory = widget.initialCategory;
+
+    final now = DateTime.now();
+    if (selectedRentOption == 'Hourly') {
+      startDate = now.hour >= 12
+          ? DateTime(now.year, now.month, now.day + 1)
+          : DateTime(now.year, now.month, now.day);
+    } else {
+      startDate = now.hour >= 16
+          ? DateTime(now.year, now.month, now.day + 1)
+          : DateTime(now.year, now.month, now.day);
+    }
+    endDate = startDate.add(const Duration(days: 1));
+  }
+
+  DateTime getFirstAllowedDate() {
+    final now = DateTime.now();
+    if (selectedRentOption == 'Hourly') {
+      return now.hour >= 12
+          ? DateTime(now.year, now.month, now.day + 1)
+          : DateTime(now.year, now.month, now.day);
+    } else {
+      return now.hour >= 16
+          ? DateTime(now.year, now.month, now.day + 1)
+          : DateTime(now.year, now.month, now.day);
+    }
   }
 
   void onBudgetChanged(double min, double max) {
@@ -101,8 +126,9 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                     Center(
                       child: Text(
                         AppLocalizations.of(context).translate(
-                          selectedCategory == 'Car' ? 'Car Rental' : 'Motorbike Rental'
-                        ),
+                            selectedCategory == 'Car'
+                                ? 'Car Rental'
+                                : 'Motorbike Rental'),
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -132,6 +158,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                 onBudgetChanged: onBudgetChanged,
                 initialMin: minBudget,
                 initialMax: maxBudget,
+                type: selectedCategory,
               ),
               SizedBox(height: 24.h),
               RentOptionSelector(
@@ -150,6 +177,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                       flex: 3,
                       child: DateTimePicker(
                         selectedDate: startDate,
+                        firstDate: getFirstAllowedDate(),
                         onDateSelected: (date) {
                           setState(() {
                             startDate = date;
@@ -166,7 +194,8 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                         children: [
                           Text(
                             "Package",
-                            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 18.sp, fontWeight: FontWeight.bold),
                           ),
                           SizedBox(height: 8.h),
                           CustomComboBox(
@@ -176,12 +205,14 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                             onChanged: (value) {
                               setState(() {
                                 selectedPackage = value!;
-                                int hours = selectedPackage == '4 Hours' ? 4 : 8;
+                                int hours =
+                                    selectedPackage == '4 Hours' ? 4 : 8;
                                 int newHour = startTime.hour + hours;
                                 if (newHour >= 24) {
                                   newHour = newHour - 24;
                                 }
-                                endTime = TimeOfDay(hour: newHour, minute: startTime.minute);
+                                endTime = TimeOfDay(
+                                    hour: newHour, minute: startTime.minute);
                               });
                             },
                           ),
@@ -210,6 +241,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
               ] else ...[
                 DateTimePicker(
                   selectedDate: startDate,
+                  firstDate: getFirstAllowedDate(),
                   onDateSelected: (date) {
                     setState(() {
                       startDate = date;
@@ -219,6 +251,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                     });
                   },
                   title: "Start Date",
+                  showTime: true,
                 ),
                 SizedBox(height: 24.h),
                 DateTimePicker(
@@ -231,6 +264,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                     });
                   },
                   title: "End Date",
+                  showTime: true,
                 ),
               ],
               SizedBox(height: 24.h),
@@ -242,25 +276,25 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
               CustomElevatedButton(
                 text: "Confirm",
                 onPressed: () {
-                  final DateTime finalStartDate = selectedRentOption == 'Hourly' 
-                    ? DateTime(
-                        startDate.year,
-                        startDate.month,
-                        startDate.day,
-                        startTime.hour,
-                        startTime.minute,
-                      )
-                    : startDate;
+                  final DateTime finalStartDate = selectedRentOption == 'Hourly'
+                      ? DateTime(
+                          startDate.year,
+                          startDate.month,
+                          startDate.day,
+                          startTime.hour,
+                          startTime.minute,
+                        )
+                      : startDate;
 
                   final DateTime finalEndDate = selectedRentOption == 'Hourly'
-                    ? DateTime(
-                        startDate.year,
-                        startDate.month,
-                        startDate.day,
-                        endTime.hour,
-                        endTime.minute,
-                      )
-                    : endDate;
+                      ? DateTime(
+                          startDate.year,
+                          startDate.month,
+                          startDate.day,
+                          endTime.hour,
+                          endTime.minute,
+                        )
+                      : endDate;
 
                   Navigator.push(
                     context,

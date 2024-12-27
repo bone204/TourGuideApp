@@ -731,7 +731,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppLocalizations.of(context).translate("Price Per Hour"),
+                AppLocalizations.of(context).translate("Price For 4 Hour"),
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
@@ -740,11 +740,31 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               SizedBox(height: 12.h),
               CustomTextField(
                 controller: _pricePerHourController,
-                hintText: AppLocalizations.of(context).translate("Enter price per hour"),
+                hintText: AppLocalizations.of(context).translate("Enter price for 4 hour"),
                 keyboardType: TextInputType.number, 
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your hourly rental rate';
+                    return 'Please enter your 4 hourly rental rate';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                AppLocalizations.of(context).translate("Price For 8 Hour"),
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              CustomTextField(
+                controller: _pricePerHourController,
+                hintText: AppLocalizations.of(context).translate("Enter price for 8 hour"),
+                keyboardType: TextInputType.number, 
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your 8 hourly rental rate';
                   }
                   return null;
                 },

@@ -47,7 +47,8 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
     _licensePlateController.text = widget.vehicle.licensePlate;
     _vehicleRegistrationController.text = widget.vehicle.vehicleRegistration;
     
-    _actualPricePerHourController.text = widget.vehicle.hourPrice.toInt().toString();
+    _actualPricePerHourController.text = widget.vehicle.hour4Price.toInt().toString();
+    _actualPricePerHourController.text = widget.vehicle.hour8Price.toInt().toString();
     _actualPricePerDayController.text = widget.vehicle.dayPrice.toInt().toString();
     
     _requirementsController.text = widget.vehicle.requirements.join('\n');

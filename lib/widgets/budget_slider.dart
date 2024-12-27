@@ -8,12 +8,14 @@ class BudgetSlider extends StatefulWidget {
   final Function(double, double) onBudgetChanged;
   final double initialMin;
   final double initialMax;
+  final String type;
 
   const BudgetSlider({
     Key? key,
     required this.onBudgetChanged,
     required this.initialMin,
     required this.initialMax,
+    required this.type,
   }) : super(key: key);
 
   @override
@@ -21,19 +23,37 @@ class BudgetSlider extends StatefulWidget {
 }
 
 class _BudgetSliderState extends State<BudgetSlider> {
-  double _lowerValue = 100000;
-  double _upperValue = 900000;
-  final NumberFormat _currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+  late double _lowerValue;
+  late double _upperValue;
+  late double _minValue;
+  late double _maxValue;
+  late double _step;
+  final NumberFormat _currencyFormat =
+      NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
 
   @override
   void initState() {
     super.initState();
-    print('===== BudgetSlider Logs =====');
-    print('Initial Min Value: ${widget.initialMin}');
-    print('Initial Max Value: ${widget.initialMax}');
-    print('Current Lower Value: $_lowerValue');
-    print('Current Upper Value: $_upperValue');
-    print('============================');
+
+    if (widget.type == 'Car') {
+      _minValue = 300000;
+      _maxValue = 1700000;
+      _step = 50000;
+      _lowerValue = 300000;
+      _upperValue = 1700000;
+    } else if (widget.type == 'Motorbike') {
+      _minValue = 0;
+      _maxValue = 500000;
+      _step = 25000;
+      _lowerValue = 0;
+      _upperValue = 500000;
+    } else {
+      _minValue = 0;
+      _maxValue = 1000000;
+      _step = 50000;
+      _lowerValue = 0;
+      _upperValue = 500000;
+    }
   }
 
   @override
@@ -42,9 +62,9 @@ class _BudgetSliderState extends State<BudgetSlider> {
     return FlutterSlider(
       values: [_lowerValue, _upperValue],
       rangeSlider: true,
-      max: 1000000,
-      min: 0,
-      step: const FlutterSliderStep(step: 10000),
+      max: _maxValue,
+      min: _minValue,
+      step: FlutterSliderStep(step: _step),
       tooltip: FlutterSliderTooltip(
         alwaysShowTooltip: true,
         format: (String value) {
@@ -103,39 +123,78 @@ class _BudgetSliderState extends State<BudgetSlider> {
         ),
       ),
       hatchMark: FlutterSliderHatchMark(
-        labels: List.generate(11, (index) {
-          int value = index * 100000;
-          String label = index == 10 ? '1M' : '${value ~/ 1000}K';
-          return FlutterSliderHatchMarkLabel(
-            percent: index * 10,
-            label: Padding(
-              padding: EdgeInsets.only(top: 36.h),
-              child: Column(
-                children: [
-                  Container(width: 1.w, height: 4.h, color: AppColors.grey),
-                  if (index % 2 == 0) Text(label, style: const TextStyle(color: AppColors.grey, fontWeight: FontWeight.bold)),
-                  if (index % 2 != 0) const Text(" ", style: TextStyle(color: AppColors.grey, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-          );
-        }),
+        labels: widget.type == 'Car'
+            ? List.generate(15, (index) {
+                int value = 300000 + (index * 100000);
+                String label = value >= 1000000
+                    ? '${(value / 1000000).toStringAsFixed(1)}M'
+                    : '${value ~/ 1000}K';
+                return FlutterSliderHatchMarkLabel(
+                  percent: (index * 100000 / (1700000 - 300000)) * 100,
+                  label: Padding(
+                    padding: EdgeInsets.only(top: 36.h),
+                    child: Column(
+                      children: [
+                        Container(
+                            width: 1.w, height: 4.h, color: AppColors.grey),
+                        if (index % 2 == 0)
+                          Text(label,
+                              style: const TextStyle(
+                                  color: AppColors.grey,
+                                  fontWeight: FontWeight.bold)),
+                        if (index % 2 != 0)
+                          const Text(" ",
+                              style: TextStyle(
+                                  color: AppColors.grey,
+                                  fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                );
+              })
+            : List.generate(11, (index) {
+                int value = index * 50000;
+                String label = '${value ~/ 1000}K';
+                return FlutterSliderHatchMarkLabel(
+                  percent: index * 10,
+                  label: Padding(
+                    padding: EdgeInsets.only(top: 36.h),
+                    child: Column(
+                      children: [
+                        Container(
+                            width: 1.w, height: 4.h, color: AppColors.grey),
+                        if (index % 2 == 0)
+                          Text(label,
+                              style: const TextStyle(
+                                  color: AppColors.grey,
+                                  fontWeight: FontWeight.bold)),
+                        if (index % 2 != 0)
+                          const Text(" ",
+                              style: TextStyle(
+                                  color: AppColors.grey,
+                                  fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                );
+              }),
       ),
       onDragging: (handlerIndex, lowerValue, upperValue) {
         print('\n[Budget Slider Change]');
-        print('Handler Index: $handlerIndex'); // 0 là lower handle, 1 là upper handle
+        print(
+            'Handler Index: $handlerIndex'); // 0 là lower handle, 1 là upper handle
         print('Previous Lower Value: $_lowerValue');
         print('Previous Upper Value: $_upperValue');
         print('New Lower Value: $lowerValue');
         print('New Upper Value: $upperValue');
         print('Formatted Lower Value: ${_currencyFormat.format(lowerValue)}');
         print('Formatted Upper Value: ${_currencyFormat.format(upperValue)}');
-        
+
         setState(() {
           _lowerValue = lowerValue;
           _upperValue = upperValue;
         });
-        
+
         widget.onBudgetChanged(lowerValue, upperValue);
         print('Budget values updated and callback triggered');
         print('============================');

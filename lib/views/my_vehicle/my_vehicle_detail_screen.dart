@@ -304,8 +304,8 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                 children: [
                   Expanded(
                     child: DisabledTextField(
-                      labelText: AppLocalizations.of(context).translate("Price Per Hour"),
-                      text: '${numberFormat.format(vehicle.hourPrice)} ₫',
+                      labelText: AppLocalizations.of(context).translate("Price For 4 Hour"),
+                      text: '${numberFormat.format(vehicle.hour4Price)} ₫',
                     ),
                   ),
                   SizedBox(width: 16.w),

@@ -32,9 +32,11 @@ class VehicleListScreen extends StatelessWidget {
     // Kiểm tra ngôn ngữ hiện tại và tạo chuỗi `availableText`
     String availableText;
     if (Localizations.localeOf(context).languageCode == 'vi') {
-      availableText = '${AppLocalizations.of(context).translate(selectedCategory)} ${AppLocalizations.of(context).translate("Available")}';
+      availableText =
+          '${AppLocalizations.of(context).translate(selectedCategory)} ${AppLocalizations.of(context).translate("Available")}';
     } else {
-      availableText = '${AppLocalizations.of(context).translate("Available")} ${AppLocalizations.of(context).translate(selectedCategory)}';
+      availableText =
+          '${AppLocalizations.of(context).translate("Available")} ${AppLocalizations.of(context).translate(selectedCategory)}';
     }
 
     return Scaffold(
@@ -93,16 +95,17 @@ class VehicleListScreen extends StatelessWidget {
           SizedBox(height: 10.h),
           Expanded(
             child: StreamBuilder<List<RentalVehicleModel>>(
-              stream: Provider.of<RentalVehicleViewModel>(context, listen: false)
-                  .getAvailableVehicles(
-                    selectedCategory,
-                    rentOption,
-                    minBudget,
-                    maxBudget,
-                    startDate,
-                    endDate,
-                    pickupProvince,
-                  ),
+              stream:
+                  Provider.of<RentalVehicleViewModel>(context, listen: false)
+                      .getAvailableVehicles(
+                selectedCategory,
+                rentOption,
+                minBudget,
+                maxBudget,
+                startDate,
+                endDate,
+                pickupProvince,
+              ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -116,7 +119,8 @@ class VehicleListScreen extends StatelessWidget {
                 if (vehicles.isEmpty) {
                   return Center(
                     child: Text(
-                      AppLocalizations.of(context).translate('No vehicles available'),
+                      AppLocalizations.of(context)
+                          .translate('No vehicles available'),
                       style: TextStyle(fontSize: 16.sp),
                     ),
                   );
@@ -134,9 +138,9 @@ class VehicleListScreen extends StatelessWidget {
                         vehicleRegisterId: vehicle.vehicleRegisterId,
                         startDate: startDate,
                         endDate: endDate,
-                        price: rentOption == 'Hourly' ? vehicle.hourPrice : vehicle.dayPrice,
+                        price: _getPrice(rentOption, vehicle),
                         rentOption: rentOption,
-                        hourPrice: vehicle.hourPrice,
+                        hourPrice: vehicle.hour4Price,
                         dayPrice: vehicle.dayPrice,
                         requirements: vehicle.requirements,
                         vehicleType: vehicle.vehicleType,
@@ -153,4 +157,17 @@ class VehicleListScreen extends StatelessWidget {
       ),
     );
   }
-} 
+
+  double _getPrice(String rentOption, RentalVehicleModel vehicle) {
+    switch (rentOption) {
+      case '4 Hours':
+        return vehicle.hour4Price;
+      case '8 Hours':
+        return vehicle.hour8Price;
+      case 'Daily':
+        return vehicle.dayPrice;
+      default:
+        return vehicle.hour4Price;
+    }
+  }
+}

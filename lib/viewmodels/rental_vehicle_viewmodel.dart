@@ -402,7 +402,8 @@ class RentalVehicleViewModel extends ChangeNotifier {
         vehicleColor: queryColor,  // Lưu màu tiếng Việt
         vehicleRegistrationFrontPhoto: frontPhotoUrl,
         vehicleRegistrationBackPhoto: backPhotoUrl,
-        hourPrice: (vehicleData['hourPrice'] ?? 0).toDouble(),
+        hour4Price: (vehicleData['hour4Price'] ?? 0).toDouble(),
+        hour8Price: (vehicleData['hour8Price'] ?? 0).toDouble(),
         dayPrice: (vehicleData['dayPrice'] ?? 0).toDouble(),
         requirements: List<String>.from(vehicleData['requirements'] ?? []),
         contractId: vehicleData['contractId'] ?? '',
@@ -553,7 +554,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
             RentalVehicleModel vehicle = RentalVehicleModel.fromMap(doc.data());
             
             // Kiểm tra giá thuê có nằm trong khoảng budget không
-            double relevantPrice = rentOption == 'Hourly' ? vehicle.hourPrice : vehicle.dayPrice;
+           double relevantPrice = _getPriceForOption(rentOption, vehicle);
             if (relevantPrice < minBudget || relevantPrice > maxBudget) {
               continue;
             }
@@ -753,6 +754,20 @@ class RentalVehicleViewModel extends ChangeNotifier {
     return transmissionVi;
   }
 
+  // Thêm phương thức mới để xác định giá theo gói thuê
+  double _getPriceForOption(String rentOption, RentalVehicleModel vehicle) {
+    switch (rentOption) {
+      case '4 Hours':
+        return vehicle.hour4Price;
+      case '8 Hours':
+        return vehicle.hour8Price;
+      case 'Daily':
+        return vehicle.dayPrice;
+      default:
+        return vehicle.hour4Price;
+    }
+  }
+
   Future<void> updateVehicleDetails(String vehicleRegisterId, Map<String, dynamic> updates) async {
     try {
       await _firestore
@@ -767,3 +782,5 @@ class RentalVehicleViewModel extends ChangeNotifier {
     }
   }
 }
+
+

@@ -168,6 +168,7 @@ class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
               onBudgetChanged: onBudgetChanged,
               initialMin: minBudget,
               initialMax: maxBudget,
+              type: 'restaurant',
             ),
             SizedBox(height: 24.h),
             DateTimePicker(

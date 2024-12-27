@@ -111,6 +111,7 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
               onBudgetChanged: onBudgetChanged,
               initialMin: minBudget,
               initialMax: maxBudget,
+              type: 'hotel',
             ),
             SizedBox(height: 24.h),
             Row(

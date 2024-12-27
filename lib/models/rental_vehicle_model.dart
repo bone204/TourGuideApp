@@ -10,7 +10,8 @@ class RentalVehicleModel {
   final String vehicleColor;
   final String vehicleRegistrationFrontPhoto;
   final String vehicleRegistrationBackPhoto;
-  final double hourPrice;
+  final double hour4Price;
+  final double hour8Price;
   final double dayPrice;
   final List<String> requirements; 
   final String contractId;
@@ -29,7 +30,8 @@ class RentalVehicleModel {
     required this.vehicleColor,
     required this.vehicleRegistrationFrontPhoto,
     required this.vehicleRegistrationBackPhoto,
-    required this.hourPrice,
+    required this.hour4Price,
+    required this.hour8Price,
     required this.dayPrice,
     required this.requirements,
     required this.contractId,
@@ -50,7 +52,8 @@ class RentalVehicleModel {
       'vehicleColor': vehicleColor,
       'vehicleRegistrationFrontPhoto': vehicleRegistrationFrontPhoto,
       'vehicleRegistrationBackPhoto': vehicleRegistrationBackPhoto,
-      'hourPrice': hourPrice,
+      'hour4Price': hour4Price,
+      'hour8Price': hour8Price,
       'dayPrice': dayPrice,
       'requirements': requirements,
       'contractId': contractId,
@@ -72,9 +75,12 @@ class RentalVehicleModel {
       vehicleColor: map['vehicleColor'] ?? '',
       vehicleRegistrationFrontPhoto: map['vehicleRegistrationFrontPhoto'] ?? '',
       vehicleRegistrationBackPhoto: map['vehicleRegistrationBackPhoto'] ?? '',
-      hourPrice: (map['hourPrice'] is int) 
-          ? (map['hourPrice'] as int).toDouble()
-          : (map['hourPrice'] ?? 0.0).toDouble(),
+      hour4Price: (map['hour4Price'] is int)
+          ? (map['hour4Price'] as int).toDouble()
+          : (map['hour4Price'] ?? 0.0).toDouble(),
+      hour8Price: (map['hour8Price'] is int)
+          ? (map['hour8Price'] as int).toDouble()
+          : (map['hour8Price'] ?? 0.0).toDouble(),
       dayPrice: (map['dayPrice'] is int)
           ? (map['dayPrice'] as int).toDouble()
           : (map['dayPrice'] ?? 0.0).toDouble(),
