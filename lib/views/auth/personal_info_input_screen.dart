@@ -178,7 +178,6 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                     });
                   },
                   title: 'Birthday',
-                  rentOption: 'Daily',
                 ),
                 SizedBox(height: 32.h),
                 ElevatedButton(

@@ -178,7 +178,6 @@ class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
                 });
               },
               title: "Check-in Time",
-              rentOption: "Daily",
             ),
             SizedBox(height: 24.h),
             _buildSpecialtyPicker(),

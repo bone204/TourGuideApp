@@ -254,7 +254,6 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                     viewModel.birthdayController.text = DateFormat('dd/MM/yyyy').format(date);
                   },
                   title: "Birthday",
-                  rentOption: "Daily",
                 ),
               ],
             ),

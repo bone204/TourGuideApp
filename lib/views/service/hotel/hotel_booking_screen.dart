@@ -128,7 +128,6 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                       });
                     },
                     title: "Check-in Date",
-                    rentOption: selectedRentOption,
                   ),
                 ),
                 SizedBox(width: 12.w),
@@ -171,7 +170,6 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                       });
                     },
                     title: "Check-out Date",
-                    rentOption: selectedRentOption,
                   ),
                 ),
                 SizedBox(width: 12.w),
