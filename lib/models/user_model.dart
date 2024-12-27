@@ -13,6 +13,7 @@ class UserModel {
   final String? bankName;
   final String? bankAccountNumber;
   final String? bankAccountName;
+  final List<String> hobbies;
 
   UserModel({
     required this.userId,
@@ -29,6 +30,7 @@ class UserModel {
     this.bankName,
     this.bankAccountNumber,
     this.bankAccountName,
+    required this.hobbies,
   });
 
   Map<String, dynamic> toMap() {
@@ -47,6 +49,7 @@ class UserModel {
       'bankName': bankName,
       'bankAccountNumber': bankAccountNumber,
       'bankAccountName': bankAccountName,
+      'hobbies': hobbies,
     };
   }
 
@@ -66,6 +69,7 @@ class UserModel {
       bankName: map['bankName'] ?? '',
       bankAccountNumber: map['bankAccountNumber'] ?? '',
       bankAccountName: map['bankAccountName'] ?? '',
+      hobbies: List<String>.from(map['hobbies'] ?? []),
     );
   }
 }

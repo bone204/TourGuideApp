@@ -16,28 +16,37 @@ class SignupViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isCodeSent => _isCodeSent;
 
-  Future<User?> signUp(String email, String password, String name, String fullName, String address, String gender, String citizenId, String phoneNumber, String nationality, String birthday) async {
+  Future<User?> signUp(
+    String email,
+    String password,
+    String username,
+    String fullName,
+    String address,
+    String gender,
+    String citizenId,
+    String phoneNumber,
+    String nationality,
+    String birthday,
+    List<String> hobbies,
+  ) async {
     try {
-      print('Starting signup process...');
-      _isLoading = true;
-      _errorMessage = null;
-      notifyListeners();
-
-      print('Calling auth service with data:');
-      print('Email: $email');
-      print('Username: $name');
-      // ... in các thông tin khác
-
-      User? user = await _auth.signUpWithEmailAndPassword(email, password, name, fullName, address, gender, citizenId, phoneNumber, nationality, birthday);
-      print('Signup result: ${user != null ? 'Success' : 'Failed'}');
-      return user;
+      return await _auth.signUpWithEmailAndPassword(
+        email,
+        password,
+        username,
+        fullName,
+        address,
+        gender,
+        citizenId,
+        phoneNumber,
+        nationality,
+        birthday,
+        hobbies,
+      );
     } catch (e) {
-      print('Error during signup: $e');
       _errorMessage = e.toString();
-      return null;
-    } finally {
-      _isLoading = false;
       notifyListeners();
+      return null;
     }
   }
 

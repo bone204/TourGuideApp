@@ -8,7 +8,19 @@ class FirebaseAuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Đăng ký bằng email và mật khẩu
-  Future<User?> signUpWithEmailAndPassword(String email, String password, String name, String fullName, String address, String gender, String citizenId, String phoneNumber, String nationality, String birthday) async {
+  Future<User?> signUpWithEmailAndPassword(
+    String email, 
+    String password, 
+    String name, 
+    String fullName, 
+    String address, 
+    String gender, 
+    String citizenId, 
+    String phoneNumber, 
+    String nationality, 
+    String birthday,
+    List<String> hobbies,
+  ) async {
     try {
       // Tạo tài khoản người dùng mới
       UserCredential credential = await _auth.createUserWithEmailAndPassword(
@@ -34,7 +46,8 @@ class FirebaseAuthService {
           citizenId: citizenId,
           phoneNumber: phoneNumber,
           nationality: nationality,
-          birthday: birthday
+          birthday: birthday,
+          hobbies: hobbies,
         );
 
         // Lưu thông tin người dùng vào Firestore
@@ -95,7 +108,7 @@ class FirebaseAuthService {
       throw _handleFirebaseAuthException(e);
     } catch (e) {
       if (kDebugMode) {
-        print('Lỗi không xác định khi đăng nhập: $e');
+        print('Lỗi không xác đ���nh khi đăng nhập: $e');
       } // In lỗi ra console
       throw Exception("Đã xảy ra lỗi không xác định khi đăng nhập: $e");
     }

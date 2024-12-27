@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
-import 'package:tourguideapp/viewmodels/signup_viewmodel.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/custom_combo_box.dart';
 import 'package:tourguideapp/widgets/date_time_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:tourguideapp/views/auth/hobbies_selection_screen.dart';
 
 class PersonalInfoScreen extends StatefulWidget {
   final String email;
@@ -73,6 +72,46 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         .firstWhere((entry) => entry.value == vietnameseValue,
             orElse: () => const MapEntry('', ''))
         .key;
+  }
+
+  bool _validateInputs() {
+    if (_fullNameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your full name'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+    if (_selectedGender == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select your gender'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+    if (_selectedNationality == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select your nationality'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+    if (_selectedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select your birthday'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+    return true;
   }
 
   @override
@@ -144,94 +183,24 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 SizedBox(height: 32.h),
                 ElevatedButton(
                   onPressed: _isLoading 
-                    ? null  // Disable button khi đang loading
+                    ? null
                     : () async {
-                        if (_fullNameController.text.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please enter your full name'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-                        if (_selectedGender == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please select your gender'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-                        if (_selectedNationality == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please select your nationality'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-                        if (_selectedDate == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please select your birthday'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-
-                        setState(() {
-                          _isLoading = true;
-                        });
-
-                        try {
-                          final signupViewModel = context.read<SignupViewModel>();
-                          final user = await signupViewModel.signUp(
-                            widget.email,
-                            widget.password,
-                            widget.username,
-                            _fullNameController.text,
-                            '', // address
-                            _getVietnameseValue(_selectedGender, genderTranslations),
-                            '', // citizenId
-                            widget.phoneNumber,
-                            _getVietnameseValue(_selectedNationality, nationalityTranslations),
-                            DateFormat('dd/MM/yyyy').format(_selectedDate!),
-                          );
-
-                          if (!mounted) return;
-
-                          if (user != null) {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              '/home',
-                              (route) => false,
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Registration failed. Please try again.'),
-                                backgroundColor: Colors.red,
+                        if (_validateInputs()) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HobbiesSelectionScreen(
+                                email: widget.email,
+                                password: widget.password,
+                                username: widget.username,
+                                phoneNumber: widget.phoneNumber,
+                                fullName: _fullNameController.text,
+                                gender: _getVietnameseValue(_selectedGender, genderTranslations),
+                                nationality: _getVietnameseValue(_selectedNationality, nationalityTranslations),
+                                birthday: DateFormat('dd/MM/yyyy').format(_selectedDate!),
                               ),
-                            );
-                          }
-                        } catch (e) {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Error: ${e.toString()}'),
-                              backgroundColor: Colors.red,
                             ),
                           );
-                        } finally {
-                          if (mounted) {
-                            setState(() {
-                              _isLoading = false;
-                            });
-                          }
                         }
                       },
                   style: ElevatedButton.styleFrom(
