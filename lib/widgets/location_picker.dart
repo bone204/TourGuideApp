@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mapbox_search/mapbox_search.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tourguideapp/models/province_model.dart';
 
 class LocationPicker extends StatefulWidget {
   final Function(String, Map<String, String>) onLocationSelected;
@@ -20,285 +19,208 @@ class LocationPicker extends StatefulWidget {
   _LocationPickerState createState() => _LocationPickerState();
 }
 
-class _LocationSearchScreen extends StatefulWidget {
-  final Function(String, Map<String, String>) onLocationSelected;
+class _LocationPickerState extends State<LocationPicker> {
+  String selectedLocation = "";
+  List<SuggestionResponse> _searchResults = [];
+  
+  final searchAPI = SearchBoxAPI(
+    apiKey: 'pk.eyJ1IjoidGhvbmd0dWxlbjEzNCIsImEiOiJjbTNwOTd4dWEwY2l1MnJxMWt0dnRla2pqIn0.9o3fO8SYcsRxRYH0-Qtfhg',
+    limit: 10,
+    country: 'VN',
+    language: 'vi',
+    types: [
+      PlaceType.poi,
+      PlaceType.address, 
+      PlaceType.place,
+      PlaceType.district,
+      PlaceType.locality,
+      PlaceType.postcode,
+    ],
+  );
 
-  const _LocationSearchScreen({
-    Key? key,
-    required this.onLocationSelected,
-  }) : super(key: key);
-
-  @override
-  _LocationSearchScreenState createState() => _LocationSearchScreenState();
-}
-
-class _LocationSearchScreenState extends State<_LocationSearchScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  List<LocationOption> _locationOptions = [];
-  List<LocationOption> _filteredOptions = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadLocations();
-  }
-
-  Future<void> _loadLocations() async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('PROVINCE')
-          .get();
-      
-      List<LocationOption> options = [];
-      
-      for (var doc in snapshot.docs) {
-        final province = Province.fromMap({
-          ...doc.data(),
-          'provinceId': doc.id,
+  Future<void> _searchPlaces(String value, StateSetter setModalState) async {
+    if (value.length > 1) {
+      try {
+        final response = await searchAPI.getSuggestions(value);
+        response.fold(
+          (success) {
+            setModalState(() {
+              _searchResults = [success];
+            });
+          },
+          (failure) {
+            print('Search error: ${failure.message}');
+            setModalState(() {
+              _searchResults.clear();
+            });
+          },
+        );
+      } catch (e) {
+        print('Search error: $e');
+        setModalState(() {
+          _searchResults.clear();
         });
-        
-        // Thêm Province-City nếu có city
-        if (province.city.isNotEmpty) {
-          options.add(LocationOption(
-            province: province.provinceName,
-            city: province.city,
-            district: '',
-          ));
-        }
-
-        // Thêm Province-District cho từng district (không thêm city)
-        if (province.district.isNotEmpty) {
-          for (String district in province.district) {
-            options.add(LocationOption(
-              province: province.provinceName,
-              city: '',
-              district: district,
-            ));
-          }
-        }
-
-        // Nếu không có cả city và district, chỉ thêm province
-        if (province.city.isEmpty && province.district.isEmpty) {
-          options.add(LocationOption(
-            province: province.provinceName,
-            city: '',
-            district: '',
-          ));
-        }
       }
-      
-      setState(() {
-        _locationOptions = options;
-        _filteredOptions = [];
-        _isLoading = false;
-      });
-    } catch (e) {
-      print('Error loading locations: $e');
-      setState(() {
-        _isLoading = false;
+    } else {
+      setModalState(() {
+        _searchResults.clear();
       });
     }
   }
 
-  void _filterLocations(String query) {
-    setState(() {
-      if (query.isEmpty) {
-        _filteredOptions = [];
-      } else {
-        final searchStr = query.toLowerCase().trim();
-        
-        // Tạo danh sách kết quả tìm kiếm với độ ưu tiên mới
-        List<LocationOption> districtMatches = [];
-        List<LocationOption> cityMatches = [];
-        List<LocationOption> provinceMatches = [];
-
-        for (var option in _locationOptions) {
-          // Kiểm tra nếu text bắt đầu bằng query
-          if (option.district.toLowerCase().startsWith(searchStr)) {
-            districtMatches.add(option);
-          } else if (option.city.toLowerCase().startsWith(searchStr)) {
-            cityMatches.add(option);
-          } else if (option.province.toLowerCase().startsWith(searchStr)) {
-            provinceMatches.add(option);
-          }
-        }
-
-        // Kết hợp các kết quả theo thứ tự ưu tiên mới
-        _filteredOptions = [
-          ...districtMatches,
-          ...cityMatches,
-          ...provinceMatches,
-        ];
-
-        // N���u không có kết quả nào bắt đầu bằng query, tìm kiếm các từ chứa query
-        if (_filteredOptions.isEmpty && searchStr.length >= 2) {
-          for (var option in _locationOptions) {
-            if (option.district.toLowerCase().contains(searchStr)) {
-              districtMatches.add(option);
-            } else if (option.city.toLowerCase().contains(searchStr)) {
-              cityMatches.add(option);
-            } else if (option.province.toLowerCase().contains(searchStr)) {
-              provinceMatches.add(option);
-            }
-          }
-
-          _filteredOptions = [
-            ...districtMatches,
-            ...cityMatches,
-            ...provinceMatches,
-          ];
-        }
-      }
-    });
+  Future<Map<String, String>> _getPlaceDetails(String mapboxId) async {
+    try {
+      final response = await searchAPI.getPlace(mapboxId);
+      
+      return response.fold(
+        (success) {
+          final feature = success.features.first;
+          
+          return {
+            'address': feature.properties.address ?? '',
+            'latitude': feature.geometry.coordinates.lat.toString(),
+            'longitude': feature.geometry.coordinates.long.toString(),
+          };
+        },
+        (failure) => {},
+      );
+    } catch (e) {
+      print('Error getting place details: $e');
+      return {};
+    }
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        resizeToAvoidBottomInset: false,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h),
-          child: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            scrolledUnderElevation: 0,
-            surfaceTintColor: Colors.transparent,
-            flexibleSpace: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40.h,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: CustomIconButton(
-                          icon: Icons.chevron_left,
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          AppLocalizations.of(context).translate('Choose Location'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context).translate('Search location'),
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                ),
-                onChanged: _filterLocations,
-              ),
-            ),
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                      itemCount: _filteredOptions.length,
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      itemBuilder: (context, index) {
-                        final option = _filteredOptions[index];
-                        
-                        return ListTile(
-                          leading: const Icon(Icons.location_on, color: AppColors.primaryColor),
-                          title: Text(
-                            option.district.isNotEmpty 
-                                ? option.district 
-                                : option.city.isNotEmpty 
-                                    ? option.city 
-                                    : option.province,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.sp,
-                            ),
-                          ),
-                          subtitle: option.district.isNotEmpty || option.city.isNotEmpty 
-                              ? Padding(
-                                  padding: EdgeInsets.only(top: 4.h),
-                                  child: Text(
-                                    option.province,
-                                    style: TextStyle(fontSize: 14.sp),
-                                  ),
-                                )
-                              : null,
-                          onTap: () {
-                            final details = {
-                              'province': option.province,
-                              'city': option.city,
-                              'district': option.district,
-                            };
-                            String displayLocation;
-                            if (option.city.isNotEmpty) {
-                              displayLocation = "${option.province}, ${option.city}";
-                            } else if (option.district.isNotEmpty) {
-                              displayLocation = "${option.province}, ${option.district}";
-                            } else {
-                              displayLocation = option.province;
-                            }
-                            widget.onLocationSelected(displayLocation, details);
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-}
-
-class _LocationPickerState extends State<LocationPicker> {
-  String selectedLocation = "";
-  Map<String, String> locationDetails = {
-    'province': '',
-    'city': '',
-    'district': '',
-  };
 
   void _showSearchScreen() {
+    _searchResults.clear();
+    
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => _LocationSearchScreen(
-          onLocationSelected: (location, details) {
-            setState(() {
-              selectedLocation = location;
-              locationDetails = details;
-            });
-            widget.onLocationSelected(location, details);
-          },
+        builder: (context) => StatefulBuilder(
+          builder: (context, setModalState) => Scaffold(
+            backgroundColor: Colors.white,
+            appBar: PreferredSize(
+              preferredSize: Size.fromHeight(60.h),
+              child: AppBar(
+                backgroundColor: Colors.white,
+                elevation: 0,
+                automaticallyImplyLeading: false,
+                flexibleSpace: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      height: 40.h,
+                      child: Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: CustomIconButton(
+                              icon: Icons.chevron_left,
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              AppLocalizations.of(context).translate('Choose Location'),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20.sp,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            body: Padding(
+              padding: EdgeInsets.only(top: 20.h),
+              child: Column(
+                children: [
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 20.w),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16.r),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context).translate('Search'),
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      onChanged: (value) async {
+                        _searchPlaces(value, setModalState);
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: ListView.builder(
+                        itemCount: _searchResults.length,
+                        itemBuilder: (context, index) {
+                          final suggestion = _searchResults[index].suggestions.first;
+                          return ListTile(
+                            leading: Icon(
+                              suggestion.featureType == 'poi' 
+                                  ? Icons.place
+                                  : suggestion.featureType == 'address'
+                                      ? Icons.home
+                                      : Icons.location_city,
+                              color: AppColors.primaryColor
+                            ),
+                            title: Text(
+                              suggestion.name,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              suggestion.address ?? '',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: Colors.grey,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            onTap: () async {
+                              final details = await _getPlaceDetails(suggestion.mapboxId);
+                              setState(() {
+                                selectedLocation = suggestion.fullAddress ?? '';
+                              });
+                              widget.onLocationSelected(
+                                suggestion.fullAddress ?? '',
+                                details,
+                              );
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -334,7 +256,6 @@ class _LocationPickerState extends State<LocationPicker> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: selectedLocation.isEmpty ? AppColors.grey : AppColors.black,
-                      fontWeight: selectedLocation.isEmpty ? FontWeight.w600 : FontWeight.normal,
                     ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
