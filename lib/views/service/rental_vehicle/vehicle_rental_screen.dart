@@ -38,6 +38,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
   final List<String> hourPackages = ['4 Hours', '8 Hours'];
   TimeOfDay startTime = TimeOfDay(hour: 7, minute: 0);
   TimeOfDay endTime = TimeOfDay(hour: 11, minute: 0);
+  String selectedLocation = '';
 
   @override
   void initState() {
@@ -79,6 +80,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
 
   void onLocationSelected(String location, Map<String, String> details) {
     setState(() {
+      selectedLocation = location;
       selectedProvince = [
         details['province'],
         details['city'],
@@ -306,7 +308,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                         rentOption: selectedRentOption,
                         minBudget: minBudget,
                         maxBudget: maxBudget,
-                        pickupProvince: selectedProvince,
+                        pickupProvince: selectedLocation,
                       ),
                     ),
                   );

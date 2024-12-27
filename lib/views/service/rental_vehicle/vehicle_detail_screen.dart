@@ -10,7 +10,8 @@ class VehicleDetailScreen extends StatelessWidget {
   final String model;
   final String imagePath;
   final String vehicleId;
-  final double hourPrice;
+  final double hour4Price;
+  final double hour8Price;
   final double dayPrice;
   final List<String> requirements;
   final String vehicleType;
@@ -25,7 +26,8 @@ class VehicleDetailScreen extends StatelessWidget {
     required this.model,
     required this.imagePath,
     required this.vehicleId,
-    required this.hourPrice,
+    required this.hour4Price,
+    required this.hour8Price,
     required this.dayPrice,
     required this.requirements,
     required this.vehicleType,
@@ -198,7 +200,7 @@ class VehicleDetailScreen extends StatelessWidget {
                           leftTitle: AppLocalizations.of(context).translate("Price Per Day"),
                           leftContent: "${AppLocalizations.of(context).formatPrice(dayPrice)} ₫", 
                           rightTitle: AppLocalizations.of(context).translate("Price Per Hour"),
-                          rightContent: "${AppLocalizations.of(context).formatPrice(hourPrice)} ₫",
+                          rightContent: "${AppLocalizations.of(context).formatPrice(hour4Price)} ₫",
                         ),
                         SizedBox(height: 16.h),
                         Text(

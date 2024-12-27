@@ -146,13 +146,13 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
   }
 
   void _calculateTotal() {
-    // Tính tổng tiền dựa trên thời gian thuê
     final duration = widget.endDate.difference(widget.startDate);
+
     if (widget.rentOption == 'Hourly') {
-      totalAmount = widget.price * duration.inHours;
+      totalAmount = widget.price;
     } else {
       // Cộng thêm 1 vì tính cả ngày bắt đầu
-      totalAmount = widget.price * (duration.inDays + 1);
+      totalAmount = widget.price * duration.inDays;
     }
     setState(() {});
   }
@@ -277,49 +277,128 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
               child: Column(children: [
                 Row(
                   children: [
-                    Image.asset(
-                      "assets/img/icon-cx3.png",
-                      width: 184.w,
-                      height: 144.h,
-                      fit: BoxFit.contain,
+                    Consumer<RentalVehicleViewModel>(
+                      builder: (context, viewModel, child) {
+                        return FutureBuilder<String>(
+                          future: viewModel.getVehiclePhoto(widget.vehicleId),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
+
+                            final imagePath =
+                                snapshot.data ?? 'assets/img/car_default.png';
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(8.r),
+                              child: imagePath.startsWith('assets/')
+                                  ? Image.asset(
+                                      imagePath,
+                                      width: 184.w,
+                                      height: 144.h,
+                                      fit: BoxFit.contain,
+                                    )
+                                  : Image.network(
+                                      imagePath,
+                                      width: 184.w,
+                                      height: 144.h,
+                                      fit: BoxFit.contain,
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null)
+                                          return child;
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                                : null,
+                                          ),
+                                        );
+                                      },
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Image.asset(
+                                          'assets/img/car_default.png',
+                                          width: 184.w,
+                                          height: 144.h,
+                                          fit: BoxFit.contain,
+                                        );
+                                      },
+                                    ),
+                            );
+                          },
+                        );
+                      },
                     ),
                     SizedBox(width: 12.w),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("S 500 Sedan",
-                            style: TextStyle(
-                                fontSize: 12.sp,
-                                color: AppColors.black,
-                                fontWeight: FontWeight.bold)),
-                        SizedBox(height: 4.h),
-                        Text("650,000 ₫",
-                            style: TextStyle(
-                                fontSize: 12.sp,
-                                color: AppColors.orange,
-                                fontWeight: FontWeight.bold)),
-                        SizedBox(height: 4.h),
-                        Row(
-                          children: [
-                            Text(
-                              "${AppLocalizations.of(context).translate("Rate")}:",
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                color: AppColors.grey,
-                              ),
-                            ),
-                            SizedBox(width: 4.w),
-                            ...List.generate(
-                                5,
-                                (index) => Icon(
-                                      Icons.star,
-                                      color: Colors.amber,
-                                      size: 14.sp,
-                                    )),
-                          ],
-                        ),
-                      ],
-                    )
+                    Expanded(
+                      child: Consumer<RentalVehicleViewModel>(
+                        builder: (context, viewModel, child) {
+                          return FutureBuilder<Map<String, dynamic>>(
+                            future: viewModel
+                                .getVehicleDetailsById(widget.vehicleId),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
+
+                              final vehicleDetails = snapshot.data ?? {};
+                              final model =
+                                  vehicleDetails['model'] ?? widget.model;
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    model,
+                                    style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: AppColors.black,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(height: 4.h),
+                                  Text(
+                                    "${AppLocalizations.of(context).formatPrice(widget.price)} ₫",
+                                    style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: AppColors.orange,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(height: 4.h),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "${AppLocalizations.of(context).translate("Rate")}:",
+                                        style: TextStyle(
+                                          fontSize: 12.sp,
+                                          color: AppColors.grey,
+                                        ),
+                                      ),
+                                      SizedBox(width: 4.w),
+                                      ...List.generate(
+                                          5,
+                                          (index) => Icon(
+                                                Icons.star,
+                                                color: Colors.amber,
+                                                size: 14.sp,
+                                              )),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: 8.h),
@@ -406,10 +485,13 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Days:",
+                    Text(widget.rentOption == 'Hourly' ? "Hours:" : "Days:",
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                    Text("1",
+                    Text(
+                        widget.rentOption == 'Hourly'
+                            ? "${widget.endDate.difference(widget.startDate).inHours}"
+                            : "${widget.endDate.difference(widget.startDate).inDays + 1}",
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
@@ -423,7 +505,8 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                     Text("Price:",
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                    Text("650,000 ₫",
+                    Text(
+                        "${AppLocalizations.of(context).formatPrice(widget.price)} ₫",
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
@@ -445,7 +528,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                             color: AppColors.black,
                             fontWeight: FontWeight.bold)),
                     Text(
-                        '${AppLocalizations.of(context).formatPrice(totalAmount)} ₫',
+                        "${AppLocalizations.of(context).formatPrice(totalAmount)} ₫",
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,

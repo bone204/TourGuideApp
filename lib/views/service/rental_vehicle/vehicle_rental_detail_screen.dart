@@ -17,7 +17,8 @@ class VehicleRentalDetail extends StatelessWidget {
   final double price;
   final String vehicleId;
   final String vehicleRegisterId;
-  final double hourPrice;
+  final double hour4Price;
+  final double hour8Price;
   final double dayPrice;
 
   const VehicleRentalDetail({
@@ -31,7 +32,8 @@ class VehicleRentalDetail extends StatelessWidget {
     required this.price,
     required this.vehicleId,
     required this.vehicleRegisterId,
-    required this.hourPrice,
+    required this.hour4Price,
+    required this.hour8Price,
     required this.dayPrice,
   }) : super(key: key);
 
@@ -291,7 +293,7 @@ class VehicleRentalDetail extends StatelessWidget {
                                 endDate: endDate,
                                 rentOption: rentOption,
                                 price: rentOption == 'Hourly'
-                                    ? hourPrice
+                                    ? hour4Price
                                     : dayPrice,
                                 pickupLocation: pickupLocation,
                               )));

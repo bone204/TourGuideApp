@@ -84,10 +84,8 @@ class RentalVehicleViewModel extends ChangeNotifier {
     if (targetLocale == 'vi') {
       // Chuyển từ tiếng Anh sang tiếng Việt
       return _colorTranslations.entries
-          .firstWhere(
-            (entry) => entry.value == colorName,
-            orElse: () => MapEntry(colorName, colorName)
-          )
+          .firstWhere((entry) => entry.value == colorName,
+              orElse: () => MapEntry(colorName, colorName))
           .key;
     } else {
       // Chuyển từ tiếng Việt sang tiếng Anh
@@ -98,7 +96,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
   Future<void> loadVehicleInformation(String vehicleType, String locale) async {
     try {
       String queryType = _convertVehicleTypeToFirestore(vehicleType, 'vi');
-      
+
       if (kDebugMode) {
         print('Loading vehicle information for type: $queryType');
       }
@@ -129,12 +127,10 @@ class RentalVehicleViewModel extends ChangeNotifier {
       }
 
       _availableBrands = brandModels.keys.toList()..sort();
-      _modelsByBrand = Map.fromEntries(
-        brandModels.entries.map((e) => MapEntry(e.key, e.value.toList()..sort()))
-      );
-      _colorsByModel = Map.fromEntries(
-        modelColors.entries.map((e) => MapEntry(e.key, e.value.toList()..sort()))
-      );
+      _modelsByBrand = Map.fromEntries(brandModels.entries
+          .map((e) => MapEntry(e.key, e.value.toList()..sort())));
+      _colorsByModel = Map.fromEntries(modelColors.entries
+          .map((e) => MapEntry(e.key, e.value.toList()..sort())));
 
       notifyListeners();
     } catch (e) {
@@ -229,19 +225,21 @@ class RentalVehicleViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  Future<String> uploadVehiclePhoto(File photo, String vehicleRegisterId, String type) async {
+  Future<String> uploadVehiclePhoto(
+      File photo, String vehicleRegisterId, String type) async {
     try {
-      String fileName = '${vehicleRegisterId}_${type}_${DateTime.now().millisecondsSinceEpoch}${path.extension(photo.path)}';
-      
+      String fileName =
+          '${vehicleRegisterId}_${type}_${DateTime.now().millisecondsSinceEpoch}${path.extension(photo.path)}';
+
       final storageRef = _storage.ref().child('photos/$fileName');
-      
+
       await storageRef.putFile(photo);
       String downloadUrl = await storageRef.getDownloadURL();
-      
+
       if (kDebugMode) {
         print("Vehicle photo uploaded successfully: $downloadUrl");
       }
-      
+
       return downloadUrl;
     } catch (e, stack) {
       if (kDebugMode) {
@@ -254,14 +252,18 @@ class RentalVehicleViewModel extends ChangeNotifier {
 
   Future<int> getSeatingCapacity(String vehicleId) async {
     try {
-      final doc = await _firestore.collection('VEHICLE_INFORMATION').doc(vehicleId).get();
+      final doc = await _firestore
+          .collection('VEHICLE_INFORMATION')
+          .doc(vehicleId)
+          .get();
       if (doc.exists) {
         final data = doc.data();
         // Kiểm tra và chuyển seatingCapacity từ String sang int
         String? seatingCapacityString = data?['seatingCapacity'];
         if (seatingCapacityString != null) {
           // Cố gắng chuyển đổi từ String sang int
-          return int.tryParse(seatingCapacityString) ?? 0;  // Trả về 0 nếu không thể chuyển đổi
+          return int.tryParse(seatingCapacityString) ??
+              0; // Trả về 0 nếu không thể chuyển đổi
         }
       }
       return 0;
@@ -275,7 +277,10 @@ class RentalVehicleViewModel extends ChangeNotifier {
 
   Future<Map<String, dynamic>> getVehicleDetailsById(String vehicleId) async {
     try {
-      final doc = await _firestore.collection('VEHICLE_INFORMATION').doc(vehicleId).get();
+      final doc = await _firestore
+          .collection('VEHICLE_INFORMATION')
+          .doc(vehicleId)
+          .get();
       if (doc.exists) {
         final data = doc.data();
         return {
@@ -304,10 +309,12 @@ class RentalVehicleViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> createRentalVehicleForUser(String uid, Map<String, dynamic> vehicleData, String locale) async {
+  Future<void> createRentalVehicleForUser(
+      String uid, Map<String, dynamic> vehicleData, String locale) async {
     try {
-      String queryType = _convertVehicleTypeToFirestore(vehicleData['vehicleType'], 'vi');
-      String queryColor = locale == 'en' 
+      String queryType =
+          _convertVehicleTypeToFirestore(vehicleData['vehicleType'], 'vi');
+      String queryColor = locale == 'en'
           ? _translateColor(vehicleData['vehicleColor'], 'vi')
           : vehicleData['vehicleColor'];
 
@@ -340,7 +347,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
       if (vehicleSnapshot.docs.isEmpty) {
         throw Exception("Không tìm thấy thông tin xe phù hợp trong hệ thống");
       }
-      
+
       vehicleId = vehicleSnapshot.docs.first.id;
 
       int seatingCapacity = await getSeatingCapacity(vehicleId);
@@ -359,24 +366,22 @@ class RentalVehicleViewModel extends ChangeNotifier {
       // Upload ảnh đăng ký xe
       String frontPhotoUrl = '';
       String backPhotoUrl = '';
-      
+
       try {
-        if (vehicleData['vehicleRegistrationFrontPhoto'] != null && 
+        if (vehicleData['vehicleRegistrationFrontPhoto'] != null &&
             vehicleData['vehicleRegistrationFrontPhoto'] is File) {
           frontPhotoUrl = await uploadVehiclePhoto(
-            vehicleData['vehicleRegistrationFrontPhoto'] as File,
-            vehicleRegisterId,
-            'registration_front'
-          );
+              vehicleData['vehicleRegistrationFrontPhoto'] as File,
+              vehicleRegisterId,
+              'registration_front');
         }
 
-        if (vehicleData['vehicleRegistrationBackPhoto'] != null && 
+        if (vehicleData['vehicleRegistrationBackPhoto'] != null &&
             vehicleData['vehicleRegistrationBackPhoto'] is File) {
           backPhotoUrl = await uploadVehiclePhoto(
-            vehicleData['vehicleRegistrationBackPhoto'] as File,
-            vehicleRegisterId,
-            'registration_back'
-          );
+              vehicleData['vehicleRegistrationBackPhoto'] as File,
+              vehicleRegisterId,
+              'registration_back');
         }
       } catch (e) {
         if (kDebugMode) {
@@ -386,10 +391,10 @@ class RentalVehicleViewModel extends ChangeNotifier {
       }
 
       // Đảm bảo status luôn là tiếng Việt khi lưu
-      String firestoreStatus = locale == 'vi' 
-          ? vehicleData['status'] 
+      String firestoreStatus = locale == 'vi'
+          ? vehicleData['status']
           : _convertStatusToFirestore(vehicleData['status'], locale);
-      
+
       final newRentalVehicle = RentalVehicleModel(
         vehicleRegisterId: vehicleRegisterId,
         userId: _currentUserId!,
@@ -399,7 +404,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
         maxSeats: seatingCapacity,
         vehicleBrand: vehicleData['vehicleBrand'],
         vehicleModel: vehicleData['vehicleModel'],
-        vehicleColor: queryColor,  // Lưu màu tiếng Việt
+        vehicleColor: queryColor, // Lưu màu tiếng Việt
         vehicleRegistrationFrontPhoto: frontPhotoUrl,
         vehicleRegistrationBackPhoto: backPhotoUrl,
         hour4Price: (vehicleData['hour4Price'] ?? 0).toDouble(),
@@ -479,17 +484,17 @@ class RentalVehicleViewModel extends ChangeNotifier {
       if (doc.exists) {
         final data = doc.data();
         final photo = data?['photo'] as String?;
-        
+
         if (kDebugMode) {
           print("Document found with ID: $vehicleId");
           print("Photo URL: $photo");
         }
-        
+
         if (photo != null && photo.isNotEmpty) {
           return photo;
         }
       }
-      
+
       return 'assets/img/car_default.png';
     } catch (e) {
       if (kDebugMode) {
@@ -499,7 +504,8 @@ class RentalVehicleViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> updateVehicleStatus(String vehicleRegisterId, String newStatus) async {
+  Future<void> updateVehicleStatus(
+      String vehicleRegisterId, String newStatus) async {
     try {
       await _firestore
           .collection('RENTAL_VEHICLE')
@@ -513,7 +519,8 @@ class RentalVehicleViewModel extends ChangeNotifier {
 
   Future<void> deleteOldPhoto(String photoUrl) async {
     try {
-      if (photoUrl.isNotEmpty && photoUrl.startsWith('https://firebasestorage.googleapis.com')) {
+      if (photoUrl.isNotEmpty &&
+          photoUrl.startsWith('https://firebasestorage.googleapis.com')) {
         final ref = _storage.refFromURL(photoUrl);
         await ref.delete();
         if (kDebugMode) {
@@ -536,11 +543,11 @@ class RentalVehicleViewModel extends ChangeNotifier {
   ) {
     // Convert category sang tiếng Việt để query
     String queryType = _convertVehicleTypeToFirestore(category, 'vi');
-    
+
     if (kDebugMode) {
       print('Querying vehicles for category: $queryType');
     }
-    
+
     // Lấy danh sách các xe có trạng thái khả dụng và đúng loại xe
     return _firestore
         .collection('RENTAL_VEHICLE')
@@ -548,56 +555,59 @@ class RentalVehicleViewModel extends ChangeNotifier {
         .where('vehicleType', isEqualTo: queryType)
         .snapshots()
         .asyncMap((vehicleSnapshot) async {
-          List<RentalVehicleModel> availableVehicles = [];
-          
-          for (var doc in vehicleSnapshot.docs) {
-            RentalVehicleModel vehicle = RentalVehicleModel.fromMap(doc.data());
-            
-            // Kiểm tra giá thuê có nằm trong khoảng budget không
-           double relevantPrice = _getPriceForOption(rentOption, vehicle);
-            if (relevantPrice < minBudget || relevantPrice > maxBudget) {
-              continue;
-            }
+      List<RentalVehicleModel> availableVehicles = [];
 
-            // Kiểm tra địa điểm
-            bool isLocationMatch = await _checkLocationMatch(vehicle.contractId, pickupProvince);
-            if (!isLocationMatch) {
-              continue;
-            }
+      for (var doc in vehicleSnapshot.docs) {
+        RentalVehicleModel vehicle = RentalVehicleModel.fromMap(doc.data());
 
-            // Kiểm tra thời gian có sẵn
-            bool isTimeAvailable = await _checkTimeAvailability(
-              vehicle.vehicleRegisterId,
-              startDate,
-              endDate,
-              rentOption
-            );
-            if (!isTimeAvailable) {
-              continue;
-            }
+        // Kiểm tra giá thuê có nằm trong khoảng budget không
+        double relevantPrice = _getPriceForOption(rentOption, vehicle);
+        if (relevantPrice < minBudget || relevantPrice > maxBudget) {
+          continue;
+        }
 
-            availableVehicles.add(vehicle);
-          }
+        // Kiểm tra địa điểm
+        bool isLocationMatch =
+            await _checkLocationMatch(vehicle.contractId, pickupProvince);
+        if (!isLocationMatch) {
+          continue;
+        }
 
-          return availableVehicles;
-        });
+        // Kiểm tra thời gian có sẵn
+        bool isTimeAvailable = await _checkTimeAvailability(
+            vehicle.vehicleRegisterId, startDate, endDate, rentOption);
+        if (!isTimeAvailable) {
+          continue;
+        }
+
+        availableVehicles.add(vehicle);
+      }
+
+      return availableVehicles;
+    });
   }
 
-  Future<bool> _checkLocationMatch(String contractId, String fullAddress) async {
+  Future<bool> _checkLocationMatch(
+      String contractId, String fullAddress) async {
     try {
-      final contractDoc = await _firestore
-          .collection('CONTRACT')
-          .doc(contractId)
-          .get();
+      final contractDoc =
+          await _firestore.collection('CONTRACT').doc(contractId).get();
 
       if (!contractDoc.exists) return false;
 
       final contractData = contractDoc.data() as Map<String, dynamic>;
       String businessProvince = contractData['businessProvince'] as String;
-      
-      // Chuyển cả 2 chuỗi về lowercase để so sánh không phân biệt hoa thường
-      return fullAddress.toLowerCase().contains(businessProvince.toLowerCase());
-      
+      String businessCity = contractData['businessCity'] as String;
+      String businessDistrict = contractData['businessDistrict'] as String;
+
+      // Kiểm tra cả tỉnh/thành phố/quận huyện
+      // Vì api không rõ ràng nên chưa thể xác định các xe chính xác (thiếu huyện)
+      return fullAddress
+              .toLowerCase()
+              .contains(businessProvince.toLowerCase()) ||
+          fullAddress.toLowerCase().contains(businessCity.toLowerCase()) ||
+          fullAddress.toLowerCase().contains(businessDistrict.toLowerCase());
+
     } catch (e) {
       if (kDebugMode) {
         print("Error checking location match: $e");
@@ -634,7 +644,8 @@ class RentalVehicleViewModel extends ChangeNotifier {
         final billEndDate = DateTime.parse(billData['endDate']);
 
         // Nếu có bất kỳ sự chồng chéo nào về thời gian
-        if (!(endDate.isBefore(billStartDate) || startDate.isAfter(billEndDate))) {
+        if (!(endDate.isBefore(billStartDate) ||
+            startDate.isAfter(billEndDate))) {
           return false;
         }
       }
@@ -648,15 +659,20 @@ class RentalVehicleViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> getVehicleDetails(String vehicleId, String locale) async {
+  Future<Map<String, dynamic>> getVehicleDetails(
+      String vehicleId, String locale) async {
     try {
-      final doc = await _firestore.collection('VEHICLE_INFORMATION').doc(vehicleId).get();
+      final doc = await _firestore
+          .collection('VEHICLE_INFORMATION')
+          .doc(vehicleId)
+          .get();
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
         return {
           'requirements': data['requirements'] ?? [],
           'fuelType': getDisplayFuelType(data['fuelType'] ?? '', locale),
-          'transmission': getDisplayTransmission(data['transmission'] ?? '', locale),
+          'transmission':
+              getDisplayTransmission(data['transmission'] ?? '', locale),
           'maxSpeed': data['maxSpeed'] ?? '',
         };
       }
@@ -708,13 +724,11 @@ class RentalVehicleViewModel extends ChangeNotifier {
 
   String _convertStatusToFirestore(String displayStatus, String locale) {
     if (locale == 'vi') return displayStatus;
-    
+
     // Chuyển từ tiếng Anh sang tiếng Việt để lưu
     return _statusTranslations.entries
-        .firstWhere(
-          (entry) => entry.value == displayStatus,
-          orElse: () => MapEntry(displayStatus, displayStatus)
-        )
+        .firstWhere((entry) => entry.value == displayStatus,
+            orElse: () => MapEntry(displayStatus, displayStatus))
         .key;
   }
 
@@ -768,7 +782,8 @@ class RentalVehicleViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> updateVehicleDetails(String vehicleRegisterId, Map<String, dynamic> updates) async {
+  Future<void> updateVehicleDetails(
+      String vehicleRegisterId, Map<String, dynamic> updates) async {
     try {
       await _firestore
           .collection('RENTAL_VEHICLE')
@@ -782,5 +797,3 @@ class RentalVehicleViewModel extends ChangeNotifier {
     }
   }
 }
-
-
