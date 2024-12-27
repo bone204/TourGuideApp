@@ -22,6 +22,7 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
   double minBudget = 0;
   double maxBudget = 1000000;
   String selectedProvince = '';
+  Map<String, String> locationDetails = {};
   String? selectedGuests;
   final List<String> guestOptions = ['1', '2', '3', '4', '5', '6'];
 
@@ -42,9 +43,14 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
     });
   }
 
-  void onProvinceSelected(String province) {
+  void onLoctaionSelected(String location, Map<String, String> details) {
     setState(() {
-      selectedProvince = province;
+      selectedProvince = [
+        details['province'],
+        details['city'],
+        details['district']
+      ].where((s) => s != null && s.isNotEmpty).join(", ");
+      locationDetails = details;
     });
   }
 
@@ -180,7 +186,7 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
             SizedBox(height: 24.h),
             LocationPicker(
               title: AppLocalizations.of(context).translate("Location"),
-              onProvinceSelected: onProvinceSelected,
+              onLocationSelected: onLoctaionSelected,
             ),
             SizedBox(height: 50.h),
             CustomElevatedButton(

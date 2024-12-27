@@ -14,7 +14,9 @@ class DeliveryScreen extends StatefulWidget {
 
 class _DeliveryScreenState extends State<DeliveryScreen> {
   String selectedPickupLocation = '';
+  Map<String, String> pickupLocationDetails = {};
   String selectedDeliveryLocation = '';
+  Map<String, String> deliveryLocationDetails = {};
   String recipientName = '';
   String recipientPhone = '';
 
@@ -28,15 +30,21 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     super.dispose();
   }
 
-  void onPickupLocationSelected(String location) {
+  void onPickupLocationSelected(String location, Map<String, String> details) {
     setState(() {
       selectedPickupLocation = location;
+      selectedPickupLocation = [
+        details['province'],
+        details['city'],
+        details['district']
+      ].where((s) => s != null && s.isNotEmpty).join(", ");
     });
   }
 
-  void onDeliveryLocationSelected(String location) {
+  void onDeliveryLocationSelected(String location, Map<String, String> details) {
     setState(() {
       selectedDeliveryLocation = location;
+      deliveryLocationDetails = details;
     });
   }
 
@@ -92,12 +100,12 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
             children: [
               LocationPicker(
                 title: AppLocalizations.of(context).translate("Pickup Location"),
-                onProvinceSelected: onPickupLocationSelected,
+                onLocationSelected: onPickupLocationSelected,
               ),
               SizedBox(height: 24.h),
               LocationPicker(
                 title: AppLocalizations.of(context).translate("Delivery Location"),
-                onProvinceSelected: onDeliveryLocationSelected,
+                onLocationSelected: onDeliveryLocationSelected,
               ),
               SizedBox(height: 24.h),
               StyledTextField(

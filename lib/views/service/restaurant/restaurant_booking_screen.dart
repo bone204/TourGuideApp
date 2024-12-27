@@ -20,6 +20,7 @@ class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
   double maxBudget = 1000000;
   String selectedProvince = '';
   String? selectedSpecialty;
+  Map<String, String> locationDetails = {};
   final List<String> specialtyOptions = [
     'Vietnamese Cuisine',
     'Japanese Cuisine',
@@ -41,9 +42,14 @@ class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
     });
   }
 
-  void onProvinceSelected(String province) {
+  void onLoctaionSelected(String location, Map<String, String> details) {
     setState(() {
-      selectedProvince = province;
+      selectedProvince = [
+        details['province'],
+        details['city'],
+        details['district']
+      ].where((s) => s != null && s.isNotEmpty).join(", ");
+      locationDetails = details;
     });
   }
 
@@ -179,7 +185,7 @@ class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
             SizedBox(height: 24.h),
             LocationPicker(
               title: AppLocalizations.of(context).translate("Location"),
-              onProvinceSelected: onProvinceSelected,
+              onLocationSelected: onLoctaionSelected,
             ),
             SizedBox(height: 50.h),
             CustomElevatedButton(

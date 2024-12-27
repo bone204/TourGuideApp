@@ -30,6 +30,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
   double minBudget = 0;
   double maxBudget = 1000000;
   String selectedProvince = '';
+  Map<String, String> locationDetails = {};
 
   @override
   void initState() {
@@ -44,9 +45,14 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
     });
   }
 
-  void onProvinceSelected(String province) {
+  void onLocationSelected(String location, Map<String, String> details) {
     setState(() {
-      selectedProvince = province;
+      selectedProvince = [
+        details['province'],
+        details['city'],
+        details['district']
+      ].where((s) => s != null && s.isNotEmpty).join(", ");
+      locationDetails = details;
     });
   }
 
@@ -149,8 +155,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
             SizedBox(height: 24.h),
             LocationPicker(
               title: AppLocalizations.of(context).translate("Location"),
-              onProvinceSelected: onProvinceSelected,
-
+              onLocationSelected: onLocationSelected,
             ),
             SizedBox(height: 50.h),
             CustomElevatedButton(
