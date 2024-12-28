@@ -20,6 +20,7 @@ import 'package:tourguideapp/models/bank_model.dart';
 import 'package:tourguideapp/viewmodels/bank_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:tourguideapp/widgets/location_picker.dart';
+import 'package:tourguideapp/widgets/province_picker.dart';
 
 class VehicleRentalRegisterScreen extends StatefulWidget {
   const VehicleRentalRegisterScreen({super.key});
@@ -42,7 +43,6 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
 
   // Định nghĩa các TextEditingController cụ thể
   final TextEditingController _businessNameController = TextEditingController();
-  final TextEditingController _businessAddressController = TextEditingController();
   final TextEditingController _taxCodeController = TextEditingController();
   final TextEditingController _bankAccountNumberController = TextEditingController();
   final TextEditingController _bankAccountNameController = TextEditingController();
@@ -67,6 +67,8 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
   // Thêm state cho location
   String selectedBusinessLocation = '';
   Map<String, String> businessLocationDetails = {};
+
+  // Thêm các biến để lưu thông tin địa chỉ
 
   @override
   void initState() {
@@ -201,15 +203,6 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
 
   void _completeRegistration() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // Kiểm tra xem đã chọn đủ ảnh chưa
-      if (_citizenPhotoFrontPath.isEmpty || 
-          _citizenPhotoBackPath.isEmpty || 
-          _businessRegisterPhotoPath.isEmpty) {
-        _showErrorDialog(AppLocalizations.of(context)
-            .translate('Please upload all required photos'));
-        return;
-      }
-
       try {
         showDialog(
           context: context,
@@ -222,31 +215,37 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
         final currentUserId = authViewModel.currentUserId;
 
         if (currentUserId != null) {
-          // Lấy tên ngân hàng từ bankId đã chọn
+          // Kiểm tra xem đã có đủ thông tin địa chỉ chưa
+          if (contractData['businessAddress']?.isEmpty ?? true) {
+            throw Exception(AppLocalizations.of(context).translate('Business address is required'));
+          }
+
+          if (contractData['businessLocation']?.isEmpty ?? true) {
+            throw Exception(AppLocalizations.of(context).translate('Administrative region information is required'));
+          }
+
+          // Cập nhật contractData với tất cả thông tin cần thiết
           final selectedBank = _banks.firstWhere(
             (bank) => bank.bankId == _selectedBankId,
             orElse: () => _banks.first,
           );
 
-          // Lấy tên tỉnh từ ID đã chọn
-          final selectedProvince = _provinces.firstWhere(
-            (p) => p.provinceId == _selectedProvinceId,
-            orElse: () => _provinces.first,
-          );
-
-          // Cập nhật contractData với tất cả thông tin cần thiết
           contractData.addAll({
+            'userId': currentUserId,
             'businessType': _selectedBusinessType,
             'businessName': _businessNameController.text,
-            'businessProvince': selectedProvince.provinceName,
-            'businessAddress': _businessAddressController.text,
+            'businessLocation': contractData['businessLocation'], // Địa chỉ đầy đủ
+            'businessAddress': contractData['businessAddress'], // Địa chỉ chi tiết
+            'businessProvince': contractData['businessProvince'],
+            'businessCity': contractData['businessCity'],
+            'businessDistrict': contractData['businessDistrict'],
             'taxCode': _taxCodeController.text,
             'contractTerm': '1 year',
             'contractStatus': 'Chờ duyệt',
-            // Thêm thông tin ngân hàng
             'bankName': selectedBank.bankName,
             'bankAccountNumber': _bankAccountNumberController.text,
             'bankAccountName': _bankAccountNameController.text,
+            // Các thông tin địa chỉ đã được cập nhật ở trên
           });
 
           final locale = Localizations.localeOf(context).languageCode;
@@ -257,9 +256,9 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
         }
       } catch (e) {
         Navigator.of(context).pop();
-        _showErrorDialog('Có lỗi xảy ra khi tạo hợp đồng. Vui lòng thử lại.');
+        _showErrorDialog(AppLocalizations.of(context).translate('Error creating contract. Please try again.'));
         if (kDebugMode) {
-          print("Lỗi khi tạo hợp đồng: $e");
+          print("Error creating contract: $e");
         }
       }
     }
@@ -639,32 +638,44 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                 },
               ),
               SizedBox(height: 16.h),
-              LocationPicker(
+              ProvincePicker(
                 title: AppLocalizations.of(context).translate("Business Region"),
-                onLocationSelected: (String location, Map<String, String> details) {
+                onRegionSelected: (Map<String, String> details) {
                   setState(() {
-                    selectedBusinessLocation = location;
-                    businessLocationDetails = details;
-                    
-                    // Cập nhật contractData
-                    contractData['businessLocation'] = location;
+                    // Lưu thông tin hành chính từ province picker
                     contractData['businessProvince'] = details['province'] ?? '';
                     contractData['businessCity'] = details['city'] ?? '';
                     contractData['businessDistrict'] = details['district'] ?? '';
+                    
+                    // Tạo businessLocation chỉ từ thông tin hành chính
+                    List<String> locationParts = [];
+                    
+                    // Thêm thông tin hành chính theo thứ tự
+                    if (details['district']?.isNotEmpty ?? false) {
+                      locationParts.add(details['district']!);
+                    }
+                    if (details['city']?.isNotEmpty ?? false) {
+                      locationParts.add(details['city']!);
+                    }
+                    if (details['province']?.isNotEmpty ?? false) {
+                      locationParts.add(details['province']!);
+                    }
+                    
+                    // Kết hợp thành chuỗi địa chỉ hành chính
+                    String location = locationParts.join(', ');
+                    
+                    // Lưu vào contractData
+                    contractData['businessLocation'] = location;
                   });
                 },
               ),
               SizedBox(height: 16.h),
-              _buildTextField(
-                controller: _businessAddressController,
-                label: AppLocalizations.of(context).translate("Business Address"),
-                hintText: AppLocalizations.of(context).translate("Enter business address"),
-                isEditing: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context).translate("Please enter your business address");
-                  }
-                  return null;
+              LocationPicker(
+                title: AppLocalizations.of(context).translate("Business Address"),
+                onLocationSelected: (String location, Map<String, String> details) {
+                  setState(() {
+                    contractData['businessAddress'] = location; // Chỉ lưu địa chỉ chi tiết
+                  });
                 },
               ),
               SizedBox(height: 16.h),
