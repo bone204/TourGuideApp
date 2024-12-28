@@ -221,6 +221,8 @@
     "Chờ duyệt": "Pending Approval",
     "Đã duyệt": "Approved",
     "Đang cho thuê": "In Use",
+    "Cho thuê": "For Rent",
+    "Vận chuyển": "Transport",
     "Khả dụng": "Available",
     "Đã từ chối": "Rejected",
     "Tạm ngưng": "Suspended",
@@ -259,6 +261,11 @@
 
     "Favourites": "Favourites",
     "Destinations": "Destinations",
-    "Hotels": "Hotels"
+    "Hotels": "Hotels",
+
+    "Identification Photo (Front)": "Identification Photo (Front)",
+    "Identification Photo (Back)": "Identification Photo (Back)",
+    "Handover of Vehicle Photo": "Handover of Vehicle Photo",
+    "Send": "Send"
 }
   

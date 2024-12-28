@@ -712,27 +712,43 @@ class RentalVehicleViewModel extends ChangeNotifier {
     return vehicleTypeVi;
   }
 
-  // Thêm các hằng số cho status
+  // Thêm translations cho status
   final Map<String, String> _statusTranslations = {
     'Chờ duyệt': 'Pending Approval',
     'Đã duyệt': 'Approved',
+    'Cho thuê': 'For Rent',
     'Đang cho thuê': 'In Use',
-    'Sẵn sàng': 'Available',
+    'Vận chuyển': 'Transport',
+    'Khả dụng': 'Available',
     'Đã từ chối': 'Rejected',
     'Tạm ngưng': 'Suspended',
   };
 
   String _convertStatusToFirestore(String displayStatus, String locale) {
-    if (locale == 'vi') return displayStatus;
+    if (locale == 'vi') return displayStatus.trim();
 
     // Chuyển từ tiếng Anh sang tiếng Việt để lưu
-    return _statusTranslations.entries
-        .firstWhere((entry) => entry.value == displayStatus,
+    String viStatus = _statusTranslations.entries
+        .firstWhere((entry) => entry.value == displayStatus.trim(),
             orElse: () => MapEntry(displayStatus, displayStatus))
         .key;
+    return viStatus;
   }
 
   String getDisplayStatus(String firestoreStatus, String locale) {
+    if (kDebugMode) {
+      print("Status from Firestore: '$firestoreStatus'");
+      print("Current locale: $locale");
+      if (locale == 'en') {
+        print("Translated status: '${_statusTranslations[firestoreStatus]}'");
+      }
+    }
+
+    if (locale == 'en') {
+      // Đảm bảo status được chuẩn hóa trước khi dịch
+      String normalizedStatus = firestoreStatus.trim();
+      return _statusTranslations[normalizedStatus] ?? normalizedStatus;
+    }
     return firestoreStatus;
   }
 

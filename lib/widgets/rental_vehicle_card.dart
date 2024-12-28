@@ -4,9 +4,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/rental_vehicle_model.dart';
+import 'package:tourguideapp/views/my_vehicle/delivery_information_screen.dart';
 import 'package:tourguideapp/views/my_vehicle/my_vehicle_detail_screen.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:provider/provider.dart';
+import 'package:tourguideapp/views/my_vehicle/renter_information_screen.dart';
 
 class RentalVehicleCard extends StatelessWidget {
   final RentalVehicleModel vehicle;
@@ -20,21 +22,58 @@ class RentalVehicleCard extends StatelessWidget {
     return Consumer<RentalVehicleViewModel>(
       builder: (context, viewModel, child) {
         final locale = Localizations.localeOf(context).languageCode;
-        final status = viewModel.getDisplayStatus(vehicle.status, locale);
+        
+        if (kDebugMode) {
+          print("Current locale: $locale");
+          print("Original status: ${vehicle.status}");
+        }
+
+        final displayStatus = viewModel.getDisplayStatus(vehicle.status, locale);
+        
+        if (kDebugMode) {
+          print("Translated status: $displayStatus");
+        }
+
+        final bool isRentable = vehicle.status == "Cho thuê";
+        final bool isTransportable = vehicle.status == "Vận chuyển";
+        final bool isClickable = isRentable || isTransportable;
+
+        if (kDebugMode) {
+          print("isRentable: $isRentable");
+          print("isTransportable: $isTransportable");
+        }
         
         return SizedBox(
           width: 100.w,
           child: ElevatedButton(
-            onPressed: null,
+            onPressed: isClickable 
+              ? () {
+                  if (isRentable) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RenterInformationScreen(),
+                      ),
+                    );
+                  } else if (isTransportable) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const DeliveryInformationScreen(),
+                      ),
+                    );
+                  }
+                }
+              : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.secondaryColor,
+              backgroundColor: isClickable ? AppColors.primaryColor : AppColors.secondaryColor,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
               disabledBackgroundColor: AppColors.secondaryColor,
               disabledForegroundColor: Colors.white,
             ),
             child: Text(
-              AppLocalizations.of(context).translate(status),
+              displayStatus,
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.bold,
