@@ -37,7 +37,8 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
 
   // Định nghĩa các TextEditingController cụ thể
   final TextEditingController _pricePerDayController = TextEditingController();
-  final TextEditingController _pricePerHourController = TextEditingController();
+  final TextEditingController _pricePer4HourController = TextEditingController();
+  final TextEditingController _pricePer8HourController = TextEditingController();
   final TextEditingController _licensePlateController = TextEditingController();
   final TextEditingController _vehicleRegistrationController = TextEditingController();
   final TextEditingController _requirementController = TextEditingController();
@@ -48,7 +49,8 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Thêm TextEditingController mới để lưu giá trị thực
-  final TextEditingController _actualPricePerHourController = TextEditingController();
+  final TextEditingController _actualPricePer4HourController = TextEditingController();
+  final TextEditingController _actualPricePer8HourController = TextEditingController();
   final TextEditingController _actualPricePerDayController = TextEditingController();
 
   bool _isInitialized = false;
@@ -84,18 +86,30 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
           .loadVehicleInformation(_selectedVehicleType, locale);
     });
 
-    _pricePerHourController.addListener(() {
-      String value = _pricePerHourController.text.replaceAll('₫', '').replaceAll(',', '').trim();
+    _pricePer4HourController.addListener(() {
+      String value = _pricePer4HourController.text.replaceAll('₫', '').replaceAll(',', '').trim();
       if (value.isNotEmpty) {
-        _actualPricePerHourController.text = value;
+        _actualPricePer4HourController.text = value;
         String formattedValue = NumberFormat('#,###').format(int.tryParse(value) ?? 0);
-        _pricePerHourController.value = TextEditingValue(
+        _pricePer4HourController.value = TextEditingValue(
           text: '$formattedValue ₫',
           selection: TextSelection.collapsed(offset: formattedValue.length),
         );
       }
     });
 
+    _pricePer8HourController.addListener(() {
+      String value = _pricePer8HourController.text.replaceAll('₫', '').replaceAll(',', '').trim();
+      if (value.isNotEmpty) {
+        _actualPricePer8HourController.text = value;
+        String formattedValue = NumberFormat('#,###').format(int.tryParse(value) ?? 0);
+        _pricePer8HourController.value = TextEditingValue(
+          text: '$formattedValue ₫',
+          selection: TextSelection.collapsed(offset: formattedValue.length),
+        );
+      }
+    });
+    
     _pricePerDayController.addListener(() {
       String value = _pricePerDayController.text.replaceAll('₫', '').replaceAll(',', '').trim();
       if (value.isNotEmpty) {
@@ -195,7 +209,8 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
             'vehicleBrand': _selectedVehicleBrand,
             'vehicleModel': _selectedVehicleModel,
             'vehicleColor': _selectedVehicleColor,
-            'hourPrice': double.parse(_actualPricePerHourController.text),
+            'hour4Price': double.parse(_actualPricePer4HourController.text),
+            'hour8Price': double.parse(_actualPricePer8HourController.text),
             'dayPrice': double.parse(_actualPricePerDayController.text),
             'requirements': _requirementController.text.split(',').map((e) => e.trim()).toList(),
             'contractId': contractId,
@@ -247,7 +262,8 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
     if (_isContractRegistered) {
       _pageController.dispose();
     }
-    _actualPricePerHourController.dispose();
+    _actualPricePer4HourController.dispose();
+    _actualPricePer8HourController.dispose();
     _actualPricePerDayController.dispose();
     super.dispose();
   }
@@ -739,7 +755,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               ),
               SizedBox(height: 12.h),
               CustomTextField(
-                controller: _pricePerHourController,
+                controller: _pricePer4HourController,
                 hintText: AppLocalizations.of(context).translate("Enter price for 4 hour"),
                 keyboardType: TextInputType.number, 
                 validator: (value) {
@@ -759,7 +775,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               ),
               SizedBox(height: 12.h),
               CustomTextField(
-                controller: _pricePerHourController,
+                controller: _pricePer8HourController,
                 hintText: AppLocalizations.of(context).translate("Enter price for 8 hour"),
                 keyboardType: TextInputType.number, 
                 validator: (value) {
