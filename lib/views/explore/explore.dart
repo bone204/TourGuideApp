@@ -98,7 +98,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
         await _mapController!.easeTo(
           CameraOptions(
-            center: Point(coordinates: Position(lng, lat)),
+            center: Point(coordinates: Position(lat, lng)),
             zoom: MAP_ZOOM_LEVEL,
           ),
           MapAnimationOptions(duration: 1000),
@@ -111,7 +111,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
         await _annotationManager?.create(
           PointAnnotationOptions(
-            geometry: Point(coordinates: Position(lng, lat)),
+            geometry: Point(coordinates: Position(lat, lng)),
             image: imageData,
             iconSize: 0.3,
           ),
