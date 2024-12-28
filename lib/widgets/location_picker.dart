@@ -21,7 +21,9 @@ class LocationPicker extends StatefulWidget {
 
 class _LocationPickerState extends State<LocationPicker> {
   String selectedLocation = "";
-  List<SuggestionResponse> _searchResults = [];
+  String selectedName = "";
+  List<Suggestion> _searchResults = [];
+  final TextEditingController _searchController = TextEditingController();
   
   final searchAPI = SearchBoxAPI(
     apiKey: 'pk.eyJ1IjoidGhvbmd0dWxlbjEzNCIsImEiOiJjbTNwOTd4dWEwY2l1MnJxMWt0dnRla2pqIn0.9o3fO8SYcsRxRYH0-Qtfhg',
@@ -45,7 +47,7 @@ class _LocationPickerState extends State<LocationPicker> {
         response.fold(
           (success) {
             setModalState(() {
-              _searchResults = [success];
+              _searchResults = success.suggestions;
             });
           },
           (failure) {
@@ -92,6 +94,7 @@ class _LocationPickerState extends State<LocationPicker> {
 
   void _showSearchScreen() {
     _searchResults.clear();
+    _searchController.text = selectedName;
     
     Navigator.push(
       context,
@@ -154,6 +157,7 @@ class _LocationPickerState extends State<LocationPicker> {
                       ],
                     ),
                     child: TextField(
+                      controller: _searchController,
                       autofocus: true,
                       decoration: InputDecoration(
                         hintText: AppLocalizations.of(context).translate('Search'),
@@ -175,7 +179,7 @@ class _LocationPickerState extends State<LocationPicker> {
                       child: ListView.builder(
                         itemCount: _searchResults.length,
                         itemBuilder: (context, index) {
-                          final suggestion = _searchResults[index].suggestions.first;
+                          final suggestion = _searchResults[index];
                           return ListTile(
                             leading: Icon(
                               suggestion.featureType == 'poi' 
@@ -193,7 +197,7 @@ class _LocationPickerState extends State<LocationPicker> {
                               ),
                             ),
                             subtitle: Text(
-                              suggestion.address ?? '',
+                              _formatAddress(suggestion.address ?? ''),
                               style: TextStyle(
                                 fontSize: 12.sp,
                                 color: Colors.grey,
@@ -204,10 +208,11 @@ class _LocationPickerState extends State<LocationPicker> {
                             onTap: () async {
                               final details = await _getPlaceDetails(suggestion.mapboxId);
                               setState(() {
-                                selectedLocation = suggestion.fullAddress ?? '';
+                                selectedLocation = _formatAddress(suggestion.fullAddress ?? '');
+                                selectedName = suggestion.name;
                               });
                               widget.onLocationSelected(
-                                suggestion.fullAddress ?? '',
+                                _formatAddress(suggestion.fullAddress ?? ''),
                                 details,
                               );
                               Navigator.pop(context);
@@ -224,6 +229,12 @@ class _LocationPickerState extends State<LocationPicker> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -267,6 +278,11 @@ class _LocationPickerState extends State<LocationPicker> {
         ),
       ],
     );
+  }
+
+  String _formatAddress(String? address) {
+    if (address == null) return '';
+    return address.replaceAll('Vietnam', 'Việt Nam');
   }
 }
 
