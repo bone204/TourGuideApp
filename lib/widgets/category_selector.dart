@@ -26,7 +26,7 @@ class CategorySelector extends StatelessWidget {
             child: GestureDetector(
               onTap: () => onCategorySelected(category),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.primaryColor : AppColors.lightGrey,
                   borderRadius: BorderRadius.circular(20.r),

@@ -6,12 +6,14 @@ import 'package:tourguideapp/viewmodels/route_viewmodel.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/destination_route_card.dart';
+import 'package:tourguideapp/views/service/travel/route_detail_screen.dart';
 
 class TravelRouteScreen extends StatefulWidget {
   final String routeTitle;
   final DateTime startDate;
   final DateTime endDate;
   final String provinceName;
+  final int routeIndex;
   
   const TravelRouteScreen({
     super.key,
@@ -19,6 +21,7 @@ class TravelRouteScreen extends StatefulWidget {
     required this.startDate,
     required this.endDate,
     required this.provinceName,
+    required this.routeIndex,
   });
 
   @override
@@ -36,7 +39,7 @@ class _TravelRouteScreenState extends State<TravelRouteScreen> {
     int numberOfDays = widget.endDate.difference(widget.startDate).inDays + 1;
     
     categories = List.generate(numberOfDays, (index) {
-      return (index + 1) == 1 ? '1_Day' : '${index + 1}_Days';
+      return (index + 1) == 1 ? 'Day 1' : 'Day ${index + 1}';
     });
     
     selectedCategory = categories.first;
@@ -100,7 +103,11 @@ class _TravelRouteScreenState extends State<TravelRouteScreen> {
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.only(top: 20.h, left: 20.w, right: 20.w),
+          padding: EdgeInsets.only(
+            top: 20.h, 
+            left: 20.w, 
+            right: 20.w,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -123,9 +130,9 @@ class _TravelRouteScreenState extends State<TravelRouteScreen> {
                     }
 
                     return ListView.builder(
-                      itemCount: _routeViewModel.destinations.length,
+                      itemCount: _routeViewModel.getDestinationsForRoute(widget.routeIndex).length,
                       itemBuilder: (context, index) {
-                        final destination = _routeViewModel.destinations[index];
+                        final destination = _routeViewModel.getDestinationsForRoute(widget.routeIndex)[index];
                         return Padding(
                           padding: EdgeInsets.only(bottom: 16.h),
                           child: DestinationRouteCard(
@@ -150,7 +157,55 @@ class _TravelRouteScreenState extends State<TravelRouteScreen> {
               ),
             ],
           ),
-        )
+        ),
+        bottomNavigationBar: Container(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.25),
+                blurRadius: 4,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: SizedBox(
+              width: double.infinity,
+              height: 48.h,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RouteDetailScreen(
+                        routeTitle: widget.routeTitle,
+                        destinations: _routeViewModel.getDestinationsForRoute(widget.routeIndex),
+                        startDate: widget.startDate,
+                        endDate: widget.endDate,
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                ),
+                child: Text(
+                  'Choose This Route',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

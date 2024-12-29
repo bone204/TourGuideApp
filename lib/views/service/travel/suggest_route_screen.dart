@@ -23,7 +23,7 @@ class SuggestRouteScreen extends StatefulWidget {
 class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
   final RouteViewModel _routeViewModel = RouteViewModel();
   DateTime _startDate = DateTime.now();
-  DateTime _endDate = DateTime.now().add(const Duration(days: 7));
+  DateTime _endDate = DateTime.now().add(const Duration(days: 1));
 
   @override
   Widget build(BuildContext context) {
@@ -117,6 +117,7 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
                                 startDate: _startDate,
                                 endDate: _endDate,
                                 provinceName: widget.provinceName,
+                                routeIndex: index,
                               ),
                             ),
                           );

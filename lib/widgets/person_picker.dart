@@ -28,7 +28,7 @@ class PersonPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 80.w,
+      width: 70.w,
       padding: EdgeInsets.symmetric(horizontal: 8.w),
       decoration: BoxDecoration(
         color: AppColors.white,

@@ -4,28 +4,32 @@ import 'package:tourguideapp/models/destination_model.dart';
 
 class RouteViewModel extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<DestinationModel> _destinations = [];
+  bool _isLoading = false;
+  String _error = '';
+
   final List<Map<String, dynamic>> _routes = [
     {
       'name': 'by: Traveline',
       'rating': 4.5,
+      'destinations': [0, 1, 2, 3], // Thứ tự các địa điểm cho route này
     },
     {
       'name': 'by: Thông Joker',
       'rating': 4.7,
+      'destinations': [2, 0, 3, 1], // Thứ tự khác
     },
     {
       'name': 'by: Thông Tulen',
       'rating': 4.3,
+      'destinations': [1, 3, 0, 2], // Thứ tự khác nữa
     },
     {
       'name': 'by: Thiện Tank',
       'rating': 4.8,
+      'destinations': [3, 2, 1, 0], // Thứ tự khác nữa
     },
   ];
-  
-  List<DestinationModel> _destinations = [];
-  bool _isLoading = false;
-  String _error = '';
 
   List<Map<String, dynamic>> get routes => _routes;
   List<DestinationModel> get destinations => _destinations;
@@ -39,20 +43,25 @@ class RouteViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('Đang tìm kiếm địa điểm cho tỉnh: $provinceName'); // Debug log
+      print('Đang tìm kiếm địa điểm cho tỉnh: $provinceName');
 
       final QuerySnapshot snapshot = await _firestore
           .collection('DESTINATION')
           .where('province', isEqualTo: provinceName.trim())
           .get();
 
-      print('Số lượng kết quả: ${snapshot.docs.length}'); // Debug log
+      print('Số lượng kết quả: ${snapshot.docs.length}');
 
       _destinations = snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
-        print('Dữ liệu địa điểm: $data'); // Debug log
+        print('Dữ liệu địa điểm: $data');
         return DestinationModel.fromMap(data);
       }).toList();
+
+      // Xáo trộn thứ tự destinations cho mỗi route
+      for (var route in _routes) {
+        (route['destinations'] as List<int>).shuffle();
+      }
 
       _isLoading = false;
       notifyListeners();
@@ -71,5 +80,19 @@ class RouteViewModel extends ChangeNotifier {
     return routeName.startsWith('by: ') 
         ? "${routeName.substring(4)}'s Route"
         : "$routeName Route";
+  }
+
+  // Lấy destinations theo thứ tự của route
+  List<DestinationModel> getDestinationsForRoute(int routeIndex) {
+    if (routeIndex >= _routes.length) return [];
+    
+    final List<int> order = List<int>.from(_routes[routeIndex]['destinations']);
+    return order.map((index) {
+      if (index < _destinations.length) {
+        return _destinations[index];
+      }
+      // Trả về destination đầu tiên nếu index vượt quá
+      return _destinations.first;
+    }).toList();
   }
 }
