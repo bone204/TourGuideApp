@@ -16,6 +16,9 @@ class RouteViewModel extends ChangeNotifier {
   DateTime? _startDate;
   DateTime? _endDate;
 
+  // Thêm biến lưu tên tỉnh
+  String? _selectedProvinceName;
+
   final List<Map<String, dynamic>> _routes = [
     {
       'name': 'by: Traveline',
@@ -51,6 +54,15 @@ class RouteViewModel extends ChangeNotifier {
   DateTime? get startDate => _startDate;
   DateTime? get endDate => _endDate;
 
+  // Thêm getter
+  String? get selectedProvinceName => _selectedProvinceName;
+
+  // Thêm getter để lấy tất cả địa điểm của tỉnh hiện tại
+  List<DestinationModel> get allDestinations {
+    // Trả về tất cả địa điểm, không giới hạn số lượng
+    return _destinations;
+  }
+
   RouteViewModel() {
     _loadSavedRoute();
   }
@@ -59,11 +71,19 @@ class RouteViewModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _selectedRouteTitle = prefs.getString('selectedRouteTitle');
     _selectedDestinations = _loadDestinations(prefs.getString('selectedDestinations'));
+    _selectedProvinceName = prefs.getString('provinceName');  // Load tên tỉnh
+    
     final startDateStr = prefs.getString('startDate');
     final endDateStr = prefs.getString('endDate');
     
     if (startDateStr != null) _startDate = DateTime.parse(startDateStr);
     if (endDateStr != null) _endDate = DateTime.parse(endDateStr);
+
+    // Nếu có tỉnh đã chọn, load lại danh sách địa điểm
+    if (_selectedProvinceName != null) {
+      await fetchDestinationsByProvince(_selectedProvinceName!);
+    }
+    
     notifyListeners();
   }
 
@@ -78,17 +98,20 @@ class RouteViewModel extends ChangeNotifier {
     required List<DestinationModel> destinations,
     required DateTime startDate,
     required DateTime endDate,
+    required String provinceName,  // Thêm parameter này
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selectedRouteTitle', routeTitle);
     await prefs.setString('selectedDestinations', jsonEncode(destinations.map((e) => e.toMap()).toList()));
     await prefs.setString('startDate', startDate.toIso8601String());
     await prefs.setString('endDate', endDate.toIso8601String());
+    await prefs.setString('provinceName', provinceName);  // Lưu tên tỉnh
 
     _selectedRouteTitle = routeTitle;
     _selectedDestinations = destinations;
     _startDate = startDate;
     _endDate = endDate;
+    _selectedProvinceName = provinceName;  // Lưu vào biến
     notifyListeners();
   }
 
@@ -156,13 +179,15 @@ class RouteViewModel extends ChangeNotifier {
   List<DestinationModel> getDestinationsForRoute(int routeIndex) {
     if (routeIndex >= _routes.length) return [];
     
+    // Chỉ lấy 4 địa điểm đầu tiên cho route ban đầu
     final List<int> order = List<int>.from(_routes[routeIndex]['destinations']);
-    return order.map((index) {
+    final selectedDestinations = order.map((index) {
       if (index < _destinations.length) {
         return _destinations[index];
       }
-      // Trả về destination đầu tiên nếu index vượt quá
       return _destinations.first;
-    }).toList();
+    }).take(4).toList(); // Giới hạn 4 địa điểm
+
+    return selectedDestinations;
   }
 }

@@ -183,6 +183,7 @@ class _TravelRouteScreenState extends State<TravelRouteScreen> {
                     destinations: _routeViewModel.getDestinationsForRoute(widget.routeIndex),
                     startDate: widget.startDate,
                     endDate: widget.endDate,
+                    provinceName: widget.provinceName,
                   );
                   
                   Navigator.push(

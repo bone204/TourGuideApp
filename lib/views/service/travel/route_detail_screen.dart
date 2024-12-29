@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/models/destination_model.dart';
+import 'package:tourguideapp/views/service/travel/add_destination_screen.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/destination_route_card.dart';
@@ -250,13 +251,31 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                           ),
                           Expanded(
                             child: GestureDetector(
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Route added successfully!'),
-                                    duration: Duration(seconds: 2),
+                              onTap: () async {
+                                final routeViewModel = Provider.of<RouteViewModel>(context, listen: false);
+                                final selectedDestination = await Navigator.push<DestinationModel>(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddDestinationScreen(
+                                      routeTitle: widget.routeTitle,
+                                      currentDestinations: widget.destinations,
+                                      provinceName: routeViewModel.selectedProvinceName!,
+                                    ),
                                   ),
                                 );
+
+                                if (selectedDestination != null) {
+                                  setState(() {
+                                    widget.destinations.add(selectedDestination);
+                                  });
+                                  
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Destination added successfully!'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
                               },
                               child: Container(
                                 height: 48.h,

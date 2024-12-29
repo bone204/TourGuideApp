@@ -37,7 +37,7 @@ class FavouriteCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
