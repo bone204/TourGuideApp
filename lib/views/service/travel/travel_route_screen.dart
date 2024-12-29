@@ -7,6 +7,7 @@ import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/destination_route_card.dart';
 import 'package:tourguideapp/views/service/travel/route_detail_screen.dart';
+import 'package:provider/provider.dart';
 
 class TravelRouteScreen extends StatefulWidget {
   final String routeTitle;
@@ -176,6 +177,14 @@ class _TravelRouteScreenState extends State<TravelRouteScreen> {
               height: 48.h,
               child: ElevatedButton(
                 onPressed: () {
+                  final routeViewModel = Provider.of<RouteViewModel>(context, listen: false);
+                  routeViewModel.saveSelectedRoute(
+                    routeTitle: widget.routeTitle,
+                    destinations: _routeViewModel.getDestinationsForRoute(widget.routeIndex),
+                    startDate: widget.startDate,
+                    endDate: widget.endDate,
+                  );
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(

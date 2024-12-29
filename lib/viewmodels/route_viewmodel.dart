@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/models/destination_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class RouteViewModel extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<DestinationModel> _destinations = [];
   bool _isLoading = false;
   String _error = '';
+
+  // Thêm biến để lưu trạng thái route đã chọn
+  String? _selectedRouteTitle;
+  List<DestinationModel>? _selectedDestinations;
+  DateTime? _startDate;
+  DateTime? _endDate;
 
   final List<Map<String, dynamic>> _routes = [
     {
@@ -35,6 +43,68 @@ class RouteViewModel extends ChangeNotifier {
   List<DestinationModel> get destinations => _destinations;
   bool get isLoading => _isLoading;
   String get error => _error;
+
+  // Getters
+  bool get hasSelectedRoute => _selectedRouteTitle != null;
+  String? get selectedRouteTitle => _selectedRouteTitle;
+  List<DestinationModel>? get selectedDestinations => _selectedDestinations;
+  DateTime? get startDate => _startDate;
+  DateTime? get endDate => _endDate;
+
+  RouteViewModel() {
+    _loadSavedRoute();
+  }
+
+  Future<void> _loadSavedRoute() async {
+    final prefs = await SharedPreferences.getInstance();
+    _selectedRouteTitle = prefs.getString('selectedRouteTitle');
+    _selectedDestinations = _loadDestinations(prefs.getString('selectedDestinations'));
+    final startDateStr = prefs.getString('startDate');
+    final endDateStr = prefs.getString('endDate');
+    
+    if (startDateStr != null) _startDate = DateTime.parse(startDateStr);
+    if (endDateStr != null) _endDate = DateTime.parse(endDateStr);
+    notifyListeners();
+  }
+
+  List<DestinationModel>? _loadDestinations(String? json) {
+    if (json == null) return null;
+    final List<dynamic> list = jsonDecode(json);
+    return list.map((e) => DestinationModel.fromMap(e)).toList();
+  }
+
+  Future<void> saveSelectedRoute({
+    required String routeTitle,
+    required List<DestinationModel> destinations,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedRouteTitle', routeTitle);
+    await prefs.setString('selectedDestinations', jsonEncode(destinations.map((e) => e.toMap()).toList()));
+    await prefs.setString('startDate', startDate.toIso8601String());
+    await prefs.setString('endDate', endDate.toIso8601String());
+
+    _selectedRouteTitle = routeTitle;
+    _selectedDestinations = destinations;
+    _startDate = startDate;
+    _endDate = endDate;
+    notifyListeners();
+  }
+
+  Future<void> clearSelectedRoute() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('selectedRouteTitle');
+    await prefs.remove('selectedDestinations');
+    await prefs.remove('startDate');
+    await prefs.remove('endDate');
+
+    _selectedRouteTitle = null;
+    _selectedDestinations = null;
+    _startDate = null;
+    _endDate = null;
+    notifyListeners();
+  }
 
   // Fetch destinations theo province
   Future<void> fetchDestinationsByProvince(String provinceName) async {

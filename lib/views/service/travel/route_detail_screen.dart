@@ -7,6 +7,8 @@ import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/destination_route_card.dart';
+import 'package:tourguideapp/viewmodels/route_viewmodel.dart';
+import 'package:provider/provider.dart';
 
 class RouteDetailScreen extends StatefulWidget {
   final String routeTitle;
@@ -92,7 +94,9 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                         alignment: Alignment.centerLeft,
                         child: CustomIconButton(
                           icon: Icons.chevron_left,
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () {
+                            Navigator.of(context).popUntil((route) => route.isFirst);
+                          },
                         ),
                       ),
                       Center(
@@ -169,7 +173,56 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                Navigator.pop(context);
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text(
+                                        'Cancel Route',
+                                        style: TextStyle(
+                                          fontSize: 20.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      content: Text(
+                                        'Are you sure you want to cancel this route?',
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: Text(
+                                            'No',
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 16.sp,
+                                            ),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Provider.of<RouteViewModel>(context, listen: false).clearSelectedRoute();
+                                            Navigator.pop(context); // Đóng dialog
+                                            Navigator.pop(context); // Quay lại màn hình trước
+                                          },
+                                          child: Text(
+                                            'Yes',
+                                            style: TextStyle(
+                                              color: AppColors.primaryColor,
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16.r),
+                                      ),
+                                    );
+                                  },
+                                );
                               },
                               child: Container(
                                 height: 48.h,
@@ -204,8 +257,6 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                                     duration: Duration(seconds: 2),
                                   ),
                                 );
-                                Navigator.pop(context);
-                                Navigator.pop(context);
                               },
                               child: Container(
                                 height: 48.h,
