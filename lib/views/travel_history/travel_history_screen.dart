@@ -5,6 +5,7 @@ import 'package:tourguideapp/widgets/historical_province_card_list.dart';
 import '../../widgets/custom_icon_button.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/province_view_model.dart';
+import 'package:tourguideapp/widgets/custom_search_bar.dart';
 
 class TravelHistoryScreen extends StatefulWidget {
   const TravelHistoryScreen({super.key});
@@ -87,7 +88,6 @@ class _TravelHistoryScreenState extends State<TravelHistoryScreen> {
               child: Column(
                 children: [
                   _buildSearchBar(provinceViewModel),
-                  SizedBox(height: 10.h),
                   if (provinceViewModel.isLoading)
                     const Center(child: CircularProgressIndicator())
                   else if (provinceViewModel.error.isNotEmpty)
@@ -107,32 +107,14 @@ class _TravelHistoryScreenState extends State<TravelHistoryScreen> {
   }
 
   Widget _buildSearchBar(ProvinceViewModel provinceViewModel) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 0.h, horizontal: 20.w),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.r),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: TextField(
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: CustomSearchBar(
         controller: _searchController,
+        hintText: AppLocalizations.of(context).translate('Search'),
         onChanged: (value) {
           provinceViewModel.searchProvinces(value);
         },
-        decoration: InputDecoration(
-          hintText: AppLocalizations.of(context).translate('Search'),
-          prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.r),
-            borderSide: BorderSide.none,
-          ),
-        ),
       ),
     );
   }

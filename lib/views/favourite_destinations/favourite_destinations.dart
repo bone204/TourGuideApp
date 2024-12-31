@@ -11,6 +11,7 @@ import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/widgets/hotel_card.dart';
 import 'package:tourguideapp/views/service/hotel/hotel_detail_screen.dart';
 import 'package:tourguideapp/views/service/restaurant/restaurant_detail_screen.dart';
+import 'package:tourguideapp/widgets/custom_search_bar.dart';
 
 class FavouriteDestinationsScreen extends StatefulWidget {
   const FavouriteDestinationsScreen({super.key});
@@ -70,10 +71,9 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
           children: [
             SizedBox(height: 20.h),
             _buildSearchBar(),
-            SizedBox(height: 10.h),
             Expanded(
               child: GridView.builder(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 20.h),
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   childAspectRatio: 161.w / 190.h,
@@ -189,28 +189,14 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
   }
 
   Widget _buildSearchBar() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 0.h, horizontal: 20.w),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.r),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: AppLocalizations.of(context).translate('Search'),
-          prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.r),
-            borderSide: BorderSide.none,
-          ),
-        ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: CustomSearchBar(
+        controller: TextEditingController(),
+        hintText: AppLocalizations.of(context).translate('Search'),
+        onChanged: (value) {
+          // Add search functionality here if needed
+        },
       ),
     );
   }

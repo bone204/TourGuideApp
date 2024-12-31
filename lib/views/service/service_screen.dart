@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../widgets/use_service_card.dart';
-import '../../localization/app_localizations.dart';
 
 class ServiceScreen extends StatelessWidget {
   const ServiceScreen({super.key});
