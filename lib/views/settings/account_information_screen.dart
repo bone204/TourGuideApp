@@ -67,11 +67,14 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
             alignment: Alignment.topCenter,
             child: Column(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 70,
                   backgroundImage: NetworkImage(
-                    'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                    accountInfoViewModel.avatar,
                   ),
+                  onBackgroundImageError: (exception, stackTrace) {
+                    AssetImage('assets/img/bg_route_1.png');
+                  },
                 ),
                 SizedBox(height: 24.h),
                 Text(

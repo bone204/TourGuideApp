@@ -14,6 +14,7 @@ class UserModel {
   final String? bankAccountNumber;
   final String? bankAccountName;
   final List<String> hobbies;
+  final String avatar;
 
   UserModel({
     required this.userId,
@@ -27,6 +28,7 @@ class UserModel {
     required this.phoneNumber,
     required this.nationality,
     required this.birthday,
+    required this.avatar,
     this.bankName,
     this.bankAccountNumber,
     this.bankAccountName,
@@ -50,6 +52,7 @@ class UserModel {
       'bankAccountNumber': bankAccountNumber,
       'bankAccountName': bankAccountName,
       'hobbies': hobbies,
+      'avatar': avatar,
     };
   }
 
@@ -66,6 +69,7 @@ class UserModel {
       phoneNumber: map['phoneNumber'] ?? '',
       nationality: map['nationality'] ?? '',
       birthday: map['birthday'] ?? '',
+      avatar: map['avatar'] ?? '',
       bankName: map['bankName'] ?? '',
       bankAccountNumber: map['bankAccountNumber'] ?? '',
       bankAccountName: map['bankAccountName'] ?? '',

@@ -82,11 +82,15 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 70,
                   backgroundImage: NetworkImage(
-                    'https://images.unsplash.com/photo-1639628735078-ed2f038a193e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                    profileViewModel.avatar,
                   ),
+                  onBackgroundImageError: (exception, stackTrace) {
+                    // Fallback nếu load ảnh thất bại
+                    AssetImage('assets/img/bg_route_1.png');
+                  },
                 ),
                 SizedBox(height: 16.h),
                 Text(

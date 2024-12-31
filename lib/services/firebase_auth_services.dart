@@ -2,10 +2,35 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/user_model.dart'; // Import model người dùng
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
 
 class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+
+  Future<String> _uploadDefaultAvatar(String uid) async {
+    try {
+      // Đọi file ảnh từ assets
+      final byteData = await rootBundle.load('assets/img/avatar_default.jpg');
+      final file = File('${(await getTemporaryDirectory()).path}/avatar_default.jpg');
+      await file.writeAsBytes(byteData.buffer.asUint8List());
+
+      // Upload lên Firebase Storage
+      final ref = _storage.ref().child('avatars/$uid.jpg');
+      await ref.putFile(file);
+      
+      // Lấy URL download
+      final downloadUrl = await ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading default avatar: $e');
+      throw Exception('Failed to upload default avatar');
+    }
+  }
 
   // Đăng ký bằng email và mật khẩu
   Future<User?> signUpWithEmailAndPassword(
@@ -34,6 +59,9 @@ class FirebaseAuthService {
         // Lấy userId mới
         String newUserId = await _generateNewUserId();
 
+        // Upload ảnh mặc định và lấy URL
+        String avatarUrl = await _uploadDefaultAvatar(user.uid);
+
         // Nếu đăng ký thành công, tạo đối tượng UserModel
         UserModel newUser = UserModel(
           userId: newUserId,
@@ -47,6 +75,7 @@ class FirebaseAuthService {
           phoneNumber: phoneNumber,
           nationality: nationality,
           birthday: birthday,
+          avatar: avatarUrl,  // Thêm URL avatar
           hobbies: hobbies,
         );
 
@@ -108,7 +137,7 @@ class FirebaseAuthService {
       throw _handleFirebaseAuthException(e);
     } catch (e) {
       if (kDebugMode) {
-        print('Lỗi không xác đ���nh khi đăng nhập: $e');
+        print('Lỗi không xác định khi đăng nhập: $e');
       } // In lỗi ra console
       throw Exception("Đã xảy ra lỗi không xác định khi đăng nhập: $e");
     }

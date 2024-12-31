@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               UserHeader(
                                 name: homeViewModel.name,
-                                profileImageUrl: homeViewModel.profileImageUrl,
+                                avatar: homeViewModel.avatar,
                               ),
                               SizedBox(height: 40.h),
                               Container(
@@ -242,11 +242,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class UserHeader extends StatelessWidget {
   final String name;
-  final String profileImageUrl;
+  final String avatar;
 
   const UserHeader({
     required this.name,
-    required this.profileImageUrl,
+    required this.avatar,
     super.key,
   });
 
@@ -272,10 +272,10 @@ class UserHeader extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 16.w, // Sử dụng ScreenUtil cho radius
-            backgroundImage: profileImageUrl.isNotEmpty
-                ? NetworkImage(profileImageUrl)
+            backgroundImage: avatar.isNotEmpty
+                ? NetworkImage(avatar)
                 : null,
-            child: profileImageUrl.isEmpty
+            child: avatar.isEmpty
                 ? Icon(Icons.person, color: Colors.grey[600], size: 20.sp) // Điều chỉnh kích thước icon
                 : null,
           ),
