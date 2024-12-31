@@ -63,9 +63,16 @@ class CustomTextField extends StatelessWidget {
 
 
 class CustomPasswordField extends StatefulWidget {
-  final TextEditingController controller; 
+  final TextEditingController controller;
+  final String? hintText;
+  final String? Function(String?)? validator;
 
-  const CustomPasswordField({super.key, required this.controller}); 
+  const CustomPasswordField({
+    super.key, 
+    required this.controller,
+    this.hintText,
+    this.validator,
+  });
 
   @override
   _CustomPasswordFieldState createState() => _CustomPasswordFieldState();
@@ -77,10 +84,10 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: widget.controller, 
+      controller: widget.controller,
       obscureText: _obscureText,
       decoration: InputDecoration(
-        hintText: AppLocalizations.of(context).translate('Password'),
+        hintText: widget.hintText ?? AppLocalizations.of(context).translate('Password'),
         filled: true,
         fillColor: const Color(0xFFF7F7F9),
         border: OutlineInputBorder(
@@ -95,6 +102,10 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
           borderSide: const BorderSide(color: Colors.red, width: 2.0),
           borderRadius: BorderRadius.circular(8.0),
         ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black, width: 2.0),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
         suffixIcon: IconButton(
           icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
           onPressed: () {
@@ -104,7 +115,7 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
           },
         ),
       ),
-      validator: (value) {
+      validator: widget.validator ?? (value) {
         if (value == null || value.isEmpty) {
           return AppLocalizations.of(context).translate('Please enter your password');
         } else if (value.length < 8) {
