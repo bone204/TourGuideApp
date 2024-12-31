@@ -4,6 +4,7 @@ import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
+import 'package:tourguideapp/views/my_vehicle/banking_information_screen.dart';
 import 'package:tourguideapp/views/my_vehicle/vehicle_register_screen.dart';
 import 'package:tourguideapp/views/my_vehicle/vehicle_rental_register_screen.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
@@ -323,6 +324,20 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
                             fontWeight: FontWeight.bold,
                             fontSize: 20.sp,
                           ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight, 
+                        child: CustomIconButton(
+                          icon: Icons.info,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const BankingInformationScreen(),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],

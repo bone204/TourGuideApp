@@ -150,11 +150,7 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                           SizedBox(height: 8.h),
                           CustomComboBox(
                             hintText: AppLocalizations.of(context).translate("Gender"),
-                            value: viewModel.gender != null && viewModel.gender!.isNotEmpty
-                                ? (Localizations.localeOf(context).languageCode == 'vi' 
-                                    ? viewModel.gender 
-                                    : genderTranslations[viewModel.gender])
-                                : null,
+                            value: viewModel.currentGender,
                             items: Localizations.localeOf(context).languageCode == 'vi'
                                 ? const ['Nam', 'Nữ', 'Khác']
                                 : const ['Male', 'Female', 'Other'],
@@ -163,13 +159,14 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                                 viewModel.gender = value;
                                 viewModel.genderController.text = value ?? '';
                               } else {
-                                String? vietnameseValue = genderTranslations.entries
+                                String? vietnameseValue = viewModel.genderTranslations.entries
                                     .firstWhere((entry) => entry.value == value,
                                         orElse: () => const MapEntry('', ''))
                                     .key;
                                 viewModel.gender = vietnameseValue;
                                 viewModel.genderController.text = vietnameseValue;
                               }
+                              setState(() {});
                             },
                           ),
                         ],
@@ -190,11 +187,7 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                           SizedBox(height: 8.h),
                           CustomComboBox(
                             hintText: AppLocalizations.of(context).translate("Nationality"),
-                            value: viewModel.nationality != null && viewModel.nationality!.isNotEmpty
-                                ? (Localizations.localeOf(context).languageCode == 'vi'
-                                    ? viewModel.nationality
-                                    : nationalityTranslations[viewModel.nationality])
-                                : null,
+                            value: viewModel.currentNationality,
                             items: Localizations.localeOf(context).languageCode == 'vi'
                                 ? const ['Việt Nam', 'Mỹ', 'Anh', 'Trung Quốc', 'Nhật Bản', 'Hàn Quốc']
                                 : const ['Vietnamese', 'American', 'British', 'Chinese', 'Japanese', 'Korean'],
@@ -203,13 +196,14 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                                 viewModel.nationality = value;
                                 viewModel.nationalityController.text = value ?? '';
                               } else {
-                                String? vietnameseValue = nationalityTranslations.entries
+                                String? vietnameseValue = viewModel.nationalityTranslations.entries
                                     .firstWhere((entry) => entry.value == value,
                                         orElse: () => const MapEntry('', ''))
                                     .key;
                                 viewModel.nationality = vietnameseValue;
                                 viewModel.nationalityController.text = vietnameseValue;
                               }
+                              setState(() {});
                             },
                           ),
                         ],

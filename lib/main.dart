@@ -99,6 +99,7 @@ class MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => RouteViewModel()),
       ],
       child: MaterialApp(
+        navigatorKey: PersonInfoViewModel.navigatorKey,
         title: 'Tour Guide App',
         locale: _locale,
         localizationsDelegates: const [
