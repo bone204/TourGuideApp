@@ -68,6 +68,7 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
         ),
         body: Column(
           children: [
+            SizedBox(height: 20.h),
             _buildSearchBar(),
             SizedBox(height: 10.h),
             Expanded(

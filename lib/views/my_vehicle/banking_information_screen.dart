@@ -74,10 +74,10 @@ class _BankingInformationScreennState extends State<BankingInformationScreen> {
                             }
                           },
                           child: Text(
-                            AppLocalizations.of(context).translate("Confirm"),
+                            AppLocalizations.of(context).translate("Done"),
                             style: TextStyle(
                               color: AppColors.green,
-                              fontSize: 12.sp,
+                              fontSize: 16.sp,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

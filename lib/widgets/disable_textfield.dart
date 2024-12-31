@@ -15,7 +15,7 @@ class DisabledTextField extends StatelessWidget {
   Widget _getIcon(String text) {
     if (text.trim().isEmpty) {
       return const Icon(
-        Icons.warning_amber_rounded,
+        Icons.warning_amber,
         color: AppColors.orange,
       );
     }

@@ -329,7 +329,7 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
                       Align(
                         alignment: Alignment.centerRight, 
                         child: CustomIconButton(
-                          icon: Icons.info,
+                          icon: Icons.info_rounded,
                           onPressed: () {
                             Navigator.push(
                               context,

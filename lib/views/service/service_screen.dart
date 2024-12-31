@@ -1,65 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:tourguideapp/views/service/rental_vehicle/vehicle_rental_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../widgets/use_service_card.dart';
 import '../../localization/app_localizations.dart';
-import '../../widgets/interactive_row_widget.dart';
 
 class ServiceScreen extends StatelessWidget {
   const ServiceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812)); // Thiết lập kích thước màn hình
+    ScreenUtil.init(context, designSize: const Size(375, 812));
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color(0xFFF9F9F9),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(
-                  child: ListView(
-                    children: [
-                      _buildInteractiveRow(context, Icons.bike_scooter, 'Car Rental'), 
-                      SizedBox(height: 16.h),
-                      _buildInteractiveRow(context, Icons.restaurant, 'Restaurant'),
-                      SizedBox(height: 16.h),
-                      _buildInteractiveRow(context, Icons.hotel, 'Hotel'),
-                    ],
-                  ),
-                ),
-              ],
+        body: ListView(
+          children: [
+            SizedBox(height: 16.h),
+            UseServiceCard(
+              vehicleName: 'S500 Sedan',
+              dateRange: '26/11/2024 - 27/11/2024',
+              price: 500000,
+              imageUrl: 'assets/img/bg_route_1.png',
+              onDetailPressed: () {
+                // Xử lý khi nhấn nút Detail
+              },
+              onCancelPressed: () {
+                // Xử lý khi nhấn nút Cancel
+              },
             ),
-          ),
+            // Có thể thêm nhiều VehicleServiceCard khác ở đây
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _buildInteractiveRow(BuildContext context, IconData leadingIcon, String title, {bool navigateToCarRental = false}) {
-    return InteractiveRowWidget(
-      leadingIcon: leadingIcon,
-      title: AppLocalizations.of(context).translate(title),
-      trailingIcon: Icons.chevron_right,
-      onTap: () {
-        if (navigateToCarRental) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const VehicleRentalScreen(
-                initialCategory: 'Car',
-              ),
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Row clicked')),
-          );
-        }
-      },
     );
   }
 }

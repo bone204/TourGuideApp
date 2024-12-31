@@ -98,6 +98,8 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
               child: AppBar(
                 backgroundColor: Colors.white,
                 elevation: 0,
+                scrolledUnderElevation: 0,
+                surfaceTintColor: Colors.transparent,
                 automaticallyImplyLeading: false,
                 flexibleSpace: Column(
                   mainAxisAlignment: MainAxisAlignment.end,

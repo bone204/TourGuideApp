@@ -308,7 +308,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                         name: destination.destinationName,
                         imagePath: destination.photo.isNotEmpty 
                             ? destination.photo[0] 
-                            : 'assets/images/default.jpg',
+                            : 'assets/img/bg_route_1.png',
                         timeRange: '${8 + index}:00 AM - ${9 + index}:00 AM',
                         onTap: () {
                           // Handle destination tap
