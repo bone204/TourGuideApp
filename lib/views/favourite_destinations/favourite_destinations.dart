@@ -121,6 +121,8 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
+            scrolledUnderElevation: 0,
+            surfaceTintColor: Colors.transparent,
             automaticallyImplyLeading: false,
             flexibleSpace: Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -160,89 +162,109 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
             SizedBox(height: 20.h),
             _buildSearchBar(),
             Expanded(
-              child: GridView.builder(
-                padding: EdgeInsets.only(top: 10.h, right: 10.w, left: 10.w, bottom: 20.h),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 161.w / 190.h,
-                  mainAxisSpacing: 20.h,
-                  crossAxisSpacing: 0,
-                ),
-                itemCount: _filteredItems.length,
-                itemBuilder: (context, index) {
-                  final item = _filteredItems[index];
+              child: Consumer<FavouriteDestinationsViewModel>(
+                builder: (context, favouriteViewModel, child) {
+                  // Chỉ cập nhật _filteredItems nếu không có search query
+                  if (_searchController.text.isEmpty) {
+                    _filteredItems = [
+                      ...favouriteViewModel.favouriteDestinations,
+                      ...favouriteViewModel.favouriteHotels,
+                      ...favouriteViewModel.favouriteRestaurants,
+                    ];
+                  }
                   
-                  if (item is DestinationModel) {
-                    final homeCardData = HomeCardData(
-                      placeName: item.destinationName,
-                      imageUrl: item.photo.isNotEmpty ? item.photo[0] : '',
-                      description: item.province,
-                      rating: 4.5,
-                    );
-
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DestinationDetailPage(
-                              cardData: homeCardData,
-                              destinationData: item,
-                              isFavourite: true,
-                              onFavouriteToggle: (isFavourite) {
-                                Provider.of<FavouriteDestinationsViewModel>(context, listen: false)
-                                    .toggleFavourite(item);
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                      child: FavouriteCard(
-                        data: FavouriteCardData(
+                  return GridView.builder(
+                    padding: EdgeInsets.only(top: 10.h, right: 10.w, left: 10.w, bottom: 20.h),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 161.w / 190.h,
+                      mainAxisSpacing: 20.h,
+                      crossAxisSpacing: 0,
+                    ),
+                    itemCount: _filteredItems.length,
+                    itemBuilder: (context, index) {
+                      final item = _filteredItems[index];
+                      
+                      if (item is DestinationModel) {
+                        final homeCardData = HomeCardData(
                           placeName: item.destinationName,
                           imageUrl: item.photo.isNotEmpty ? item.photo[0] : '',
                           description: item.province,
-                        ),
-                      ),
-                    );
-                  } else if (item is HotelCardData) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HotelDetailScreen(data: item),
+                          rating: 4.5,
+                        );
+
+                        return GestureDetector(
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DestinationDetailPage(
+                                  cardData: homeCardData,
+                                  destinationData: item,
+                                  isFavourite: true,
+                                  onFavouriteToggle: (isFavourite) {
+                                    final viewModel = Provider.of<FavouriteDestinationsViewModel>(
+                                      context, 
+                                      listen: false
+                                    );
+                                    viewModel.toggleFavourite(item);
+                                    // Cập nhật lại danh sách đã lọc
+                                    _updateFilteredList(_searchController.text);
+                                  },
+                                ),
+                              ),
+                            );
+                            // Cập nhật lại danh sách khi quay về
+                            _updateFilteredList(_searchController.text);
+                          },
+                          child: FavouriteCard(
+                            data: FavouriteCardData(
+                              placeName: item.destinationName,
+                              imageUrl: item.photo.isNotEmpty ? item.photo[0] : '',
+                              description: item.province,
+                            ),
                           ),
                         );
-                      },
-                      child: FavouriteCard(
-                        data: FavouriteCardData(
-                          placeName: item.hotelName,
-                          imageUrl: item.imageUrl,
-                          description: item.address,
-                        ),
-                      ),
-                    );
-                  } else if (item is RestaurantCardData) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RestaurantDetailScreen(data: item),
+                      } else if (item is HotelCardData) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HotelDetailScreen(data: item),
+                              ),
+                            );
+                          },
+                          child: FavouriteCard(
+                            data: FavouriteCardData(
+                              placeName: item.hotelName,
+                              imageUrl: item.imageUrl,
+                              description: item.address,
+                            ),
                           ),
                         );
-                      },
-                      child: FavouriteCard(
-                        data: FavouriteCardData(
-                          placeName: item.restaurantName,
-                          imageUrl: item.imageUrl,
-                          description: item.address,
-                        ),
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
+                      } else if (item is RestaurantCardData) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RestaurantDetailScreen(data: item),
+                              ),
+                            );
+                          },
+                          child: FavouriteCard(
+                            data: FavouriteCardData(
+                              placeName: item.restaurantName,
+                              imageUrl: item.imageUrl,
+                              description: item.address,
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  );
                 },
               ),
             ),
