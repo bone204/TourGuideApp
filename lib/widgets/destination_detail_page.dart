@@ -6,7 +6,7 @@ import 'package:tourguideapp/widgets/custom_like_button.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 
-class DestinationDetailPage extends StatelessWidget {
+class DestinationDetailPage extends StatefulWidget {
   final HomeCardData cardData;
   final DestinationModel destinationData;
   final bool isFavourite;
@@ -19,6 +19,13 @@ class DestinationDetailPage extends StatelessWidget {
     required this.onFavouriteToggle,
     super.key,
   });
+
+  @override
+  State<DestinationDetailPage> createState() => _DestinationDetailPageState();
+}
+
+class _DestinationDetailPageState extends State<DestinationDetailPage> {
+  final DraggableScrollableController _dragController = DraggableScrollableController();
 
   @override
   Widget build(BuildContext context) {
@@ -37,135 +44,144 @@ class DestinationDetailPage extends StatelessWidget {
               height: 400.h, // Fixed height for the image
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(cardData.imageUrl),
+                  image: NetworkImage(widget.cardData.imageUrl),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
           ),
-          // DraggableScrollableSheet for content
-          DraggableScrollableSheet(
-            initialChildSize: 0.6,
-            minChildSize: 0.6,
-            maxChildSize: 0.8,
-            builder: (context, scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(35.r),
-                    topRight: Radius.circular(35.r),
+          // DraggableScrollableSheet
+          Positioned.fill(
+            bottom: MediaQuery.of(context).padding.bottom, // Thêm khoảng cách cho bottom bar
+            child: DraggableScrollableSheet(
+              controller: _dragController,
+              initialChildSize: 0.6,
+              minChildSize: 0.6,
+              maxChildSize: 0.8,
+              builder: (context, scrollController) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(35.r),
+                      topRight: Radius.circular(35.r),
+                    ),
                   ),
-                ),
-                child: DefaultTabController(
-                  length: 4,
-                  child: SingleChildScrollView(
-                    controller: scrollController,
+                  child: DefaultTabController(
+                    length: 4,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(30.w, 30.h, 30.w, 0),
-                          child: Text(
-                            cardData.placeName,
-                            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        SizedBox(height: 10.h),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 30.w),
-                          child: Row(
+                        // Phần header cố định
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onVerticalDragUpdate: (details) {
+                            _dragController.jumpTo(
+                              _dragController.size - (details.delta.dy / MediaQuery.of(context).size.height),
+                            );
+                          },
+                          child: Column(
                             children: [
-                              Icon(Icons.location_on, color: Colors.grey[600]),
-                              SizedBox(width: 6.w),
-                              Text(cardData.description, style: TextStyle(color: Colors.grey[600])),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 10.h),
-                        // Rating
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 30.w),
-                          child: Row(
-                            children: [
-                              Text(cardData.rating.toString(), style: TextStyle(color: Colors.grey[600], fontSize: 14.sp)),
-                              SizedBox(width: 10.w),
-                              Row(
-                                children: List.generate(5, (index) {
-                                  return Icon(
-                                    index < cardData.rating.round()
-                                        ? Icons.star
-                                        : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 12.sp,
-                                  );
-                                }),
+                              // Drag indicator
+                              Container(
+                                width: double.infinity,
+                                margin: EdgeInsets.only(top: 12.h),
+                                child: Center(
+                                  child: Container(
+                                    width: 40.w,
+                                    height: 4.h,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[300],
+                                      borderRadius: BorderRadius.circular(2.r),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              // Header content
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(30.w, 20.h, 30.w, 0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.cardData.placeName,
+                                      style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(height: 10.h),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.location_on, color: Colors.grey[600]),
+                                        SizedBox(width: 6.w),
+                                        Text(widget.cardData.description, style: TextStyle(color: Colors.grey[600])),
+                                      ],
+                                    ),
+                                    SizedBox(height: 10.h),
+                                    Row(
+                                      children: [
+                                        Text(widget.cardData.rating.toString(), style: TextStyle(color: Colors.grey[600], fontSize: 14.sp)),
+                                        SizedBox(width: 10.w),
+                                        Row(
+                                          children: List.generate(5, (index) {
+                                            return Icon(
+                                              index < widget.cardData.rating.round() ? Icons.star : Icons.star_border,
+                                              color: Colors.amber,
+                                              size: 12.sp,
+                                            );
+                                          }),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // TabBar
+                              TabBar(
+                                labelColor: Colors.black,
+                                unselectedLabelColor: Colors.grey,
+                                indicatorColor: Colors.red,
+                                labelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                                unselectedLabelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                                tabs: const [
+                                  Tab(text: 'About'),
+                                  Tab(text: 'Review'),
+                                  Tab(text: 'Photo'),
+                                  Tab(text: 'Video'),
+                                ],
                               ),
                             ],
                           ),
                         ),
-                        SizedBox(height: 28.h),
 
-                        // TabBar
-                        TabBar(
-                          labelColor: Colors.black,
-                          unselectedLabelColor: Colors.grey,
-                          indicatorColor: Colors.red,
-                          labelStyle: TextStyle(
-                            fontSize: 14.sp, 
-                            fontWeight: FontWeight.bold, 
-                          ),
-                          unselectedLabelStyle: TextStyle(
-                            fontSize: 14.sp, 
-                            fontWeight: FontWeight.bold, 
-                          ),
-                          tabs: const [
-                            Tab(text: 'About'),
-                            Tab(text: 'Review'),
-                            Tab(text: 'Photo'),
-                            Tab(text: 'Video'),
-                          ],
-                        ),
-                        SizedBox(height: 10.h),
-
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 30.w),
-                          child: SizedBox(
-                            height: 200.h,
-                            child: TabBarView(
-                              children: [
-                                // About - Hiển thị mô tả theo ngôn ngữ
-                                SingleChildScrollView(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(top: 10.h),
-                                    child: Text(
-                                      currentLocale == 'en' 
-                                          ? destinationData.descriptionEng
-                                          : destinationData.descriptionViet,
-                                      style: TextStyle(
-                                        color: Colors.grey[700], 
-                                        fontSize: 14.sp
-                                      ),
-                                    ),
-                                  ),
+                        // TabBarView content (có thể scroll)
+                        Expanded(
+                          child: TabBarView(
+                            children: [
+                              // About tab
+                              SingleChildScrollView(
+                                controller: scrollController,
+                                padding: EdgeInsets.fromLTRB(30.w, 20.h, 30.w, 100.h),
+                                child: Text(
+                                  currentLocale == 'en' 
+                                      ? widget.destinationData.descriptionEng
+                                      : widget.destinationData.descriptionViet,
+                                  style: TextStyle(color: Colors.grey[700], fontSize: 14.sp),
                                 ),
-                                
-                                // Review
-                                SingleChildScrollView(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(top: 10.h),
-                                    child: Text(
-                                      "Review: Duis aute irure dolor in reprehenderit in voluptate velit esse.",
-                                      style: TextStyle(
-                                        color: Colors.grey[700], 
-                                        fontSize: 14.sp
-                                      ),
-                                    ),
-                                  ),
+                              ),
+                              // Review tab
+                              SingleChildScrollView(
+                                controller: scrollController,
+                                padding: EdgeInsets.fromLTRB(30.w, 20.h, 30.w, 100.h),
+                                child: Text(
+                                  "Review: Duis aute irure dolor in reprehenderit in voluptate velit esse.",
+                                  style: TextStyle(color: Colors.grey[700], fontSize: 14.sp),
                                 ),
-                                
-                                // Photo Gallery
-                                GridView.builder(
+                              ),
+                              // Photo tab
+                              SingleChildScrollView(
+                                controller: scrollController,
+                                padding: EdgeInsets.fromLTRB(30.w, 20.h, 30.w, 100.h),
+                                child: GridView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -173,55 +189,53 @@ class DestinationDetailPage extends StatelessWidget {
                                     crossAxisSpacing: 8,
                                     mainAxisSpacing: 8,
                                   ),
-                                  itemCount: destinationData.photo.length,
-                                  itemBuilder: (context, index) {
-                                    return ClipRRect(
+                                  itemCount: widget.destinationData.photo.length,
+                                  itemBuilder: (context, index) => ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    child: Image.network(
+                                      widget.destinationData.photo[index],
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Video tab
+                              SingleChildScrollView(
+                                controller: scrollController,
+                                padding: EdgeInsets.fromLTRB(30.w, 20.h, 30.w, 100.h),
+                                child: GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    crossAxisSpacing: 8,
+                                    mainAxisSpacing: 8,
+                                  ),
+                                  itemCount: widget.destinationData.video.length,
+                                  itemBuilder: (context, index) => Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
                                       borderRadius: BorderRadius.circular(8.r),
-                                      child: Image.network(
-                                        destinationData.photo[index],
-                                        fit: BoxFit.cover,
+                                    ),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.play_circle_outline,
+                                        size: 30.sp,
+                                        color: Colors.grey[600],
                                       ),
-                                    );
-                                  },
-                                ),
-                                
-                                // Video Gallery
-                                GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: 8,
-                                    mainAxisSpacing: 8,
+                                    ),
                                   ),
-                                  itemCount: destinationData.video.length,
-                                  itemBuilder: (context, index) {
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(8.r),
-                                      ),
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.play_circle_outline,
-                                          size: 30.sp,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                    );
-                                  },
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
-                        SizedBox(height: 30.h),
                       ],
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
           Positioned(
             top: 44.h,
@@ -237,23 +251,31 @@ class DestinationDetailPage extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                   ),
                   CustomLikeButton(
-                    isLiked: isFavourite,
-                    onLikeChanged: onFavouriteToggle,
+                    isLiked: widget.isFavourite,
+                    onLikeChanged: widget.onFavouriteToggle,
                   ),
                 ],
               ),
             ),
           ),
-          // Nút Save a Trip cố định ở đáy
+          // Bottom bar với Save Trip button
           Positioned(
             left: 0,
             right: 0,
-            bottom: 20.h,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30.w),
-              child: CustomElevatedButton(
-                text: "Save a Trip",
-                onPressed: () {},
+            bottom: 0,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(30.w, 0.h, 30.w, 12.h),
+                  child: CustomElevatedButton(
+                    text: "Save a Trip",
+                    onPressed: () {},
+                  ),
+                ),
               ),
             ),
           ),

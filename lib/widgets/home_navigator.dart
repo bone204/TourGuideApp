@@ -95,26 +95,28 @@ class HomeNavigator extends StatelessWidget {
           );
         }
       },
-      child: SizedBox(
-        width: 90.w,
-        height: 60.h,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
               image,
-              width: 39.w,
-              height: 39.h,
-              fit: BoxFit.cover,
+              width: 40.w,
+              height: 40.h,
+              fit: BoxFit.contain,
             ),
-            SizedBox(height: 5.h),
+            SizedBox(height: 4.h),
             Text(
               AppLocalizations.of(context).translate(text),
               style: TextStyle(
-                fontSize: 11.sp,
+                fontSize: 10.sp,
                 color: Colors.black,
               ),
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

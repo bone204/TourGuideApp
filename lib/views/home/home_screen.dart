@@ -95,7 +95,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               SizedBox(height: 40.h),
                               Container(
                                 width: 335.w,
-                                height: 164.h,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16.r), 
                                   color: Colors.white,
@@ -107,74 +106,55 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ],
                                 ),
-                                child: const Column(
+                                padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: [
                                     Expanded(
-                                      child: Row(
+                                      child: Column(
                                         children: [
-                                          Expanded(
-                                            child: HomeNavigator(
-                                              image: 'assets/img/car_home.png', 
-                                              text: "Car Rental"
-                                            ),
+                                          const HomeNavigator(
+                                            image: 'assets/img/car_home.png', 
+                                            text: "Car Rental"
                                           ),
-                                          Expanded(
-                                            child: HomeNavigator(
-                                              image: 'assets/img/motorbike_home.png', 
-                                              text: "Motorbike Rental"
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: HomeNavigator(
-                                              image: 'assets/img/travel_home.png', 
-                                              text: "Travel"
-                                            ),
+                                          SizedBox(height: 8.h),
+                                          const HomeNavigator(
+                                            image: 'assets/img/restaurant_home.png', 
+                                            text: "Find Restaurant"
                                           ),
                                         ],
                                       ),
                                     ),
                                     Expanded(
-                                      child: Row(
+                                      child: Column(
                                         children: [
-                                          Expanded(
-                                            child: HomeNavigator(
-                                              image: 'assets/img/restaurant_home.png', 
-                                              text: "Find Restaurant"
-                                            ),
+                                          const HomeNavigator(
+                                            image: 'assets/img/motorbike_home.png', 
+                                            text: "Motorbike Rental"
                                           ),
-                                          Expanded(
-                                            child: HomeNavigator(
-                                              image: 'assets/img/delivery_home.png', 
-                                              text: "Fast Delivery"
-                                            ),
+                                          SizedBox(height: 8.h),
+                                          const HomeNavigator(
+                                            image: 'assets/img/delivery_home.png', 
+                                            text: "Fast Delivery"
                                           ),
-                                          Expanded(
-                                            child: HomeNavigator(
-                                              image: 'assets/img/hotel_home.png', 
-                                              text: "Find Hotel"
-                                            ),
-                                          ),
-                                          // Expanded(
-                                          //   child: HomeNavigator(
-                                          //     image: 'assets/img/restaurant_home.png', 
-                                          //     text: "Find Restaurant"
-                                          //   ),
-                                          // ),
-                                          // Expanded(
-                                          //   child: HomeNavigator(
-                                          //     image: 'assets/img/destination.png', 
-                                          //     text: "Find Destination"
-                                          //   ),
-                                          // ),
-                                          // Expanded(
-                                          //   child: HomeNavigator(
-                                          //     image: 'assets/img/review.png', 
-                                          //     text: "Review"
-                                          //   ),
-                                          // ),
                                         ],
                                       ),
-                                    )
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          const HomeNavigator(
+                                            image: 'assets/img/travel_home.png', 
+                                            text: "Travel"
+                                          ),
+                                          SizedBox(height: 8.h),
+                                          const HomeNavigator(
+                                            image: 'assets/img/hotel_home.png', 
+                                            text: "Find Hotel"
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -267,7 +247,7 @@ class UserHeader extends StatelessWidget {
         color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(22.r),
       ),
-      padding: EdgeInsets.fromLTRB(8.w, 4.w, 12.w, 4.w), // Điều chỉnh padding
+      padding: EdgeInsets.fromLTRB(8.w, 8.w, 12.w, 8.w), // Điều chỉnh padding
       child: Row(
         children: [
           CircleAvatar(
