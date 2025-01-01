@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
@@ -21,10 +22,97 @@ class FavouriteDestinationsScreen extends StatefulWidget {
 }
 
 class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<dynamic> _filteredItems = [];
+
+  String _normalizeString(String text) {
+    var output = text.toLowerCase();
+    var vietnameseMap = {
+      'à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ|Â|À|Á|Ạ|Ả|Ã|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ằ|Ắ|Ặ|Ẳ|Ẵ': 'a',
+      'è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ|È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ': 'e',
+      'ì|í|ị|ỉ|ĩ|Ì|Í|Ị|Ỉ|Ĩ': 'i',
+      'ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ|Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ': 'o',
+      'ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ|Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ': 'u',
+      'ỳ|ý|ỵ|ỷ|ỹ|Ỳ|Ý|Ỵ|Ỷ|Ỹ': 'y',
+      'đ|Đ': 'd'
+    };
+
+    vietnameseMap.forEach((key, value) {
+      output = output.replaceAll(RegExp(key), value);
+    });
+    return output;
+  }
+
+  void _updateFilteredList(String query) {
+    final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context, listen: false);
+    
+    setState(() {
+      if (query.isEmpty) {
+        _filteredItems = [
+          ...favouriteViewModel.favouriteDestinations,
+          ...favouriteViewModel.favouriteHotels,
+          ...favouriteViewModel.favouriteRestaurants,
+        ];
+      } else {
+        final normalizedQuery = _normalizeString(query);
+        final queryWords = normalizedQuery.split(' ').where((word) => word.isNotEmpty).toList();
+
+        // Lọc destinations
+        final filteredDestinations = favouriteViewModel.favouriteDestinations.where((dest) {
+          final normalizedName = _normalizeString(dest.destinationName);
+          final normalizedProvince = _normalizeString(dest.province);
+          
+          return queryWords.every((word) {
+            return normalizedName.split(' ').any((nameWord) => nameWord.startsWith(word)) ||
+                   normalizedProvince.split(' ').any((provinceWord) => provinceWord.startsWith(word));
+          });
+        }).toList();
+        
+        // Lọc hotels
+        final filteredHotels = favouriteViewModel.favouriteHotels.where((hotel) {
+          final normalizedName = _normalizeString(hotel.hotelName);
+          final normalizedAddress = _normalizeString(hotel.address);
+          
+          return queryWords.every((word) {
+            return normalizedName.split(' ').any((nameWord) => nameWord.startsWith(word)) ||
+                   normalizedAddress.split(' ').any((addressWord) => addressWord.startsWith(word));
+          });
+        }).toList();
+        
+        // Lọc restaurants
+        final filteredRestaurants = favouriteViewModel.favouriteRestaurants.where((rest) {
+          final normalizedName = _normalizeString(rest.restaurantName);
+          final normalizedAddress = _normalizeString(rest.address);
+          
+          return queryWords.every((word) {
+            return normalizedName.split(' ').any((nameWord) => nameWord.startsWith(word)) ||
+                   normalizedAddress.split(' ').any((addressWord) => addressWord.startsWith(word));
+          });
+        }).toList();
+        
+        _filteredItems = [
+          ...filteredDestinations,
+          ...filteredHotels,
+          ...filteredRestaurants,
+        ];
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _updateFilteredList('');
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
-
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -80,31 +168,30 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                   mainAxisSpacing: 20.h,
                   crossAxisSpacing: 0,
                 ),
-                itemCount: favouriteViewModel.favouriteDestinations.length + 
-                          favouriteViewModel.favouriteHotels.length +
-                          favouriteViewModel.favouriteRestaurants.length,
+                itemCount: _filteredItems.length,
                 itemBuilder: (context, index) {
-                  if (index < favouriteViewModel.favouriteDestinations.length) {
-                    // Build Destination Card
-                    final destination = favouriteViewModel.favouriteDestinations[index];
+                  final item = _filteredItems[index];
+                  
+                  if (item is DestinationModel) {
+                    final homeCardData = HomeCardData(
+                      placeName: item.destinationName,
+                      imageUrl: item.photo.isNotEmpty ? item.photo[0] : '',
+                      description: item.province,
+                      rating: 4.5,
+                    );
+
                     return GestureDetector(
                       onTap: () {
-                        final homeCardData = HomeCardData(
-                          placeName: destination.destinationName,
-                          imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
-                          description: destination.province,
-                          rating: 4.5,
-                        );
-
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => DestinationDetailPage(
                               cardData: homeCardData,
-                              destinationData: destination,
-                              isFavourite: favouriteViewModel.isFavourite(destination),
+                              destinationData: item,
+                              isFavourite: true,
                               onFavouriteToggle: (isFavourite) {
-                                favouriteViewModel.toggleFavourite(destination);
+                                Provider.of<FavouriteDestinationsViewModel>(context, listen: false)
+                                    .toggleFavourite(item);
                               },
                             ),
                           ),
@@ -112,73 +199,50 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                       },
                       child: FavouriteCard(
                         data: FavouriteCardData(
-                          placeName: destination.destinationName,
-                          imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
-                          description: destination.province,
+                          placeName: item.destinationName,
+                          imageUrl: item.photo.isNotEmpty ? item.photo[0] : '',
+                          description: item.province,
                         ),
                       ),
                     );
-                  } else if (index < favouriteViewModel.favouriteDestinations.length + 
-                            favouriteViewModel.favouriteHotels.length) {
-                    // Build Hotel Card using FavouriteCard
-                    final hotelIndex = index - favouriteViewModel.favouriteDestinations.length;
-                    final hotel = favouriteViewModel.favouriteHotels[hotelIndex];
+                  } else if (item is HotelCardData) {
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => HotelDetailScreen(
-                              data: HotelCardData(
-                                imageUrl: hotel.imageUrl,
-                                hotelName: hotel.hotelName,
-                                rating: hotel.rating,
-                                pricePerDay: hotel.pricePerDay,
-                                address: hotel.address,
-                              ),
-                            ),
+                            builder: (context) => HotelDetailScreen(data: item),
                           ),
                         );
                       },
                       child: FavouriteCard(
                         data: FavouriteCardData(
-                          placeName: hotel.hotelName,
-                          imageUrl: hotel.imageUrl,
-                          description: hotel.address,
+                          placeName: item.hotelName,
+                          imageUrl: item.imageUrl,
+                          description: item.address,
                         ),
                       ),
                     );
-                  } else {
-                    // Build Restaurant Card
-                    final restaurantIndex = index - favouriteViewModel.favouriteDestinations.length - 
-                                          favouriteViewModel.favouriteHotels.length;
-                    final restaurant = favouriteViewModel.favouriteRestaurants[restaurantIndex];
+                  } else if (item is RestaurantCardData) {
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => RestaurantDetailScreen(
-                              data: RestaurantCardData(
-                                imageUrl: restaurant.imageUrl,
-                                restaurantName: restaurant.restaurantName,
-                                rating: restaurant.rating,
-                                pricePerPerson: restaurant.pricePerPerson,
-                                address: restaurant.address,
-                              ),
-                            ),
+                            builder: (context) => RestaurantDetailScreen(data: item),
                           ),
                         );
                       },
                       child: FavouriteCard(
                         data: FavouriteCardData(
-                          placeName: restaurant.restaurantName,
-                          imageUrl: restaurant.imageUrl,
-                          description: restaurant.address,
+                          placeName: item.restaurantName,
+                          imageUrl: item.imageUrl,
+                          description: item.address,
                         ),
                       ),
                     );
                   }
+                  return const SizedBox.shrink();
                 },
               ),
             ),
@@ -192,11 +256,9 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CustomSearchBar(
-        controller: TextEditingController(),
+        controller: _searchController,
         hintText: AppLocalizations.of(context).translate('Search'),
-        onChanged: (value) {
-          // Add search functionality here if needed
-        },
+        onChanged: _updateFilteredList,
       ),
     );
   }

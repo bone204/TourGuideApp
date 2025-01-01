@@ -9,16 +9,51 @@ class ProvinceViewModel extends ChangeNotifier {
   List<Province> _filteredProvinces = [];
   bool _isLoading = false;
   String _error = '';
-  String _searchQuery = '';
 
   // Getters
-  List<Province> get provinces => _searchQuery.isEmpty 
-      ? _provinces 
-      : _filteredProvinces;
+  List<Province> get provinces => _filteredProvinces;
   bool get isLoading => _isLoading;
   String get error => _error;
 
-  // Fetch provinces từ Firebase
+  // Thêm phương thức normalize text
+  String _normalizeString(String text) {
+    var output = text.toLowerCase();
+    var vietnameseMap = {
+      'à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ|Â|À|Á|Ạ|Ả|Ã|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ằ|Ắ|Ặ|Ẳ|Ẵ': 'a',
+      'è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ|È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ': 'e',
+      'ì|í|ị|ỉ|ĩ|Ì|Í|Ị|Ỉ|Ĩ': 'i',
+      'ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ|Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ': 'o',
+      'ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ|Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ': 'u',
+      'ỳ|ý|ỵ|ỷ|ỹ|Ỳ|Ý|Ỵ|Ỷ|Ỹ': 'y',
+      'đ|Đ': 'd'
+    };
+
+    vietnameseMap.forEach((key, value) {
+      output = output.replaceAll(RegExp(key), value);
+    });
+    return output;
+  }
+
+  // Sửa lại phương thức search
+  void searchProvinces(String query) {
+    if (query.isEmpty) {
+      _filteredProvinces = List.from(_provinces);
+    } else {
+      final normalizedQuery = _normalizeString(query);
+      final queryWords = normalizedQuery.split(' ').where((word) => word.isNotEmpty).toList();
+
+      _filteredProvinces = _provinces.where((province) {
+        final normalizedName = _normalizeString(province.provinceName);
+        
+        return queryWords.every((word) {
+          return normalizedName.split(' ').any((nameWord) => nameWord.startsWith(word));
+        });
+      }).toList();
+    }
+    notifyListeners();
+  }
+
+  // Sửa lại phương thức fetch để khởi tạo _filteredProvinces
   Future<void> fetchProvinces() async {
     _isLoading = true;
     _error = '';
@@ -32,6 +67,7 @@ class ProvinceViewModel extends ChangeNotifier {
         return Province.fromMap(data);
       }).toList();
 
+      _filteredProvinces = List.from(_provinces);
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -74,55 +110,13 @@ class ProvinceViewModel extends ChangeNotifier {
   List<ProvinceCard> get provinceCards => 
       provinces.map((province) => provinceToCard(province)).toList();
 
-  // Thêm hàm chuyển đổi text không dấu
-  String _removeDiacritics(String text) {
-    var vietnameseMap = {
-      'à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ': 'a',
-      'è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ': 'e',
-      'ì|í|ị|ỉ|ĩ': 'i',
-      'ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ': 'o',
-      'ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ': 'u',
-      'ỳ|ý|ỵ|ỷ|ỹ': 'y',
-      'đ': 'd',
-      'À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ': 'A',
-      'È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ': 'E',
-      'Ì|Í|Ị|Ỉ|Ĩ': 'I',
-      'Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ': 'O',
-      'Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ': 'U',
-      'Ỳ|Ý|Ỵ|Ỷ|Ỹ': 'Y',
-      'Đ': 'D'
-    };
-
-    String result = text;
-    vietnameseMap.forEach((key, value) {
-      result = result.replaceAll(RegExp(key), value);
-    });
-    return result;
+  void filterProvinces(bool Function(Province) filter) {
+    _filteredProvinces = _provinces.where(filter).toList();
+    notifyListeners();
   }
 
-  // Sửa lại hàm search
-  void searchProvinces(String query) {
-    _searchQuery = query.toLowerCase().trim();
-    if (_searchQuery.isEmpty) {
-      _filteredProvinces = _provinces;
-    } else {
-      _filteredProvinces = _provinces.where((province) {
-        String normalizedProvinceName = _removeDiacritics(province.provinceName.toLowerCase());
-        String normalizedQuery = _removeDiacritics(_searchQuery.toLowerCase());
-        
-        // Tách tên tỉnh và query thành các từ riêng biệt
-        List<String> provinceWords = normalizedProvinceName.split(' ');
-        List<String> queryWords = normalizedQuery.split(' ');
-        
-        // Kiểm tra từng từ trong query
-        return queryWords.every((queryWord) {
-          // Kiểm tra xem có từ nào trong tên tỉnh bắt đầu bằng từ trong query không
-          return provinceWords.any((provinceWord) => 
-            provinceWord.startsWith(queryWord)
-          );
-        });
-      }).toList();
-    }
+  void resetSearch() {
+    _filteredProvinces = List.from(_provinces);
     notifyListeners();
   }
 } 

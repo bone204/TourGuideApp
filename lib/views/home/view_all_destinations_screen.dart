@@ -10,7 +10,7 @@ import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
 
-class ViewAllDestinationsScreen extends StatelessWidget {
+class ViewAllDestinationsScreen extends StatefulWidget {
   final String sectionTitle;
   final List<HomeCardData> cardDataList;
 
@@ -19,6 +19,65 @@ class ViewAllDestinationsScreen extends StatelessWidget {
     required this.sectionTitle,
     required this.cardDataList,
   });
+
+  @override
+  _ViewAllDestinationsScreenState createState() => _ViewAllDestinationsScreenState();
+}
+
+class _ViewAllDestinationsScreenState extends State<ViewAllDestinationsScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<HomeCardData> _filteredList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredList = widget.cardDataList;
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  String _normalizeString(String text) {
+    var output = text.toLowerCase();
+    var vietnameseMap = {
+      'à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ|Â|À|Á|Ạ|Ả|Ã|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ằ|Ắ|Ặ|Ẳ|Ẵ': 'a',
+      'è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ|È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ': 'e',
+      'ì|í|ị|ỉ|ĩ|Ì|Í|Ị|Ỉ|Ĩ': 'i',
+      'ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ|Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ': 'o',
+      'ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ|Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ': 'u',
+      'ỳ|ý|ỵ|ỷ|ỹ|Ỳ|Ý|Ỵ|Ỷ|Ỹ': 'y',
+      'đ|Đ': 'd'
+    };
+
+    vietnameseMap.forEach((key, value) {
+      output = output.replaceAll(RegExp(key), value);
+    });
+    return output;
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredList = widget.cardDataList;
+      } else {
+        final normalizedQuery = _normalizeString(query);
+        final queryWords = normalizedQuery.split(' ').where((word) => word.isNotEmpty).toList();
+
+        _filteredList = widget.cardDataList.where((card) {
+          final normalizedName = _normalizeString(card.placeName);
+          final normalizedDescription = _normalizeString(card.description);
+          
+          return queryWords.every((word) {
+            return normalizedName.split(' ').any((nameWord) => nameWord.startsWith(word)) ||
+                   normalizedDescription.split(' ').any((descWord) => descWord.startsWith(word));
+          });
+        }).toList();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +113,7 @@ class ViewAllDestinationsScreen extends StatelessWidget {
                       ),
                       Center(
                         child: Text(
-                          AppLocalizations.of(context).translate(sectionTitle),
+                          AppLocalizations.of(context).translate(widget.sectionTitle),
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -82,9 +141,9 @@ class ViewAllDestinationsScreen extends StatelessWidget {
                   mainAxisSpacing: 20.h,
                   crossAxisSpacing: 0,
                 ),
-                itemCount: cardDataList.length,
+                itemCount: _filteredList.length,
                 itemBuilder: (context, index) {
-                  final cardData = cardDataList[index];
+                  final cardData = _filteredList[index];
                   final destination = destinationsViewModel.destinations.firstWhere(
                     (dest) => dest.destinationName == cardData.placeName,
                   );
@@ -126,11 +185,9 @@ class ViewAllDestinationsScreen extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: CustomSearchBar(
-        controller: TextEditingController(),
+        controller: _searchController,
         hintText: AppLocalizations.of(context).translate('Search'),
-        onChanged: (value) {
-          // Add search functionality here if needed
-        },
+        onChanged: _onSearchChanged,
       ),
     );
   }
