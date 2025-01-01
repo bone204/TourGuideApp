@@ -19,20 +19,21 @@ class HomeCardData {
 
 class HomeCard extends StatelessWidget {
   final HomeCardData data;
-  final VoidCallback onTap; 
+  final VoidCallback onTap;
 
   const HomeCard({required this.data, required this.onTap, super.key});
+
 
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
     return GestureDetector(
-      onTap: onTap, 
+      onTap: onTap,
       child: Container(
-        width: 268.w, 
-        margin: EdgeInsets.only(right: 10.w), 
+        width: 268.w,
+        margin: EdgeInsets.only(right: 10.w),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.r), 
+          borderRadius: BorderRadius.circular(16.r),
           color: Colors.white,
           boxShadow: [
             BoxShadow(
@@ -53,6 +54,41 @@ class HomeCard extends StatelessWidget {
                   height: 285.h,
                   width: 240.w,
                   fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      height: 285.h,
+                      width: 240.w,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(16.r),
+                      ),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryColor,
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 285.h,
+                      width: 240.w,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(16.r),
+                      ),
+                      child: Icon(
+                        Icons.error_outline,
+                        color: Colors.grey[400],
+                        size: 40.sp,
+                      ),
+                    );
+                  },
                 ),
               ),
               SizedBox(height: 14.h),

@@ -122,6 +122,8 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
         child: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
           automaticallyImplyLeading: false,
           flexibleSpace: Column(
             mainAxisAlignment: MainAxisAlignment.end,

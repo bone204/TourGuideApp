@@ -56,34 +56,84 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   Future<void> _determinePosition() async {
     try {
-      // Kiểm tra quyền truy cập vị trí
+      // Kiểm tra xem dịch vụ định vị có được bật không
       bool serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        throw 'Location services are disabled.';
+        // Hiển thị dialog yêu cầu người dùng bật định vị
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Dịch vụ định vị bị tắt'),
+                content: const Text('Vui lòng bật dịch vụ định vị để sử dụng tính năng này.'),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('Mở cài đặt'),
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await geo.Geolocator.openLocationSettings();
+                    },
+                  ),
+                  TextButton(
+                    child: const Text('Đóng'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        }
+        return;
       }
 
+      // Kiểm tra quyền truy cập vị trí
       geo.LocationPermission permission = await geo.Geolocator.checkPermission();
       if (permission == geo.LocationPermission.denied) {
         permission = await geo.Geolocator.requestPermission();
         if (permission == geo.LocationPermission.denied) {
-          throw 'Location permissions are denied';
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Quyền truy cập vị trí bị từ chối')),
+            );
+          }
+          return;
         }
       }
 
       if (permission == geo.LocationPermission.deniedForever) {
-        throw 'Location permissions are permanently denied, we cannot request permissions.';
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Quyền truy cập vị trí bị từ chối vĩnh viễn. Vui lòng cấp quyền trong cài đặt.'),
+            ),
+          );
+        }
+        return;
       }
 
       // Lấy vị trí hiện tại
-      final position = await geo.Geolocator.getCurrentPosition();
+      final position = await geo.Geolocator.getCurrentPosition(
+        desiredAccuracy: geo.LocationAccuracy.high,
+      );
+
+      // Cập nhật vị trí trên bản đồ
       await _focusLocation(
-        position.latitude,
-        position.longitude,
+        position.longitude, // Đổi thứ tự từ latitude thành longitude
+        position.latitude,  // Đổi thứ tự từ longitude thành latitude
         'Vị trí của bạn',
       );
+
     } catch (e) {
       if (kDebugMode) {
         print('Error getting current position: $e');
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không thể lấy vị trí hiện tại')),
+        );
       }
     }
   }

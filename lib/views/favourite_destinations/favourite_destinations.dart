@@ -73,7 +73,7 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
             _buildSearchBar(),
             Expanded(
               child: GridView.builder(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                padding: EdgeInsets.only(top: 10.h, right: 10.w, left: 10.w, bottom: 20.h),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   childAspectRatio: 161.w / 190.h,

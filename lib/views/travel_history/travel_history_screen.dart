@@ -49,6 +49,8 @@ class _TravelHistoryScreenState extends State<TravelHistoryScreen> {
               child: AppBar(
                 backgroundColor: Colors.white,
                 elevation: 0,
+                scrolledUnderElevation: 0,
+                surfaceTintColor: Colors.transparent,
                 automaticallyImplyLeading: false,
                 flexibleSpace: Column(
                   mainAxisAlignment: MainAxisAlignment.end,

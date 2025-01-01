@@ -9,6 +9,7 @@ import 'package:tourguideapp/widgets/home_card.dart';
 import 'package:tourguideapp/widgets/home_card_list_view.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; 
 import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
+import 'package:tourguideapp/views/home/view_all_destinations_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -169,8 +170,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
                     child: buildSectionHeadline(
                       context, 
-                      "Destinations", 
-                      "Explore beautiful places", 
+                      "Popular", 
+                      "The best destination for you", 
                       destinationsViewModel.horizontalCardsData
                     ),
                   ),
@@ -191,6 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: title,
           subtitle: subtitle,
           viewAllColor: const Color(0xFFFF7029),
+          cardDataList: cardDataList,
         ),
         SizedBox(height: 12.h),
         HomeCardListView(
@@ -292,64 +294,17 @@ class UserHeader extends StatelessWidget {
   }
 }
 
-class HeaderBar extends StatelessWidget {
-  const HeaderBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Explore the',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 38.sp, 
-              ),
-            ),
-            SizedBox(height: 5.h), 
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Beautiful ',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 38.sp, 
-                    ),
-                  ),
-                  TextSpan(
-                    text: 'world!',
-                    style: TextStyle(
-                      color: const Color(0xFFFF7029),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 34.sp,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
 class SectionHeadline extends StatelessWidget {
   final String title;
   final String subtitle;
   final Color viewAllColor;
+  final List<HomeCardData> cardDataList;
 
   const SectionHeadline({
     required this.title,
     required this.subtitle,
     required this.viewAllColor,
+    required this.cardDataList,
     super.key,
   });
 
@@ -366,26 +321,36 @@ class SectionHeadline extends StatelessWidget {
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
-                fontSize: 20.sp, 
+                fontSize: 20.sp,
               ),
             ),
-            SizedBox(height: 5.h), 
+            SizedBox(height: 5.h),
             Text(
               AppLocalizations.of(context).translate(subtitle),
               style: TextStyle(
                 color: Colors.grey,
-                fontSize: 14.sp, 
+                fontSize: 14.sp,
               ),
             ),
           ],
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ViewAllDestinationsScreen(
+                  sectionTitle: title,
+                  cardDataList: cardDataList,
+                ),
+              ),
+            );
+          },
           child: Text(
             AppLocalizations.of(context).translate("View all"),
             style: TextStyle(
               color: viewAllColor,
-              fontSize: 14.sp, // Điều chỉnh kích thước văn bản
+              fontSize: 14.sp,
             ),
           ),
         ),
