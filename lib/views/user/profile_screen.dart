@@ -114,8 +114,6 @@ class ProfileScreen extends StatelessWidget {
                       SizedBox(height: 16.h),
                       _buildInteractiveRow(context, CupertinoIcons.car_detailed, 'My Vehicle', navigateToMyVehicle: true),
                       SizedBox(height: 16.h),
-                      _buildInteractiveRow(context, CupertinoIcons.captions_bubble_fill, 'Feedback'),
-                      SizedBox(height: 16.h),
                       _buildInteractiveRow(context, Icons.settings, 'Settings', navigateToSettings: true),
                     ],
                   ),
