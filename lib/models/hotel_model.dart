@@ -14,4 +14,15 @@ class HotelModel {
     required this.pricePerDay,
     required this.address,
   });
+
+  factory HotelModel.fromMap(Map<String, dynamic> map) {
+    return HotelModel(
+      hotelId: map['hotelId'] ?? '',
+      hotelName: map['hotelName'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      rating: (map['rating'] ?? 0.0).toDouble(),
+      pricePerDay: (map['pricePerDay'] ?? 0.0).toDouble(),
+      address: map['address'] ?? '',
+    );
+  }
 } 

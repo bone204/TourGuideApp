@@ -14,4 +14,15 @@ class RestaurantModel {
     required this.pricePerPerson,
     required this.address,
   });
+
+  factory RestaurantModel.fromMap(Map<String, dynamic> map) {
+    return RestaurantModel(
+      restaurantId: map['restaurantId'] ?? '',
+      restaurantName: map['restaurantName'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      rating: (map['rating'] ?? 0.0).toDouble(),
+      pricePerPerson: (map['pricePerPerson'] ?? 0.0).toDouble(),
+      address: map['address'] ?? '',
+    );
+  }
 } 

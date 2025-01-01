@@ -15,6 +15,9 @@ class UserModel {
   final String? bankAccountName;
   final List<String> hobbies;
   final String avatar;
+  final List<String> favoriteDestinationIds;
+  final List<String> favoriteHotelIds;
+  final List<String> favoriteRestaurantIds;
 
   UserModel({
     required this.userId,
@@ -33,6 +36,9 @@ class UserModel {
     this.bankAccountNumber,
     this.bankAccountName,
     required this.hobbies,
+    this.favoriteDestinationIds = const [],
+    this.favoriteHotelIds = const [],
+    this.favoriteRestaurantIds = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -53,6 +59,9 @@ class UserModel {
       'bankAccountName': bankAccountName,
       'hobbies': hobbies,
       'avatar': avatar,
+      'favoriteDestinationIds': favoriteDestinationIds,
+      'favoriteHotelIds': favoriteHotelIds,
+      'favoriteRestaurantIds': favoriteRestaurantIds,
     };
   }
 
@@ -74,6 +83,9 @@ class UserModel {
       bankAccountNumber: map['bankAccountNumber'] ?? '',
       bankAccountName: map['bankAccountName'] ?? '',
       hobbies: List<String>.from(map['hobbies'] ?? []),
+      favoriteDestinationIds: List<String>.from(map['favoriteDestinationIds'] ?? []),
+      favoriteHotelIds: List<String>.from(map['favoriteHotelIds'] ?? []),
+      favoriteRestaurantIds: List<String>.from(map['favoriteRestaurantIds'] ?? []),
     );
   }
 }

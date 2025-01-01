@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:tourguideapp/services/firebase_auth_services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignupViewModel extends ChangeNotifier {
   final FirebaseAuthService _auth = FirebaseAuthService();
@@ -30,7 +31,7 @@ class SignupViewModel extends ChangeNotifier {
     List<String> hobbies,
   ) async {
     try {
-      return await _auth.signUpWithEmailAndPassword(
+      final user = await _auth.signUpWithEmailAndPassword(
         email,
         password,
         username,
@@ -43,6 +44,17 @@ class SignupViewModel extends ChangeNotifier {
         birthday,
         hobbies,
       );
+
+      if (user != null) {
+        // Initialize empty favorites lists
+        await FirebaseFirestore.instance.collection('USER').doc(user.uid).update({
+          'favoriteDestinationIds': [],
+          'favoriteHotelIds': [],
+          'favoriteRestaurantIds': [],
+        });
+      }
+
+      return user;
     } catch (e) {
       _errorMessage = e.toString();
       notifyListeners();

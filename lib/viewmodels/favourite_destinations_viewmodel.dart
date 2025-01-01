@@ -1,34 +1,102 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/models/hotel_model.dart';
-import 'package:tourguideapp/widgets/home_card.dart';
 import 'package:tourguideapp/models/restaurant_model.dart';
 
 class FavouriteDestinationsViewModel extends ChangeNotifier {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  
   List<DestinationModel> _favouriteDestinations = [];
   List<HotelModel> _favouriteHotels = [];
   List<RestaurantModel> _favouriteRestaurants = [];
+  bool _isLoading = false;
 
+  bool get isLoading => _isLoading;
   List<DestinationModel> get favouriteDestinations => _favouriteDestinations;
   List<HotelModel> get favouriteHotels => _favouriteHotels;
   List<RestaurantModel> get favouriteRestaurants => _favouriteRestaurants;
 
-  List<HomeCardData> get favouriteCards => _favouriteDestinations.map((destination) {
-    return HomeCardData(
-      imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
-      placeName: destination.destinationName,
-      description: destination.province,
-      rating: 4.5,
-    );
-  }).toList();
+  FavouriteDestinationsViewModel() {
+    loadFavorites();
+  }
 
-  void toggleFavourite(DestinationModel destination) {
-    if (_favouriteDestinations.any((d) => d.destinationId == destination.destinationId)) {
-      _favouriteDestinations.removeWhere((d) => d.destinationId == destination.destinationId);
-    } else {
-      _favouriteDestinations.add(destination);
+  Future<void> loadFavorites() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final user = _auth.currentUser;
+      if (user == null) return;
+
+      final userDoc = await _firestore.collection('USER').doc(user.uid).get();
+      if (!userDoc.exists) return;
+
+      final userData = userDoc.data() as Map<String, dynamic>;
+      final favoriteIds = List<String>.from(userData['favoriteDestinationIds'] ?? []);
+      final favoriteHotelIds = List<String>.from(userData['favoriteHotelIds'] ?? []);
+      final favoriteRestaurantIds = List<String>.from(userData['favoriteRestaurantIds'] ?? []);
+
+      // Load destinations
+      _favouriteDestinations = await Future.wait(
+        favoriteIds.map((id) async {
+          final doc = await _firestore.collection('DESTINATION').doc(id).get();
+          return DestinationModel.fromMap(doc.data() ?? {});
+        })
+      );
+
+      // Load hotels
+      _favouriteHotels = await Future.wait(
+        favoriteHotelIds.map((id) async {
+          final doc = await _firestore.collection('HOTEL').doc(id).get();
+          return HotelModel.fromMap(doc.data() ?? {});
+        })
+      );
+
+      // Load restaurants
+      _favouriteRestaurants = await Future.wait(
+        favoriteRestaurantIds.map((id) async {
+          final doc = await _firestore.collection('RESTAURANT').doc(id).get();
+          return RestaurantModel.fromMap(doc.data() ?? {});
+        })
+      );
+
+    } catch (e) {
+      print('Error loading favorites: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-    notifyListeners();
+  }
+
+  Future<void> toggleFavourite(DestinationModel destination) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final userRef = _firestore.collection('USER').doc(user.uid);
+    
+    try {
+      await _firestore.runTransaction((transaction) async {
+        final userDoc = await transaction.get(userRef);
+        List<String> favoriteIds = List<String>.from(userDoc.data()?['favoriteDestinationIds'] ?? []);
+        
+        if (favoriteIds.contains(destination.destinationId)) {
+          favoriteIds.remove(destination.destinationId);
+          _favouriteDestinations.removeWhere((d) => d.destinationId == destination.destinationId);
+        } else {
+          favoriteIds.add(destination.destinationId);
+          _favouriteDestinations.add(destination);
+        }
+        
+        transaction.update(userRef, {'favoriteDestinationIds': favoriteIds});
+      });
+      
+      notifyListeners();
+    } catch (e) {
+      print('Error toggling favorite: $e');
+    }
   }
 
   bool isFavourite(DestinationModel destination) {
