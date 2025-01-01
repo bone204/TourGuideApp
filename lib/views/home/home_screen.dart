@@ -121,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           SizedBox(height: 8.h),
                                           const HomeNavigator(
                                             image: 'assets/img/restaurant_home.png', 
-                                            text: "Find Restaurant"
+                                            text: "Find Eatery"
                                           ),
                                         ],
                                       ),
