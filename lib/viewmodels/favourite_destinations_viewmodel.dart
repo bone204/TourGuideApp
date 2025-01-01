@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/models/hotel_model.dart';
 import 'package:tourguideapp/models/restaurant_model.dart';
+import 'dart:math' as math;
 
 class FavouriteDestinationsViewModel extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -20,7 +21,26 @@ class FavouriteDestinationsViewModel extends ChangeNotifier {
   List<RestaurantModel> get favouriteRestaurants => _favouriteRestaurants;
 
   FavouriteDestinationsViewModel() {
+    initAuthListener();
     loadFavorites();
+  }
+
+  void initAuthListener() {
+    _auth.authStateChanges().listen((User? user) {
+      if (user == null) {
+        clearData();
+      } else {
+        loadFavorites();
+      }
+    });
+  }
+
+  void clearData() {
+    _favouriteDestinations = [];
+    _favouriteHotels = [];
+    _favouriteRestaurants = [];
+    _isLoading = false;
+    notifyListeners();
   }
 
   Future<void> loadFavorites() async {
@@ -29,7 +49,10 @@ class FavouriteDestinationsViewModel extends ChangeNotifier {
       notifyListeners();
 
       final user = _auth.currentUser;
-      if (user == null) return;
+      if (user == null) {
+        clearData();
+        return;
+      }
 
       final userDoc = await _firestore.collection('USER').doc(user.uid).get();
       if (!userDoc.exists) return;
@@ -65,6 +88,7 @@ class FavouriteDestinationsViewModel extends ChangeNotifier {
 
     } catch (e) {
       print('Error loading favorites: $e');
+      clearData();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -76,21 +100,28 @@ class FavouriteDestinationsViewModel extends ChangeNotifier {
     if (user == null) return;
 
     final userRef = _firestore.collection('USER').doc(user.uid);
+    final destinationRef = _firestore.collection('DESTINATION').doc(destination.destinationId);
     
     try {
       await _firestore.runTransaction((transaction) async {
         final userDoc = await transaction.get(userRef);
+        final destinationDoc = await transaction.get(destinationRef);
+        
         List<String> favoriteIds = List<String>.from(userDoc.data()?['favoriteDestinationIds'] ?? []);
+        int currentFavourite = destinationDoc.data()?['favouriteTimes'] ?? 0;
         
         if (favoriteIds.contains(destination.destinationId)) {
           favoriteIds.remove(destination.destinationId);
           _favouriteDestinations.removeWhere((d) => d.destinationId == destination.destinationId);
+          currentFavourite = math.max(0, currentFavourite - 1);
         } else {
           favoriteIds.add(destination.destinationId);
-          _favouriteDestinations.add(destination);
+          _favouriteDestinations.add(destination.copyWith(favourite: currentFavourite + 1));
+          currentFavourite += 1;
         }
         
         transaction.update(userRef, {'favoriteDestinationIds': favoriteIds});
+        transaction.update(destinationRef, {'favouriteTimes': currentFavourite});
       });
       
       notifyListeners();

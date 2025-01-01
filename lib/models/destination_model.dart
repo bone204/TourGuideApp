@@ -13,6 +13,7 @@ class DestinationModel {
   final List<String> photo;
   final List<String> video;
   final String createdDate;
+  final int favouriteTimes;
 
   DestinationModel({
     required this.destinationId,
@@ -27,6 +28,7 @@ class DestinationModel {
     required this.photo,
     required this.video,
     required this.createdDate,
+    this.favouriteTimes = 0,
   });
 
   factory DestinationModel.fromMap(Map<String, dynamic> map) {
@@ -56,6 +58,7 @@ class DestinationModel {
       photo: List<String>.from(map['photo'] ?? []),
       video: List<String>.from(map['video'] ?? []),
       createdDate: convertTimestampToString(map['createdDate']),
+      favouriteTimes: map['favouriteTimes']?.toInt() ?? 0,
     );
   }
 
@@ -73,6 +76,39 @@ class DestinationModel {
       'photo': photo,
       'video': video,
       'createdDate': createdDate,
+      'favouriteTimes': favouriteTimes,
     };
+  }
+
+  DestinationModel copyWith({
+    String? destinationId,
+    String? destinationName,
+    double? latitude,
+    double? longitude,
+    String? province,
+    String? district,
+    String? specificAddress,
+    String? descriptionEng,
+    String? descriptionViet,
+    List<String>? photo,
+    List<String>? video,
+    String? createdDate,
+    int? favourite,
+  }) {
+    return DestinationModel(
+      destinationId: destinationId ?? this.destinationId,
+      destinationName: destinationName ?? this.destinationName,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      province: province ?? this.province,
+      district: district ?? this.district,
+      specificAddress: specificAddress ?? this.specificAddress,
+      descriptionEng: descriptionEng ?? this.descriptionEng,
+      descriptionViet: descriptionViet ?? this.descriptionViet,
+      photo: photo ?? this.photo,
+      video: video ?? this.video,
+      createdDate: createdDate ?? this.createdDate,
+      favouriteTimes: favourite ?? this.favouriteTimes,
+    );
   }
 }
