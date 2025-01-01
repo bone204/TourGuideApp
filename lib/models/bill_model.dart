@@ -9,6 +9,7 @@ class BillModel {
   final int travelPointsUsed;
   final String paymentMethod;
   final String accountPayment;
+  final String vehicleRegisterId;
 
   BillModel({
     required this.billId,
@@ -21,6 +22,7 @@ class BillModel {
     required this.travelPointsUsed,
     required this.paymentMethod,
     required this.accountPayment,
+    required this.vehicleRegisterId,
   });
 
   Map<String, dynamic> toMap() {
@@ -35,6 +37,7 @@ class BillModel {
       'travelPointsUsed': travelPointsUsed,
       'paymentMethod': paymentMethod,
       'accountPayment': accountPayment,
+      'vehicleRegisterId': vehicleRegisterId,
     };
   }
 
@@ -50,6 +53,7 @@ class BillModel {
       travelPointsUsed: map['travelPointsUsed'] ?? 0,
       paymentMethod: map['paymentMethod'] ?? '',
       accountPayment: map['accountPayment'] ?? '',
+      vehicleRegisterId: map['vehicleRegisterId'] ?? '',
     );
   }
 }

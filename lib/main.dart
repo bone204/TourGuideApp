@@ -23,6 +23,7 @@ import 'views/home/main_screen.dart';
 import 'views/settings/setting_screen.dart';
 import 'viewmodels/profile_viewmodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tourguideapp/viewmodels/bill_viewmodel.dart';
 
 class ImagesPath {
   static const String kOnboarding1 = 'assets/images/img_1.jpg';
@@ -97,6 +98,7 @@ class MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => DestinationsViewModel()),
         ChangeNotifierProvider(create: (_) => BankViewModel()),
         ChangeNotifierProvider(create: (_) => RouteViewModel()),
+        ChangeNotifierProvider(create: (_) => BillViewModel()),
       ],
       child: MaterialApp(
         navigatorKey: PersonInfoViewModel.navigatorKey,

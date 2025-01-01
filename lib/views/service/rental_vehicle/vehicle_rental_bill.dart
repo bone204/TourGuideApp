@@ -195,6 +195,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
         travelPointsUsed: 0, // Có thể thêm tính năng điểm sau
         paymentMethod: selectedBank!,
         accountPayment: '', // Có thể thêm số tài khoản sau
+        vehicleRegisterId: widget.vehicleRegisterId,
       );
 
       await FirebaseFirestore.instance
