@@ -12,6 +12,7 @@ import '../auth/login_screen.dart';
 import '../../localization/app_localizations.dart';
 import '../../widgets/custom_icon_button.dart';
 import '../../widgets/interactive_row_widget.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -82,15 +83,63 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircleAvatar(
-                  radius: 70,
-                  backgroundImage: NetworkImage(
-                    profileViewModel.avatar,
-                  ),
-                  onBackgroundImageError: (exception, stackTrace) {
-                    // Fallback nếu load ảnh thất bại
-                    AssetImage('assets/img/bg_route_1.png');
-                  },
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 70,
+                      backgroundImage: NetworkImage(
+                        profileViewModel.avatar,
+                      ),
+                      onBackgroundImageError: (exception, stackTrace) {
+                        // Fallback nếu load ảnh thất bại
+                        AssetImage('assets/img/bg_route_1.png');
+                      },
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF7029),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SafeArea(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      ListTile(
+                                        leading: const Icon(Icons.photo_camera),
+                                        title: Text(AppLocalizations.of(context).translate('Take Photo')),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          profileViewModel.changeProfileImage(ImageSource.camera);
+                                        },
+                                      ),
+                                      ListTile(
+                                        leading: const Icon(Icons.photo_library),
+                                        title: Text(AppLocalizations.of(context).translate('Choose from Gallery')),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          profileViewModel.changeProfileImage(ImageSource.gallery);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 16.h),
                 Text(
