@@ -4,7 +4,6 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/custom_search_bar.dart';
 import 'package:tourguideapp/widgets/province_card.dart';
-import 'package:tourguideapp/widgets/province_list_card.dart';
 import 'package:tourguideapp/viewmodels/province_view_model.dart';
 import 'package:tourguideapp/views/service/travel/suggest_route_screen.dart';
 
@@ -33,7 +32,7 @@ class _TravelScreenState extends State<TravelScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Khởi tạo ScreenUtil
+    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -54,12 +53,10 @@ class _TravelScreenState extends State<TravelScreen> {
                   child: Stack(
                     children: [
                       Align(
-                        alignment: Alignment.centerLeft, 
+                        alignment: Alignment.centerLeft,
                         child: CustomIconButton(
                           icon: Icons.chevron_left,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
                       ),
                       Center(
@@ -91,40 +88,42 @@ class _TravelScreenState extends State<TravelScreen> {
                 },
               ),
               SizedBox(height: 10.h),
-              AnimatedBuilder(
-                animation: _viewModel,
-                builder: (context, child) {
-                  if (_viewModel.isLoading) {
-                    return const Expanded(
-                      child: Center(
+              Expanded(
+                child: AnimatedBuilder(
+                  animation: _viewModel,
+                  builder: (context, child) {
+                    if (_viewModel.isLoading) {
+                      return const Center(
                         child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
+                      );
+                    }
 
-                  if (_viewModel.error.isNotEmpty) {
-                    return Expanded(
-                      child: Center(
+                    if (_viewModel.error.isNotEmpty) {
+                      return Center(
                         child: Text(_viewModel.error),
-                      ),
-                    );
-                  }
+                      );
+                    }
 
-                  if (_viewModel.provinces.isEmpty) {
-                    return Expanded(
-                      child: Center(
+                    if (_viewModel.provinces.isEmpty) {
+                      return Center(
                         child: Text(
-                          _searchController.text.isEmpty 
-                              ? 'Không có dữ liệu' 
+                          _searchController.text.isEmpty
+                              ? 'Không có dữ liệu'
                               : 'Không tìm thấy kết quả',
                         ),
-                      ),
-                    );
-                  }
+                      );
+                    }
 
-                  return Expanded(
-                    child: ProvinceListCard(
-                      cards: _viewModel.provinceCards.map((card) {
+                    return GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 15.w,
+                        mainAxisSpacing: 15.h,
+                        childAspectRatio: 160/180, // width/height của ProvinceCard
+                      ),
+                      itemCount: _viewModel.provinceCards.length,
+                      itemBuilder: (context, index) {
+                        final card = _viewModel.provinceCards[index];
                         return ProvinceCard(
                           name: card.name,
                           imageUrl: card.imageUrl,
@@ -134,7 +133,6 @@ class _TravelScreenState extends State<TravelScreen> {
                             // Xử lý favorite
                           },
                           onTap: () {
-                            // Điều hướng đến SuggestRouteScreen
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -145,14 +143,14 @@ class _TravelScreenState extends State<TravelScreen> {
                             );
                           },
                         );
-                      }).toList(),
-                    ),
-                  );
-                },
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),
-        )
+        ),
       ),
     );
   }

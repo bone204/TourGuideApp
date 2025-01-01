@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/views/favourite_destinations/favourite_destinations.dart';
 import 'package:tourguideapp/views/my_vehicle/my_vehicle_screen.dart';
 import 'package:tourguideapp/views/settings/setting_screen.dart';
@@ -92,7 +93,7 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       onBackgroundImageError: (exception, stackTrace) {
                         // Fallback nếu load ảnh thất bại
-                        AssetImage('assets/img/bg_route_1.png');
+                        const AssetImage('assets/img/bg_route_1.png');
                       },
                     ),
                     Positioned(
@@ -100,7 +101,7 @@ class ProfileScreen extends StatelessWidget {
                       right: 0,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF7029),
+                          color: AppColors.primaryColor,
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 2),
                         ),
