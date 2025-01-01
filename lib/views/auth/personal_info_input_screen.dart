@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/custom_combo_box.dart';
-import 'package:tourguideapp/widgets/date_time_picker.dart';
+import 'package:tourguideapp/widgets/birthday_date_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:tourguideapp/views/auth/hobbies_selection_screen.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
 class PersonalInfoScreen extends StatefulWidget {
   final String email;
@@ -127,7 +128,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
               children: [
                 SizedBox(height: 20.h),
                 Text(
-                  'Personal Information',
+                  AppLocalizations.of(context).translate('Personal Information'),
                   style: TextStyle(
                     fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
@@ -136,20 +137,38 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 ),
                 SizedBox(height: 8.h),
                 Text(
-                  'Please fill in your personal information',
+                  AppLocalizations.of(context).translate('Please fill in your personal information'),
                   style: TextStyle(
                     fontSize: 14.sp,
                     color: Colors.grey[600],
                   ),
                 ),
                 SizedBox(height: 32.h),
+                Text(
+                  AppLocalizations.of(context).translate('Full Name'),
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 8.h),
                 CustomTextField(
-                  hintText: 'Full Name',
+                  hintText: AppLocalizations.of(context).translate('Full Name'),
                   controller: _fullNameController,
                 ),
                 SizedBox(height: 16.h),
+                Text(
+                  AppLocalizations.of(context).translate('Gender'),
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 8.h),
                 CustomComboBox(
-                  hintText: 'Gender',
+                  hintText: AppLocalizations.of(context).translate('Gender'),
                   value: _selectedGender,
                   items: genders,
                   onChanged: (value) {
@@ -159,8 +178,17 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   },
                 ),
                 SizedBox(height: 16.h),
+                Text(
+                  AppLocalizations.of(context).translate('Nationality'),
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 8.h),
                 CustomComboBox(
-                  hintText: 'Nationality',
+                  hintText: AppLocalizations.of(context).translate('Nationality'),
                   value: _selectedNationality,
                   items: nationalities,
                   onChanged: (value) {
@@ -170,7 +198,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   },
                 ),
                 SizedBox(height: 16.h),
-                DateTimePicker(
+                BirthdayDatePicker(
                   selectedDate: _selectedDate,
                   onDateSelected: (DateTime date) {
                     setState(() {
@@ -218,7 +246,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                         ),
                       )
                     : Text(
-                        'Continue',
+                        AppLocalizations.of(context).translate('Continue'),
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,

@@ -52,7 +52,7 @@
     "The best destination close to you": "Điểm đến tuyệt vời gần bạn",
 
     "Account & Security": "Tài Khoản & Bảo Mật",
-    "Personal Information": "Thông Tin Cá Nhân",
+    "Personal Information": "Thông tin cá nhân",
     "Account Information": "Thông Tin Tài Khoản",
     "Change Password": "Đổi Mật Khẩu",
     "Policies & Terms": "Chính Sách & Điều Khoản",
@@ -97,7 +97,7 @@
     "Previous": "Quay lại",
     "Next": "Tiếp theo",
 
-    "Full Name": "Họ Và Tên",
+    "Full Name": "Họ và tên",
     "Phone Number": "Số Điện Thoại",
     "Identification Number": "Số Căn Cước Công Dân",
     "Identification Photo": "Ảnh Căn Cước Công Dân",
@@ -117,10 +117,10 @@
     "I agree to the commission rate applied by the application - 20% and the ": "Tôi đồng ý với mức hoa hồng - 20% và các ",
     "Terms Of Use.": "Điều Khoản Sử Dụng.",
 
-    "Gender": "Giới Tính",
+    "Gender": "Giới tính",
     "Address": "Địa Chỉ",
-    "Nationality": "Quốc Tịch",
-    "Birthday": "Ngày Sinh",
+    "Nationality": "Quốc tịch",
+    "Birthday": "Ngày sinh",
     "Review": "Đánh Giá",
     "Find Destination": "Tìm Địa Điểm",
 
@@ -289,6 +289,9 @@
     "Price:": "Giá:",
     "Total:": "Tổng cộng:",
     "Payment Completed": "Đã thanh toán",
-    "Loading...": "Đang tải..."
+    "Loading...": "Đang tải...",
+
+    "Please fill in your personal information": "Vui lòng điền thông tin cá nhân của bạn",
+    "Continue": "Tiếp tục"
 }
   

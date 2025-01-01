@@ -77,7 +77,7 @@ class _TravelScreenState extends State<TravelScreen> {
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.only(top: 20.h, left: 20.w, right: 20.w),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
           child: Column(
             children: [
               CustomSearchBar(
