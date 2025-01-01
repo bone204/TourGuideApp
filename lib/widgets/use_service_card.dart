@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart';
+import 'package:intl/intl.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
 class UseServiceCard extends StatelessWidget {
   final String vehicleName;
@@ -49,10 +51,19 @@ class UseServiceCard extends StatelessWidget {
                 child: Image.network(
                   imageUrl,
                   fit: BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
                   errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/img/icon-cx3.png',
-                      fit: BoxFit.cover,
+                    return const Center(
+                      child: CircularProgressIndicator(),
                     );
                   },
                 ),
@@ -70,7 +81,7 @@ class UseServiceCard extends StatelessWidget {
                       Text(
                         vehicleName,
                         style: TextStyle(
-                          color: Colors.black,
+                          color: AppColors.black,
                           fontSize: 14.sp,
                           fontWeight: FontWeight.bold,
                         ),
@@ -105,7 +116,7 @@ class UseServiceCard extends StatelessWidget {
                           ),
                           SizedBox(width: 4.w),
                           Text(
-                            "${price.toStringAsFixed(0)} ₫",
+                            "${NumberFormat('#,###').format(price)} ₫",
                             style: TextStyle(
                               color: AppColors.orange,
                               fontSize: 14.sp,
@@ -123,28 +134,6 @@ class UseServiceCard extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: onDetailPressed,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: const Color(0xFF007BFF),
-                            side: const BorderSide(color: Color(0xFF007BFF)),
-                            padding: EdgeInsets.symmetric(vertical: 8.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                          ),
-                          child: Text(
-                            'Detail',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12.sp,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: onCancelPressed,
-                          style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF007BFF),
                             foregroundColor: Colors.white,
                             padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -153,7 +142,7 @@ class UseServiceCard extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            'Cancel',
+                            AppLocalizations.of(context).translate('Detail'),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 12.sp,
@@ -161,6 +150,27 @@ class UseServiceCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                      // SizedBox(width: 8.w),
+                      // Expanded(
+                      //   child: ElevatedButton(
+                      //     onPressed: onCancelPressed,
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: const Color(0xFF007BFF),
+                      //       foregroundColor: Colors.white,
+                      //       padding: EdgeInsets.symmetric(vertical: 8.h),
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(8.r),
+                      //       ),
+                      //     ),
+                      //     child: Text(
+                      //       'Cancel',
+                      //       style: TextStyle(
+                      //         fontWeight: FontWeight.bold,
+                      //         fontSize: 12.sp,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ],

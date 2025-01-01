@@ -267,6 +267,19 @@
     "Identification Photo (Front)": "Identification Photo (Front)",
     "Identification Photo (Back)": "Identification Photo (Back)",
     "Handover of Vehicle Photo": "Handover of Vehicle Photo",
-    "Send": "Send"
+    "Send": "Send",
+
+    "My Services": "My Services",
+    "No services found": "No services found",
+    "Customer:": "Customer:",
+    "Phone Number:": "Phone Number:",
+    "Owner:": "Owner:",
+    "Selected:": "Selected:",
+    "Hours:": "Hours:",
+    "Days:": "Days:",
+    "Price:": "Price:",
+    "Total:": "Total:",
+    "Payment Completed": "Payment Completed",
+    "Loading...": "Loading..."
 }
   

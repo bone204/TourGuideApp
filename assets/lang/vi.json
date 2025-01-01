@@ -188,7 +188,7 @@
     "Enter vehicle rental requirements": "Nhập yêu cầu thuê xe",
     "Please upload both front and back photos of your vehicle registration.": "Vui lòng tải lên ảnh mặt trước và mặt sau của đăng ký xe.",
     "You haven't added any cars yet.": "Bạn chưa thêm xe nào.",
-    "You haven’t used any services yet.": "Bạn chưa sử dụng dịch vụ nào.",
+    "You haven't used any services yet.": "Bạn chưa sử dụng dịch vụ nào.",
     "Add Vehicle": "Thêm Xe",
 
     "Information": "Thông Tin",
@@ -276,6 +276,19 @@
     "Send": "Gửi",
 
     "Chờ duyệt": "Chờ duyệt",
-    "Cho thuê": "Cho thuê"
+    "Cho thuê": "Cho thuê",
+
+    "My Services": "Dịch vụ của tôi",
+    "No services found": "Không tìm thấy dịch vụ nào",
+    "Customer:": "Khách hàng:",
+    "Phone Number:": "Số điện thoại:",
+    "Owner:": "Chủ xe:",
+    "Selected:": "Đã chọn:",
+    "Hours:": "Giờ:",
+    "Days:": "Ngày:",
+    "Price:": "Giá:",
+    "Total:": "Tổng cộng:",
+    "Payment Completed": "Đã thanh toán",
+    "Loading...": "Đang tải..."
 }
   
