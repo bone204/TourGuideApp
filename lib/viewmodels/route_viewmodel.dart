@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/models/destination_model.dart';
@@ -178,5 +180,50 @@ class RouteViewModel extends ChangeNotifier {
     
     notifyListeners();
     return routeTitle;
+  }
+
+  // Thêm method mới để xóa một route cụ thể
+  void deleteRoute(String routeTitle) {
+    // Xóa route khỏi danh sách saved routes
+    _savedRoutes.removeWhere((route) => route['title'] == routeTitle);
+    
+    // Reset custom route count nếu xóa custom route
+    if (routeTitle.startsWith("Your Custom Route")) {
+      // Tìm số lớn nhất trong các custom route còn lại
+      int maxNumber = 0;
+      for (var route in _savedRoutes) {
+        String title = route['title'] as String;
+        if (title.startsWith("Your Custom Route")) {
+          // Lấy số từ title (nếu có)
+          String numberStr = title.replaceAll("Your Custom Route", "").trim();
+          if (numberStr.isEmpty) {
+            maxNumber = max(maxNumber, 1);
+          } else {
+            maxNumber = max(maxNumber, int.parse(numberStr));
+          }
+        }
+      }
+      _customRouteCount = maxNumber;
+    }
+    
+    // Cập nhật selected route
+    if (_selectedRouteTitle == routeTitle) {
+      if (_savedRoutes.isNotEmpty) {
+        final firstRoute = _savedRoutes.first;
+        _selectedRouteTitle = firstRoute['title'] as String;
+        _selectedDestinations = firstRoute['destinations'] as List<DestinationModel>;
+        _startDate = firstRoute['startDate'] as DateTime;
+        _endDate = firstRoute['endDate'] as DateTime;
+        _selectedProvinceName = firstRoute['provinceName'] as String;
+      } else {
+        _selectedRouteTitle = null;
+        _selectedDestinations = null;
+        _startDate = null;
+        _endDate = null;
+        _selectedProvinceName = null;
+      }
+    }
+    
+    notifyListeners();
   }
 }

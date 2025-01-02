@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/views/service/travel/add_destination_screen.dart';
+import 'package:tourguideapp/views/service/travel/travel_screen.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/destination_route_card.dart';
@@ -138,6 +139,43 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                           ),
                         ),
                       ),
+                      if (widget.isCustomRoute || Provider.of<RouteViewModel>(context).savedRoutes.any((r) => r['title'] == widget.routeTitle))
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: CustomIconButton(
+                            icon: Icons.delete_outline,
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Delete Route'),
+                                  content: const Text('Are you sure you want to delete this route?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Provider.of<RouteViewModel>(context, listen: false)
+                                          .deleteRoute(widget.routeTitle);
+                                        Navigator.pop(context);
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            settings: const RouteSettings(name: '/travel'),
+                                            builder: (context) => const TravelScreen(),
+                                          ),
+                                        );
+                                      },
+                                      child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                     ],
                   ),
                 ),
