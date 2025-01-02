@@ -5,6 +5,7 @@ import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/custom_like_button.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
+import 'package:tourguideapp/widgets/media_detail_view.dart';
 
 class DestinationDetailPage extends StatefulWidget {
   final HomeCardData cardData;
@@ -194,11 +195,23 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                                     mainAxisSpacing: 8,
                                   ),
                                   itemCount: widget.destinationData.photo.length,
-                                  itemBuilder: (context, index) => ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    child: Image.network(
-                                      widget.destinationData.photo[index],
-                                      fit: BoxFit.cover,
+                                  itemBuilder: (context, index) => GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => MediaDetailView(
+                                            mediaUrl: widget.destinationData.photo[index],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      child: Image.network(
+                                        widget.destinationData.photo[index],
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -216,16 +229,29 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                                     mainAxisSpacing: 8,
                                   ),
                                   itemCount: widget.destinationData.video.length,
-                                  itemBuilder: (context, index) => Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(8.r),
-                                    ),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.play_circle_outline,
-                                        size: 30.sp,
-                                        color: Colors.grey[600],
+                                  itemBuilder: (context, index) => GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => MediaDetailView(
+                                            mediaUrl: widget.destinationData.video[index],
+                                            isVideo: true,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(8.r),
+                                      ),
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.play_circle_outline,
+                                          size: 30.sp,
+                                          color: Colors.grey[600],
+                                        ),
                                       ),
                                     ),
                                   ),
