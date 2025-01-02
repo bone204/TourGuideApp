@@ -7,6 +7,7 @@ import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/widgets/custom_search_bar.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
+import 'package:tourguideapp/views/service/travel/destination_detail_add_page.dart';
 
 class AddDestinationScreen extends StatefulWidget {
   final String routeTitle;
@@ -127,7 +128,18 @@ class _AddDestinationScreenState extends State<AddDestinationScreen> {
                       final destination = availableDestinations[index];
                       return GestureDetector(
                         onTap: () {
-                          Navigator.pop(context, destination);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DestinationDetailAddPage(
+                                destination: destination,
+                                onAddPressed: () {
+                                  Navigator.pop(context);
+                                  Navigator.pop(context, destination);
+                                },
+                              ),
+                            ),
+                          );
                         },
                         child: FavouriteCard(
                           data: FavouriteCardData(

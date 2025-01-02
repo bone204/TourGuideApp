@@ -11,12 +11,16 @@ class DestinationDetailPage extends StatefulWidget {
   final DestinationModel destinationData;
   final bool isFavourite;
   final ValueChanged<bool> onFavouriteToggle;
+  final bool hideActions;
+  final VoidCallback? onSaveTrip;
 
   const DestinationDetailPage({
     required this.cardData,
     required this.destinationData,
     required this.isFavourite,
     required this.onFavouriteToggle,
+    this.hideActions = false,
+    this.onSaveTrip,
     super.key,
   });
 
@@ -250,35 +254,36 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                     icon: Icons.chevron_left,
                     onPressed: () => Navigator.pop(context),
                   ),
-                  CustomLikeButton(
-                    isLiked: widget.isFavourite,
-                    onLikeChanged: widget.onFavouriteToggle,
-                  ),
+                  if (!widget.hideActions)
+                    CustomLikeButton(
+                      isLiked: widget.isFavourite,
+                      onLikeChanged: widget.onFavouriteToggle,
+                    ),
                 ],
               ),
             ),
           ),
-          // Bottom bar với Save Trip button
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-              ),
-              child: SafeArea(
-                top: false,
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(30.w, 0.h, 30.w, 12.h),
-                  child: CustomElevatedButton(
-                    text: "Save a Trip",
-                    onPressed: () {},
+          if (widget.onSaveTrip != null)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(30.w, 0.h, 30.w, 12.h),
+                    child: CustomElevatedButton(
+                      text: widget.hideActions ? "Add to Route" : "Save a Trip",
+                      onPressed: widget.onSaveTrip ?? () {},
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
