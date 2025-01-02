@@ -262,6 +262,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                 district: '',
                                 video: [],
                                 createdDate: '',
+                                categories: [],
                               ),
                             );
 
