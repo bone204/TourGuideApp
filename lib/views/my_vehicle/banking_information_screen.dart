@@ -20,9 +20,12 @@ class _BankingInformationScreennState extends State<BankingInformationScreen> {
   @override
   void initState() {
     super.initState();
-    // Load danh sách ngân hàng khi màn hình được khởi tạo
+    // Load danh sách ngân hàng và thông tin ngân hàng của người dùng khi màn hình được khởi tạo
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final viewModel = Provider.of<PersonInfoViewModel>(context, listen: false);
       Provider.of<BankViewModel>(context, listen: false).loadBanks();
+      // Load thông tin ngân hàng của người dùng
+      viewModel.loadBankingInfo();
     });
   }
 
@@ -106,10 +109,12 @@ class _BankingInformationScreennState extends State<BankingInformationScreen> {
                 SizedBox(height: 8.h),
                 CustomComboBox(
                   hintText: AppLocalizations.of(context).translate("Bank Name"),
-                  value: viewModel.bankName,
+                  value: viewModel.bankNameController.text,
                   items: bankViewModel.banks.map((bank) => bank.bankName).toList(),
                   onChanged: (value) {
-                    viewModel.bankNameController.text = value ?? '';
+                    setState(() {
+                      viewModel.bankNameController.text = value ?? '';
+                    });
                   },
                 ),
                 SizedBox(height: 16.h),

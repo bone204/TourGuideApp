@@ -220,4 +220,26 @@ class PersonInfoViewModel extends ChangeNotifier {
     }
     return const Icon(Icons.check_circle, color: Colors.green);
   }
+
+  Future<void> loadBankingInfo() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+            
+        if (doc.exists) {
+          final data = doc.data() as Map<String, dynamic>;
+          bankNameController.text = data['bankName'] ?? '';
+          bankAccountNumberController.text = data['bankAccountNumber'] ?? '';
+          bankAccountNameController.text = data['bankAccountName'] ?? '';
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      print('Error loading banking info: $e');
+    }
+  }
 }
