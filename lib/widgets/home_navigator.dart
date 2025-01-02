@@ -8,9 +8,6 @@ import 'package:tourguideapp/views/service/rental_vehicle/vehicle_rental_screen.
 import 'package:tourguideapp/views/service/restaurant/restaurant_booking_screen.dart';
 
 import 'package:tourguideapp/views/service/travel/travel_screen.dart';
-import 'package:tourguideapp/views/service/travel/route_detail_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:tourguideapp/viewmodels/route_viewmodel.dart';
 
 class HomeNavigator extends StatelessWidget {
   final String image;
@@ -45,28 +42,13 @@ class HomeNavigator extends StatelessWidget {
         }
 
         if (text == "Travel") {
-          final routeViewModel = Provider.of<RouteViewModel>(context, listen: false);
-          
-          if (routeViewModel.hasSelectedRoute) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RouteDetailScreen(
-                  routeTitle: routeViewModel.selectedRouteTitle!,
-                  destinations: routeViewModel.selectedDestinations!,
-                  startDate: routeViewModel.startDate!,
-                  endDate: routeViewModel.endDate!,
-                ),
-              ),
-            );
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const TravelScreen(),
-              ),
-            );
-          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              settings: const RouteSettings(name: '/travel'),
+              builder: (context) => const TravelScreen(),
+            ),
+          );
         }
 
         if (text == "Find Hotel") {

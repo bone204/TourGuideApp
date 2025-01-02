@@ -3,10 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart'; 
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/route_viewmodel.dart';
+import 'package:tourguideapp/views/service/travel/route_detail_screen.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/range_date_time_picker.dart';
 import 'package:tourguideapp/widgets/route_card.dart';
 import 'package:tourguideapp/views/service/travel/travel_route_screen.dart';
+import 'package:tourguideapp/widgets/custom_elevated_button.dart';
+import 'package:provider/provider.dart';
 
 class SuggestRouteScreen extends StatefulWidget {
   final String provinceName;
@@ -85,6 +88,28 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
                     _startDate = range.start;
                     _endDate = range.end;
                   });
+                },
+              ),
+              SizedBox(height: 20.h),
+              CustomElevatedButton(
+                text: "Create Custom Route",
+                onPressed: () {
+                  final routeViewModel = Provider.of<RouteViewModel>(context, listen: false);
+                  final routeTitle = routeViewModel.createNewCustomRoute();
+                  
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RouteDetailScreen(
+                        routeTitle: routeTitle,
+                        destinations: const [],
+                        startDate: _startDate,
+                        endDate: _endDate,
+                        provinceName: widget.provinceName,
+                        isCustomRoute: true,
+                      ),
+                    ),
+                  );
                 },
               ),
               SizedBox(height: 20.h),

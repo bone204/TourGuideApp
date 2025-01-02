@@ -6,7 +6,6 @@ import 'package:tourguideapp/viewmodels/route_viewmodel.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/destination_route_card.dart';
-import 'package:tourguideapp/views/service/travel/route_detail_screen.dart';
 import 'package:provider/provider.dart';
 
 class TravelRouteScreen extends StatefulWidget {
@@ -186,16 +185,8 @@ class _TravelRouteScreenState extends State<TravelRouteScreen> {
                     provinceName: widget.provinceName,
                   );
                   
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RouteDetailScreen(
-                        routeTitle: widget.routeTitle,
-                        destinations: _routeViewModel.getDestinationsForRoute(widget.routeIndex),
-                        startDate: widget.startDate,
-                        endDate: widget.endDate,
-                      ),
-                    ),
+                  Navigator.of(context).popUntil(
+                    (route) => route.settings.name == '/travel' || route.isFirst
                   );
                 },
                 style: ElevatedButton.styleFrom(

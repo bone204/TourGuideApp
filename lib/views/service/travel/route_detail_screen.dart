@@ -16,6 +16,8 @@ class RouteDetailScreen extends StatefulWidget {
   final List<DestinationModel> destinations;
   final DateTime startDate;
   final DateTime endDate;
+  final bool isCustomRoute;
+  final String provinceName;
 
   const RouteDetailScreen({
     Key? key,
@@ -23,6 +25,8 @@ class RouteDetailScreen extends StatefulWidget {
     required this.destinations,
     required this.startDate,
     required this.endDate,
+    this.isCustomRoute = false,
+    required this.provinceName,
   }) : super(key: key);
 
   @override
@@ -34,19 +38,35 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
   late String selectedCategory;
   DateTime currentTime = DateTime.now();
   late Timer _timer;
+  late List<DestinationModel> _destinations;
 
   @override
   void initState() {
     super.initState();
-    int numberOfDays = widget.endDate.difference(widget.startDate).inDays + 1;
+    _destinations = List<DestinationModel>.from(widget.destinations);
     
+    int numberOfDays = widget.endDate.difference(widget.startDate).inDays + 1;
     categories = List.generate(numberOfDays, (index) {
       return (index + 1) == 1 ? 'Day 1' : 'Day ${index + 1}';
     });
     
     selectedCategory = categories.first;
 
-    // Cập nhật thời gian mỗi giây
+    // Tự động lưu khi là custom route
+    if (widget.isCustomRoute) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Provider.of<RouteViewModel>(context, listen: false).saveSelectedRoute(
+            routeTitle: widget.routeTitle,
+            destinations: _destinations,
+            startDate: widget.startDate,
+            endDate: widget.endDate,
+            provinceName: widget.provinceName,
+          );
+        }
+      });
+    }
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         currentTime = DateTime.now();
@@ -68,6 +88,14 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
     setState(() {
       selectedCategory = category;
     });
+  }
+
+  bool isRouteAlreadySaved(BuildContext context) {
+    final viewModel = Provider.of<RouteViewModel>(context, listen: false);
+    return viewModel.savedRoutes.any((route) => 
+      route['title'] == widget.routeTitle && 
+      route['provinceName'] == widget.provinceName
+    );
   }
 
   @override
@@ -166,108 +194,37 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
               SizedBox(height: 20.h),
               Expanded(
                 child: ListView.builder(
-                  itemCount: widget.destinations.length + 1,
+                  itemCount: widget.isCustomRoute ? _destinations.length + 1 : _destinations.length,
                   itemBuilder: (context, index) {
-                    if (index == widget.destinations.length) {
+                    if (widget.isCustomRoute && index == _destinations.length) {
                       return Row(
                         children: [
                           Expanded(
                             child: GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text(
-                                        'Cancel Route',
-                                        style: TextStyle(
-                                          fontSize: 20.sp,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      content: Text(
-                                        'Are you sure you want to cancel this route?',
-                                        style: TextStyle(
-                                          fontSize: 16.sp,
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context),
-                                          child: Text(
-                                            'No',
-                                            style: TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 16.sp,
-                                            ),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Provider.of<RouteViewModel>(context, listen: false).clearSelectedRoute();
-                                            Navigator.pop(context); // Đóng dialog
-                                            Navigator.pop(context); // Quay lại màn hình trước
-                                          },
-                                          child: Text(
-                                            'Yes',
-                                            style: TextStyle(
-                                              color: AppColors.primaryColor,
-                                              fontSize: 16.sp,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16.r),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              child: Container(
-                                height: 48.h,
-                                margin: EdgeInsets.only(bottom: 16.h, right: 8.w),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12.r),
-                                  border: Border.all(
-                                    color: AppColors.primaryColor,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'Cancel',
-                                    style: TextStyle(
-                                      color: AppColors.primaryColor,
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: GestureDetector(
                               onTap: () async {
-                                final routeViewModel = Provider.of<RouteViewModel>(context, listen: false);
                                 final selectedDestination = await Navigator.push<DestinationModel>(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => AddDestinationScreen(
                                       routeTitle: widget.routeTitle,
-                                      currentDestinations: widget.destinations,
-                                      provinceName: routeViewModel.selectedProvinceName!,
+                                      currentDestinations: _destinations,
+                                      provinceName: widget.provinceName,
                                     ),
                                   ),
                                 );
 
                                 if (selectedDestination != null) {
                                   setState(() {
-                                    widget.destinations.add(selectedDestination);
+                                    _destinations.add(selectedDestination);
                                   });
+
+                                  Provider.of<RouteViewModel>(context, listen: false).saveSelectedRoute(
+                                    routeTitle: widget.routeTitle,
+                                    destinations: _destinations,
+                                    startDate: widget.startDate,
+                                    endDate: widget.endDate,
+                                    provinceName: widget.provinceName,
+                                  );
                                   
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
@@ -278,18 +235,18 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                                 }
                               },
                               child: Container(
-                                height: 48.h,
-                                margin: EdgeInsets.only(bottom: 16.h, left: 8.w),
+                                height: 56.h,
+                                width: 56.w,
                                 decoration: BoxDecoration(
                                   color: AppColors.primaryColor,
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: Center(
                                   child: Text(
-                                    'Add',
+                                    '+',
                                     style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 16.sp,
+                                      fontSize: 24.sp,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -301,7 +258,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                       );
                     }
 
-                    final destination = widget.destinations[index];
+                    final destination = _destinations[index];
                     return Padding(
                       padding: EdgeInsets.only(bottom: 16.h),
                       child: DestinationRouteCard(
@@ -319,6 +276,51 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                 ),
               ),
             ],
+          ),
+        ),
+        bottomNavigationBar: widget.isCustomRoute || isRouteAlreadySaved(context) ? null : Container(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.25),
+                blurRadius: 4,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: SizedBox(
+              width: double.infinity,
+              height: 48.h,
+              child: ElevatedButton(
+                onPressed: () {
+                  Provider.of<RouteViewModel>(context, listen: false).saveSelectedRoute(
+                    routeTitle: widget.routeTitle,
+                    destinations: _destinations,
+                    startDate: widget.startDate,
+                    endDate: widget.endDate,
+                    provinceName: widget.provinceName,
+                  );
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                ),
+                child: Text(
+                  'Choose This Route',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),

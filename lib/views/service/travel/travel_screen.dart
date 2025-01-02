@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; 
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/models/destination_model.dart';
+import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
-import 'package:tourguideapp/widgets/custom_search_bar.dart';
-import 'package:tourguideapp/widgets/province_card.dart';
-import 'package:tourguideapp/viewmodels/province_view_model.dart';
-import 'package:tourguideapp/views/service/travel/suggest_route_screen.dart';
+import 'package:tourguideapp/views/service/travel/province_list_screen.dart';
+import 'package:tourguideapp/widgets/route_card.dart';
+import 'package:provider/provider.dart';
+import 'package:tourguideapp/viewmodels/route_viewmodel.dart';
+import 'package:tourguideapp/views/service/travel/route_detail_screen.dart';
 
 class TravelScreen extends StatefulWidget {
   const TravelScreen({super.key});
@@ -15,24 +18,19 @@ class TravelScreen extends StatefulWidget {
 }
 
 class _TravelScreenState extends State<TravelScreen> {
-  final ProvinceViewModel _viewModel = ProvinceViewModel();
-  final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _viewModel.fetchProvinces();
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
+    return Navigator(
+      onGenerateRoute: (settings) {
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: '/travel'),
+          builder: (context) => _buildTravelScreen(),
+        );
+      },
+    );
+  }
+
+  Widget _buildTravelScreen() {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -76,82 +74,110 @@ class _TravelScreenState extends State<TravelScreen> {
             ),
           ),
         ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-          child: Column(
-            children: [
-              CustomSearchBar(
-                controller: _searchController,
-                hintText: "Search province to travel",
-                onChanged: (value) {
-                  _viewModel.searchProvinces(value);
-                },
-              ),
-              SizedBox(height: 10.h),
-              Expanded(
-                child: AnimatedBuilder(
-                  animation: _viewModel,
-                  builder: (context, child) {
-                    if (_viewModel.isLoading) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-
-                    if (_viewModel.error.isNotEmpty) {
-                      return Center(
-                        child: Text(_viewModel.error),
-                      );
-                    }
-
-                    if (_viewModel.provinces.isEmpty) {
-                      return Center(
-                        child: Text(
-                          _searchController.text.isEmpty
-                              ? 'Không có dữ liệu'
-                              : 'Không tìm thấy kết quả',
-                        ),
-                      );
-                    }
-
-                    return GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 15.w,
-                        mainAxisSpacing: 15.h,
-                        childAspectRatio: 160/180, // width/height của ProvinceCard
-                      ),
-                      itemCount: _viewModel.provinceCards.length,
-                      itemBuilder: (context, index) {
-                        final card = _viewModel.provinceCards[index];
-                        return ProvinceCard(
-                          name: card.name,
-                          imageUrl: card.imageUrl,
-                          rating: card.rating,
-                          isFavorite: card.isFavorite,
-                          onFavoritePressed: () {
-                            // Xử lý favorite
-                          },
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SuggestRouteScreen(
-                                  provinceName: card.name,
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+        body: Consumer<RouteViewModel>(
+          builder: (context, viewModel, child) {
+            if (viewModel.selectedRouteTitle == null) {
+              return _buildEmptyView();
+            }
+            return _buildRouteList();
+          },
         ),
       ),
+    );
+  }
+
+  Widget _buildEmptyView() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 100.h),
+      child: Align(
+        alignment: Alignment.center,
+        child: Column(
+          children: [
+            ClipRRect(
+              child: Image.asset(
+                'assets/img/my_vehicle_1.png', // You may want to use a different image
+                height: 192.h,
+                width: 192.w,
+                fit: BoxFit.fill,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              AppLocalizations.of(context).translate("You haven't created any travel routes yet."),
+              style: TextStyle(
+                color: const Color(0xFF6C6C6C),
+                fontWeight: FontWeight.bold,
+                fontSize: 16.sp,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            CustomElevatedButton(
+              text: "Create Route",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProvinceListScreen()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRouteList() {
+    return Consumer<RouteViewModel>(
+      builder: (context, viewModel, child) {
+        return SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+            child: Column(
+              children: [
+                ...viewModel.savedRoutes.map((route) => Column(
+                  children: [
+                    RouteCard(
+                      name: route['title'] as String,
+                      imagePath: "assets/img/bg_route_1.png",
+                      rating: 4.5,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RouteDetailScreen(
+                              routeTitle: route['title'] as String,
+                              destinations: route['destinations'] as List<DestinationModel>,
+                              startDate: route['startDate'] as DateTime,
+                              endDate: route['endDate'] as DateTime,
+                              provinceName: route['provinceName'] as String,
+                              isCustomRoute: route['isCustom'] as bool,
+                            ),
+                          ),
+                        ).then((_) {
+                          setState(() {});
+                        });
+                      },
+                    ),
+                    SizedBox(height: 16.h),
+                  ]
+                )).toList(),
+                
+                CustomElevatedButton(
+                  text: "Create New Route",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ProvinceListScreen()),
+                    ).then((_) {
+                      setState(() {});
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
