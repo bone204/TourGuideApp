@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:tourguideapp/models/user_model.dart';
 import 'package:tourguideapp/services/firebase_auth_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -62,6 +63,53 @@ class SignupViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> createNewUserWithSocialAuth(User firebaseUser, {String? displayName, String? photoURL}) async {
+    try {
+      // Tạo userId mới
+      QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('USER')
+          .orderBy('userId', descending: true)
+          .limit(1)
+          .get();
+
+      String newUserId;
+      if (snapshot.docs.isNotEmpty) {
+        String lastUserId = snapshot.docs.first['userId'];
+        int lastIdNumber = int.parse(lastUserId.substring(1));
+        newUserId = 'U${(lastIdNumber + 1).toString().padLeft(5, '0')}';
+      } else {
+        newUserId = 'U00001';
+      }
+
+      // Tạo user model với thông tin cơ bản
+      UserModel newUser = UserModel(
+        userId: newUserId,
+        uid: firebaseUser.uid,
+        name: displayName ?? firebaseUser.displayName ?? 'User',
+        fullName: '',
+        email: firebaseUser.email ?? '',
+        address: '',
+        gender: '',
+        citizenId: '',
+        phoneNumber: firebaseUser.phoneNumber ?? '',
+        nationality: '',
+        birthday: '',
+        avatar: photoURL ?? firebaseUser.photoURL ?? '',
+        hobbies: [],
+        favoriteDestinationIds: [],
+        favoriteHotelIds: [],
+        favoriteRestaurantIds: [],
+      );
+
+      // Lưu thông tin user vào Firestore
+      await FirebaseFirestore.instance.collection('USER').doc(firebaseUser.uid).set(newUser.toMap());
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error creating new user: $e');
+      }
+      throw Exception('Failed to create new user');
+    }
+  }
+
   Future<User?> signInWithGoogle() async {
     _isLoading = true;
     _errorMessage = null;
@@ -72,7 +120,7 @@ class SignupViewModel extends ChangeNotifier {
       if (googleUser == null) {
         _isLoading = false;
         notifyListeners();
-        return null; // User cancelled the sign-in
+        return null;
       }
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
@@ -82,9 +130,27 @@ class SignupViewModel extends ChangeNotifier {
       );
 
       UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-      return userCredential.user;
+      User? user = userCredential.user;
+
+      if (user != null) {
+        // Kiểm tra xem user đã tồn tại trong Firestore chưa
+        DocumentSnapshot doc = await FirebaseFirestore.instance.collection('USER').doc(user.uid).get();
+        if (!doc.exists) {
+          // Nếu chưa tồn tại, tạo user mới
+          await createNewUserWithSocialAuth(
+            user,
+            displayName: googleUser.displayName,
+            photoURL: googleUser.photoUrl,
+          );
+        }
+      }
+
+      return user;
     } catch (e) {
-      _errorMessage = 'Google sign-up failed. Please try again.';
+      _errorMessage = e.toString();
+      if (kDebugMode) {
+        print('Error during Google sign-in: $e');
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -97,24 +163,45 @@ class SignupViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    final LoginResult loginResult = await FacebookAuth.instance.login();
+    try {
+      final LoginResult loginResult = await FacebookAuth.instance.login();
 
-    if (loginResult.status == LoginStatus.success) {
-      final accessToken = loginResult.accessToken;
-      if (accessToken != null) {
-        final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(accessToken.tokenString);
+      if (loginResult.status == LoginStatus.success) {
+        final accessToken = loginResult.accessToken;
+        if (accessToken != null) {
+          final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(accessToken.tokenString);
+          
+          UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+          User? user = userCredential.user;
 
-        UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
-        return userCredential.user;
-      } else {
-        _errorMessage = 'Failed to get access token.';
+          if (user != null) {
+            // Lấy thông tin từ Facebook
+            final userData = await FacebookAuth.instance.getUserData();
+            
+            // Kiểm tra xem user đã tồn tại trong Firestore chưa
+            DocumentSnapshot doc = await FirebaseFirestore.instance.collection('USER').doc(user.uid).get();
+            if (!doc.exists) {
+              // Nếu chưa tồn tại, tạo user mới
+              await createNewUserWithSocialAuth(
+                user,
+                displayName: userData['name'],
+                photoURL: userData['picture']?['data']?['url'],
+              );
+            }
+          }
+
+          return user;
+        }
       }
-    } else {
-      _errorMessage = 'Facebook sign-up failed: ${loginResult.message}';
+    } catch (e) {
+      _errorMessage = e.toString();
+      if (kDebugMode) {
+        print('Error during Facebook sign-in: $e');
+      }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
     return null;
   }
 

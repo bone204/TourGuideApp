@@ -121,8 +121,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
       // Cập nhật vị trí trên bản đồ
       await _focusLocation(
-        position.longitude, // Đổi thứ tự từ latitude thành longitude
-        position.latitude,  // Đổi thứ tự từ longitude thành latitude
+        position.latitude,  
+        position.longitude, 
         'Vị trí của bạn',
       );
 
@@ -148,7 +148,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
         await _mapController!.easeTo(
           CameraOptions(
-            center: Point(coordinates: Position(lat, lng)),
+            center: Point(coordinates: Position(lng, lat)),
             zoom: MAP_ZOOM_LEVEL,
           ),
           MapAnimationOptions(duration: 1000),
@@ -161,7 +161,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
         await _annotationManager?.create(
           PointAnnotationOptions(
-            geometry: Point(coordinates: Position(lat, lng)),
+            geometry: Point(coordinates: Position(lng, lat)),
             image: imageData,
             iconSize: 0.3,
           ),
@@ -388,8 +388,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
     }).take(5).map((dest) => SearchResult(
       name: dest.destinationName,
       address: '${dest.specificAddress}, ${dest.province}',
-      latitude: dest.longitude,   // Giữ nguyên như trong Firebase
-      longitude: dest.latitude, // Giữ nguyên như trong Firebase
+      latitude: dest.latitude,    // Sửa lại từ dest.longitude thành dest.latitude
+      longitude: dest.longitude,  // Sửa lại từ dest.latitude thành dest.longitude
     )).toList();
 
     if (kDebugMode) {

@@ -46,17 +46,21 @@ class _LoginScreenState extends State<LoginScreen> {
     String password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      _showErrorDialog(AppLocalizations.of(context).translate('Please enter both email and password.'));
+      if (mounted) {
+        _showErrorDialog(AppLocalizations.of(context).translate('Please enter both email and password.'));
+      }
       return;
     }
 
     try {
       User? user = await _authService.signInWithEmailAndPassword(email, password);
-      if (user != null) {
+      if (user != null && mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
-      _showErrorDialog(e.toString());
+      if (mounted) {
+        _showErrorDialog(e.toString());
+      }
     }
   }
 
@@ -167,12 +171,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: const Color(0xFFDB4437),
                             onPressed: () async {
                               User? user = await loginViewModel.signInWithGoogle();
-                              if (user != null) {
-                                Navigator.pushNamed(context, "/home");
-                              } else {
-                                if (kDebugMode) {
-                                  print("Google login failed");
-                                }
+                              if (user != null && mounted) {
+                                Navigator.pushReplacementNamed(context, '/home');
+                              } else if (kDebugMode) {
+                                print("Google login failed");
                               }
                             },
                           ),
@@ -183,12 +185,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: const Color(0xFF4267B2),
                             onPressed: () async {
                               User? user = await loginViewModel.signInWithFacebook();
-                              if (user != null) {
-                                Navigator.pushNamed(context, "/home");
-                              } else {
-                                if (kDebugMode) {
-                                  print("Facebook login failed");
-                                }
+                              if (user != null && mounted) {
+                                Navigator.pushReplacementNamed(context, '/home');
+                              } else if (kDebugMode) {
+                                print("Facebook login failed");
                               }
                             },
                           ),

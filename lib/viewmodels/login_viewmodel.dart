@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/services/firebase_auth_services.dart';
+import 'package:tourguideapp/models/user_model.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final FirebaseAuthService _authService = FirebaseAuthService();
@@ -70,19 +71,11 @@ class LoginViewModel extends ChangeNotifier {
       if (user != null) {
         DocumentSnapshot doc = await _firestore.collection('USER').doc(user.uid).get();
         if (!doc.exists) {
-          // If user does not exist, create a new account
-          await _firestore.collection('USER').doc(user.uid).set({
-            'name': googleUser.displayName ?? 'Unknown',
-            'email': user.email,
-            'profileImageUrl': googleUser.photoUrl ?? '',
-            'fullName': '',
-            'address': '',
-            'gender': '',
-            'citizenId': '',
-            'phoneNumber': '',
-            'nationality': '',
-            'birthday': '',
-          });
+          await createNewUserWithSocialAuth(
+            user,
+            displayName: googleUser.displayName,
+            photoURL: googleUser.photoUrl,
+          );
         }
       }
       return user;
@@ -127,14 +120,14 @@ class LoginViewModel extends ChangeNotifier {
 
         // Check if user is null
         if (user != null) {
-          // Optional: Save additional user data in Firestore
+          final userData = await FacebookAuth.instance.getUserData();
           DocumentSnapshot doc = await _firestore.collection('USER').doc(user.uid).get();
           if (!doc.exists) {
-            await _firestore.collection('USER').doc(user.uid).set({
-              'name': user.displayName ?? 'Unknown',
-              'email': user.email ?? 'No Email', 
-              'profileImageUrl': '', 
-            });
+            await createNewUserWithSocialAuth(
+              user,
+              displayName: userData['name'],
+              photoURL: userData['picture']?['data']?['url'],
+            );
           }
         } else {
           errorMessage = 'Failed to get user data.';
@@ -150,6 +143,50 @@ class LoginViewModel extends ChangeNotifier {
       errorMessage = 'Facebook login failed: ${loginResult.message}';
       notifyListeners();
       return null;
+    }
+  }
+
+  Future<void> createNewUserWithSocialAuth(User firebaseUser, {String? displayName, String? photoURL}) async {
+    try {
+      QuerySnapshot snapshot = await _firestore.collection('USER')
+          .orderBy('userId', descending: true)
+          .limit(1)
+          .get();
+
+      String newUserId;
+      if (snapshot.docs.isNotEmpty) {
+        String lastUserId = snapshot.docs.first['userId'];
+        int lastIdNumber = int.parse(lastUserId.substring(1));
+        newUserId = 'U${(lastIdNumber + 1).toString().padLeft(5, '0')}';
+      } else {
+        newUserId = 'U00001';
+      }
+
+      UserModel newUser = UserModel(
+        userId: newUserId,
+        uid: firebaseUser.uid,
+        name: displayName ?? firebaseUser.displayName ?? 'User',
+        fullName: '',
+        email: firebaseUser.email ?? '',
+        address: '',
+        gender: '',
+        citizenId: '',
+        phoneNumber: firebaseUser.phoneNumber ?? '',
+        nationality: '',
+        birthday: '',
+        avatar: photoURL ?? firebaseUser.photoURL ?? '',
+        hobbies: [],
+        favoriteDestinationIds: [],
+        favoriteHotelIds: [],
+        favoriteRestaurantIds: [],
+      );
+
+      await _firestore.collection('USER').doc(firebaseUser.uid).set(newUser.toMap());
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error creating new user: $e');
+      }
+      throw Exception('Failed to create new user');
     }
   }
 }
