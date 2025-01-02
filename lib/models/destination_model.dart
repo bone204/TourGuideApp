@@ -14,6 +14,7 @@ class DestinationModel {
   final List<String> video;
   final String createdDate;
   final int favouriteTimes;
+  final List<String> categories;
 
   DestinationModel({
     required this.destinationId,
@@ -29,6 +30,7 @@ class DestinationModel {
     required this.video,
     required this.createdDate,
     this.favouriteTimes = 0,
+    required this.categories,
   });
 
   factory DestinationModel.fromMap(Map<String, dynamic> map) {
@@ -44,11 +46,11 @@ class DestinationModel {
     return DestinationModel(
       destinationId: map['destinationId'] ?? '',
       destinationName: map['destinationName'] ?? '',
-      latitude: (map['latitude'] is String) 
-          ? double.tryParse(map['latitude']) ?? 0.0 
+      latitude: (map['latitude'] is String)
+          ? double.tryParse(map['latitude']) ?? 0.0
           : (map['latitude'] ?? 0.0).toDouble(),
-      longitude: (map['longitude'] is String) 
-          ? double.tryParse(map['longitude']) ?? 0.0 
+      longitude: (map['longitude'] is String)
+          ? double.tryParse(map['longitude']) ?? 0.0
           : (map['longitude'] ?? 0.0).toDouble(),
       province: map['province'] ?? '',
       district: map['district'] ?? '',
@@ -59,6 +61,7 @@ class DestinationModel {
       video: List<String>.from(map['video'] ?? []),
       createdDate: convertTimestampToString(map['createdDate']),
       favouriteTimes: map['favouriteTimes']?.toInt() ?? 0,
+      categories: List<String>.from(map['categories'] ?? []),
     );
   }
 
@@ -77,6 +80,7 @@ class DestinationModel {
       'video': video,
       'createdDate': createdDate,
       'favouriteTimes': favouriteTimes,
+      'categories': categories,
     };
   }
 
@@ -94,6 +98,7 @@ class DestinationModel {
     List<String>? video,
     String? createdDate,
     int? favourite,
+    List<String>? categories,
   }) {
     return DestinationModel(
       destinationId: destinationId ?? this.destinationId,
@@ -109,6 +114,7 @@ class DestinationModel {
       video: video ?? this.video,
       createdDate: createdDate ?? this.createdDate,
       favouriteTimes: favourite ?? this.favouriteTimes,
+      categories: categories ?? this.categories,
     );
   }
 }

@@ -130,6 +130,7 @@ Opening hours: ${eatery.openTime} - ${eatery.closeTime}
     ''',
       latitude: eatery.latitude,
       longitude: eatery.longitude,
+      categories: ['eatery'],
     );
   }
 
