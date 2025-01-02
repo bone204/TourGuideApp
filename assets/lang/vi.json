@@ -293,6 +293,16 @@
     "Loading...": "Đang tải...",
 
     "Please fill in your personal information": "Vui lòng điền thông tin cá nhân của bạn",
-    "Continue": "Tiếp tục"
+    "Continue": "Tiếp tục",
+
+    "Vehicle Settings": "Cài đặt xe",
+    "Vehicle activity status": "Trạng thái hoạt động của xe",
+    "Are you sure you want to disable this vehicle?": "Bạn có chắc chắn muốn tắt hoạt động của xe này?",
+    "Are you sure you want to delete this vehicle?": "Bạn có chắc chắn muốn xóa xe này?",
+    "Delete Vehicle": "Xóa xe",
+    "Delete": "Xóa",
+
+    "Unavailable": "Không khả dụng",
+    "Are you sure you want to enable this vehicle?": "Bạn có chắc chắn muốn bật hoạt động của xe này?"
 }
   

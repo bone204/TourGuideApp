@@ -720,6 +720,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
     'Đang cho thuê': 'In Use',
     'Vận chuyển': 'Transport',
     'Khả dụng': 'Available',
+    'Không khả dụng': 'Unavailable',
     'Đã từ chối': 'Rejected',
     'Tạm ngưng': 'Suspended',
   };
@@ -809,6 +810,39 @@ class RentalVehicleViewModel extends ChangeNotifier {
       if (kDebugMode) {
         print("Error updating vehicle details: $e");
       }
+      rethrow;
+    }
+  }
+
+  Future<void> deleteVehicle(String vehicleRegisterId) async {
+    try {
+      // Get the vehicle data first to get the photo URLs
+      final vehicleDoc = await _firestore
+          .collection('RENTAL_VEHICLE')
+          .doc(vehicleRegisterId)
+          .get();
+      
+      if (vehicleDoc.exists) {
+        final data = vehicleDoc.data() as Map<String, dynamic>;
+        
+        // Delete the photos from storage
+        if (data['vehicleRegistrationFrontPhoto'] != null) {
+          await deleteOldPhoto(data['vehicleRegistrationFrontPhoto']);
+        }
+        if (data['vehicleRegistrationBackPhoto'] != null) {
+          await deleteOldPhoto(data['vehicleRegistrationBackPhoto']);
+        }
+      }
+
+      // Delete the document from Firestore
+      await _firestore
+          .collection('RENTAL_VEHICLE')
+          .doc(vehicleRegisterId)
+          .delete();
+
+      // The list will automatically update through the stream subscription
+    } catch (e, stack) {
+      _logError("Error deleting vehicle", e, stack);
       rethrow;
     }
   }

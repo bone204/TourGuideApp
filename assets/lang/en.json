@@ -228,6 +228,7 @@
     "Khả dụng": "Available",
     "Đã từ chối": "Rejected",
     "Tạm ngưng": "Suspended",
+    "Không khả dụng": "Unavailable",
 
     "Hotel Booking": "Hotel Booking",
     "Restaurant Booking": "Restaurant Booking",
@@ -284,6 +285,16 @@
     "Loading...": "Loading...",
 
     "Please fill in your personal information": "Please fill in your personal information",
-    "Continue": "Continue"
+    "Continue": "Continue",
+
+    "Vehicle Settings": "Vehicle Settings",
+    "Vehicle activity status": "Vehicle activity status",
+    "Are you sure you want to disable this vehicle?": "Are you sure you want to disable this vehicle?",
+    "Are you sure you want to delete this vehicle?": "Are you sure you want to delete this vehicle?",
+    "Delete Vehicle": "Delete Vehicle",
+    "Delete": "Delete",
+
+    "Unavailable": "Unavailable",
+    "Are you sure you want to enable this vehicle?": "Are you sure you want to enable this vehicle?"
 }
   

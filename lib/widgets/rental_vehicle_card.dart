@@ -9,6 +9,7 @@ import 'package:tourguideapp/views/my_vehicle/my_vehicle_detail_screen.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/views/my_vehicle/renter_information_screen.dart';
+import 'package:tourguideapp/views/my_vehicle/my_vehicle_settings_screen.dart';
 
 class RentalVehicleCard extends StatelessWidget {
   final RentalVehicleModel vehicle;
@@ -83,6 +84,24 @@ class RentalVehicleCard extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSettingsButton(BuildContext context) {
+    return IconButton(
+      icon: Icon(
+        Icons.settings,
+        size: 24.sp,
+        color: AppColors.black,
+      ),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MyVehicleSettingsScreen(vehicle: vehicle),
           ),
         );
       },
@@ -204,6 +223,7 @@ class RentalVehicleCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Row(
@@ -228,6 +248,26 @@ class RentalVehicleCard extends StatelessWidget {
                                 style: TextStyle(fontSize: 14.sp, color: const Color(0xFF7D848D)),
                               ),
                             ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 24.h,
+                          width: 24.w,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: Icon(
+                              Icons.settings,
+                              size: 20.sp,
+                              color: AppColors.grey,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MyVehicleSettingsScreen(vehicle: vehicle),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
