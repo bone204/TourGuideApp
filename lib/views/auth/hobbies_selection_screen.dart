@@ -35,6 +35,19 @@ class HobbiesSelectionScreen extends StatefulWidget {
 
 class _HobbiesSelectionScreenState extends State<HobbiesSelectionScreen> {
   bool _isLoading = false;
+  
+  // Định nghĩa map để mapping giữa giá trị tiếng Anh và tiếng Việt
+  final Map<String, String> hobbyMapping = {
+    'Adventure': 'Phiêu lưu',
+    'Relaxation': 'Thư giãn',
+    'Culture & History': 'Văn hóa & Lịch sử',
+    'Festival': 'Lễ hội',
+    'Nature': 'Thiên nhiên',
+    'Beach & Islands': 'Biển & Đảo',
+    'Sports': 'Thể thao',
+    'Photography': 'Nhiếp ảnh',
+  };
+
   final List<Map<String, bool>> hobbies = [
     {'Adventure': false},
     {'Relaxation': false},
@@ -153,7 +166,7 @@ class _HobbiesSelectionScreenState extends State<HobbiesSelectionScreen> {
                           onPressed: _isLoading ? null : () async {
                             final selectedHobbies = hobbies
                                 .where((hobby) => hobby.values.first)
-                                .map((hobby) => hobby.keys.first)
+                                .map((hobby) => hobbyMapping[hobby.keys.first]!)
                                 .toList();
 
                             if (selectedHobbies.isEmpty) {

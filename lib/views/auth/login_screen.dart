@@ -10,6 +10,7 @@ import 'package:tourguideapp/widgets/social_icon_button.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/services/firebase_auth_services.dart';
 import 'signup_screen.dart';
+import 'forgot_password_phone_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -108,7 +109,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               alignment: Alignment.centerRight,
                               child: TextButton(
                                 onPressed: () {
-                                  // Handle forgot password
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ForgotPasswordPhoneScreen(),
+                                    ),
+                                  );
                                 },
                                 child: Text(
                                   AppLocalizations.of(context).translate('Forgot Password?'),

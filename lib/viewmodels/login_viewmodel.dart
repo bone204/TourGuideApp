@@ -11,6 +11,9 @@ class LoginViewModel extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Initialize Firestore
   bool isLoading = false;
   String? errorMessage;
+  String? _verificationId;
+  int? _resendToken;
+  String? foundUserName;
 
   // Login with Email and Password
   Future<User?> signIn(String email, String password) async {
@@ -187,6 +190,139 @@ class LoginViewModel extends ChangeNotifier {
         print('Error creating new user: $e');
       }
       throw Exception('Failed to create new user');
+    }
+  }
+
+  Future<bool> sendPasswordResetOTP(String phoneNumber) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      // Kiểm tra số điện thoại có tồn tại trong hệ thống không
+      QuerySnapshot userQuery = await _firestore
+          .collection('USER')
+          .where('phoneNumber', isEqualTo: phoneNumber)
+          .limit(1)
+          .get();
+
+      if (userQuery.docs.isEmpty) {
+        errorMessage = 'No account found with this phone number';
+        foundUserName = null;
+        return false;
+      }
+
+      // Lưu tên user để hiển thị
+      foundUserName = userQuery.docs.first.get('name') as String?;
+      
+      // Lưu user ID để dùng khi reset password
+      String userId = userQuery.docs.first.id;
+      await _firestore.collection('USER').doc(userId).update({
+        'resetPasswordRequest': true,
+        'resetPasswordTimestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Gửi OTP thông qua Firebase
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await FirebaseAuth.instance.signInWithCredential(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          errorMessage = e.message;
+          notifyListeners();
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          _verificationId = verificationId;
+          _resendToken = resendToken;
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          _verificationId = verificationId;
+        },
+        timeout: const Duration(seconds: 60),
+        forceResendingToken: _resendToken,
+      );
+
+      return true;
+    } catch (e) {
+      print('Error sending OTP: $e');
+      errorMessage = 'Failed to send verification code';
+      foundUserName = null;
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> verifyPasswordResetOTP(String otp) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      if (_verificationId == null) {
+        errorMessage = 'Verification ID not found';
+        return false;
+      }
+
+      // Create credential
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId!,
+        smsCode: otp,
+      );
+
+      // Sign in with credential
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      return true;
+    } catch (e) {
+      print('Error verifying OTP: $e');
+      errorMessage = 'Invalid verification code';
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> resetPassword(String phoneNumber, String newPassword) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      // Tìm user với số điện thoại đã xác thực
+      QuerySnapshot userQuery = await _firestore
+          .collection('USER')
+          .where('phoneNumber', isEqualTo: phoneNumber)
+          .where('resetPasswordRequest', isEqualTo: true)
+          .limit(1)
+          .get();
+
+      if (userQuery.docs.isEmpty) {
+        errorMessage = 'Invalid reset password request';
+        return false;
+      }
+
+      String userId = userQuery.docs.first.id;
+      
+      // Cập nhật mật khẩu mới
+      await FirebaseAuth.instance.currentUser?.updatePassword(newPassword);
+      
+      // Cập nhật trạng thái trong Firestore
+      await _firestore.collection('USER').doc(userId).update({
+        'resetPasswordRequest': false,
+        'resetPasswordTimestamp': null,
+      });
+
+      // Đăng xuất sau khi đổi mật khẩu
+      await FirebaseAuth.instance.signOut();
+
+      return true;
+    } catch (e) {
+      print('Error resetting password: $e');
+      errorMessage = 'Failed to reset password';
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 }

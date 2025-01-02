@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/accountInfo_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/contract_viewmodel.dart';
+import 'package:tourguideapp/viewmodels/login_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/province_view_model.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
@@ -85,6 +86,7 @@ class MyAppState extends State<MyApp> {
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => LoginViewModel()),
         ChangeNotifierProvider(create: (_) => SignupViewModel()),
         ChangeNotifierProvider(create: (_) => ProvinceViewModel()),
         ChangeNotifierProvider(create: (_) => FavouriteDestinationsViewModel()),

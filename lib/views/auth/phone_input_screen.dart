@@ -31,8 +31,16 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: Padding(
-        padding: EdgeInsets.fromLTRB(20.w, 88.h, 20.w, 0.h),
+        padding: EdgeInsets.symmetric(horizontal: 24.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -45,13 +53,20 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                 color: Colors.black,
               ),
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: 8.h),
+            Text(
+              AppLocalizations.of(context).translate('We will send you a verification code'),
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.grey[600],
+              ),
+            ),
+            SizedBox(height: 32.h),
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFFF7F7F9),
                 borderRadius: BorderRadius.circular(8),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
               child: InternationalPhoneNumberInput(
                 onInputChanged: (PhoneNumber number) {
                   _phoneNumber = number;
@@ -61,6 +76,9 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                 },
                 selectorConfig: const SelectorConfig(
                   selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                  setSelectorButtonAsPrefixIcon: true,
+                  leadingPadding: 20,
+                  useEmoji: true,
                 ),
                 ignoreBlank: false,
                 autoValidateMode: AutovalidateMode.disabled,
@@ -68,13 +86,16 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                 initialValue: PhoneNumber(isoCode: initialCountry),
                 textFieldController: _phoneController,
                 formatInput: true,
-                keyboardType: TextInputType.numberWithOptions(signed: true, decimal: true),
+                keyboardType: TextInputType.numberWithOptions(
+                  signed: true,
+                  decimal: true,
+                ),
                 inputDecoration: InputDecoration(
-                  border: InputBorder.none,
                   hintText: AppLocalizations.of(context).translate('Phone number'),
-                  hintStyle: TextStyle(
-                    color: Colors.grey[500],
-                    fontSize: 16.sp,
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 16.h,
                   ),
                 ),
                 onSaved: (PhoneNumber number) {
@@ -88,7 +109,6 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                 final signupViewModel = context.read<SignupViewModel>();
                 
                 if (_phoneNumber != null) {
-                  // Ensure the phone number is in E.164 format
                   String phoneNumber = _phoneNumber!.phoneNumber ?? '';
                   if (!phoneNumber.startsWith('+')) {
                     phoneNumber = '+$phoneNumber';
@@ -108,7 +128,6 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                       ),
                     );
                   } else {
-                    // Show error message
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(signupViewModel.errorMessage ?? 'Failed to send verification code'),
