@@ -25,7 +25,7 @@ class RentOptionSelector extends StatelessWidget {
           isSelected: selectedOption == 'Hourly',
           onTap: () => onOptionSelected('Hourly'),
         ),
-        const SizedBox(width: 16.0),
+        const SizedBox(width: 12.0),
         _buildOptionCard(
           context,
           icon: Icons.calendar_today,

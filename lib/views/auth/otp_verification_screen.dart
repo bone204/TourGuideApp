@@ -5,7 +5,7 @@ import 'package:tourguideapp/viewmodels/signup_viewmodel.dart';
 import 'package:tourguideapp/views/auth/personal_info_input_screen.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
-class OTPVerificationScreen extends StatelessWidget {
+class OTPVerificationScreen extends StatefulWidget {
   final String email;
   final String password;
   final String username;
@@ -19,6 +19,11 @@ class OTPVerificationScreen extends StatelessWidget {
     required this.phoneNumber,
   }) : super(key: key);
 
+  @override
+  _OTPVerificationScreenState createState() => _OTPVerificationScreenState();
+}
+
+class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   final List<TextEditingController> _controllers = List.generate(
     6,
     (index) => TextEditingController(),
@@ -27,6 +32,8 @@ class OTPVerificationScreen extends StatelessWidget {
   String _getOTP() {
     return _controllers.map((controller) => controller.text).join();
   }
+
+  bool isVerifying = false;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +73,7 @@ class OTPVerificationScreen extends StatelessWidget {
                     text: 'We sent you a 6-digit code (OTP) to your phone number ',
                   ),
                   TextSpan(
-                    text: phoneNumber,
+                    text: widget.phoneNumber,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
@@ -75,6 +82,13 @@ class OTPVerificationScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 32.h),
+            if (isVerifying)
+              Container(
+                color: Colors.black.withOpacity(0.5),
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
             PinCodeTextField(
               appContext: context,
               length: 6,
@@ -99,8 +113,44 @@ class OTPVerificationScreen extends StatelessWidget {
                 fontSize: 20.sp,
                 fontWeight: FontWeight.bold,
               ),
-              onCompleted: (value) {
-                // Có thể xử lý khi nhập đủ 6 số
+              onCompleted: (value) async {
+                // Thêm loading indicator khi đang verify
+                setState(() {
+                  isVerifying = true;
+                });
+
+                try {
+                  final signupViewModel = context.read<SignupViewModel>();
+                  bool verified = await signupViewModel.verifyOTP(value);
+                  
+                  if (verified && mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PersonalInfoScreen(
+                          email: widget.email,
+                          password: widget.password,
+                          username: widget.username,
+                          phoneNumber: widget.phoneNumber,
+                        ),
+                      ),
+                    );
+                  } else {
+                    // Hiển thị thông báo lỗi
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Invalid verification code'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                } finally {
+                  if (mounted) {
+                    setState(() {
+                      isVerifying = false;
+                    });
+                  }
+                }
               },
             ),
             SizedBox(height: 24.h),
@@ -116,10 +166,10 @@ class OTPVerificationScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => PersonalInfoScreen(
-                          email: email,
-                          password: password,
-                          username: username,
-                          phoneNumber: phoneNumber,
+                          email: widget.email,
+                          password: widget.password,
+                          username: widget.username,
+                          phoneNumber: widget.phoneNumber,
                         ),
                       ),
                     );
@@ -156,7 +206,7 @@ class OTPVerificationScreen extends StatelessWidget {
                 TextButton(
                   onPressed: () async {
                     final signupViewModel = context.read<SignupViewModel>();
-                    await signupViewModel.sendPhoneVerification(phoneNumber);
+                    await signupViewModel.sendPhoneVerification(widget.phoneNumber);
                   },
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,

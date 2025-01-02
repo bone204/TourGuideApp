@@ -15,7 +15,17 @@ class SignupViewModel extends ChangeNotifier {
   bool _isCodeSent = false;
 
   bool get isLoading => _isLoading;
+  set isLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
   String? get errorMessage => _errorMessage;
+  set errorMessage(String? value) {
+    _errorMessage = value;
+    notifyListeners();
+  }
+
   bool get isCodeSent => _isCodeSent;
 
   Future<User?> signUp(
@@ -286,11 +296,11 @@ class SignupViewModel extends ChangeNotifier {
 
   Future<bool> verifyOTP(String otp) async {
     try {
-      _isLoading = true;
+      isLoading = true;
       notifyListeners();
 
       if (_verificationId == null) {
-        _errorMessage = 'Verification ID not found';
+        errorMessage = 'Verification ID not found';
         return false;
       }
 
@@ -304,10 +314,11 @@ class SignupViewModel extends ChangeNotifier {
       await FirebaseAuth.instance.signInWithCredential(credential);
       return true;
     } catch (e) {
-      _errorMessage = 'Invalid OTP: $e';
+      print('Error verifying OTP: $e');
+      errorMessage = 'Invalid verification code';
       return false;
     } finally {
-      _isLoading = false;
+      isLoading = false;
       notifyListeners();
     }
   }
