@@ -191,6 +191,7 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                           imageUrl: item.photo.isNotEmpty ? item.photo[0] : '',
                           description: item.province,
                           rating: 4.5,
+                          favouriteTimes: item.favouriteTimes,
                         );
 
                         return GestureDetector(

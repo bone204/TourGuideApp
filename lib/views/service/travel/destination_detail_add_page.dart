@@ -22,6 +22,7 @@ class DestinationDetailAddPage extends StatelessWidget {
           placeName: destination.destinationName,
           description: destination.province,
           rating: 4.5,
+          favouriteTimes: destination.favouriteTimes,
         ),
         destinationData: destination,
         isFavourite: false,

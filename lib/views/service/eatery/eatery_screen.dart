@@ -100,7 +100,8 @@ class _EateryScreenState extends State<EateryScreen> {
       placeName: eateryData.placeName,
       imageUrl: eateryData.imageUrl,
       description: eateryData.description,
-      rating: 4.5, // Giá trị mặc định hoặc có thể thêm rating vào FavouriteCardData
+      rating: 4.5,
+      favouriteTimes: 0,
     );
   }
 
@@ -245,6 +246,7 @@ Opening hours: ${eatery.openTime} - ${eatery.closeTime}
                       imageUrl: eatery.photo[0],
                       description: eatery.province,
                       rating: eatery.rating,
+                      favouriteTimes: 0,
                     );
 
                     Navigator.push(

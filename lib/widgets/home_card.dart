@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart';
-import 'package:tourguideapp/widgets/image_stack.dart';
+
 
 class HomeCardData {
   final String imageUrl;
   final String placeName;
   final String description;
   final double rating;
+  final int favouriteTimes;
 
   HomeCardData({
     required this.imageUrl,
     required this.placeName,
     required this.description,
     required this.rating,
+    required this.favouriteTimes,
   });
 }
 
@@ -158,7 +160,24 @@ class HomeCard extends StatelessWidget {
                           ],
                         ),
                         SizedBox(height: 8.h),
-                        const ImageStackWidget(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Icon(
+                              Icons.favorite,
+                              color: AppColors.primaryColor,
+                              size: 12.sp,
+                            ),
+                            SizedBox(width: 2.w),
+                            Text(
+                              data.favouriteTimes.toString(),
+                              style: TextStyle(
+                                color: const Color(0xFF000000),
+                                fontSize: 15.sp,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ],

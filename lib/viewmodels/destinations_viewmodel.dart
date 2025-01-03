@@ -79,7 +79,8 @@ class DestinationsViewModel extends ChangeNotifier {
       imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
       placeName: destination.destinationName,
       description: destination.province,
-      rating: 4.5, // Có thể thay đổi theo logic của bạn
+      rating: 4.5,
+      favouriteTimes: destination.favouriteTimes,
     );
   }).toList();
 
@@ -99,7 +100,8 @@ class DestinationsViewModel extends ChangeNotifier {
               imageUrl: dest.photo.isNotEmpty ? dest.photo[0] : '',
               placeName: dest.destinationName,
               description: dest.province,
-              rating: 4.5, // Có thể thay đổi theo logic của bạn
+              rating: 4.5,
+              favouriteTimes: dest.favouriteTimes,
             ))
         .toList();
   }
