@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/home_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
@@ -10,6 +11,7 @@ import 'package:tourguideapp/widgets/home_card_list_view.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; 
 import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 import 'package:tourguideapp/views/home/view_all_destinations_screen.dart';
+import 'package:tourguideapp/widgets/category_selector.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isInitialized = false;
+  String _selectedProvince = 'All';
 
   @override
   void initState() {
@@ -40,9 +43,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final homeViewModel = Provider.of<HomeViewModel>(context);
     final destinationsViewModel = Provider.of<DestinationsViewModel>(context);
+    final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: AppColors.white,
       body: destinationsViewModel.isLoading 
         ? const Center(child: CircularProgressIndicator())
         : destinationsViewModel.error.isNotEmpty
@@ -175,6 +179,39 @@ class _HomeScreenState extends State<HomeScreen> {
                       destinationsViewModel.horizontalCardsData
                     ),
                   ),
+                  // Province Section
+                  ProvinceSection(
+                    selectedProvince: _selectedProvince,
+                    provinces: ['All', ...destinationsViewModel.uniqueProvinces],
+                    onProvinceSelected: (province) {
+                      setState(() {
+                        _selectedProvince = province;
+                      });
+                    },
+                    cardDataList: _selectedProvince == 'All'
+                        ? destinationsViewModel.horizontalCardsData
+                        : destinationsViewModel.getDestinationsByProvince(_selectedProvince),
+                    onCardTap: (cardData) {
+                      final destination = destinationsViewModel.destinations.firstWhere(
+                        (dest) => dest.destinationName == cardData.placeName,
+                      );
+                      
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DestinationDetailPage(
+                            cardData: cardData,
+                            destinationData: destination,
+                            isFavourite: favouriteViewModel.isFavourite(destination),
+                            onFavouriteToggle: (isFavourite) {
+                              favouriteViewModel.toggleFavourite(destination);
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 20.h),
                 ],
               ),
             ),
@@ -355,6 +392,62 @@ class SectionHeadline extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class ProvinceSection extends StatelessWidget {
+  final String selectedProvince;
+  final List<String> provinces;
+  final Function(String) onProvinceSelected;
+  final List<HomeCardData> cardDataList;
+  final Function(HomeCardData) onCardTap;
+
+  const ProvinceSection({
+    Key? key,
+    required this.selectedProvince,
+    required this.provinces,
+    required this.onProvinceSelected,
+    required this.cardDataList,
+    required this.onCardTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context).translate("Explore top spots by province"),
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            AppLocalizations.of(context).translate("Discover places across provinces"),
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.grey,
+            ),
+          ),
+          SizedBox(height: 16.h),
+          CategorySelector(
+            selectedCategory: selectedProvince,
+            categories: provinces,
+            onCategorySelected: onProvinceSelected,
+          ),
+          SizedBox(height: 16.h),
+          HomeCardListView(
+            cardDataList: cardDataList,
+            onCardTap: onCardTap,
+          ),
+        ],
+      ),
     );
   }
 }

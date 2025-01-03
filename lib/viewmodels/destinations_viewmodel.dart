@@ -83,6 +83,27 @@ class DestinationsViewModel extends ChangeNotifier {
     );
   }).toList();
 
+  // Lấy danh sách các tỉnh duy nhất từ destinations
+  List<String> get uniqueProvinces {
+    return destinations
+        .map((dest) => dest.province)
+        .toSet()
+        .toList();
+  }
+
+  // Lấy destinations theo tỉnh và chuyển đổi thành HomeCardData
+  List<HomeCardData> getDestinationsByProvince(String province) {
+    return destinations
+        .where((dest) => dest.province == province)
+        .map((dest) => HomeCardData(
+              imageUrl: dest.photo.isNotEmpty ? dest.photo[0] : '',
+              placeName: dest.destinationName,
+              description: dest.province,
+              rating: 4.5, // Có thể thay đổi theo logic của bạn
+            ))
+        .toList();
+  }
+
   @override
   void dispose() {
     _destinationSubscription?.cancel();
