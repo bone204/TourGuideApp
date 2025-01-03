@@ -197,7 +197,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     if (mounted) {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
-                        "/",
+                        '/login',
                         (route) => false,
                       );
                     }

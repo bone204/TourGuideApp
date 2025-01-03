@@ -225,16 +225,28 @@ class PersonInfoViewModel extends ChangeNotifier {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
+        // Clear banking info first
+        _bankName = null;
+        _bankAccountNumber = null;
+        _bankAccountName = null;
+        bankNameController.clear();
+        bankAccountNumberController.clear();
+        bankAccountNameController.clear();
+
         final doc = await FirebaseFirestore.instance
-            .collection('users')
+            .collection('USER')
             .doc(user.uid)
             .get();
             
         if (doc.exists) {
           final data = doc.data() as Map<String, dynamic>;
-          bankNameController.text = data['bankName'] ?? '';
-          bankAccountNumberController.text = data['bankAccountNumber'] ?? '';
-          bankAccountNameController.text = data['bankAccountName'] ?? '';
+          _bankName = data['bankName'];
+          _bankAccountNumber = data['bankAccountNumber'];
+          _bankAccountName = data['bankAccountName'];
+          
+          bankNameController.text = _bankName ?? '';
+          bankAccountNumberController.text = _bankAccountNumber ?? '';
+          bankAccountNameController.text = _bankAccountName ?? '';
           notifyListeners();
         }
       }
