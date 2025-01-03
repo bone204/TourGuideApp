@@ -8,6 +8,7 @@ class CustomSearchBar extends StatelessWidget {
   final String hintText;
   final Function(String)? onChanged;
   final EdgeInsetsGeometry? margin;
+  final bool autofocus;
 
   const CustomSearchBar({
     Key? key,
@@ -15,6 +16,7 @@ class CustomSearchBar extends StatelessWidget {
     required this.hintText,
     this.onChanged,
     this.margin,
+    this.autofocus = false,
   }) : super(key: key);
 
   @override
