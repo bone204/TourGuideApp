@@ -10,11 +10,19 @@ class BaseUserViewModel extends ChangeNotifier {
   String _email = '';
   String _profileImageUrl = '';
   String _avatar = '';
+  int _travelPoint = 0;
+  int _travelTrip = 0;
+  int _feedbackTimes = 0;
+  int _dayParticipation = 0;
 
   String get name => _name;
   String get email => _email;
   String get profileImageUrl => _profileImageUrl;
   String get avatar => _avatar;
+  int get travelPoint => _travelPoint;
+  int get travelTrip => _travelTrip;
+  int get feedbackTimes => _feedbackTimes;
+  int get dayParticipation => _dayParticipation;
 
   BaseUserViewModel() {
     _initUserDataStream();
@@ -35,6 +43,10 @@ class BaseUserViewModel extends ChangeNotifier {
             _email = data['email'] ?? 'Unknown';
             _profileImageUrl = data['profileImageUrl'] ?? '';
             _avatar = data['avatar'] ?? '';
+            _travelPoint = data['travelPoint'] ?? 0;
+            _travelTrip = data['travelTrip'] ?? 0;
+            _feedbackTimes = data['feedbackTimes'] ?? 0;
+            _dayParticipation = data['dayParticipation'] ?? 0;
             notifyListeners();
           } else {
             _clearUserData();
@@ -51,6 +63,10 @@ class BaseUserViewModel extends ChangeNotifier {
     _email = 'Unknown';
     _profileImageUrl = '';
     _avatar = '';
+    _travelPoint = 0;
+    _travelTrip = 0;
+    _feedbackTimes = 0;
+    _dayParticipation = 0;
     notifyListeners();
   }
 

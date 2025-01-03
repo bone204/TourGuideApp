@@ -5,11 +5,11 @@ class UserModel {
   final String fullName;
   final String email;
   final String address;
-  final String gender;  
-  final String citizenId; 
+  final String gender;
+  final String citizenId;
   final String phoneNumber;
   final String nationality;
-  final String birthday; 
+  final String birthday;
   final String? bankName;
   final String? bankAccountNumber;
   final String? bankAccountName;
@@ -18,6 +18,10 @@ class UserModel {
   final List<String> favoriteDestinationIds;
   final List<String> favoriteHotelIds;
   final List<String> favoriteRestaurantIds;
+  final int travelPoint;
+  final int travelTrip;
+  final int feedbackTimes;
+  final int dayParticipation;
 
   UserModel({
     required this.userId,
@@ -31,14 +35,18 @@ class UserModel {
     required this.phoneNumber,
     required this.nationality,
     required this.birthday,
-    required this.avatar,
     this.bankName,
     this.bankAccountNumber,
     this.bankAccountName,
     required this.hobbies,
+    required this.avatar,
     this.favoriteDestinationIds = const [],
     this.favoriteHotelIds = const [],
     this.favoriteRestaurantIds = const [],
+    this.travelPoint = 0,
+    this.travelTrip = 0,
+    this.feedbackTimes = 0,
+    this.dayParticipation = 0,
   });
 
   Map<String, dynamic> toMap() {
@@ -62,6 +70,10 @@ class UserModel {
       'favoriteDestinationIds': favoriteDestinationIds,
       'favoriteHotelIds': favoriteHotelIds,
       'favoriteRestaurantIds': favoriteRestaurantIds,
+      'travelPoint': travelPoint,
+      'travelTrip': travelTrip,
+      'feedbackTimes': feedbackTimes,
+      'dayParticipation': dayParticipation,
     };
   }
 
@@ -79,13 +91,17 @@ class UserModel {
       nationality: map['nationality'] ?? '',
       birthday: map['birthday'] ?? '',
       avatar: map['avatar'] ?? '',
-      bankName: map['bankName'] ?? '',
-      bankAccountNumber: map['bankAccountNumber'] ?? '',
-      bankAccountName: map['bankAccountName'] ?? '',
+      bankName: map['bankName'],
+      bankAccountNumber: map['bankAccountNumber'],
+      bankAccountName: map['bankAccountName'],
       hobbies: List<String>.from(map['hobbies'] ?? []),
       favoriteDestinationIds: List<String>.from(map['favoriteDestinationIds'] ?? []),
       favoriteHotelIds: List<String>.from(map['favoriteHotelIds'] ?? []),
       favoriteRestaurantIds: List<String>.from(map['favoriteRestaurantIds'] ?? []),
+      travelPoint: map['travelPoint'] ?? 0,
+      travelTrip: map['travelTrip'] ?? 0,
+      feedbackTimes: map['feedbackTimes'] ?? 0,
+      dayParticipation: map['dayParticipation'] ?? 0,
     );
   }
 }

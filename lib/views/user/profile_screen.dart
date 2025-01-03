@@ -177,6 +177,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildStatsRow(BuildContext context) {
+    final profileViewModel = Provider.of<ProfileViewModel>(context);
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -194,11 +195,23 @@ class ProfileScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildStatsColumn(context, AppLocalizations.of(context).translate('Reward Points'), '360'),
+          _buildStatsColumn(
+            context, 
+            AppLocalizations.of(context).translate('Travel Points'), 
+            profileViewModel.travelPoint.toString()
+          ),
           SizedBox(width: 25.w),
-          _buildStatsColumn(context, AppLocalizations.of(context).translate('Travel Trips'), '238'),
+          _buildStatsColumn(
+            context, 
+            AppLocalizations.of(context).translate('Travel Trips'), 
+            profileViewModel.travelTrip.toString()
+          ),
           SizedBox(width: 25.w),
-          _buildStatsColumn(context, AppLocalizations.of(context).translate('Bucket Lists'), '473'),
+          _buildStatsColumn(
+            context, 
+            AppLocalizations.of(context).translate('Feedback Times'), 
+            profileViewModel.feedbackTimes.toString()
+          ),
         ],
       ),
     );

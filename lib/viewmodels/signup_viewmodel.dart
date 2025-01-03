@@ -124,7 +124,7 @@ class SignupViewModel extends ChangeNotifier {
         newUserId = 'U00001';
       }
 
-      // Tạo user model với thông tin cơ bản
+      // Tạo user model với thông tin cơ bản và các trường mới
       UserModel newUser = UserModel(
         userId: newUserId,
         uid: firebaseUser.uid,
@@ -142,6 +142,10 @@ class SignupViewModel extends ChangeNotifier {
         favoriteDestinationIds: [],
         favoriteHotelIds: [],
         favoriteRestaurantIds: [],
+        travelPoint: 0,
+        travelTrip: 0,
+        feedbackTimes: 0,
+        dayParticipation: 0,
       );
 
       // Lưu thông tin user vào Firestore
