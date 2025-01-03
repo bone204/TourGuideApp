@@ -115,8 +115,21 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     return true;
   }
 
+  // Hàm để lấy danh sách đã được dịch
+  List<String> _getTranslatedList(List<String> originalList, Map<String, String> translations) {
+    final locale = Localizations.localeOf(context).languageCode;
+    if (locale == 'vi') {
+      return originalList.map((item) => translations[item] ?? item).toList();
+    }
+    return originalList;
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Lấy danh sách đã được dịch
+    final translatedGenders = _getTranslatedList(genders, genderTranslations);
+    final translatedNationalities = _getTranslatedList(nationalities, nationalityTranslations);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -169,11 +182,21 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 SizedBox(height: 8.h),
                 CustomComboBox(
                   hintText: AppLocalizations.of(context).translate('Gender'),
-                  value: _selectedGender,
-                  items: genders,
+                  value: _selectedGender != null 
+                    ? (Localizations.localeOf(context).languageCode == 'vi' 
+                        ? genderTranslations[_selectedGender] 
+                        : _selectedGender)
+                    : null,
+                  items: translatedGenders,
                   onChanged: (value) {
                     setState(() {
-                      _selectedGender = value;
+                      // Lưu giá trị tiếng Anh
+                      _selectedGender = Localizations.localeOf(context).languageCode == 'vi'
+                          ? genderTranslations.entries
+                              .firstWhere((entry) => entry.value == value,
+                                  orElse: () => const MapEntry('', ''))
+                              .key
+                          : value;
                     });
                   },
                 ),
@@ -189,11 +212,21 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 SizedBox(height: 8.h),
                 CustomComboBox(
                   hintText: AppLocalizations.of(context).translate('Nationality'),
-                  value: _selectedNationality,
-                  items: nationalities,
+                  value: _selectedNationality != null 
+                    ? (Localizations.localeOf(context).languageCode == 'vi' 
+                        ? nationalityTranslations[_selectedNationality] 
+                        : _selectedNationality)
+                    : null,
+                  items: translatedNationalities,
                   onChanged: (value) {
                     setState(() {
-                      _selectedNationality = value;
+                      // Lưu giá trị tiếng Anh
+                      _selectedNationality = Localizations.localeOf(context).languageCode == 'vi'
+                          ? nationalityTranslations.entries
+                              .firstWhere((entry) => entry.value == value,
+                                  orElse: () => const MapEntry('', ''))
+                              .key
+                          : value;
                     });
                   },
                 ),

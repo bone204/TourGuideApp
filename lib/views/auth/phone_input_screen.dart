@@ -82,11 +82,11 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                 ),
                 ignoreBlank: false,
                 autoValidateMode: AutovalidateMode.disabled,
-                selectorTextStyle: TextStyle(color: Colors.black),
+                selectorTextStyle: const TextStyle(color: Colors.black),
                 initialValue: PhoneNumber(isoCode: initialCountry),
                 textFieldController: _phoneController,
                 formatInput: true,
-                keyboardType: TextInputType.numberWithOptions(
+                keyboardType: const TextInputType.numberWithOptions(
                   signed: true,
                   decimal: true,
                 ),
@@ -130,7 +130,11 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(signupViewModel.errorMessage ?? 'Failed to send verification code'),
+                        content: Text(
+                          AppLocalizations.of(context).translate(
+                            signupViewModel.errorMessage ?? 'Failed to send verification code'
+                          )
+                        ),
                         backgroundColor: Colors.red,
                       ),
                     );

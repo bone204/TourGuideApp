@@ -304,6 +304,20 @@
 
     "Unavailable": "Không khả dụng",
     "Are you sure you want to enable this vehicle?": "Bạn có chắc chắn muốn bật hoạt động của xe này?",
-    "Done": "Xong"
+    "Done": "Xong",
+
+    "We will send you a verification code": "Chúng tôi sẽ gửi mã xác thực cho bạn",
+    "Phone number": "Số điện thoại",
+    "Failed to send verification code": "Không thể gửi mã xác thực",
+    "Verification Code": "Mã xác thực",
+    "We sent you a 6-digit code (OTP) to your phone number ": "Chúng tôi đã gửi mã xác thực 6 chữ số (OTP) đến số điện thoại ",
+    "Invalid verification code": "Mã xác thực không hợp lệ",
+    "Didn't Receive the Code? ": "Không nhận được mã? ",
+    "Resend": "Gửi lại",
+
+    "What fascinates you?": "Bạn thích gì?",
+    "To give you a personalized experience,\nlet us know your interests.": "Để mang đến trải nghiệm cá nhân hóa,\nhãy cho chúng tôi biết sở thích của bạn.",
+    "Get Started": "Bắt đầu",
+    "Please select at least one interest": "Vui lòng chọn ít nhất một sở thích"
 }
   

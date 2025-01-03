@@ -296,6 +296,22 @@
 
     "Unavailable": "Unavailable",
     "Are you sure you want to enable this vehicle?": "Are you sure you want to enable this vehicle?",
-    "Done": "Done"
+    "Done": "Done",
+
+    "Enter your phone number": "Enter your phone number",
+    "We will send you a verification code": "We will send you a verification code",
+    "Phone number": "Phone number",
+    "Failed to send verification code": "Failed to send verification code",
+
+    "Verification Code": "Verification Code",
+    "We sent you a 6-digit code (OTP) to your phone number ": "We sent you a 6-digit code (OTP) to your phone number ",
+    "Invalid verification code": "Invalid verification code",
+    "Didn't Receive the Code? ": "Didn't Receive the Code? ",
+    "Resend": "Resend",
+
+    "What fascinates you?": "What fascinates you?",
+    "To give you a personalized experience,\nlet us know your interests.": "To give you a personalized experience,\nlet us know your interests.",
+    "Get Started": "Get Started",
+    "Please select at least one interest": "Please select at least one interest"
 }
   
