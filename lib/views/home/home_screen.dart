@@ -30,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isScrolled = false;
   int _currentDestinationIndex = 0;
   Timer? _destinationTimer;
+  final PageController _pageController = PageController();
 
   @override
   void initState() {
@@ -67,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _scrollController.dispose();
     _destinationTimer?.cancel();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -150,55 +152,62 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                               padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        const HomeNavigator(
+                              child: SizedBox(
+                                height: 180.h,
+                                child: PageView(
+                                  controller: _pageController,
+                                  onPageChanged: (index) {
+                                    setState(() {
+                                    });
+                                  },
+                                  children: [
+                                    // Page 1: Services
+                                    GridView.count(
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      crossAxisCount: 3,
+                                      mainAxisSpacing: 2.h,
+                                      crossAxisSpacing: 2.w,
+                                      childAspectRatio: 1.2,
+                                      children: const [
+                                        HomeNavigator(
                                           image: 'assets/img/car_home.png', 
                                           text: "Car Rental"
                                         ),
-                                        SizedBox(height: 8.h),
-                                        const HomeNavigator(
-                                          image: 'assets/img/restaurant_home.png', 
-                                          text: "Find Eatery"
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        const HomeNavigator(
+                                        HomeNavigator(
                                           image: 'assets/img/motorbike_home.png', 
                                           text: "Motorbike Rental"
                                         ),
-                                        SizedBox(height: 8.h),
-                                        const HomeNavigator(
+                                        HomeNavigator(
+                                          image: 'assets/img/travel_home.png', 
+                                          text: "Travel"
+                                        ),
+                                        HomeNavigator(
+                                          image: 'assets/img/restaurant_home.png', 
+                                          text: "Find Eatery"
+                                        ),
+                                        HomeNavigator(
+                                          image: 'assets/img/hotel_home.png', 
+                                          text: "Find Hotel"
+                                        ),
+                                        HomeNavigator(
                                           image: 'assets/img/delivery_home.png', 
                                           text: "Fast Delivery"
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        const HomeNavigator(
-                                          image: 'assets/img/travel_home.png', 
-                                          text: "Travel"
-                                        ),
-                                        SizedBox(height: 8.h),
-                                        const HomeNavigator(
-                                          image: 'assets/img/hotel_home.png', 
-                                          text: "Find Hotel"
-                                        ),
+                                    // Page 2: More
+                                    GridView.count(
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      crossAxisCount: 3,
+                                      mainAxisSpacing: 4.h,
+                                      crossAxisSpacing: 4.w,
+                                      childAspectRatio: 1.2,
+                                      children: const [
+                                        // Thêm các HomeNavigator khác nếu cần
                                       ],
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ]
@@ -330,7 +339,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         vertical: 8.h,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.lightGrey,
+                        color: _isScrolled ? AppColors.lightGrey : Colors.white,
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Row(
