@@ -183,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         HomeNavigator(
                                           image: 'assets/img/restaurant_home.png', 
-                                          text: "Find Eatery"
+                                          text: "Find Restaurant"
                                         ),
                                         HomeNavigator(
                                           image: 'assets/img/hotel_home.png', 
@@ -203,7 +203,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       crossAxisSpacing: 4.w,
                                       childAspectRatio: 1.2,
                                       children: const [
-                                        // Thêm các HomeNavigator khác nếu cần
+                                        HomeNavigator(
+                                          image: 'assets/img/eatery_home.png', 
+                                          text: "Find Eatery"
+                                        ),
                                       ],
                                     ),
                                   ],
