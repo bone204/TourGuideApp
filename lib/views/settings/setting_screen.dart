@@ -168,7 +168,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: AppLocalizations.of(context).translate('Sign Out'),
                 trailingIcon: Icons.chevron_right,
                 onTap: () async {
-                  bool shouldLogout = await showDialog(
+                  bool shouldLogout = await showDialog<bool>(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
@@ -177,31 +177,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         actions: [
                           TextButton(
                             onPressed: () {
-                              Navigator.of(context).pop(false); // Stay logged in
+                              Navigator.of(context).pop(false);
                             },
                             child: Text(AppLocalizations.of(context).translate('Cancel')),
                           ),
                           TextButton(
                             onPressed: () {
-                              Navigator.of(context).pop(true); // Confirm logout
+                              Navigator.of(context).pop(true);
                             },
                             child: Text(AppLocalizations.of(context).translate('Logout')),
                           ),
                         ],
                       );
                     },
-                  );
+                  ) ?? false;
 
                   if (shouldLogout) {
                     await FirebaseAuth.instance.signOut();
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      "/",
-                      (route) => false,
-                    );
+                    if (mounted) {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        "/",
+                        (route) => false,
+                      );
+                    }
                   }
                 },
-
               ),
             ],
           ),

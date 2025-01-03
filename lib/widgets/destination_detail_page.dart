@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/custom_like_button.dart';
@@ -104,7 +105,7 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
 
                               // Header content
                               Padding(
-                                padding: EdgeInsets.fromLTRB(30.w, 20.h, 30.w, 0),
+                                padding: EdgeInsets.fromLTRB(30.w, 20.h, 30.w, 20.h),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -147,11 +148,11 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                                 indicatorColor: Colors.red,
                                 labelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
                                 unselectedLabelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
-                                tabs: const [
-                                  Tab(text: 'About'),
-                                  Tab(text: 'Review'),
-                                  Tab(text: 'Photo'),
-                                  Tab(text: 'Video'),
+                                tabs: [
+                                  Tab(text: AppLocalizations.of(context).translate('About')),
+                                  Tab(text: AppLocalizations.of(context).translate('Review')),
+                                  Tab(text: AppLocalizations.of(context).translate('Photo')),
+                                  Tab(text: AppLocalizations.of(context).translate('Video')),
                                 ],
                               ),
                             ],

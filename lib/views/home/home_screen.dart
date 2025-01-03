@@ -36,18 +36,25 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_isInitialized) {
+        Provider.of<DestinationsViewModel>(context, listen: false).initialize();
+        _isInitialized = true;
+        _startDestinationTimer();
+      }
+    });
   }
 
   void _startDestinationTimer() {
     _destinationTimer?.cancel();
     _destinationTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) {
       if (mounted) {
-        setState(() {
-          final destinations = Provider.of<DestinationsViewModel>(context, listen: false).destinations;
-          if (destinations.isNotEmpty) {
+        final destinations = Provider.of<DestinationsViewModel>(context, listen: false).destinations;
+        if (destinations.isNotEmpty) {
+          setState(() {
             _currentDestinationIndex = (_currentDestinationIndex + 1) % destinations.length;
-          }
-        });
+          });
+        }
       }
     });
   }
@@ -75,12 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_isInitialized) {
-      final destinationsViewModel = Provider.of<DestinationsViewModel>(context, listen: false);
-      destinationsViewModel.fetchDestinations();
-      _isInitialized = true;
-      _startDestinationTimer();
-    }
   }
 
   @override
@@ -498,7 +499,7 @@ class SectionHeadline extends StatelessWidget {
             );
           },
           child: Text(
-            AppLocalizations.of(context).translate("View all"),
+            AppLocalizations.of(context).translate("View All"),
             style: TextStyle(
               color: viewAllColor,
               fontSize: 14.sp,

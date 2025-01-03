@@ -25,8 +25,10 @@ class AppLocalizations {
 
   Future<bool> load() async {
     try {
-      // Thay đổi đường dẫn nếu cần
-      String jsonString = await rootBundle.loadString('assets/lang/${locale.languageCode}.json');
+      String path = 'assets/lang/${locale.languageCode}.json';
+      print("Loading language file: $path"); // Thêm log
+      String jsonString = await rootBundle.loadString(path);
+      print("JSON content: $jsonString"); // Thêm log
       Map<String, dynamic> jsonMap = json.decode(jsonString);
 
       _localizedStrings = jsonMap.map((key, value) {
@@ -35,6 +37,7 @@ class AppLocalizations {
 
       return true;
     } catch (e) {
+      print("Error loading localization file: $e"); // Chi tiết lỗi
       if (kDebugMode) {
         print("Lỗi khi tải tệp bản địa hóa: $e");
       }

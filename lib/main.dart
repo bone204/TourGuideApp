@@ -101,6 +101,7 @@ class MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => BankViewModel()),
         ChangeNotifierProvider(create: (_) => RouteViewModel()),
         ChangeNotifierProvider(create: (_) => BillViewModel()),
+        ChangeNotifierProvider(create: (_) => DestinationsViewModel()),
       ],
       child: MaterialApp(
         navigatorKey: PersonInfoViewModel.navigatorKey,

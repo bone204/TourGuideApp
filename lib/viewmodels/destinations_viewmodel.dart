@@ -11,63 +11,45 @@ class DestinationsViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String _error = '';
   StreamSubscription<QuerySnapshot>? _destinationSubscription;
+  bool _isInitialized = false;
 
   List<DestinationModel> get destinations => _destinations;
   bool get isLoading => _isLoading;
   String get error => _error;
 
-  DestinationsViewModel() {
-    // Tự động fetch khi khởi tạo
-    fetchDestinations();
+  void initialize() {
+    if (!_isInitialized) {
+      _isInitialized = true;
+      fetchDestinations();
+    }
   }
 
   Future<void> fetchDestinations() async {
-    if (_isLoading) return; // Tránh fetch nhiều lần
+    if (_isLoading) return;
 
+    _isLoading = true;
     try {
-      _isLoading = true;
-      _error = '';
-      notifyListeners();
-
-      if (kDebugMode) {
-        print('Đang tải destinations...');
-      }
-
-      // Hủy subscription cũ nếu có
       await _destinationSubscription?.cancel();
 
-      // Lắng nghe thay đổi từ collection DESTINATION
       _destinationSubscription = _firestore
           .collection('DESTINATION')
           .snapshots()
-          .listen((snapshot) {
-        _destinations = snapshot.docs.map((doc) {
-          if (kDebugMode) {
-            print('Đã tải destination: ${doc.data()}');
-          }
-          return DestinationModel.fromMap(doc.data());
-        }).toList();
-
-        _isLoading = false;
-        _error = '';
-        notifyListeners();
-        
-        if (kDebugMode) {
-          print('Đã tải ${_destinations.length} destinations');
-        }
-      }, onError: (error) {
-        if (kDebugMode) {
-          print('Lỗi khi tải destinations: $error');
-        }
-        _error = error.toString();
-        _isLoading = false;
-        notifyListeners();
-      });
-
+          .listen(
+        (snapshot) {
+          _destinations = snapshot.docs
+              .map((doc) => DestinationModel.fromMap(doc.data()))
+              .toList();
+          _isLoading = false;
+          _error = '';
+          notifyListeners();
+        },
+        onError: (error) {
+          _error = error.toString();
+          _isLoading = false;
+          notifyListeners();
+        },
+      );
     } catch (e) {
-      if (kDebugMode) {
-        print('Lỗi khi thiết lập lắng nghe: $e');
-      }
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
@@ -84,7 +66,6 @@ class DestinationsViewModel extends ChangeNotifier {
     );
   }).toList();
 
-  // Lấy danh sách các tỉnh duy nhất từ destinations
   List<String> get uniqueProvinces {
     return destinations
         .map((dest) => dest.province)
@@ -92,7 +73,6 @@ class DestinationsViewModel extends ChangeNotifier {
         .toList();
   }
 
-  // Lấy destinations theo tỉnh và chuyển đổi thành HomeCardData
   List<HomeCardData> getDestinationsByProvince(String province) {
     return destinations
         .where((dest) => dest.province == province)

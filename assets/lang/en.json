@@ -17,9 +17,9 @@
     "My Vehicle": "My Vehicle",
     "Feedback": "Feedback",
     "Settings": "Settings",
-    "Reward Points": "Reward Points",
+    "Travel Points": "Travel Points",
     "Travel Trips": "Travel Trips",
-    "Bucket Lists": "Bucket Lists",
+    "Feedback Times": "Feedback Times",
 
     "Sign in now": "Sign in now",
     "Please sign in to continue using our app": "Please sign in to continue using our app",
@@ -318,6 +318,8 @@
     "Discover places across provinces": "Explore places everywhere",
 
     "More travel inspiration": "More travel inspiration",
-    "Extra highlights just for you": "Extra highlights just for you"
+    "Extra highlights just for you": "Extra highlights just for you",
+    "About": "About",
+    "Photo": "Photo"
 }
   
