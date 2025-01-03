@@ -5,6 +5,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:tourguideapp/models/user_model.dart';
 import 'package:tourguideapp/services/firebase_auth_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tourguideapp/models/category_model.dart';
 
 class SignupViewModel extends ChangeNotifier {
   final FirebaseAuthService _auth = FirebaseAuthService();
@@ -13,6 +14,13 @@ class SignupViewModel extends ChangeNotifier {
   String? _verificationId;
   int? _resendToken;
   bool _isCodeSent = false;
+  List<CategoryModel> _categories = [];
+  bool _isCategoriesLoading = false;
+
+  SignupViewModel() {
+    // Fetch categories khi khởi tạo ViewModel
+    fetchCategories();
+  }
 
   bool get isLoading => _isLoading;
   set isLoading(bool value) {
@@ -28,6 +36,32 @@ class SignupViewModel extends ChangeNotifier {
 
   bool get isCodeSent => _isCodeSent;
 
+  List<CategoryModel> get categories => _categories;
+  bool get isCategoriesLoading => _isCategoriesLoading;
+
+  Future<void> fetchCategories() async {
+    if (_isCategoriesLoading) return; // Tránh fetch nhiều lần
+    
+    try {
+      _isCategoriesLoading = true;
+      notifyListeners();
+
+      final snapshot = await FirebaseFirestore.instance.collection('CATEGORY').get();
+      
+      _categories = snapshot.docs
+          .map((doc) => CategoryModel.fromMap(doc.data()))
+          .toList();
+
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching categories: $e');
+      }
+    } finally {
+      _isCategoriesLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<User?> signUp(
     String email,
     String password,
@@ -39,7 +73,7 @@ class SignupViewModel extends ChangeNotifier {
     String phoneNumber,
     String nationality,
     String birthday,
-    List<String> hobbies,
+    List<String> categoryIds,
   ) async {
     try {
       final user = await _auth.signUpWithEmailAndPassword(
@@ -53,7 +87,7 @@ class SignupViewModel extends ChangeNotifier {
         phoneNumber,
         nationality,
         birthday,
-        hobbies,
+        categoryIds,
       );
 
       if (user != null) {

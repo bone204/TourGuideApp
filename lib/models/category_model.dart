@@ -23,13 +23,20 @@ class CategoryModel {
     };
   }
 
-  CategoryModel copyWith({
-    String? categoryId,
-    String? categoryName,
-  }) {
-    return CategoryModel(
-      categoryId: categoryId ?? this.categoryId,
-      categoryName: categoryName ?? this.categoryName,
-    );
+  String getTranslatedName(String locale) {
+    // Map các giá trị tiếng Việt sang tiếng Anh
+    final Map<String, String> translationMap = {
+      'Phiêu lưu': 'Adventure',
+      'Giải trí': 'Entertainment',
+      'Lịch sử': 'History',
+      'Văn hóa': 'Culture',
+      'Lễ hội': 'Festival',
+      'Thiên nhiên': 'Nature',
+      'Biển đảo': 'Beach & Islands',
+      'Thể thao': 'Sports',
+      'Nhiếp ảnh': 'Photography',
+    };
+
+    return locale == 'vi' ? categoryName : (translationMap[categoryName] ?? categoryName);
   }
 }
