@@ -4,6 +4,7 @@ import 'package:mapbox_search/mapbox_search.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
+import 'package:tourguideapp/widgets/custom_search_bar.dart';
 
 class LocationPicker extends StatefulWidget {
   final Function(String, Map<String, String>) onLocationSelected;
@@ -143,34 +144,13 @@ class _LocationPickerState extends State<LocationPicker> {
               padding: EdgeInsets.only(top: 20.h),
               child: Column(
                 children: [
-                  Container(
+                  CustomSearchBar(
+                    controller: _searchController,
+                    hintText: 'Search',
+                    onChanged: (value) async {
+                      _searchPlaces(value, setModalState);
+                    },
                     margin: EdgeInsets.symmetric(horizontal: 20.w),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16.r),
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      autofocus: true,
-                      decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context).translate('Search'),
-                        prefixIcon: const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.r),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      onChanged: (value) async {
-                        _searchPlaces(value, setModalState);
-                      },
-                    ),
                   ),
                   SizedBox(height: 10.h),
                   Expanded(

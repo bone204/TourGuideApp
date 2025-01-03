@@ -172,7 +172,7 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
                             ],
                           ),
                           Text(
-                            "Registrant: $fullName",
+                            "${AppLocalizations.of(context).translate('Registrant')}: $fullName",
                             style: TextStyle(fontSize: 12.sp, color: AppColors.black),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

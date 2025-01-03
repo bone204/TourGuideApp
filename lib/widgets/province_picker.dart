@@ -5,6 +5,7 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/models/province_model.dart';
+import 'package:tourguideapp/widgets/custom_search_bar.dart';
 
 class ProvincePicker extends StatefulWidget {
   final Function(Map<String, String>) onRegionSelected;
@@ -213,19 +214,11 @@ class _ProvinceSearchScreenState extends State<_ProvinceSearchScreen> {
         ),
         body: Column(
           children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context).translate('Search region'),
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                ),
-                onChanged: _filterLocations,
-              ),
+            CustomSearchBar(
+              controller: _searchController,
+              hintText: 'Search region',
+              onChanged: _filterLocations,
+              margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
             ),
             Expanded(
               child: _isLoading

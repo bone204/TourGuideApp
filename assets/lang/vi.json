@@ -207,7 +207,7 @@
     "Error": "Lỗi",
     "OK": "Đồng Ý",
     "Pending Approval": "Chờ duyệt",
-    "Registrant": "Người Đăng Ký",
+    "Registrant": "Chủ xe",
     "Rate": "Đánh Giá",
     "Detail": "Chi Tiết",
     "Rent": "Thuê",
@@ -303,6 +303,7 @@
     "Delete": "Xóa",
 
     "Unavailable": "Không khả dụng",
-    "Are you sure you want to enable this vehicle?": "Bạn có chắc chắn muốn bật hoạt động của xe này?"
+    "Are you sure you want to enable this vehicle?": "Bạn có chắc chắn muốn bật hoạt động của xe này?",
+    "Done": "Xong"
 }
   
