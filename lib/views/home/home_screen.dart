@@ -12,6 +12,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 import 'package:tourguideapp/views/home/view_all_destinations_screen.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
+import 'package:tourguideapp/widgets/favourite_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -171,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   // Popular Destinations
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+                    padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 32.h),
                     child: buildSectionHeadline(
                       context, 
                       "Popular", 
@@ -211,7 +212,31 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 32.h),
+                  // Inspiration Section
+                  InspirationSection(
+                    cardDataList: destinationsViewModel.horizontalCardsData,
+                    onCardTap: (cardData) {
+                      final destination = destinationsViewModel.destinations.firstWhere(
+                        (dest) => dest.destinationName == cardData.placeName,
+                      );
+                      
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DestinationDetailPage(
+                            cardData: cardData,
+                            destinationData: destination,
+                            isFavourite: favouriteViewModel.isFavourite(destination),
+                            onFavouriteToggle: (isFavourite) {
+                              favouriteViewModel.toggleFavourite(destination);
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 10.h),
                 ],
               ),
             ),
@@ -445,6 +470,79 @@ class ProvinceSection extends StatelessWidget {
           HomeCardListView(
             cardDataList: cardDataList,
             onCardTap: onCardTap,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class InspirationSection extends StatelessWidget {
+  final List<HomeCardData> cardDataList;
+  final Function(HomeCardData) onCardTap;
+
+  const InspirationSection({
+    Key? key,
+    required this.cardDataList,
+    required this.onCardTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context).translate("More travel inspiration"),
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 5.h),
+                Text(
+                  AppLocalizations.of(context).translate("Extra highlights just for you"),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 16.h),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 161.w / 190.h,
+              mainAxisSpacing: 20.h,
+              crossAxisSpacing: 10.w,
+            ),
+            itemCount: cardDataList.length,
+            itemBuilder: (context, index) {
+              final cardData = cardDataList[index];
+              return GestureDetector(
+                onTap: () => onCardTap(cardData),
+                child: FavouriteCard(
+                  data: FavouriteCardData(
+                    placeName: cardData.placeName,
+                    imageUrl: cardData.imageUrl,
+                    description: cardData.description,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
