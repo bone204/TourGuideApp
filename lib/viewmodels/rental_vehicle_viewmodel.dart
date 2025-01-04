@@ -8,6 +8,7 @@ import 'package:path/path.dart' as path;
 import 'package:tourguideapp/models/bill_model.dart';
 import 'package:tourguideapp/models/rental_vehicle_model.dart';
 import 'package:intl/intl.dart';
+import 'package:tourguideapp/models/feedback_model.dart';
 
 class RentalVehicleViewModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -726,7 +727,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
       // Kiểm tra thời gian hợp lệ
       if (rentOption == 'Hourly') {
         // Kiểm tra giờ có nằm trong khoảng 6h-18h không
-        if (startDate.hour < 6 || endDate.hour > 18) {
+        if (startDate.hour < 7 || endDate.hour > 17) {
           return false;
         }
       }
@@ -1182,5 +1183,111 @@ class RentalVehicleViewModel extends ChangeNotifier {
       }
       throw Exception('Failed to update delivery info: $e');
     }
+  }
+
+  Future<void> cancelRental(String billId, String reason) async {
+    try {
+      await _firestore.collection('BILL').doc(billId).update({
+        'status': 'Chờ hoàn tiền',
+        'cancelReason': reason,
+        'cancelledAt': DateTime.now().toIso8601String(),
+      });
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to cancel rental: $e');
+    }
+  }
+
+  Future<void> confirmVehicleReturn(String billId) async {
+    try {
+      await _firestore.collection('BILL').doc(billId).update({
+        'status': 'Đã trả xe',
+        'returnedAt': DateTime.now().toIso8601String(),
+      });
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to confirm vehicle return: $e');
+    }
+  }
+
+  Future<void> submitReview(String billId, int rating, String comment) async {
+    try {
+      await _firestore.collection('REVIEWS').add({
+        'billId': billId,
+        'rating': rating,
+        'comment': comment,
+        'createdAt': DateTime.now().toString(),
+      });
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Không thể gửi đánh giá: $e');
+    }
+  }
+
+  Stream<List<Map<String, dynamic>>> getHistoricalServices(String userId) {
+    return _firestore
+        .collection('BILL')
+        .where('userId', isEqualTo: userId)
+        .where('status', isEqualTo: 'Đã trả xe')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => {
+                  ...doc.data(),
+                  'billId': doc.id,
+                })
+            .toList());
+  }
+
+  Future<void> submitFeedback(String billId, int rating, String comment) async {
+    try {
+      final feedback = FeedbackModel(
+        billId: billId,
+        rating: rating,
+        comment: comment,
+        createdAt: DateTime.now().toString(),
+        status: 'Chờ duyệt',
+      );
+
+      await _firestore.collection('FEEDBACK').add(feedback.toMap());
+
+      // Cập nhật trạng thái feedback trong BILL
+      await _firestore.collection('BILL').doc(billId).update({
+        'hasFeedback': true,
+        'feedbackStatus': 'Chờ duyệt',
+      });
+
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Không thể gửi đánh giá: $e');
+    }
+  }
+
+  // Thêm hàm để kiểm tra trạng thái feedback
+  Future<Map<String, dynamic>?> getFeedbackStatus(String billId) async {
+    try {
+      final feedbackSnapshot = await _firestore
+          .collection('FEEDBACK')
+          .where('billId', isEqualTo: billId)
+          .get();
+
+      if (feedbackSnapshot.docs.isNotEmpty) {
+        return feedbackSnapshot.docs.first.data();
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Không thể lấy trạng thái đánh giá: $e');
+    }
+  }
+
+  Stream<List<BillModel>> getHistoricalBills(
+      String provinceId, DateTime startDate, DateTime endDate) {
+    return _firestore
+        .collection('BILL')
+        .where('status', isEqualTo: 'Đã trả xe')
+        .where('startDate', isGreaterThanOrEqualTo: startDate.toIso8601String())
+        .where('endDate', isLessThanOrEqualTo: endDate.toIso8601String())
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => BillModel.fromMap(doc.data())).toList());
   }
 }

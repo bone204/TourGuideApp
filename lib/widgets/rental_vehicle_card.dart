@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/rental_vehicle_model.dart';
-import 'package:tourguideapp/views/my_vehicle/delivery_information_screen.dart';
 import 'package:tourguideapp/views/my_vehicle/my_vehicle_detail_screen.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:provider/provider.dart';
