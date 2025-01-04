@@ -56,7 +56,8 @@ class UseServiceCard extends StatelessWidget {
                     return Center(
                       child: CircularProgressIndicator(
                         value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
                             : null,
                       ),
                     );
@@ -97,8 +98,8 @@ class UseServiceCard extends StatelessWidget {
                             child: Text(
                               dateRange,
                               style: TextStyle(
-                                color: const Color(0xFF6C6C6C),
-                                fontSize: 12.sp,
+                                fontSize: 14.sp,
+                                color: AppColors.grey,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -181,4 +182,4 @@ class UseServiceCard extends StatelessWidget {
       ),
     );
   }
-} 
+}

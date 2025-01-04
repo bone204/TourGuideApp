@@ -5,7 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart' as path;
+import 'package:tourguideapp/models/bill_model.dart';
 import 'package:tourguideapp/models/rental_vehicle_model.dart';
+import 'package:intl/intl.dart';
 
 class RentalVehicleViewModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -545,42 +547,92 @@ class RentalVehicleViewModel extends ChangeNotifier {
     String queryType = _convertVehicleTypeToFirestore(category, 'vi');
 
     if (kDebugMode) {
-      print('Querying vehicles for category: $queryType');
+      print('\n=== VEHICLE FILTER PARAMETERS ===');
+      print('Category: $category -> Query Type: $queryType');
+      print('Rent Option: $rentOption');
+      print('Budget Range: $minBudget - $maxBudget VND');
+      print('Start Date: $startDate');
+      print('End Date: $endDate');
+      print('Pickup Location: $pickupProvince');
+      print('===============================\n');
     }
 
-    // Lấy danh sách các xe có trạng thái khả dụng và đúng loại xe
     return _firestore
         .collection('RENTAL_VEHICLE')
-        .where('status', isEqualTo: 'Khả dụng')
+        .where('status', isEqualTo: 'Hoạt động')
         .where('vehicleType', isEqualTo: queryType)
         .snapshots()
         .asyncMap((vehicleSnapshot) async {
+      if (kDebugMode) {
+        print('\n=== INITIAL QUERY RESULTS ===');
+        print('Total vehicles found: ${vehicleSnapshot.docs.length}');
+        print('============================\n');
+      }
+
       List<RentalVehicleModel> availableVehicles = [];
 
       for (var doc in vehicleSnapshot.docs) {
         RentalVehicleModel vehicle = RentalVehicleModel.fromMap(doc.data());
 
-        // Kiểm tra giá thuê có nằm trong khoảng budget không
+        if (kDebugMode) {
+          print('\n--- Checking Vehicle: ${vehicle.vehicleRegisterId} ---');
+        }
+
+        // Kiểm tra giá thuê
         double relevantPrice = _getPriceForOption(rentOption, vehicle);
+        if (kDebugMode) {
+          print(
+              'Price check: $relevantPrice VND (Range: $minBudget - $maxBudget)');
+        }
         if (relevantPrice < minBudget || relevantPrice > maxBudget) {
+          if (kDebugMode) {
+            print('Price not in range - Skipping');
+          }
           continue;
         }
 
         // Kiểm tra địa điểm
         bool isLocationMatch =
             await _checkLocationMatch(vehicle.contractId, pickupProvince);
+        if (kDebugMode) {
+          print('Location match: $isLocationMatch');
+          print('Contract ID: ${vehicle.contractId}');
+          print('Pickup Province: $pickupProvince');
+        }
         if (!isLocationMatch) {
+          if (kDebugMode) {
+            print('Location not matched - Skipping');
+          }
           continue;
         }
 
         // Kiểm tra thời gian có sẵn
         bool isTimeAvailable = await _checkTimeAvailability(
             vehicle.vehicleRegisterId, startDate, endDate, rentOption);
+        if (kDebugMode) {
+          print('Time availability: $isTimeAvailable');
+          print(
+              'Requested period: ${startDate.toString()} - ${endDate.toString()}');
+        }
         if (!isTimeAvailable) {
+          if (kDebugMode) {
+            print('Time not available - Skipping');
+          }
           continue;
         }
 
+        if (kDebugMode) {
+          print('Vehicle passed all checks - Adding to available list');
+          print('----------------------------------------\n');
+        }
+
         availableVehicles.add(vehicle);
+      }
+
+      if (kDebugMode) {
+        print('\n=== FINAL RESULTS ===');
+        print('Total available vehicles: ${availableVehicles.length}');
+        print('===================\n');
       }
 
       return availableVehicles;
@@ -592,22 +644,70 @@ class RentalVehicleViewModel extends ChangeNotifier {
     try {
       final contractDoc =
           await _firestore.collection('CONTRACT').doc(contractId).get();
-
       if (!contractDoc.exists) return false;
 
       final contractData = contractDoc.data() as Map<String, dynamic>;
-      String businessProvince = contractData['businessProvince'] as String;
-      String businessCity = contractData['businessCity'] as String;
-      String businessDistrict = contractData['businessDistrict'] as String;
+      String? businessProvince = contractData['businessProvince'] as String?;
+      String? businessCity = contractData['businessCity'] as String?;
+      String? businessDistrict = contractData['businessDistrict'] as String?;
 
-      // Kiểm tra cả tỉnh/thành phố/quận huyện
-      // Vì api không rõ ràng nên chưa thể xác định các xe chính xác (thiếu huyện)
-      return fullAddress
-              .toLowerCase()
-              .contains(businessProvince.toLowerCase()) ||
-          fullAddress.toLowerCase().contains(businessCity.toLowerCase()) ||
-          fullAddress.toLowerCase().contains(businessDistrict.toLowerCase());
+      // Chuyển đổi sang chữ thường để so sánh không phân biệt hoa thường
+      String normalizedAddress = fullAddress.toLowerCase();
 
+      if (kDebugMode) {
+        print('\n=== LOCATION MATCHING ===');
+        print('Checking address: $normalizedAddress');
+        print('Business Province: $businessProvince');
+        print('Business City: $businessCity');
+        print('Business District: $businessDistrict');
+      }
+
+      // Kiểm tra từng phần của địa chỉ
+      if (businessProvince != null && businessProvince.isNotEmpty) {
+        if (normalizedAddress.contains(businessProvince.toLowerCase())) {
+          if (kDebugMode) {
+            print('Match found with Province: $businessProvince');
+          }
+          return true;
+        }
+      }
+
+      if (businessCity != null && businessCity.isNotEmpty) {
+        // Bỏ qua "TP. " ở đầu chuỗi nếu có
+        String normalizedCity = businessCity.toLowerCase();
+        if (normalizedCity.startsWith("tp.")) {
+          normalizedCity = normalizedCity.substring(3).trim();
+        } else if (normalizedCity.startsWith("tp")) {
+          normalizedCity = normalizedCity.substring(2).trim();
+        }
+
+        if (kDebugMode) {
+          print('Normalized City: $normalizedCity');
+        }
+
+        if (normalizedAddress.contains(normalizedCity)) {
+          if (kDebugMode) {
+            print('Match found with City: $businessCity -> $normalizedCity');
+          }
+          return true;
+        }
+      }
+
+      if (businessDistrict != null && businessDistrict.isNotEmpty) {
+        if (normalizedAddress.contains(businessDistrict.toLowerCase())) {
+          if (kDebugMode) {
+            print('Match found with District: $businessDistrict');
+          }
+          return true;
+        }
+      }
+
+      if (kDebugMode) {
+        print('No location match found');
+        print('========================\n');
+      }
+
+      return false;
     } catch (e) {
       if (kDebugMode) {
         print("Error checking location match: $e");
@@ -821,10 +921,10 @@ class RentalVehicleViewModel extends ChangeNotifier {
           .collection('RENTAL_VEHICLE')
           .doc(vehicleRegisterId)
           .get();
-      
+
       if (vehicleDoc.exists) {
         final data = vehicleDoc.data() as Map<String, dynamic>;
-        
+
         // Delete the photos from storage
         if (data['vehicleRegistrationFrontPhoto'] != null) {
           await deleteOldPhoto(data['vehicleRegistrationFrontPhoto']);
@@ -844,6 +944,243 @@ class RentalVehicleViewModel extends ChangeNotifier {
     } catch (e, stack) {
       _logError("Error deleting vehicle", e, stack);
       rethrow;
+    }
+  }
+
+  Future<String> generateBillId() async {
+    try {
+      final QuerySnapshot billSnapshot = await _firestore
+          .collection('BILL')
+          .orderBy('billId', descending: true)
+          .limit(1)
+          .get();
+
+      if (billSnapshot.docs.isEmpty) {
+        return 'B00001';
+      }
+
+      String lastBillId = billSnapshot.docs.first['billId'];
+      int numberPart = int.parse(lastBillId.substring(1)) + 1;
+      return 'B${numberPart.toString().padLeft(5, '0')}';
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error generating bill ID: $e');
+      }
+      throw Exception('Failed to generate bill ID');
+    }
+  }
+
+  Future<String> createInitialBill({
+    required String userId,
+    required String vehicleRegisterId,
+    required DateTime startDate,
+    required DateTime endDate,
+    required String rentOption,
+    required double total,
+  }) async {
+    try {
+      final billId = await generateBillId();
+      final DateFormat formatter = DateFormat('dd/MM/yyyy HH:mm');
+
+      final bill = BillModel(
+        billId: billId,
+        userId: userId,
+        startDate: formatter.format(startDate),
+        endDate: formatter.format(endDate),
+        rentalType: rentOption,
+        total: total,
+        voucherId: '',
+        travelPointsUsed: 0,
+        paymentMethod: '',
+        accountPayment: '',
+        vehicleRegisterId: vehicleRegisterId,
+        status: 'Chờ thanh toán',
+      );
+
+      await _firestore.collection('BILL').doc(billId).set(bill.toMap());
+
+      // Đặt timer để xóa bill nếu không được xác nhận trong 10 phút
+      Timer(const Duration(minutes: 10), () async {
+        final billDoc = await _firestore.collection('BILL').doc(billId).get();
+        if (billDoc.exists && billDoc.data()?['status'] == 'Chờ thanh toán') {
+          await _firestore.collection('BILL').doc(billId).delete();
+          if (kDebugMode) {
+            print('Bill $billId deleted due to timeout');
+          }
+        }
+      });
+
+      return billId;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error creating initial bill: $e');
+      }
+      throw Exception('Failed to create initial bill: $e');
+    }
+  }
+
+  Future<void> confirmPayment(
+    String billId,
+    String paymentMethod,
+    String accountPayment,
+  ) async {
+    try {
+      await _firestore.collection('BILL').doc(billId).update({
+        'status': 'Chờ xác nhận thuê',
+        'paymentMethod': paymentMethod,
+        'accountPayment': accountPayment,
+      });
+
+      if (kDebugMode) {
+        print('Payment confirmed for bill: $billId');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error confirming payment: $e');
+      }
+      throw Exception('Failed to confirm payment: $e');
+    }
+  }
+
+  Stream<List<Map<String, dynamic>>> getRentalRequests(
+      String vehicleRegisterId) {
+    if (kDebugMode) {
+      print("\n=== GETTING RENTAL REQUESTS ===");
+      print("Vehicle Register ID: $vehicleRegisterId");
+    }
+
+    return _firestore
+        .collection('BILL')
+        .where('vehicleRegisterId', isEqualTo: vehicleRegisterId)
+        .orderBy('startDate', descending: true)
+        .snapshots()
+        .asyncMap((billSnapshot) async {
+      List<Map<String, dynamic>> requests = [];
+
+      for (var doc in billSnapshot.docs) {
+        final billData = doc.data();
+
+        try {
+          // Lấy thông tin BILL_DETAIL
+          final billDetailDoc =
+              await _firestore.collection('BILL_DETAIL').doc(doc.id).get();
+
+          // Lấy thông tin USER
+          final userDoc = await _firestore
+              .collection('USER')
+              .where('userId', isEqualTo: billData['userId'])
+              .get();
+
+          if (userDoc.docs.isNotEmpty && billDetailDoc.exists) {
+            final userData = userDoc.docs.first.data();
+            final billDetailData = billDetailDoc.data()!;
+
+            requests.add({
+              'billId': doc.id,
+              'renterName': userData['fullName'] ?? 'Unknown',
+              'renterPhone': userData['phoneNumber'] ?? 'N/A',
+              'startDate': billData['startDate'] ?? '',
+              'endDate': billData['endDate'] ?? '',
+              'total': billDetailData['total'] ?? 0,
+              'status': billData['status'] ?? 'Unknown',
+              'licensePlate': billDetailData['licensePlate'] ?? '',
+              'number': billDetailData['number'] ?? 1,
+              'citizenFrontPhoto': billDetailData['citizenFrontPhoto'] ?? '',
+              'citizenBackPhoto': billDetailData['citizenBackPhoto'] ?? '',
+              'citizenHandoverPhoto':
+                  billDetailData['citizenHandoverPhoto'] ?? '',
+            });
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print("Error processing request data: $e");
+          }
+        }
+      }
+
+      return requests;
+    });
+  }
+
+  Future<void> updateCitizenPhotos(
+    String billId, {
+    String? frontPhoto,
+    String? backPhoto,
+    String? handoverPhoto,
+  }) async {
+    try {
+      final updates = <String, dynamic>{};
+      if (frontPhoto != null) updates['citizenFrontPhoto'] = frontPhoto;
+      if (backPhoto != null) updates['citizenBackPhoto'] = backPhoto;
+      if (handoverPhoto != null)
+        updates['citizenHandoverPhoto'] = handoverPhoto;
+
+      await _firestore.collection('BILL_DETAIL').doc(billId).update(updates);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating citizen photos: $e');
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> updateBillStatus(String billId, String status) async {
+    try {
+      await _firestore
+          .collection('BILL')
+          .doc(billId)
+          .update({'status': status});
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error updating bill status: $e");
+      }
+      throw Exception('Failed to update bill status');
+    }
+  }
+
+  Future<void> confirmRental(String billId) async {
+    try {
+      await _firestore.collection('BILL').doc(billId).update({
+        'status': 'Đã xác nhận',
+      });
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error confirming rental: $e');
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> updateDeliveryInfo(
+    String billId,
+    String address,
+    String time,
+    String note,
+    String frontPhoto,
+    String backPhoto,
+    String handoverPhoto,
+  ) async {
+    try {
+      await _firestore.collection('BILL').doc(billId).update({
+        'deliveryAddress': address,
+        'deliveryTime': time,
+        'deliveryNote': note,
+        'citizenFrontPhoto': frontPhoto,
+        'citizenBackPhoto': backPhoto,
+        'citizenHandoverPhoto': handoverPhoto,
+        'status': 'Chờ duyệt',
+      });
+
+      if (kDebugMode) {
+        print('Updated delivery info for bill: $billId');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating delivery info: $e');
+      }
+      throw Exception('Failed to update delivery info: $e');
     }
   }
 }

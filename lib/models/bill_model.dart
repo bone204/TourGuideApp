@@ -10,6 +10,13 @@ class BillModel {
   final String paymentMethod;
   final String accountPayment;
   final String vehicleRegisterId;
+  final String status;
+  final String? deliveryAddress;
+  final String? deliveryTime;
+  final String? deliveryNote;
+  final String? citizenFrontPhoto;
+  final String? citizenBackPhoto;
+  final String? citizenHandoverPhoto;
 
   BillModel({
     required this.billId,
@@ -23,6 +30,13 @@ class BillModel {
     required this.paymentMethod,
     required this.accountPayment,
     required this.vehicleRegisterId,
+    required this.status,
+    this.deliveryAddress,
+    this.deliveryTime,
+    this.deliveryNote,
+    this.citizenFrontPhoto,
+    this.citizenBackPhoto,
+    this.citizenHandoverPhoto,
   });
 
   Map<String, dynamic> toMap() {
@@ -38,6 +52,13 @@ class BillModel {
       'paymentMethod': paymentMethod,
       'accountPayment': accountPayment,
       'vehicleRegisterId': vehicleRegisterId,
+      'status': status,
+      'deliveryAddress': deliveryAddress,
+      'deliveryTime': deliveryTime,
+      'deliveryNote': deliveryNote,
+      'citizenFrontPhoto': citizenFrontPhoto,
+      'citizenBackPhoto': citizenBackPhoto,
+      'citizenHandoverPhoto': citizenHandoverPhoto,
     };
   }
 
@@ -54,6 +75,13 @@ class BillModel {
       paymentMethod: map['paymentMethod'] ?? '',
       accountPayment: map['accountPayment'] ?? '',
       vehicleRegisterId: map['vehicleRegisterId'] ?? '',
+      status: map['status'] ?? 'Chờ thanh toán',
+      deliveryAddress: map['deliveryAddress'],
+      deliveryTime: map['deliveryTime'],
+      deliveryNote: map['deliveryNote'],
+      citizenFrontPhoto: map['citizenFrontPhoto'],
+      citizenBackPhoto: map['citizenBackPhoto'],
+      citizenHandoverPhoto: map['citizenHandoverPhoto'],
     );
   }
 }

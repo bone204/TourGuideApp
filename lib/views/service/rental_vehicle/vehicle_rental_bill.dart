@@ -7,11 +7,12 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tourguideapp/models/bill_model.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:async';
 
 class VehicleRentalBill extends StatefulWidget {
+  final String billId;
   final String model;
   final String vehicleId;
   final String vehicleRegisterId;
@@ -22,7 +23,8 @@ class VehicleRentalBill extends StatefulWidget {
   final String pickupLocation;
 
   const VehicleRentalBill({
-    super.key,
+    Key? key,
+    required this.billId,
     required this.model,
     required this.vehicleId,
     required this.vehicleRegisterId,
@@ -31,7 +33,7 @@ class VehicleRentalBill extends StatefulWidget {
     required this.rentOption,
     required this.price,
     required this.pickupLocation,
-  });
+  }) : super(key: key);
 
   @override
   State<VehicleRentalBill> createState() => _VehicleRentalBillState();
@@ -44,6 +46,8 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
   String? ownerName;
   String? ownerPhone;
   double totalAmount = 0;
+  late Timer _timer;
+  final ValueNotifier<int> _timeNotifier = ValueNotifier<int>(600);
 
   final List<Map<String, String>> bankOptions = [
     {'id': 'visa', 'image': 'assets/img/Logo_Visa.png'},
@@ -59,6 +63,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
     super.initState();
     _loadUserDetails();
     _calculateTotal();
+    _startTimer();
   }
 
   Future<void> _loadUserDetails() async {
@@ -157,115 +162,117 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
     setState(() {});
   }
 
-  Future<void> _createBill() async {
-    if (selectedBank == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(AppLocalizations.of(context)
-              .translate('Please select a payment method'))));
-      return;
-    }
-
-    try {
-      final billId = await _generateBillId();
-      final currentUser = FirebaseAuth.instance.currentUser;
-
-      if (currentUser == null) {
-        throw Exception('No user logged in');
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_timeNotifier.value > 0) {
+        _timeNotifier.value--;
+      } else {
+        _timer.cancel();
+        if (mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       }
-
-      final userDoc = await FirebaseFirestore.instance
-          .collection('USER')
-          .where('uid', isEqualTo: currentUser.uid)
-          .get();
-
-      if (userDoc.docs.isEmpty) {
-        throw Exception('User not found');
-      }
-
-      final userId = userDoc.docs.first['userId'];
-
-      final bill = BillModel(
-        billId: billId,
-        userId: userId,
-        startDate: widget.startDate.toIso8601String(),
-        endDate: widget.endDate.toIso8601String(),
-        rentalType: widget.rentOption,
-        total: totalAmount,
-        voucherId: '', // Có thể thêm tính năng voucher sau
-        travelPointsUsed: 0, // Có thể thêm tính năng điểm sau
-        paymentMethod: selectedBank!,
-        accountPayment: '', // Có thể thêm số tài khoản sau
-        vehicleRegisterId: widget.vehicleRegisterId,
-      );
-
-      await FirebaseFirestore.instance
-          .collection('BILL')
-          .doc(billId)
-          .set(bill.toMap());
-
-      // Cập nhật trạng thái xe thành "Đang cho thuê"
-      await Provider.of<RentalVehicleViewModel>(context, listen: false)
-          .updateVehicleStatus(widget.vehicleRegisterId, 'Đang cho thuê');
-
-      // Hiển thị thông báo thành công và quay về trang chủ
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-                AppLocalizations.of(context).translate('Booking successful'))));
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: $e')));
-    }
+    });
   }
 
-  Future<String> _generateBillId() async {
-    final querySnapshot =
-        await FirebaseFirestore.instance.collection('BILL').get();
-    final currentCounter = querySnapshot.size + 1;
-    return 'BILL${currentCounter.toString().padLeft(4, '0')}';
+  @override
+  void dispose() {
+    _timer.cancel();
+    _timeNotifier.dispose();
+    super.dispose();
+  }
+
+  Widget _buildTimeRemaining() {
+    return ValueListenableBuilder<int>(
+      valueListenable: _timeNotifier,
+      builder: (context, timeLeft, child) {
+        int minutes = timeLeft ~/ 60;
+        int seconds = timeLeft % 60;
+        return Text(
+          '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+          style: TextStyle(
+            fontSize: 16.sp,
+            color: timeLeft < 60 ? Colors.red : Colors.black,
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        return await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text(
+                    AppLocalizations.of(context).translate('Confirm Exit')),
+                content: Text(AppLocalizations.of(context).translate(
+                    'Are you sure you want to cancel this payment?')),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(AppLocalizations.of(context).translate('No')),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    child: Text(AppLocalizations.of(context).translate('Yes')),
+                  ),
+                ],
+              ),
+            ) ??
+            false;
+      },
+      child: Scaffold(
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(60.h),
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
-            automaticallyImplyLeading: false,
-            flexibleSpace: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40.h,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: CustomIconButton(
-                          icon: Icons.chevron_left,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
+            leading: CustomIconButton(
+              icon: Icons.arrow_back,
+              onPressed: () async {
+                final shouldPop = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(
+                        AppLocalizations.of(context).translate('Confirm Exit')),
+                    content: Text(AppLocalizations.of(context).translate(
+                        'Are you sure you want to cancel this payment?')),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child:
+                            Text(AppLocalizations.of(context).translate('No')),
                       ),
-                      Center(
-                        child: Text(
-                          AppLocalizations.of(context)
-                              .translate('Rental Information'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
-                          ),
-                        ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child:
+                            Text(AppLocalizations.of(context).translate('Yes')),
                       ),
                     ],
                   ),
+                );
+                if (shouldPop ?? false) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  AppLocalizations.of(context).translate('Payment'),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                _buildTimeRemaining(),
               ],
             ),
           ),
@@ -572,25 +579,58 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                 ),
                 SizedBox(height: 24.h),
                 ElevatedButton(
-                    onPressed: () {
-                      _createBill();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF007BFF),
-                      foregroundColor: Colors.white,
-                      minimumSize: Size(double.infinity, 50.h),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r)),
+                  onPressed: () async {
+                    try {
+                      await context
+                          .read<RentalVehicleViewModel>()
+                          .confirmPayment(
+                            widget.billId,
+                            selectedBank ?? '',
+                            'account_payment_info',
+                          );
+
+                      if (mounted) {
+                        Navigator.of(context)
+                            .popUntil((route) => route.isFirst);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Thanh toán thành công'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Lỗi: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    minimumSize: Size(343.w, 50.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
-                    child:
-                        Text(AppLocalizations.of(context).translate("Confirm"),
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                            ))),
+                  ),
+                  child: Text(
+                    'Xác nhận',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ]),
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
