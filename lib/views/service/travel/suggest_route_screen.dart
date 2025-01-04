@@ -24,9 +24,20 @@ class SuggestRouteScreen extends StatefulWidget {
 }
 
 class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
-  final RouteViewModel _routeViewModel = RouteViewModel();
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 1));
+
+  @override
+  void initState() {
+    super.initState();
+    // Load suggested routes khi màn hình được tạo
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Provider.of<RouteViewModel>(context, listen: false)
+            .loadSuggestedRoutes(widget.provinceName);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +87,7 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.only(top: 20.h, left: 20.w, right: 20.w),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -94,21 +105,55 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
               CustomElevatedButton(
                 text: "Create Custom Route",
                 onPressed: () {
-                  final routeViewModel = Provider.of<RouteViewModel>(context, listen: false);
-                  final routeTitle = routeViewModel.createNewCustomRoute();
-                  
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RouteDetailScreen(
-                        routeTitle: routeTitle,
-                        destinations: const [],
-                        startDate: _startDate,
-                        endDate: _endDate,
-                        provinceName: widget.provinceName,
-                        isCustomRoute: true,
-                      ),
-                    ),
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      final textController = TextEditingController();
+                      return AlertDialog(
+                        title: const Text('Create New Route'),
+                        content: TextField(
+                          controller: textController,
+                          decoration: const InputDecoration(
+                            hintText: 'Enter route name',
+                            labelText: 'Route Name',
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              final routeName = textController.text;
+                              if (routeName.isNotEmpty) {
+                                final routeViewModel = Provider.of<RouteViewModel>(context, listen: false);
+                                final routeTitle = await routeViewModel.createNewCustomRoute(
+                                  provinceName: widget.provinceName,
+                                  routeTitle: routeName,
+                                );
+                                Navigator.pop(context);
+                                
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RouteDetailScreen(
+                                      routeTitle: routeTitle,
+                                      destinations: const [],
+                                      startDate: _startDate,
+                                      endDate: _endDate,
+                                      provinceName: widget.provinceName,
+                                      isCustomRoute: true,
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                            child: const Text('Confirm'),
+                          ),
+                        ],
+                      );
+                    },
                   );
                 },
               ),
@@ -123,31 +168,51 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
               ),
               SizedBox(height: 20.h),
               Expanded(
-                child: ListView.builder(
-                  itemCount: _routeViewModel.routes.length,
-                  itemBuilder: (context, index) {
-                    final route = _routeViewModel.routes[index];
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: 16.h),
-                      child: RouteCard(
-                        name: route['name'],
-                        imagePath: _routeViewModel.getImagePath(index),
-                        rating: route['rating'],
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TravelRouteScreen(
-                                routeTitle: _routeViewModel.getDisplayTitle(route['name']),
-                                startDate: _startDate,
-                                endDate: _endDate,
-                                provinceName: widget.provinceName,
-                                routeIndex: index,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                child: Consumer<RouteViewModel>(
+                  builder: (context, viewModel, child) {
+                    if (viewModel.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (viewModel.suggestedRoutes.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No suggested routes available',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      itemCount: viewModel.suggestedRoutes.length,
+                      itemBuilder: (context, index) {
+                        final route = viewModel.suggestedRoutes[index];
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 16.h),
+                          child: RouteCard(
+                            name: route['name'],
+                            imagePath: viewModel.getImagePath(index % 4 + 1),
+                            rating: route['rating'],
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TravelRouteScreen(
+                                    routeTitle: route['name'],
+                                    startDate: _startDate,
+                                    endDate: _endDate,
+                                    provinceName: route['province'],
+                                    routeIndex: index,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
                     );
                   },
                 ),

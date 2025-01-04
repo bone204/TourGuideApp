@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart';
+import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/viewmodels/route_viewmodel.dart'; 
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
@@ -29,7 +29,6 @@ class TravelRouteScreen extends StatefulWidget {
 }
 
 class _TravelRouteScreenState extends State<TravelRouteScreen> {
-  final RouteViewModel _routeViewModel = RouteViewModel();
   late List<String> categories;
   late String selectedCategory;
 
@@ -43,9 +42,6 @@ class _TravelRouteScreenState extends State<TravelRouteScreen> {
     });
     
     selectedCategory = categories.first;
-    
-    print('Tìm kiếm địa điểm cho tỉnh: ${widget.provinceName}'); // Debug log
-    _routeViewModel.fetchDestinationsByProvince(widget.provinceName);
   }
 
   void onCategorySelected(String category) {
@@ -103,36 +99,42 @@ class _TravelRouteScreenState extends State<TravelRouteScreen> {
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.only(
-            top: 20.h, 
-            left: 20.w, 
-            right: 20.w,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CategorySelector(categories: categories, selectedCategory: selectedCategory, onCategorySelected: onCategorySelected),
+              CategorySelector(
+                categories: categories, 
+                selectedCategory: selectedCategory, 
+                onCategorySelected: onCategorySelected
+              ),
               SizedBox(height: 20.h),
               Expanded(
-                child: AnimatedBuilder(
-                  animation: _routeViewModel,
-                  builder: (context, child) {
-                    if (_routeViewModel.isLoading) {
+                child: Consumer<RouteViewModel>(
+                  builder: (context, viewModel, child) {
+                    if (viewModel.isLoading) {
                       return const Center(child: CircularProgressIndicator());
                     }
 
-                    if (_routeViewModel.error.isNotEmpty) {
-                      return Center(child: Text(_routeViewModel.error));
-                    }
+                    final route = viewModel.suggestedRoutes[widget.routeIndex];
+                    final destinations = route['destinations'] as List<DestinationModel>;
 
-                    if (_routeViewModel.destinations.isEmpty) {
-                      return const Center(child: Text('Không có địa điểm nào'));
+                    if (destinations.isEmpty) {
+                      return const Center(
+                        child: Text('No destinations in this route'),
+                      );
                     }
 
                     return ListView.builder(
-                      itemCount: _routeViewModel.getDestinationsForRoute(widget.routeIndex).length,
+                      itemCount: destinations.length,
                       itemBuilder: (context, index) {
-                        final destination = _routeViewModel.getDestinationsForRoute(widget.routeIndex)[index];
+                        final destination = destinations[index];
+                        final routeData = route['routes'] as List;
+                        final destinationRoute = routeData.firstWhere(
+                          (r) => r['destinationId'] == destination.destinationId,
+                          orElse: () => {'timeline': '${8 + index}:00 AM - ${9 + index}:00 AM'},
+                        );
+
                         return Padding(
                           padding: EdgeInsets.only(bottom: 16.h),
                           child: DestinationRouteCard(
@@ -140,13 +142,9 @@ class _TravelRouteScreenState extends State<TravelRouteScreen> {
                             imagePath: destination.photo.isNotEmpty 
                                 ? destination.photo[0] 
                                 : 'assets/img/bg_route_1.png',
-                            timeRange: '${8 + index}:00 AM - ${9 + index}:00 AM',
+                            timeRange: destinationRoute['timeline'] as String,
                             onTap: () {
-                              if (kDebugMode) {
-                                print('Destination tapped: ${destination.destinationName}');
-                                print('Address: ${destination.specificAddress}');
-                                print('Description: ${destination.descriptionViet}');
-                              }
+                              // Handle destination tap
                             },
                           ),
                         );
@@ -175,18 +173,19 @@ class _TravelRouteScreenState extends State<TravelRouteScreen> {
               width: double.infinity,
               height: 48.h,
               child: ElevatedButton(
-                onPressed: () {
-                  final routeViewModel = Provider.of<RouteViewModel>(context, listen: false);
-                  routeViewModel.saveSelectedRoute(
-                    routeTitle: widget.routeTitle,
-                    destinations: _routeViewModel.getDestinationsForRoute(widget.routeIndex),
+                onPressed: () async {
+                  final viewModel = Provider.of<RouteViewModel>(context, listen: false);
+                  final selectedRoute = viewModel.suggestedRoutes[widget.routeIndex];
+                  
+                  // Chỉ lưu route đã có
+                  await viewModel.saveExistingRoute(
+                    route: selectedRoute,
                     startDate: widget.startDate,
                     endDate: widget.endDate,
-                    provinceName: widget.provinceName,
                   );
-                  
-                  Navigator.of(context).popUntil(
-                    (route) => route.settings.name == '/travel' || route.isFirst
+
+                  Navigator.of(context, rootNavigator: true).popUntil(
+                    (route) => route.isFirst || route.settings.name == '/home'
                   );
                 },
                 style: ElevatedButton.styleFrom(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/color/colors.dart';
 
 class TimelineEditorDialog extends StatefulWidget {
   final String initialTimeline;
@@ -41,25 +43,14 @@ class _TimelineEditorDialogState extends State<TimelineEditorDialog> {
   }
 
   TimeOfDay _parseTimeString(String timeStr) {
-    final components = timeStr.split(' ');
-    final timeComponents = components[0].split(':');
-    int hour = int.parse(timeComponents[0]);
-    final minute = int.parse(timeComponents[1]);
-
-    if (components[1] == 'PM' && hour != 12) {
-      hour += 12;
-    } else if (components[1] == 'AM' && hour == 12) {
-      hour = 0;
-    }
-
+    final components = timeStr.split(':');
+    final hour = int.parse(components[0]);
+    final minute = int.parse(components[1]);
     return TimeOfDay(hour: hour, minute: minute);
   }
 
   String _formatTimeOfDay(TimeOfDay time) {
-    final hour = time.hourOfPeriod;
-    final minute = time.minute.toString().padLeft(2, '0');
-    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
-    return '${hour == 0 ? 12 : hour}:$minute $period';
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
   bool _isValidTimeRange(TimeOfDay start, TimeOfDay end) {
@@ -97,71 +88,177 @@ class _TimelineEditorDialogState extends State<TimelineEditorDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Edit Timeline'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            title: const Text('Start Time'),
-            trailing: Text(_formatTimeOfDay(_startTime)),
-            onTap: () async {
-              final time = await showTimePicker(
-                context: context,
-                initialTime: _startTime,
-              );
-              if (time != null) {
-                if (_isValidTimeRange(time, _endTime)) {
-                  setState(() => _startTime = time);
-                }
-              }
-            },
-          ),
-          ListTile(
-            title: const Text('End Time'),
-            trailing: Text(_formatTimeOfDay(_endTime)),
-            onTap: () async {
-              final time = await showTimePicker(
-                context: context,
-                initialTime: _endTime,
-              );
-              if (time != null) {
-                if (_isValidTimeRange(_startTime, time)) {
-                  setState(() => _endTime = time);
-                }
-              }
-            },
-          ),
-          if (_errorMessage != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                _errorMessage!,
-                style: const TextStyle(color: Colors.red),
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Edit Timeline',
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+                color: AppColors.black,
               ),
             ),
-        ],
+            SizedBox(height: 24.h),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Column(
+                children: [
+                  _buildTimePickerTile(
+                    'Start Time',
+                    _startTime,
+                    (time) {
+                      if (time != null) {
+                        setState(() {
+                          _startTime = time;
+                          _endTime = TimeOfDay(
+                            hour: (time.hour + 1) % 24,
+                            minute: time.minute,
+                          );
+                        });
+                        _isValidTimeRange(_startTime, _endTime);
+                      }
+                    },
+                  ),
+                  Divider(height: 1.h, color: Colors.grey[300]),
+                  _buildTimePickerTile(
+                    'End Time',
+                    _endTime,
+                    (time) {
+                      if (time != null) {
+                        setState(() => _endTime = time);
+                        _isValidTimeRange(_startTime, _endTime);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+            if (_errorMessage != null) ...[
+              SizedBox(height: 12.h),
+              Text(
+                _errorMessage!,
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 12.sp,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+            SizedBox(height: 24.h),
+            Row(
+              children: [
+                if (widget.onDelete != null)
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: widget.onDelete,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red[50],
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                      child: Text(
+                        'Delete',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                if (widget.onDelete != null) SizedBox(width: 12.w),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_isValidTimeRange(_startTime, _endTime)) {
+                        final timeline =
+                            '${_formatTimeOfDay(_startTime)} - ${_formatTimeOfDay(_endTime)}';
+                        Navigator.pop(context, timeline);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                    child: Text(
+                      'Save',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
-      actions: [
-        TextButton(
-          onPressed: widget.onDelete,
-          child: const Text('Delete', style: TextStyle(color: Colors.red)),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: () {
-            if (_isValidTimeRange(_startTime, _endTime)) {
-              final timeline =
-                  '${_formatTimeOfDay(_startTime)} - ${_formatTimeOfDay(_endTime)}';
-              Navigator.pop(context, timeline);
-            }
+    );
+  }
+
+  Widget _buildTimePickerTile(
+    String title,
+    TimeOfDay time,
+    Function(TimeOfDay?) onTimeSelected,
+  ) {
+    return InkWell(
+      onTap: () async {
+        final newTime = await showTimePicker(
+          context: context,
+          initialTime: time,
+          builder: (context, child) {
+            return Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: ColorScheme.light(
+                  primary: AppColors.primaryColor,
+                ),
+              ),
+              child: child!,
+            );
           },
-          child: const Text('Save'),
+        );
+        onTimeSelected(newTime);
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.black,
+              ),
+            ),
+            Text(
+              _formatTimeOfDay(time),
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryColor,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

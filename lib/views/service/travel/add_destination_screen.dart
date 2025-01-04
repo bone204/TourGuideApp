@@ -13,12 +13,14 @@ class AddDestinationScreen extends StatefulWidget {
   final String routeTitle;
   final List<DestinationModel> currentDestinations;
   final String provinceName;
+  final Function(DestinationModel) onAddDestination;
 
   const AddDestinationScreen({
     Key? key,
     required this.routeTitle,
     required this.currentDestinations,
     required this.provinceName,
+    required this.onAddDestination,
   }) : super(key: key);
 
   @override
@@ -127,19 +129,22 @@ class _AddDestinationScreenState extends State<AddDestinationScreen> {
                     itemBuilder: (context, index) {
                       final destination = availableDestinations[index];
                       return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          final confirmed = await Navigator.push<bool>(
                             context,
                             MaterialPageRoute(
                               builder: (context) => DestinationDetailAddPage(
                                 destination: destination,
                                 onAddPressed: () {
-                                  Navigator.pop(context);
-                                  Navigator.pop(context, destination);
+                                  Navigator.pop(context, true);
                                 },
                               ),
                             ),
                           );
+
+                          if (confirmed == true) {
+                            Navigator.pop(context, destination);
+                          }
                         },
                         child: FavouriteCard(
                           data: FavouriteCardData(

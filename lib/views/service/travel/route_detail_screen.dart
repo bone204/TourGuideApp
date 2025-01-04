@@ -11,6 +11,8 @@ import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/destination_route_card.dart';
 import 'package:tourguideapp/viewmodels/route_viewmodel.dart';
 import 'package:provider/provider.dart';
+import 'package:tourguideapp/widgets/timeline_editor_dialog.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RouteDetailScreen extends StatefulWidget {
   final String routeTitle;
@@ -73,6 +75,20 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
         currentTime = DateTime.now();
       });
     });
+
+    // Lắng nghe thay đổi từ RouteViewModel
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final routeViewModel = Provider.of<RouteViewModel>(context, listen: false);
+        final route = routeViewModel.savedRoutes.firstWhere(
+          (r) => r['title'] == widget.routeTitle,
+          orElse: () => {'destinations': []},
+        );
+        setState(() {
+          _destinations = List<DestinationModel>.from(route['destinations'] as List? ?? []);
+        });
+      }
+    });
   }
 
   @override
@@ -125,7 +141,17 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                         child: CustomIconButton(
                           icon: Icons.chevron_left,
                           onPressed: () {
-                            Navigator.of(context).popUntil((route) => route.isFirst);
+                            if (widget.isCustomRoute) {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => const TravelScreen(),
+                                  settings: const RouteSettings(name: '/travel'),
+                                ),
+                                (route) => route.isFirst,
+                              );
+                            } else {
+                              Navigator.of(context).pop();
+                            }
                           },
                         ),
                       ),
@@ -160,12 +186,11 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                                         Provider.of<RouteViewModel>(context, listen: false)
                                           .deleteRoute(widget.routeTitle);
                                         Navigator.pop(context);
-                                        Navigator.pushReplacement(
-                                          context,
+                                        Navigator.of(context).pushAndRemoveUntil(
                                           MaterialPageRoute(
-                                            settings: const RouteSettings(name: '/travel'),
                                             builder: (context) => const TravelScreen(),
                                           ),
+                                          (route) => route.isFirst,
                                         );
                                       },
                                       child: const Text('Delete', style: TextStyle(color: Colors.red)),
@@ -231,84 +256,166 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
               ),
               SizedBox(height: 20.h),
               Expanded(
-                child: ListView.builder(
-                  itemCount: widget.isCustomRoute ? _destinations.length + 1 : _destinations.length,
-                  itemBuilder: (context, index) {
-                    if (widget.isCustomRoute && index == _destinations.length) {
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () async {
-                                final selectedDestination = await Navigator.push<DestinationModel>(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => AddDestinationScreen(
-                                      routeTitle: widget.routeTitle,
-                                      currentDestinations: _destinations,
-                                      provinceName: widget.provinceName,
+                child: Consumer<RouteViewModel>(
+                  builder: (context, routeViewModel, child) {
+                    final currentRoute = routeViewModel.savedRoutes.firstWhere(
+                      (r) => r['title'] == widget.routeTitle,
+                      orElse: () => {'destinations': <DestinationModel>[]},
+                    );
+                    
+                    _destinations = List<DestinationModel>.from(
+                      currentRoute['destinations'] as List? ?? []
+                    );
+
+                    return FutureBuilder(
+                      future: FirebaseFirestore.instance
+                          .collection('TRAVEL_ROUTE')
+                          .doc(routeViewModel.routes
+                              .firstWhere((r) => r['name'] == widget.routeTitle)['travelRouteId'])
+                          .get(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                        
+                        final routeData = List<Map<String, dynamic>>.from(snapshot.data?.data()?['routes'] ?? []);
+                        
+                        return ListView.builder(
+                          itemCount: widget.isCustomRoute ? _destinations.length + 1 : _destinations.length,
+                          itemBuilder: (context, index) {
+                            if (widget.isCustomRoute && index == _destinations.length) {
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        final selectedDestination = await Navigator.push<DestinationModel>(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => AddDestinationScreen(
+                                              routeTitle: widget.routeTitle,
+                                              currentDestinations: _destinations,
+                                              provinceName: widget.provinceName,
+                                              onAddDestination: (destination) async {
+                                                // Để trống callback này
+                                              },
+                                            ),
+                                          ),
+                                        );
+
+                                        if (selectedDestination != null) {
+                                          await Provider.of<RouteViewModel>(context, listen: false)
+                                              .addDestinationToRoute(
+                                                routeTitle: widget.routeTitle,
+                                                destination: selectedDestination,
+                                              );
+                                        }
+                                      },
+                                      child: Container(
+                                        height: 56.h,
+                                        width: 56.w,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryColor,
+                                          borderRadius: BorderRadius.circular(12.r),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '+',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 24.sp,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                );
+                                ],
+                              );
+                            }
 
-                                if (selectedDestination != null) {
-                                  setState(() {
-                                    _destinations.add(selectedDestination);
-                                  });
-
-                                  Provider.of<RouteViewModel>(context, listen: false).saveSelectedRoute(
-                                    routeTitle: widget.routeTitle,
-                                    destinations: _destinations,
-                                    startDate: widget.startDate,
-                                    endDate: widget.endDate,
-                                    provinceName: widget.provinceName,
-                                  );
+                            final destination = _destinations[index];
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: 16.h),
+                              child: DestinationRouteCard(
+                                name: destination.destinationName,
+                                imagePath: destination.photo.isNotEmpty 
+                                    ? destination.photo[0] 
+                                    : 'assets/img/bg_route_1.png',
+                                timeRange: index < routeData.length 
+                                    ? routeData[index]['timeline'] as String
+                                    : '${8 + index}:00 AM - ${9 + index}:00 AM',  // Fallback timeline nếu không có trong routeData
+                                onTap: widget.isCustomRoute ? () async {
+                                  final route = Provider.of<RouteViewModel>(context, listen: false)
+                                      .routes
+                                      .firstWhere((r) => r['name'] == widget.routeTitle);
+                                      
+                                  final docRef = await FirebaseFirestore.instance
+                                      .collection('TRAVEL_ROUTE')
+                                      .doc(route['travelRouteId'])
+                                      .get();
+                                      
+                                  if (!docRef.exists) return;
                                   
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Destination added successfully!'),
-                                      duration: Duration(seconds: 2),
+                                  final routeData = List<Map<String, dynamic>>.from(docRef.data()?['routes'] ?? []);
+                                  if (routeData.isEmpty) return;
+
+                                  final currentIndex = routeData.indexWhere((r) => r['destinationId'] == destination.destinationId);
+                                  if (currentIndex == -1) return;
+
+                                  final destinationRoute = routeData[currentIndex];
+                                  
+                                  TimeOfDay? previousEndTime;
+                                  TimeOfDay? nextStartTime;
+                                  
+                                  if (currentIndex > 0) {
+                                    final prevTimeline = routeData[currentIndex - 1]['timeline'] as String;
+                                    final endTime = prevTimeline.split(' - ')[1]; // "9:00 AM"
+                                    previousEndTime = TimeOfDay(
+                                      hour: int.parse(endTime.split(':')[0]),
+                                      minute: int.parse(endTime.split(':')[1].split(' ')[0])
+                                    );
+                                  }
+                                  
+                                  if (currentIndex < routeData.length - 1) {
+                                    final nextTimeline = routeData[currentIndex + 1]['timeline'] as String;
+                                    final startTime = nextTimeline.split(' - ')[0]; // "10:00 AM"
+                                    nextStartTime = TimeOfDay(
+                                      hour: int.parse(startTime.split(':')[0]),
+                                      minute: int.parse(startTime.split(':')[1].split(' ')[0])
+                                    );
+                                  }
+
+                                  final newTimeline = await showDialog<String>(
+                                    context: context,
+                                    builder: (context) => TimelineEditorDialog(
+                                      initialTimeline: destinationRoute['timeline'] as String,
+                                      previousEndTime: previousEndTime,
+                                      nextStartTime: nextStartTime,
+                                      onDelete: () {
+                                        Navigator.pop(context);
+                                        Provider.of<RouteViewModel>(context, listen: false)
+                                            .removeDestinationFromRoute(
+                                              routeTitle: widget.routeTitle,
+                                              destinationId: destination.destinationId,
+                                            );
+                                      },
                                     ),
                                   );
-                                }
-                              },
-                              child: Container(
-                                height: 56.h,
-                                width: 56.w,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryColor,
-                                  borderRadius: BorderRadius.circular(12.r),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '+',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }
 
-                    final destination = _destinations[index];
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: 16.h),
-                      child: DestinationRouteCard(
-                        name: destination.destinationName,
-                        imagePath: destination.photo.isNotEmpty 
-                            ? destination.photo[0] 
-                            : 'assets/img/bg_route_1.png',
-                        timeRange: '${8 + index}:00 AM - ${9 + index}:00 AM',
-                        onTap: () {
-                          // Handle destination tap
-                        },
-                      ),
+                                  if (newTimeline != null) {
+                                    await Provider.of<RouteViewModel>(context, listen: false)
+                                        .updateDestinationTimeline(
+                                          routeTitle: widget.routeTitle,
+                                          destinationId: destination.destinationId,
+                                          newTimeline: newTimeline,
+                                        );
+                                  }
+                                } : null,
+                              ),
+                            );
+                          },
+                        );
+                      },
                     );
                   },
                 ),
@@ -341,7 +448,9 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                     endDate: widget.endDate,
                     provinceName: widget.provinceName,
                   );
-                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  Navigator.of(context, rootNavigator: true).popUntil(
+                    (route) => route.isFirst || route.settings.name == '/home'
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryColor,
