@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class RentalBillDetailScreen extends StatefulWidget {
   final String model;
@@ -48,7 +49,7 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
     try {
       final firestore = FirebaseFirestore.instance;
       final auth = FirebaseAuth.instance;
-      
+
       // Lấy thông tin khách hàng
       final userDoc = await firestore
           .collection('USER')
@@ -71,10 +72,8 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
       if (vehicleDoc.exists) {
         final contractId = vehicleDoc.data()?['contractId'];
         if (contractId != null) {
-          final contractDoc = await firestore
-              .collection('CONTRACT')
-              .doc(contractId)
-              .get();
+          final contractDoc =
+              await firestore.collection('CONTRACT').doc(contractId).get();
 
           if (contractDoc.exists) {
             final ownerId = contractDoc.data()?['userId'];
@@ -151,7 +150,8 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
                     ),
                     Center(
                       child: Text(
-                        AppLocalizations.of(context).translate('Rental Information'),
+                        AppLocalizations.of(context)
+                            .translate('Rental Information'),
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -238,7 +238,8 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
                               if (loadingProgress == null) return child;
                               return Center(
                                 child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
                                       ? loadingProgress.cumulativeBytesLoaded /
                                           loadingProgress.expectedTotalBytes!
                                       : null,
@@ -289,21 +290,44 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
   Widget _buildRentalInfo(BuildContext context) {
     return Column(
       children: [
+        _buildInfoRow(AppLocalizations.of(context).translate("Selected:"), "1"),
+        SizedBox(height: 18.h),
         _buildInfoRow(
-          AppLocalizations.of(context).translate("Selected:"),
-          "1"
+          "Start Date:",
+          widget.startDate,
+        ),
+        SizedBox(height: 8.h),
+        _buildInfoRow(
+          "End Date:",
+          widget.endDate,
         ),
         SizedBox(height: 18.h),
         _buildInfoRow(
-          widget.rentOption == 'Hourly' 
-            ? AppLocalizations.of(context).translate("Hours:") 
-            : AppLocalizations.of(context).translate("Days:"),
           widget.rentOption == 'Hourly'
-              ? "${DateTime.parse(widget.endDate).difference(DateTime.parse(widget.startDate)).inHours}"
-              : "${DateTime.parse(widget.endDate).difference(DateTime.parse(widget.startDate)).inDays + 1}",
+              ? AppLocalizations.of(context).translate("Hours:")
+              : AppLocalizations.of(context).translate("Days:"),
+          _calculateDuration(
+              widget.startDate, widget.endDate, widget.rentOption),
         ),
       ],
     );
+  }
+
+  String _calculateDuration(
+      String startDate, String endDate, String rentOption) {
+    try {
+      final DateFormat parser = DateFormat('dd/MM/yyyy HH:mm');
+      final start = parser.parse(startDate);
+      final end = parser.parse(endDate);
+
+      if (rentOption == 'Hourly') {
+        return '${end.difference(start).inHours}';
+      } else {
+        return '${end.difference(start).inDays + 1}';
+      }
+    } catch (e) {
+      return '0';
+    }
   }
 
   Widget _buildPriceInfo(BuildContext context) {
@@ -346,4 +370,4 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
       ],
     );
   }
-} 
+}

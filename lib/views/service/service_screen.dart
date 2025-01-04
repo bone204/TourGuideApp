@@ -7,7 +7,6 @@ import 'package:tourguideapp/views/service/rental_vehicle/rental_bill_detail_scr
 import '../../widgets/use_service_card.dart';
 import '../../viewmodels/bill_viewmodel.dart';
 import '../../viewmodels/rental_vehicle_viewmodel.dart';
-import 'package:intl/intl.dart';
 
 class ServiceScreen extends StatefulWidget {
   const ServiceScreen({super.key});
@@ -35,7 +34,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
         body: Consumer<BillViewModel>(
           builder: (context, billViewModel, child) {
             final bills = billViewModel.userBills;
-            
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -54,7 +53,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
                   child: bills.isEmpty
                       ? Center(
                           child: Text(
-                            AppLocalizations.of(context).translate('No services found'),
+                            AppLocalizations.of(context)
+                                .translate('No services found'),
                           ),
                         )
                       : ListView.builder(
@@ -62,7 +62,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
                           itemBuilder: (context, index) {
                             final bill = bills[index];
                             return FutureBuilder(
-                              future: billViewModel.getVehicleDetails(bill.vehicleRegisterId),
+                              future: billViewModel
+                                  .getVehicleDetails(bill.vehicleRegisterId),
                               builder: (context, snapshot) {
                                 if (!snapshot.hasData) {
                                   return const SizedBox.shrink();
@@ -74,21 +75,27 @@ class _ServiceScreenState extends State<ServiceScreen> {
                                       .read<RentalVehicleViewModel>()
                                       .getVehiclePhoto(vehicle.vehicleId),
                                   builder: (context, photoSnapshot) {
-                                    final imageUrl = photoSnapshot.data ?? 'assets/img/icon-cx3.png';
-                                    
+                                    final imageUrl = photoSnapshot.data ??
+                                        'assets/img/icon-cx3.png';
+
                                     return UseServiceCard(
-                                      vehicleName: '${vehicle.vehicleBrand} ${vehicle.vehicleModel}',
-                                      dateRange: '${DateFormat('dd/MM/yyyy').format(DateTime.parse(bill.startDate))} - ${DateFormat('dd/MM/yyyy').format(DateTime.parse(bill.endDate))}',
+                                      vehicleName:
+                                          '${vehicle.vehicleBrand} ${vehicle.vehicleModel}',
+                                      dateRange:
+                                          '${bill.startDate} - ${bill.endDate}',
                                       price: bill.total,
                                       imageUrl: imageUrl,
                                       onDetailPressed: () {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => RentalBillDetailScreen(
-                                              model: '${vehicle.vehicleBrand} ${vehicle.vehicleModel}',
+                                            builder: (context) =>
+                                                RentalBillDetailScreen(
+                                              model:
+                                                  '${vehicle.vehicleBrand} ${vehicle.vehicleModel}',
                                               vehicleId: vehicle.vehicleId,
-                                              vehicleRegisterId: bill.vehicleRegisterId,
+                                              vehicleRegisterId:
+                                                  bill.vehicleRegisterId,
                                               startDate: bill.startDate,
                                               endDate: bill.endDate,
                                               rentOption: bill.rentalType,

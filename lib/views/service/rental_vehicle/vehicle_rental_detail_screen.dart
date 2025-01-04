@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
@@ -6,8 +7,10 @@ import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:tourguideapp/views/service/rental_vehicle/vehicle_rental_bill.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/info_text_field.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class VehicleRentalDetail extends StatelessWidget {
+class VehicleRentalDetail extends StatefulWidget {
   final String model;
   final String imagePath;
   final DateTime startDate;
@@ -37,6 +40,11 @@ class VehicleRentalDetail extends StatelessWidget {
     required this.dayPrice,
   }) : super(key: key);
 
+  @override
+  State<VehicleRentalDetail> createState() => _VehicleRentalDetailState();
+}
+
+class _VehicleRentalDetailState extends State<VehicleRentalDetail> {
   String _getDayAbbreviation(DateTime date, BuildContext context) {
     List<String> daysVi = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
     List<String> daysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -53,7 +61,7 @@ class VehicleRentalDetail extends StatelessWidget {
   String _getDurationText(BuildContext context, Duration duration) {
     String languageCode = Localizations.localeOf(context).languageCode;
 
-    if (rentOption == 'Hourly') {
+    if (widget.rentOption == 'Hourly') {
       int hours = duration.inHours;
       if (languageCode == 'vi') {
         return "$hours ${hours == 1 ? 'giờ' : 'giờ'}";
@@ -99,7 +107,7 @@ class VehicleRentalDetail extends StatelessWidget {
                     ),
                     Center(
                       child: Text(
-                        AppLocalizations.of(context).translate(model),
+                        AppLocalizations.of(context).translate(widget.model),
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -121,9 +129,9 @@ class VehicleRentalDetail extends StatelessWidget {
           children: [
             Consumer<RentalVehicleViewModel>(
               builder: (context, viewModel, child) {
-                print('VehicleID in RentalDetail: $vehicleId');
+                print('VehicleID in RentalDetail: ${widget.vehicleId}');
                 return FutureBuilder<String>(
-                  future: viewModel.getVehiclePhoto(vehicleId),
+                  future: viewModel.getVehiclePhoto(widget.vehicleId),
                   builder: (context, snapshot) {
                     print('Photo URL: ${snapshot.data}');
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -191,7 +199,8 @@ class VehicleRentalDetail extends StatelessWidget {
                 builder: (context, viewModel, child) {
                   final locale = Localizations.localeOf(context).languageCode;
                   return FutureBuilder<Map<String, dynamic>>(
-                    future: viewModel.getVehicleDetails(vehicleId, locale),
+                    future:
+                        viewModel.getVehicleDetails(widget.vehicleId, locale),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
@@ -235,7 +244,7 @@ class VehicleRentalDetail extends StatelessWidget {
             InfoTextField(
               size: 335,
               labelText: AppLocalizations.of(context).translate("Location"),
-              text: pickupLocation,
+              text: widget.pickupLocation,
               icon: Icons.location_on_outlined,
             ),
             SizedBox(height: 26.h),
@@ -246,15 +255,15 @@ class VehicleRentalDetail extends StatelessWidget {
                   labelText:
                       AppLocalizations.of(context).translate("Start Date"),
                   text:
-                      "${_getDayAbbreviation(startDate, context)}, ${startDate.day.toString().padLeft(2, '0')}/${startDate.month.toString().padLeft(2, '0')}/${startDate.year}",
+                      "${_getDayAbbreviation(widget.startDate, context)}, ${widget.startDate.day.toString().padLeft(2, '0')}/${widget.startDate.month.toString().padLeft(2, '0')}/${widget.startDate.year}",
                   icon: Icons.calendar_month,
                 ),
                 SizedBox(width: 11.h),
                 InfoTextField(
                   size: 137,
                   labelText: AppLocalizations.of(context).translate("Duration"),
-                  text:
-                      _getDurationText(context, endDate.difference(startDate)),
+                  text: _getDurationText(
+                      context, widget.endDate.difference(widget.startDate)),
                   icon: Icons.timer_outlined,
                 ),
               ],
@@ -266,7 +275,7 @@ class VehicleRentalDetail extends StatelessWidget {
                   size: 186,
                   labelText: AppLocalizations.of(context).translate("End Date"),
                   text:
-                      "${_getDayAbbreviation(endDate, context)}, ${endDate.day.toString().padLeft(2, '0')}/${endDate.month.toString().padLeft(2, '0')}/${endDate.year}",
+                      "${_getDayAbbreviation(widget.endDate, context)}, ${widget.endDate.day.toString().padLeft(2, '0')}/${widget.endDate.month.toString().padLeft(2, '0')}/${widget.endDate.year}",
                   icon: Icons.calendar_month,
                 ),
                 SizedBox(width: 11.h),
@@ -281,22 +290,62 @@ class VehicleRentalDetail extends StatelessWidget {
             ),
             SizedBox(height: 26.h),
             ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => VehicleRentalBill(
-                                model: model,
-                                vehicleId: vehicleId,
-                                vehicleRegisterId: vehicleRegisterId,
-                                startDate: startDate,
-                                endDate: endDate,
-                                rentOption: rentOption,
-                                price: rentOption == 'Hourly'
-                                    ? hour4Price
-                                    : dayPrice,
-                                pickupLocation: pickupLocation,
-                              )));
+                onPressed: () async {
+                  try {
+                    final auth = FirebaseAuth.instance;
+                    final currentUser = auth.currentUser;
+
+                    if (currentUser != null) {
+                      final userDoc = await FirebaseFirestore.instance
+                          .collection('USER')
+                          .where('uid', isEqualTo: currentUser.uid)
+                          .get();
+
+                      if (userDoc.docs.isNotEmpty) {
+                        final userId = userDoc.docs.first['userId'];
+
+                        // Tạo bill ban đầu
+                        final billId =
+                            await Provider.of<RentalVehicleViewModel>(context,
+                                    listen: false)
+                                .createInitialBill(
+                          userId: userId,
+                          vehicleRegisterId: widget.vehicleRegisterId,
+                          startDate: widget.startDate,
+                          endDate: widget.endDate,
+                          rentOption: widget.rentOption,
+                          total: widget.price,
+                        );
+
+                        if (mounted) {
+                          // Chuyển đến màn hình thanh toán với billId
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => VehicleRentalBill(
+                                billId: billId,
+                                model: widget.model,
+                                vehicleId: widget.vehicleId,
+                                vehicleRegisterId: widget.vehicleRegisterId,
+                                startDate: widget.startDate,
+                                endDate: widget.endDate,
+                                rentOption: widget.rentOption,
+                                price: widget.price,
+                                pickupLocation: widget.pickupLocation,
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    }
+                  } catch (e) {
+                    if (kDebugMode) {
+                      print('Error creating bill: $e');
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $e')),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF007BFF),

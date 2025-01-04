@@ -1,6 +1,6 @@
 class BillDetailModel {
   final String billId;
-  final String licensePlate;
+  final String vehicleRegisterId;
   final int number;
   final double total;
   final String citizenFrontPhoto;
@@ -9,7 +9,7 @@ class BillDetailModel {
 
   BillDetailModel({
     required this.billId,
-    required this.licensePlate,
+    required this.vehicleRegisterId,
     required this.number,
     required this.total,
     required this.citizenFrontPhoto,
@@ -20,7 +20,7 @@ class BillDetailModel {
   Map<String, dynamic> toMap() {
     return {
       'billId': billId,
-      'licensePlate': licensePlate,
+      'vehicleRegisterId': vehicleRegisterId,
       'number': number,
       'total': total,
       'citizenFrontPhoto': citizenFrontPhoto,
@@ -32,7 +32,7 @@ class BillDetailModel {
   factory BillDetailModel.fromMap(Map<String, dynamic> map) {
     return BillDetailModel(
       billId: map['billId'] ?? '',
-      licensePlate: map['licensePlate'] ?? '',
+      vehicleRegisterId: map['vehicleRegisterId'] ?? '',
       number: map['number'] ?? 0,
       total: (map['total'] ?? 0.0).toDouble(),
       citizenFrontPhoto: map['citizenFrontPhoto'] ?? '',
