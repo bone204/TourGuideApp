@@ -177,7 +177,7 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
                     if (viewModel.suggestedRoutes.isEmpty) {
                       return Center(
                         child: Text(
-                          'No suggested routes available',
+                          AppLocalizations.of(context).translate('No suggested routes available'),
                           style: TextStyle(
                             fontSize: 16.sp,
                             color: Colors.grey,

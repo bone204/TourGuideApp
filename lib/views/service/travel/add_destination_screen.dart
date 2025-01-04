@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/widgets/custom_search_bar.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/views/service/travel/destination_detail_add_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AddDestinationScreen extends StatefulWidget {
   final String routeTitle;
@@ -60,7 +61,7 @@ class _AddDestinationScreenState extends State<AddDestinationScreen> {
                       ),
                       Center(
                         child: Text(
-                          'Add Destination',
+                          AppLocalizations.of(context)!.translate('Add Destination'),
                           style: TextStyle(
                             color: AppColors.black,
                             fontWeight: FontWeight.bold,
@@ -86,7 +87,7 @@ class _AddDestinationScreenState extends State<AddDestinationScreen> {
                     searchQuery = value;
                   });
                 },
-                hintText: 'Search destinations...',
+                hintText: AppLocalizations.of(context)!.translate('Search destinations...'),
               ),
             ),
             Expanded(
@@ -107,8 +108,8 @@ class _AddDestinationScreenState extends State<AddDestinationScreen> {
                     return Center(
                       child: Text(
                         searchQuery.isEmpty 
-                            ? 'No available destinations' 
-                            : 'No destinations found',
+                            ? AppLocalizations.of(context)!.translate('No available destinations')
+                            : AppLocalizations.of(context)!.translate('No results found'),
                         style: TextStyle(
                           fontSize: 16.sp,
                           color: Colors.grey,

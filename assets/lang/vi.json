@@ -385,6 +385,13 @@
     "Add to Route": "Thêm Vào Lộ Trình",
     "Remove from Route": "Xóa Khỏi Lộ Trình",
     "Edit Time": "Chỉnh Sửa Thời Gian",
-    "Save Changes": "Lưu Thay Đổi"
+    "Save Changes": "Lưu Thay Đổi",
+
+    "You haven't created any travel routes yet.": "Bạn chưa tạo lộ trình du lịch nào.",
+    "No suggested routes available": "Không có lộ trình gợi ý nào",
+
+    "Add Destination": "Thêm Điểm Đến",
+    "Search destinations...": "Tìm kiếm điểm đến...",
+    "No available destinations": "Không có điểm đến nào"
 }
   
