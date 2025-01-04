@@ -741,8 +741,15 @@ class RentalVehicleViewModel extends ChangeNotifier {
       // Kiểm tra xem có trùng lịch với bill nào không
       for (var doc in billSnapshot.docs) {
         final billData = doc.data();
-        final billStartDate = DateTime.parse(billData['startDate']);
-        final billEndDate = DateTime.parse(billData['endDate']);
+        
+        // Chuyển đổi string date sang DateTime
+        final DateFormat formatter = DateFormat('dd/MM/yyyy HH:mm');
+        final billStartDate = formatter.parse(billData['startDate']);
+        final billEndDate = formatter.parse(billData['endDate']);
+
+        if (kDebugMode) {
+          print('Bill period: ${billStartDate.toString()} - ${billEndDate.toString()}');
+        }
 
         // Nếu có bất kỳ sự chồng chéo nào về thời gian
         if (!(endDate.isBefore(billStartDate) ||
