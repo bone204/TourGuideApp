@@ -11,6 +11,7 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/services/firebase_auth_services.dart';
 import 'signup_screen.dart';
 import 'forgot_password_phone_screen.dart';
+import 'package:tourguideapp/blocs/auth_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -69,7 +70,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
     return ChangeNotifierProvider<LoginViewModel>(
-      create: (_) => LoginViewModel(),
+      create: (context) => LoginViewModel(
+        authService: FirebaseAuthService(),
+        authBloc: context.read<AuthBloc>(),
+      ),
       child: Consumer<LoginViewModel>(
         builder: (context, loginViewModel, child) => Scaffold(
           backgroundColor: Colors.white,

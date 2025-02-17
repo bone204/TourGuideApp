@@ -25,6 +25,9 @@ import 'views/settings/setting_screen.dart';
 import 'viewmodels/profile_viewmodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tourguideapp/viewmodels/bill_viewmodel.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourguideapp/blocs/auth_bloc.dart';
+import 'package:tourguideapp/services/firebase_auth_services.dart';
 
 class ImagesPath {
   static const String kOnboarding1 = 'assets/images/img_1.jpg';
@@ -40,7 +43,41 @@ void main() async {
     }
   }
 
-  runApp(const MyApp(showOnboarding: true));
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AuthBloc(),
+        ),
+      ],
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (context) => LoginViewModel(
+              authService: FirebaseAuthService(),
+              authBloc: context.read<AuthBloc>(),
+            ),
+          ),
+          ChangeNotifierProvider(create: (_) => SignupViewModel()),
+          ChangeNotifierProvider(create: (_) => ProvinceViewModel()),
+          ChangeNotifierProvider(create: (_) => FavouriteDestinationsViewModel()),
+          ChangeNotifierProvider(create: (_) => ProfileViewModel()),
+          ChangeNotifierProvider(create: (_) => AccountInfoViewModel()),
+          ChangeNotifierProvider(create: (_) => HomeViewModel()), 
+          ChangeNotifierProvider(create: (_) => PersonInfoViewModel()),
+          ChangeNotifierProvider(create: (_) => AuthViewModel()),
+          ChangeNotifierProvider(create: (_) => ContractViewModel()),
+          ChangeNotifierProvider(create: (_) => RentalVehicleViewModel()),
+          ChangeNotifierProvider(create: (_) => DestinationsViewModel()),
+          ChangeNotifierProvider(create: (_) => BankViewModel()),
+          ChangeNotifierProvider(create: (_) => RouteViewModel()),
+          ChangeNotifierProvider(create: (_) => BillViewModel()),
+          ChangeNotifierProvider(create: (_) => DestinationsViewModel()),
+        ],
+        child: const MyApp(showOnboarding: true),
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -83,57 +120,36 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => LoginViewModel()),
-        ChangeNotifierProvider(create: (_) => SignupViewModel()),
-        ChangeNotifierProvider(create: (_) => ProvinceViewModel()),
-        ChangeNotifierProvider(create: (_) => FavouriteDestinationsViewModel()),
-        ChangeNotifierProvider(create: (_) => ProfileViewModel()),
-        ChangeNotifierProvider(create: (_) => AccountInfoViewModel()),
-        ChangeNotifierProvider(create: (_) => HomeViewModel()), 
-        ChangeNotifierProvider(create: (_) => PersonInfoViewModel()),
-        ChangeNotifierProvider(create: (_) => AuthViewModel()),
-        ChangeNotifierProvider(create: (_) => ContractViewModel()),
-        ChangeNotifierProvider(create: (_) => RentalVehicleViewModel()),
-        ChangeNotifierProvider(create: (_) => DestinationsViewModel()),
-        ChangeNotifierProvider(create: (_) => BankViewModel()),
-        ChangeNotifierProvider(create: (_) => RouteViewModel()),
-        ChangeNotifierProvider(create: (_) => BillViewModel()),
-        ChangeNotifierProvider(create: (_) => DestinationsViewModel()),
+    return MaterialApp(
+      navigatorKey: PersonInfoViewModel.navigatorKey,
+      title: 'Tour Guide App',
+      locale: _locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
-      child: MaterialApp(
-        navigatorKey: PersonInfoViewModel.navigatorKey,
-        title: 'Tour Guide App',
-        locale: _locale,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('en', ''), 
-          Locale('vi', ''),
-        ],
-        localeResolutionCallback: (locale, supportedLocales) {
-          for (var supportedLocale in supportedLocales) {
-            if (supportedLocale.languageCode == locale?.languageCode) {
-              return supportedLocale;
-            }
+      supportedLocales: const [
+        Locale('en', ''), 
+        Locale('vi', ''),
+      ],
+      localeResolutionCallback: (locale, supportedLocales) {
+        for (var supportedLocale in supportedLocales) {
+          if (supportedLocale.languageCode == locale?.languageCode) {
+            return supportedLocale;
           }
-          return supportedLocales.first;
-        },
-        home: const OnBoardingScreen(),
-        routes: {
-          '/login': (context) => LoginScreen(),
-          '/signup': (context) => SignupScreen(),
-          '/home': (context) => const MainScreen(),
-          '/settings': (context) => const SettingsScreen(),
-        },
-        debugShowCheckedModeBanner: false,
-      ),
+        }
+        return supportedLocales.first;
+      },
+      home: const OnBoardingScreen(),
+      routes: {
+        '/login': (context) => LoginScreen(),
+        '/signup': (context) => SignupScreen(),
+        '/home': (context) => const MainScreen(),
+        '/settings': (context) => const SettingsScreen(),
+      },
+      debugShowCheckedModeBanner: false,
     );
   }
 }

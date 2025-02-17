@@ -5,58 +5,62 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/services/firebase_auth_services.dart';
 import 'package:tourguideapp/models/user_model.dart';
+import 'package:tourguideapp/blocs/auth_bloc.dart';
 
 class LoginViewModel extends ChangeNotifier {
-  final FirebaseAuthService _authService = FirebaseAuthService();
+  final FirebaseAuthService _authService;
+  final AuthBloc _authBloc;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Initialize Firestore
-  bool isLoading = false;
-  String? errorMessage;
+  bool _isLoading = false;
+  String? _errorMessage;
   String? _verificationId;
   int? _resendToken;
   String? foundUserName;
 
-  // Login with Email and Password
-  Future<User?> signIn(String email, String password) async {
-    isLoading = true;
-    errorMessage = null;
-    notifyListeners();
+  LoginViewModel({
+    required FirebaseAuthService authService,
+    required AuthBloc authBloc,
+  }) : _authService = authService,
+       _authBloc = authBloc;
 
+  String? get errorMessage => _errorMessage;
+  bool get isLoading => _isLoading;
+
+  // Login with Email and Password
+  Future<bool> login(String email, String password) async {
     try {
-      User? user = await _authService.signInWithEmailAndPassword(email, password);
-      return user;
-    } on FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case 'user-not-found':
-          errorMessage = 'No user found with this email.';
-          break;
-        case 'wrong-password':
-          errorMessage = 'Incorrect password. Please try again.';
-          break;
-        case 'invalid-email':
-          errorMessage = 'The email address is not valid.';
-          break;
-        default:
-          errorMessage = 'Login failed. Please try again later.';
+      _isLoading = true;
+      notifyListeners();
+
+      final user = await _authService.signInWithEmailAndPassword(email, password);
+      if (user != null) {
+        // Fetch user data from Firestore and convert to UserModel
+        final docSnapshot = await _firestore.collection('USER').doc(user.uid).get();
+        if (docSnapshot.exists) {
+          final userModel = UserModel.fromMap(docSnapshot.data()!);
+          _authBloc.add(AuthUserChanged(userModel));
+          return true;
+        }
       }
+      return false;
     } catch (e) {
-      errorMessage = 'An unexpected error occurred. Please try again.';
+      _errorMessage = e.toString();
+      return false;
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
-    return null;
   }
 
   // Sign in with Google
   Future<User?> signInWithGoogle() async {
-    isLoading = true;
-    errorMessage = null;
+    _isLoading = true;
     notifyListeners();
 
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
-        isLoading = false;
+        _isLoading = false;
         notifyListeners();
         return null; // User cancelled the sign-in
       }
@@ -85,22 +89,22 @@ class LoginViewModel extends ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case 'account-exists-with-different-credential':
-          errorMessage = 'An account already exists with a different credential.';
+          _errorMessage = 'An account already exists with a different credential.';
           break;
         case 'invalid-credential':
-          errorMessage = 'The credential is invalid or expired.';
+          _errorMessage = 'The credential is invalid or expired.';
           break;
         default:
-          errorMessage = 'Login with Google failed. Please try again.';
+          _errorMessage = 'Login with Google failed. Please try again.';
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print('Error during Google sign-in: $e');
         print('Stack trace: $stackTrace');
       }
-      errorMessage = 'An unexpected error occurred during Google login.';
+      _errorMessage = 'An unexpected error occurred during Google login.';
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
     return null;
@@ -133,17 +137,17 @@ class LoginViewModel extends ChangeNotifier {
             );
           }
         } else {
-          errorMessage = 'Failed to get user data.';
+          _errorMessage = 'Failed to get user data.';
         }
         return user;
       } else {
-        errorMessage = 'Failed to get access token.';
+        _errorMessage = 'Failed to get access token.';
         notifyListeners();
         return null;
       }
     } else {
       // Handle login failure cases
-      errorMessage = 'Facebook login failed: ${loginResult.message}';
+      _errorMessage = 'Facebook login failed: ${loginResult.message}';
       notifyListeners();
       return null;
     }
@@ -195,7 +199,7 @@ class LoginViewModel extends ChangeNotifier {
 
   Future<bool> sendPasswordResetOTP(String phoneNumber) async {
     try {
-      isLoading = true;
+      _isLoading = true;
       notifyListeners();
 
       // Kiểm tra số điện thoại có tồn tại trong hệ thống không
@@ -206,7 +210,7 @@ class LoginViewModel extends ChangeNotifier {
           .get();
 
       if (userQuery.docs.isEmpty) {
-        errorMessage = 'No account found with this phone number';
+        _errorMessage = 'No account found with this phone number';
         foundUserName = null;
         return false;
       }
@@ -228,7 +232,7 @@ class LoginViewModel extends ChangeNotifier {
           await FirebaseAuth.instance.signInWithCredential(credential);
         },
         verificationFailed: (FirebaseAuthException e) {
-          errorMessage = e.message;
+          _errorMessage = e.message;
           notifyListeners();
         },
         codeSent: (String verificationId, int? resendToken) {
@@ -245,22 +249,22 @@ class LoginViewModel extends ChangeNotifier {
       return true;
     } catch (e) {
       print('Error sending OTP: $e');
-      errorMessage = 'Failed to send verification code';
+      _errorMessage = 'Failed to send verification code';
       foundUserName = null;
       return false;
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
   Future<bool> verifyPasswordResetOTP(String otp) async {
     try {
-      isLoading = true;
+      _isLoading = true;
       notifyListeners();
 
       if (_verificationId == null) {
-        errorMessage = 'Verification ID not found';
+        _errorMessage = 'Verification ID not found';
         return false;
       }
 
@@ -275,17 +279,17 @@ class LoginViewModel extends ChangeNotifier {
       return true;
     } catch (e) {
       print('Error verifying OTP: $e');
-      errorMessage = 'Invalid verification code';
+      _errorMessage = 'Invalid verification code';
       return false;
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
   Future<bool> resetPassword(String phoneNumber, String newPassword) async {
     try {
-      isLoading = true;
+      _isLoading = true;
       notifyListeners();
 
       // Tìm user với số điện thoại đã xác thực
@@ -297,7 +301,7 @@ class LoginViewModel extends ChangeNotifier {
           .get();
 
       if (userQuery.docs.isEmpty) {
-        errorMessage = 'Invalid reset password request';
+        _errorMessage = 'Invalid reset password request';
         return false;
       }
 
@@ -318,10 +322,10 @@ class LoginViewModel extends ChangeNotifier {
       return true;
     } catch (e) {
       print('Error resetting password: $e');
-      errorMessage = 'Failed to reset password';
+      _errorMessage = 'Failed to reset password';
       return false;
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }

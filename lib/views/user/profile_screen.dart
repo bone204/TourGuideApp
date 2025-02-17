@@ -14,6 +14,8 @@ import '../../localization/app_localizations.dart';
 import '../../widgets/custom_icon_button.dart';
 import '../../widgets/interactive_row_widget.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../blocs/auth_bloc.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -34,145 +36,152 @@ class ProfileScreen extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h),
-          child: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            flexibleSpace: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40.h,
-                  child: Stack(
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthAuthenticated) {
+          return SafeArea(
+            child: Scaffold(
+              backgroundColor: Colors.white,
+              appBar: PreferredSize(
+                preferredSize: Size.fromHeight(60.h),
+                child: AppBar(
+                  backgroundColor: Colors.white,
+                  elevation: 0,
+                  automaticallyImplyLeading: false,
+                  flexibleSpace: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Align(
-                        alignment: Alignment.centerLeft, 
-                        child: CustomIconButton(
-                          icon: Icons.chevron_left,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          AppLocalizations.of(context).translate('Profile'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
-                          ),
+                      SizedBox(
+                        height: 40.h,
+                        child: Stack(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft, 
+                              child: CustomIconButton(
+                                icon: Icons.chevron_left,
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ),
+                            Center(
+                              child: Text(
+                                AppLocalizations.of(context).translate('Profile'),
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20.sp,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
+              ),
 
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 70,
-                      backgroundImage: NetworkImage(
-                        profileViewModel.avatar,
-                      ),
-                      onBackgroundImageError: (exception, stackTrace) {
-                        // Fallback nếu load ảnh thất bại
-                        const AssetImage('assets/img/bg_route_1.png');
-                      },
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return SafeArea(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      ListTile(
-                                        leading: const Icon(Icons.photo_camera),
-                                        title: Text(AppLocalizations.of(context).translate('Take Photo')),
-                                        onTap: () {
-                                          Navigator.pop(context);
-                                          profileViewModel.changeProfileImage(ImageSource.camera);
-                                        },
-                                      ),
-                                      ListTile(
-                                        leading: const Icon(Icons.photo_library),
-                                        title: Text(AppLocalizations.of(context).translate('Choose from Gallery')),
-                                        onTap: () {
-                                          Navigator.pop(context);
-                                          profileViewModel.changeProfileImage(ImageSource.gallery);
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  profileViewModel.name,
-                  style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  profileViewModel.email,
-                  style: TextStyle(fontSize: 14.sp, color: Colors.grey),
-                ),
-                SizedBox(height: 34.h),
-                _buildStatsRow(context),
-                SizedBox(height: 16.h),
-                Expanded(
-                  child: ListView(
+              body: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      _buildInteractiveRow(context, Icons.location_pin, 'Favourite Destinations', navigateToFavouriteDestinations: true), 
+                      Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 70,
+                            backgroundImage: NetworkImage(
+                              profileViewModel.avatar,
+                            ),
+                            onBackgroundImageError: (exception, stackTrace) {
+                              // Fallback nếu load ảnh thất bại
+                              const AssetImage('assets/img/bg_route_1.png');
+                            },
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: IconButton(
+                                icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return SafeArea(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            ListTile(
+                                              leading: const Icon(Icons.photo_camera),
+                                              title: Text(AppLocalizations.of(context).translate('Take Photo')),
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                                profileViewModel.changeProfileImage(ImageSource.camera);
+                                              },
+                                            ),
+                                            ListTile(
+                                              leading: const Icon(Icons.photo_library),
+                                              title: Text(AppLocalizations.of(context).translate('Choose from Gallery')),
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                                profileViewModel.changeProfileImage(ImageSource.gallery);
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                       SizedBox(height: 16.h),
-                      _buildInteractiveRow(context, Icons.history, 'Travel History', navigateToTravelHistory: true),
+                      Text(
+                        profileViewModel.name,
+                        style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        profileViewModel.email,
+                        style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+                      ),
+                      SizedBox(height: 34.h),
+                      _buildStatsRow(context),
                       SizedBox(height: 16.h),
-                      _buildInteractiveRow(context, CupertinoIcons.car_detailed, 'My Vehicle', navigateToMyVehicle: true),
-                      SizedBox(height: 16.h),
-                      _buildInteractiveRow(context, Icons.settings, 'Settings', navigateToSettings: true),
+                      Expanded(
+                        child: ListView(
+                          children: [
+                            _buildInteractiveRow(context, Icons.location_pin, 'Favourite Destinations', navigateToFavouriteDestinations: true), 
+                            SizedBox(height: 16.h),
+                            _buildInteractiveRow(context, Icons.history, 'Travel History', navigateToTravelHistory: true),
+                            SizedBox(height: 16.h),
+                            _buildInteractiveRow(context, CupertinoIcons.car_detailed, 'My Vehicle', navigateToMyVehicle: true),
+                            SizedBox(height: 16.h),
+                            _buildInteractiveRow(context, Icons.settings, 'Settings', navigateToSettings: true),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
+          );
+        }
+        return LoginScreen(); // Redirect to login if not authenticated
+      },
     );
   }
 

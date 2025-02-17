@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth để đăng xuất
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/settings/account_information_screen.dart';
@@ -10,6 +9,8 @@ import 'package:tourguideapp/views/settings/privacy_policy_screen.dart';
 import 'package:tourguideapp/widgets/interactive_row_widget.dart';
 import 'language_screen.dart'; // Import màn hình lựa chọn ngôn ngữ
 import '../../widgets/custom_icon_button.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourguideapp/blocs/auth_bloc.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -193,7 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ) ?? false;
 
                   if (shouldLogout) {
-                    await FirebaseAuth.instance.signOut();
+                    context.read<AuthBloc>().add(AuthLogoutRequested());
                     if (mounted) {
                       Navigator.pushNamedAndRemoveUntil(
                         context,

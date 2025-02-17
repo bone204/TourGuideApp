@@ -4,6 +4,8 @@ import 'package:tourguideapp/views/service/service_screen.dart';
 import '../../widgets/bottombar.dart'; 
 import 'home_screen.dart'; 
 import '../user/profile_screen.dart'; 
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourguideapp/blocs/auth_bloc.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -18,6 +20,8 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    // Check auth status when screen loads
+    context.read<AuthBloc>().add(AuthCheckRequested());
   }
 
   final List<Widget> _screens = [
@@ -43,11 +47,18 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _currentIndex != 3 ? _screens[_currentIndex] : Container(),
-      bottomNavigationBar: NavigationExample(
-        currentIndex: _currentIndex,
-        onTap: _onTabTapped,
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthUnauthenticated) {
+          Navigator.of(context).pushReplacementNamed('/login');
+        }
+      },
+      child: Scaffold(
+        body: _currentIndex != 3 ? _screens[_currentIndex] : Container(),
+        bottomNavigationBar: NavigationExample(
+          currentIndex: _currentIndex,
+          onTap: _onTabTapped,
+        ),
       ),
     );
   }
