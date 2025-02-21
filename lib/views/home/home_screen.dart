@@ -25,7 +25,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isInitialized = false;
-  String _selectedProvince = 'All';
+  late String _selectedProvince;
   final ScrollController _scrollController = ScrollController();
   bool _isScrolled = false;
   int _currentDestinationIndex = 0;
@@ -36,13 +36,18 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_isInitialized) {
-        Provider.of<DestinationsViewModel>(context, listen: false).initialize();
-        _isInitialized = true;
-        _startDestinationTimer();
-      }
-    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _selectedProvince = AppLocalizations.of(context).translate('All');
+    
+    if (!_isInitialized) {
+      Provider.of<DestinationsViewModel>(context, listen: false).initialize();
+      _isInitialized = true;
+      _startDestinationTimer();
+    }
   }
 
   void _startDestinationTimer() {
@@ -77,11 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _destinationTimer?.cancel();
     _pageController.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   @override
@@ -233,13 +233,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Province Section
                 ProvinceSection(
                   selectedProvince: _selectedProvince,
-                  provinces: ['All', ...destinationsViewModel.uniqueProvinces],
+                  provinces: [
+                    AppLocalizations.of(context).translate('All'),
+                    ...destinationsViewModel.uniqueProvinces
+                  ],
                   onProvinceSelected: (province) {
                     setState(() {
                       _selectedProvince = province;
                     });
                   },
-                  cardDataList: _selectedProvince == 'All'
+                  cardDataList: _selectedProvince == AppLocalizations.of(context).translate('All')
                       ? destinationsViewModel.horizontalCardsData
                       : destinationsViewModel.getDestinationsByProvince(_selectedProvince),
                   onCardTap: (cardData) {
