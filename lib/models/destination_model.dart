@@ -117,4 +117,21 @@ class DestinationModel {
       categories: categories ?? this.categories,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'destinationId': destinationId,
+      'destinationName': destinationName,
+      'descriptionEng': descriptionEng,
+      'descriptionViet': descriptionViet,
+      'province': province,
+      'photo': photo,
+      'favouriteTimes': favouriteTimes,
+      // Add other fields as needed
+    };
+  }
+
+  factory DestinationModel.fromJson(Map<String, dynamic> json) {
+    return DestinationModel.fromMap(json);
+  }
 }

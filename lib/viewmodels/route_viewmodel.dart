@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/models/travel_route_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tourguideapp/blocs/travel_route/travel_route_bloc.dart';
 
 class RouteViewModel extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -29,6 +30,11 @@ class RouteViewModel extends ChangeNotifier {
   // Thêm biến để lưu suggested routes
   List<Map<String, dynamic>> _suggestedRoutes = [];
 
+  final TravelRouteBloc _travelRouteBloc;
+  
+  RouteViewModel({required TravelRouteBloc travelRouteBloc})
+    : _travelRouteBloc = travelRouteBloc;
+
   // Getters
   List<Map<String, dynamic>> get routes => _userRoutes;
   List<DestinationModel> get destinations => _destinations;
@@ -42,6 +48,77 @@ class RouteViewModel extends ChangeNotifier {
   String? get selectedProvinceName => _selectedProvinceName;
   List<Map<String, dynamic>> get savedRoutes => _savedRoutes;
   List<Map<String, dynamic>> get suggestedRoutes => _suggestedRoutes;
+
+  void loadRoutes({String? provinceName}) {
+    _travelRouteBloc.add(LoadTravelRoutes(provinceName: provinceName));
+  }
+
+  void saveCustomRoute({
+    required String routeTitle,
+    required List<DestinationModel> destinations,
+    required DateTime startDate,
+    required DateTime endDate,
+    required String provinceName,
+    required List<Map<String, dynamic>> routes,
+  }) {
+    _travelRouteBloc.add(SaveCustomRoute(
+      routeTitle: routeTitle,
+      destinations: destinations,
+      startDate: startDate,
+      endDate: endDate,
+      provinceName: provinceName,
+      routes: routes,
+    ));
+  }
+
+  void deleteRoute(String routeTitle) {
+    _travelRouteBloc.add(DeleteTravelRoute(routeTitle: routeTitle));
+  }
+
+  Future<void> deleteRouteFromFirebase(String routeTitle) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) throw Exception('User not logged in');
+
+      final userDoc = await _firestore.collection('USER').doc(user.uid).get();
+      final currentUserId = userDoc.data()?['userId'] as String?;
+      if (currentUserId == null) throw Exception('User information not found');
+
+      final querySnapshot = await _firestore
+          .collection('TRAVEL_ROUTE')
+          .where('routeTitle', isEqualTo: routeTitle)
+          .where('userId', isEqualTo: currentUserId)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception('Route not found or you do not have permission to delete it');
+      }
+
+      // Xóa từ Firebase
+      await querySnapshot.docs.first.reference.delete();
+
+      // Xóa khỏi state local
+      _userRoutes.removeWhere((r) => r['routeTitle'] == routeTitle);
+      _savedRoutes.removeWhere((r) => r['title'] == routeTitle);
+
+      // Reload routes và thông báo thay đổi
+      await loadSavedRoutes();
+      notifyListeners();
+    } catch (e) {
+      print('Error deleting route: $e');
+      rethrow;
+    }
+  }
+
+  void addDestinationToRoute({
+    required String routeTitle,
+    required DestinationModel destination,
+  }) {
+    _travelRouteBloc.add(AddDestinationToRoute(
+      routeTitle: routeTitle,
+      destination: destination,
+    ));
+  }
 
   Future<void> saveSelectedRoute({
     required String routeTitle,
@@ -167,9 +244,9 @@ class RouteViewModel extends ChangeNotifier {
         await _initializeRouteNumber();
       }
 
-      final travelRouteId = 'TR${_currentRouteNumber.toString().padLeft(5, '0')}';
+      final travelRouteId = _generateTravelRouteId();
       
-      // Tạo TravelRouteModel với routes là mảng rỗng
+      // Đảm bảo isCustom luôn được set là true khi tạo route mới
       final travelRoute = TravelRouteModel(
         travelRouteId: travelRouteId,
         userId: userId,
@@ -177,90 +254,35 @@ class RouteViewModel extends ChangeNotifier {
         startDate: DateTime.now(),
         endDate: DateTime.now().add(const Duration(days: 1)),
         createdDate: DateTime.now(),
-        averageRating: 0.0,
         province: provinceName,
         avatar: 'assets/img/bg_route_1.png',
         number: _currentRouteNumber,
-        routes: [], // Khởi tạo mảng routes rỗng
-        isCustom: true,
+        routes: [],
+        isCustom: true, // Đảm bảo set true
       );
-
-      // Chuyển đổi thành Map và đảm bảo routes là mảng rỗng
-      final routeMap = travelRoute.toMap();
-      routeMap['routes'] = []; // Đảm bảo routes là mảng rỗng
 
       // Lưu lên Firebase
       await _firestore
           .collection('TRAVEL_ROUTE')
           .doc(travelRouteId)
-          .set(routeMap);
+          .set(travelRoute.toMap());
 
       _currentRouteNumber++;
 
-      // Cập nhật state local
-      _savedRoutes.add({
-        'title': routeTitle,
-        'destinations': <DestinationModel>[],
-        'startDate': travelRoute.startDate,
-        'endDate': travelRoute.endDate,
-        'provinceName': provinceName,
-        'isCustom': true,
-      });
-
-      // Thêm route mới vào đầu danh sách _userRoutes
-      _userRoutes.insert(0, {
-        'name': routeTitle,
+      // Thêm vào state local
+      _userRoutes.add({
+        'routeTitle': routeTitle,
         'rating': 0.0,
         'travelRouteId': travelRouteId,
         'province': provinceName,
         'createdDate': DateTime.now(),
+        'isCustom': true, // Đảm bảo set true
       });
 
       notifyListeners();
       return routeTitle;
     } catch (e) {
-      print('Error creating new route: $e');
-      rethrow;
-    }
-  }
-
-  // Thêm method mới để xóa một route cụ thể
-  Future<void> deleteRoute(String routeTitle) async {
-    try {
-      print('=== Start deleting route: $routeTitle ===');
-      
-      final user = _auth.currentUser;
-      if (user == null) throw Exception('User not logged in');
-
-      // Tìm route trong userRoutes
-      final route = _userRoutes.firstWhere(
-        (r) => r['name'] == routeTitle,
-        orElse: () => throw Exception('Route not found in userRoutes'),
-      );
-      final travelRouteId = route['travelRouteId'];
-      print('Found route ID: $travelRouteId');
-
-      // Xóa từ Firebase
-      final docRef = _firestore.collection('TRAVEL_ROUTE').doc(travelRouteId);
-      final doc = await docRef.get();
-      
-      if (!doc.exists) {
-        print('Route document not found in Firebase');
-        throw Exception('Route not found in Firebase');
-      }
-
-      await docRef.delete();
-      print('Deleted route from Firebase');
-
-      // Xóa khỏi state local
-      _userRoutes.removeWhere((r) => r['name'] == routeTitle);
-      _savedRoutes.removeWhere((r) => r['title'] == routeTitle);
-      print('Removed route from local state');
-
-      notifyListeners();
-      print('=== Finished deleting route ===');
-    } catch (e) {
-      print('Error deleting route: $e');
+      print('Error creating new custom route: $e');
       rethrow;
     }
   }
@@ -313,6 +335,7 @@ class RouteViewModel extends ChangeNotifier {
       final userId = userDoc.data()?['userId'] as String?;
       if (userId == null) throw Exception('User information not found');
 
+      // Lấy tất cả routes của user hiện tại
       final QuerySnapshot snapshot = await _firestore
           .collection('TRAVEL_ROUTE')
           .where('userId', isEqualTo: userId)
@@ -326,14 +349,14 @@ class RouteViewModel extends ChangeNotifier {
         
         // Thêm vào _userRoutes để hiển thị route cards
         _userRoutes.add({
-          'name': data['routeTitle'],
+          'routeTitle': data['routeTitle'],
           'rating': data['averageRating'] ?? 0.0,
           'travelRouteId': data['travelRouteId'],
           'province': data['province'],
           'createdDate': data['createdDate'],
         });
 
-        // Lấy thông tin chi tiết của từng destination từ destinationId
+        // Lấy thông tin chi tiết của từng destination
         final List<DestinationModel> destinations = [];
         for (var route in (data['routes'] as List? ?? [])) {
           final destDoc = await _firestore
@@ -346,14 +369,14 @@ class RouteViewModel extends ChangeNotifier {
           }
         }
 
-        // Thêm vào _savedRoutes với đầy đủ thông tin destination
+        // Thêm vào _savedRoutes với đầy đủ thông tin
         _savedRoutes.add({
           'title': data['routeTitle'],
           'destinations': destinations,
           'startDate': (data['startDate'] as Timestamp).toDate(),
           'endDate': (data['endDate'] as Timestamp).toDate(),
           'provinceName': data['province'],
-          'isCustom': data['isCustom'],
+          'isCustom': data['isCustom'] ?? false,
         });
       }
 
@@ -372,80 +395,6 @@ class RouteViewModel extends ChangeNotifier {
     return '${hour.toString().padLeft(2, '0')}:00';
   }
 
-  Future<void> addDestinationToRoute({
-    required String routeTitle,
-    required DestinationModel destination,
-  }) async {
-    try {
-      print('=== Start adding destination ===');
-      
-      final user = _auth.currentUser;
-      if (user == null) throw Exception('User not logged in');
-
-      final route = _userRoutes.firstWhere((r) => r['name'] == routeTitle);
-      final travelRouteId = route['travelRouteId'];
-      print('Found route ID: $travelRouteId');
-
-      final docRef = _firestore.collection('TRAVEL_ROUTE').doc(travelRouteId);
-      final doc = await docRef.get();
-      
-      if (!doc.exists) throw Exception('Route not found');
-
-      List<Map<String, dynamic>> currentRoutes = 
-          List<Map<String, dynamic>>.from(doc.data()?['routes'] ?? []);
-
-      // Kiểm tra trùng lặp
-      if (currentRoutes.any((r) => r['destinationId'] == destination.destinationId)) {
-        print('Destination already exists in route');
-        return;
-      }
-
-      // Tính timeline mới dựa trên destination cuối cùng
-      String newTimeline;
-      if (currentRoutes.isEmpty) {
-        newTimeline = '08:00 - 09:00';
-      } else {
-        final lastTimeline = currentRoutes.last['timeline'] as String;
-        final endTime = lastTimeline.split(' - ')[1]; // "09:00"
-        
-        // Parse thời gian kết thúc
-        final hour = int.parse(endTime.split(':')[0]);
-        
-        // Tính giờ bắt đầu và kết thúc mới
-        final startHour = hour;
-        final endHour = startHour + 1;
-        
-        // Format timeline mới
-        newTimeline = '${_formatTimeRange(startHour)} - ${_formatTimeRange(endHour)}';
-      }
-
-      // Thêm destination mới với timeline được tính toán
-      currentRoutes.add({
-        'destinationId': destination.destinationId,
-        'timeline': newTimeline,
-        'isCompleted': false,
-        'completedTime': null
-      });
-
-      await docRef.update({'routes': currentRoutes});
-
-      // Cập nhật state local
-      final routeIndex = _savedRoutes.indexWhere((r) => r['title'] == routeTitle);
-      if (routeIndex != -1) {
-        final destinations = _savedRoutes[routeIndex]['destinations'] as List;
-        if (!destinations.any((d) => d.destinationId == destination.destinationId)) {
-          destinations.add(destination);
-        }
-      }
-
-      notifyListeners();
-      print('=== Finished adding destination ===');
-    } catch (e) {
-      print('Error adding destination to route: $e');
-      rethrow;
-    }
-  }
-
   Future<void> loadSuggestedRoutes(String provinceName) async {
     try {
       _isLoading = true;
@@ -458,9 +407,7 @@ class RouteViewModel extends ChangeNotifier {
       final currentUserId = userDoc.data()?['userId'] as String?;
       if (currentUserId == null) throw Exception('User information not found');
 
-      print('Loading suggested routes for province: $provinceName');
-      print('Current user ID: $currentUserId');
-
+      // Chỉ query theo province, sau đó filter trong code
       final QuerySnapshot snapshot = await _firestore
           .collection('TRAVEL_ROUTE')
           .where('province', isEqualTo: provinceName)
@@ -470,40 +417,38 @@ class RouteViewModel extends ChangeNotifier {
 
       for (var doc in snapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
-        final routeUserId = data['userId'] as String;
         
-        print('Found route: ${data['routeTitle']} by user: $routeUserId');
-
-        // Chỉ thêm route của user khác
-        if (routeUserId != currentUserId) {
-          // Lấy thông tin chi tiết của từng destination trong route
-          final List<DestinationModel> destinations = [];
-          for (var route in (data['routes'] as List? ?? [])) {
-            final destDoc = await _firestore
-                .collection('DESTINATION')
-                .doc(route['destinationId'])
-                .get();
-            
-            if (destDoc.exists) {
-              destinations.add(DestinationModel.fromMap(destDoc.data()!));
-            }
-          }
-
-          _suggestedRoutes.add({
-            'name': data['routeTitle'],
-            'rating': data['averageRating'] ?? 0.0,
-            'travelRouteId': data['travelRouteId'],
-            'province': data['province'],
-            'routes': data['routes'] ?? [],
-            'destinations': destinations, // Thêm destinations vào route
-            'createdDate': data['createdDate'],
-          });
-          print('Added route: ${data['routeTitle']} with ${destinations.length} destinations');
+        // Filter trong code
+        if (data['isCustom'] == true || data['userId'] == currentUserId) {
+          continue; // Skip custom routes và routes của user hiện tại
         }
+
+        final List<DestinationModel> destinations = [];
+        
+        for (var route in (data['routes'] as List? ?? [])) {
+          final destDoc = await _firestore
+              .collection('DESTINATION')
+              .doc(route['destinationId'])
+              .get();
+          
+          if (destDoc.exists) {
+            destinations.add(DestinationModel.fromMap(destDoc.data()!));
+          }
+        }
+
+        _suggestedRoutes.add({
+          'routeTitle': data['routeTitle'],
+          'rating': data['averageRating'] ?? 0.0,
+          'travelRouteId': data['travelRouteId'],
+          'province': data['province'],
+          'routes': data['routes'] ?? [],
+          'destinations': destinations,
+          'createdDate': data['createdDate'],
+          'isCustom': false,
+          'userId': data['userId'],
+        });
       }
 
-      print('Total suggested routes found: ${_suggestedRoutes.length}');
-      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -537,7 +482,7 @@ class RouteViewModel extends ChangeNotifier {
 
       final travelRouteId = 'TR${_currentRouteNumber.toString().padLeft(5, '0')}';
       
-      // Tạo TravelRouteModel
+      // Tạo TravelRouteModel với isCustom = true
       final travelRoute = TravelRouteModel(
         travelRouteId: travelRouteId,
         userId: userId,
@@ -554,6 +499,7 @@ class RouteViewModel extends ChangeNotifier {
           completedTime: null,
         )).toList(),
         routeTitle: routeTitle,
+        isCustom: true, // Đánh dấu là custom route
       );
 
       // Lưu lên Firebase
@@ -571,16 +517,17 @@ class RouteViewModel extends ChangeNotifier {
         'startDate': startDate,
         'endDate': endDate,
         'provinceName': provinceName,
-        'isCustom': false,
+        'isCustom': true, // Đánh dấu là custom route
       });
 
       // Thêm vào _userRoutes
       _userRoutes.add({
-        'name': routeTitle,
+        'routeTitle': routeTitle,
         'rating': 0.0,
         'travelRouteId': travelRouteId,
         'province': provinceName,
         'createdDate': DateTime.now(),
+        'isCustom': true, // Đánh dấu là custom route
       });
 
       notifyListeners();
@@ -610,11 +557,11 @@ class RouteViewModel extends ChangeNotifier {
 
       final travelRouteId = 'TR${_currentRouteNumber.toString().padLeft(5, '0')}';
 
-      // Tạo TravelRouteModel mới từ route gợi ý
+      // Tạo TravelRouteModel mới từ route gợi ý với isCustom = true
       final travelRoute = TravelRouteModel(
         travelRouteId: travelRouteId,
         userId: userId,
-        routeTitle: route['name'],
+        routeTitle: route['routeTitle'],
         startDate: startDate,
         endDate: endDate,
         createdDate: DateTime.now(),
@@ -628,7 +575,7 @@ class RouteViewModel extends ChangeNotifier {
           isCompleted: false,
           completedTime: null,
         )).toList(),
-        isCustom: false, // Route từ gợi ý
+        isCustom: true, // Đánh dấu là custom route
       );
 
       // Lưu lên Firebase
@@ -641,21 +588,22 @@ class RouteViewModel extends ChangeNotifier {
 
       // Thêm vào savedRoutes
       _savedRoutes.add({
-        'title': route['name'],
+        'title': route['routeTitle'],
         'destinations': route['destinations'],
         'startDate': startDate,
         'endDate': endDate,
         'provinceName': route['province'],
-        'isCustom': false,
+        'isCustom': true, // Đánh dấu là custom route
       });
 
       // Thêm vào userRoutes
       _userRoutes.add({
-        'name': route['name'],
+        'routeTitle': route['routeTitle'],
         'rating': route['rating'],
         'travelRouteId': travelRouteId,
         'province': route['province'],
         'createdDate': DateTime.now(),
+        'isCustom': true, // Đánh dấu là custom route
       });
 
       notifyListeners();

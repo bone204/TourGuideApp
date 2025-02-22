@@ -28,6 +28,9 @@ import 'package:tourguideapp/viewmodels/bill_viewmodel.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/blocs/auth_bloc.dart';
 import 'package:tourguideapp/services/firebase_auth_services.dart';
+import 'package:tourguideapp/blocs/travel_route/travel_route_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ImagesPath {
   static const String kOnboarding1 = 'assets/images/img_1.jpg';
@@ -48,6 +51,12 @@ void main() async {
       providers: [
         BlocProvider(
           create: (context) => AuthBloc(),
+        ),
+        BlocProvider(
+          create: (context) => TravelRouteBloc(
+            firestore: FirebaseFirestore.instance,
+            auth: FirebaseAuth.instance,
+          ),
         ),
       ],
       child: MultiProvider(
@@ -70,7 +79,11 @@ void main() async {
           ChangeNotifierProvider(create: (_) => RentalVehicleViewModel()),
           ChangeNotifierProvider(create: (_) => DestinationsViewModel()),
           ChangeNotifierProvider(create: (_) => BankViewModel()),
-          ChangeNotifierProvider(create: (_) => RouteViewModel()),
+          ChangeNotifierProvider(
+            create: (context) => RouteViewModel(
+              travelRouteBloc: context.read<TravelRouteBloc>(),
+            ),
+          ),
           ChangeNotifierProvider(create: (_) => BillViewModel()),
           ChangeNotifierProvider(create: (_) => DestinationsViewModel()),
         ],

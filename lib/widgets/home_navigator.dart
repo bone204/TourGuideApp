@@ -46,7 +46,7 @@ class HomeNavigator extends StatelessWidget {
             context,
             MaterialPageRoute(
               settings: const RouteSettings(name: '/travel'),
-              builder: (context) => const TravelScreen(),
+              builder: (context) => TravelScreen(),
             ),
           );
         }

@@ -193,7 +193,7 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
                         return Padding(
                           padding: EdgeInsets.only(bottom: 16.h),
                           child: RouteCard(
-                            name: route['name'],
+                            name: route['routeTitle'] ?? '',
                             imagePath: viewModel.getImagePath(index % 4 + 1),
                             rating: route['rating'],
                             onTap: () {
@@ -201,7 +201,7 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => TravelRouteScreen(
-                                    routeTitle: route['name'],
+                                    routeTitle: route['routeTitle'] ?? '',
                                     startDate: _startDate,
                                     endDate: _endDate,
                                     provinceName: route['province'],

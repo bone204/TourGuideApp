@@ -5,53 +5,55 @@ import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/views/service/travel/province_list_screen.dart';
 import 'package:tourguideapp/widgets/route_card.dart';
-import 'package:provider/provider.dart';
-import 'package:tourguideapp/viewmodels/route_viewmodel.dart';
 import 'package:tourguideapp/views/service/travel/route_detail_screen.dart';
 import 'package:tourguideapp/models/destination_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourguideapp/blocs/travel_route/travel_route_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class TravelScreen extends StatefulWidget {
-  const TravelScreen({super.key});
-
-  @override
-  _TravelScreenState createState() => _TravelScreenState();
-}
-
-class _TravelScreenState extends State<TravelScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        Provider.of<RouteViewModel>(context, listen: false).loadSavedRoutes();
-      }
-    });
-  }
-
+class TravelScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: _buildAppBar(),
-        body: Consumer<RouteViewModel>(
-          builder: (context, routeViewModel, child) {
-            if (routeViewModel.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (routeViewModel.routes.isEmpty) {
-              return _buildEmptyView();
-            }
-
-            return _buildRouteList(routeViewModel);
-          },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => TravelRouteBloc(
+            firestore: FirebaseFirestore.instance,
+            auth: FirebaseAuth.instance,
+          )..add(LoadTravelRoutes()),
+        ),
+      ],
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: _buildAppBar(context),
+          body: BlocBuilder<TravelRouteBloc, TravelRouteState>(
+            builder: (context, state) {
+              if (state is TravelRouteLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              
+              if (state is TravelRouteError) {
+                return Center(child: Text(state.message));
+              }
+              
+              if (state is TravelRouteLoaded) {
+                if (state.userRoutes.isEmpty) {
+                  return _buildEmptyView(context);
+                }
+                return _buildRouteList(context, state.userRoutes);
+              }
+              
+              return const SizedBox();
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildEmptyView() {
+  Widget _buildEmptyView(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 100.h),
       child: Align(
@@ -91,7 +93,7 @@ class _TravelScreenState extends State<TravelScreen> {
     );
   }
 
-  Widget _buildRouteList(RouteViewModel routeViewModel) {
+  Widget _buildRouteList(BuildContext context, List<Map<String, dynamic>> routes) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Column(
@@ -102,29 +104,30 @@ class _TravelScreenState extends State<TravelScreen> {
               child: Column(
                 children: [
                   ...List.generate(
-                    routeViewModel.routes.length,
+                    routes.length,
                     (index) {
-                      final route = routeViewModel.routes[index];
+                      final route = routes[index];
+                      final routeTitle = route['routeTitle'] as String? ?? 'Untitled Route';
+                      
                       return Padding(
                         padding: EdgeInsets.only(bottom: 16.h),
                         child: RouteCard(
-                          name: route['name'],
-                          imagePath: routeViewModel.getImagePath(index % 4),
-                          rating: route['rating'],
+                          name: routeTitle,
+                          imagePath: route['avatar'] ?? 'assets/img/bg_route_1.png',
+                          rating: (route['averageRating'] ?? 0.0).toDouble(),
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => RouteDetailScreen(
-                                  routeTitle: route['name'],
-                                  destinations: (routeViewModel.savedRoutes.firstWhere(
-                                    (r) => r['title'] == route['name'],
-                                    orElse: () => {'destinations': []},
-                                  )['destinations'] as List? ?? []).cast<DestinationModel>(),
+                                  routeTitle: routeTitle,
+                                  destinations: (route['destinations'] as List? ?? [])
+                                    .map((d) => DestinationModel.fromJson(d))
+                                    .toList(),
                                   startDate: DateTime.now(),
                                   endDate: DateTime.now().add(const Duration(days: 1)),
-                                  provinceName: route['province'],
-                                  isCustomRoute: true,
+                                  provinceName: route['province'] as String? ?? '',
+                                  isCustomRoute: route['isCustomRoute'] ?? true,
                                 ),
                               ),
                             );
@@ -154,7 +157,7 @@ class _TravelScreenState extends State<TravelScreen> {
     );
   }
 
-  PreferredSize _buildAppBar() {
+  PreferredSize _buildAppBar(BuildContext context) {
     return PreferredSize(
       preferredSize: Size.fromHeight(60.h),
       child: AppBar(
