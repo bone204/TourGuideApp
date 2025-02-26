@@ -69,23 +69,6 @@ class RentalVehicleCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsButton(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        Icons.settings,
-        size: 24.sp,
-        color: AppColors.black,
-      ),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MyVehicleSettingsScreen(vehicle: vehicle),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

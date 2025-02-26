@@ -17,41 +17,6 @@ class TravelHistoryScreen extends StatefulWidget {
 class _TravelHistoryScreenState extends State<TravelHistoryScreen> {
   final TextEditingController _searchController = TextEditingController();
 
-  String _normalizeString(String text) {
-    var output = text.toLowerCase();
-    var vietnameseMap = {
-      'à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ|Â|À|Á|Ạ|Ả|Ã|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ằ|Ắ|Ặ|Ẳ|Ẵ': 'a',
-      'è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ|È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ': 'e',
-      'ì|í|ị|ỉ|ĩ|Ì|Í|Ị|Ỉ|Ĩ': 'i',
-      'ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ|Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ': 'o',
-      'ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ|Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ': 'u',
-      'ỳ|ý|ỵ|ỷ|ỹ|Ỳ|Ý|Ỵ|Ỷ|Ỹ': 'y',
-      'đ|Đ': 'd'
-    };
-
-    vietnameseMap.forEach((key, value) {
-      output = output.replaceAll(RegExp(key), value);
-    });
-    return output;
-  }
-
-  void _onSearchChanged(String query, ProvinceViewModel provinceViewModel) {
-    if (query.isEmpty) {
-      provinceViewModel.resetSearch();
-    } else {
-      final normalizedQuery = _normalizeString(query);
-      final queryWords = normalizedQuery.split(' ').where((word) => word.isNotEmpty).toList();
-
-      provinceViewModel.filterProvinces((province) {
-        final normalizedName = _normalizeString(province.provinceName);
-        
-        return queryWords.every((word) {
-          return normalizedName.split(' ').any((nameWord) => nameWord.startsWith(word));
-        });
-      });
-    }
-  }
-
   @override
   void initState() {
     super.initState();

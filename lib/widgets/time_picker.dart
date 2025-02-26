@@ -33,14 +33,7 @@ class TimePicker extends StatelessWidget {
     }
   }
 
-  TimeOfDay _getDefaultStartTime(String package) {
-    return TimeOfDay(hour: 7, minute: 0);
-  }
 
-  TimeOfDay _getEndTime(TimeOfDay start, String package) {
-    int hours = package == '4 Hours' ? 4 : 8;
-    return TimeOfDay(hour: start.hour + hours, minute: 0);
-  }
 
   String _getTimeRangeText(String package) {
     if (package == '4 Hours') {

@@ -25,14 +25,7 @@ class OTPVerificationScreen extends StatefulWidget {
 }
 
 class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
-  final List<TextEditingController> _controllers = List.generate(
-    6,
-    (index) => TextEditingController(),
-  );
 
-  String _getOTP() {
-    return _controllers.map((controller) => controller.text).join();
-  }
 
   bool isVerifying = false;
 

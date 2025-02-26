@@ -200,19 +200,6 @@ class PersonInfoViewModel extends ChangeNotifier {
   }
 
   // Clear data
-  void _clearData() {
-    fullnameController.text = '';
-    genderController.text = '';
-    citizenIdController.text = '';
-    phoneNumberController.text = '';
-    addressController.text = '';
-    nationalityController.text = '';
-    birthdayController.text = '';
-    bankNameController.text = '';
-    bankAccountNumberController.text = '';
-    bankAccountNameController.text = '';
-    notifyListeners();
-  }
 
   Icon getFieldIcon(String text) {
     if (text.trim().isEmpty) {

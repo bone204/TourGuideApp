@@ -50,19 +50,6 @@ class RentalVehicleViewModel extends ChangeNotifier {
     }
   }
 
-  String _convertFirestoreTypeToDisplay(String dbType, String locale) {
-    if (locale == 'en') {
-      switch (dbType) {
-        case 'Car':
-          return 'Car';
-        case 'Motorbike':
-          return 'Motorbike';
-        default:
-          return dbType;
-      }
-    }
-    return dbType;
-  }
 
   // Chỉ giữ lại translations cho màu sắc
   final Map<String, String> _colorTranslations = {

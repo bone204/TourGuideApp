@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:tourguideapp/color/colors.dart';
 
 
@@ -46,16 +45,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     }
   }
 
-  Future<String> _uploadImageToFirebase(File imageFile) async {
-    try {
-      final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}');
-      final uploadTask = await storageRef.putFile(imageFile);
-      return await uploadTask.ref.getDownloadURL();
-    } catch (e) {
-      print('Lỗi khi tải ảnh lên: $e');
-      return '';
-    }
-  }
 
   void _showPickerOptions() {
     showModalBottomSheet(

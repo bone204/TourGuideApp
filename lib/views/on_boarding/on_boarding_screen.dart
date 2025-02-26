@@ -443,8 +443,6 @@ class _CustomIconButtonState extends State<CustomIconButton>
 
   @override
   Widget build(BuildContext context) {
-    bool isDarkMode(BuildContext context) =>
-        Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () {
         _controller.forward().then((_) {

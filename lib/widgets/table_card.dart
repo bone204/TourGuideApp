@@ -130,19 +130,4 @@ class TableCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFeature(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 16.w, color: AppColors.grey),
-        SizedBox(width: 4.w),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 12.sp,
-            color: AppColors.grey,
-          ),
-        ),
-      ],
-    );
-  }
 } 

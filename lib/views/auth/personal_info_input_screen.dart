@@ -64,16 +64,6 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
   }
 
   // Hàm lấy giá trị hiển thị theo ngôn ngữ của app
-  String _getDisplayValue(String vietnameseValue, Map<String, String> translations) {
-    if (Localizations.localeOf(context).languageCode == 'vi') {
-      return vietnameseValue;
-    }
-    // Tìm key tiếng Anh từ value tiếng Việt
-    return translations.entries
-        .firstWhere((entry) => entry.value == vietnameseValue,
-            orElse: () => const MapEntry('', ''))
-        .key;
-  }
 
   bool _validateInputs() {
     if (_fullNameController.text.isEmpty) {

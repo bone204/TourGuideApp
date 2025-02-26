@@ -184,20 +184,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   // Thêm phương thức để chuyển đổi widget thành bytes
-  Future<Uint8List> _captureWidget(Widget widget) async {
-    final repaintBoundary = RepaintBoundary(
-      child: SizedBox(
-        width: 80,  // Kích thước của marker
-        height: 80,
-        child: widget,
-      ),
-    );
-
-    final renderObject = repaintBoundary.createRenderObject(context);
-    final image = await renderObject.toImage(pixelRatio: 2.0);
-    final byteData = await image.toByteData(format: ImageByteFormat.png);
-    return byteData!.buffer.asUint8List();
-  }
 
   Widget _buildSearchBar() {
     return Card(

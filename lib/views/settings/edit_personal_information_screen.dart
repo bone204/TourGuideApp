@@ -35,22 +35,7 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
     'Hàn Quốc': 'Korean',
   };
 
-  String _getDisplayValue(String vietnameseValue, Map<String, String> translations) {
-    if (Localizations.localeOf(context).languageCode == 'vi') {
-      return vietnameseValue;
-    }
-    return translations[vietnameseValue] ?? vietnameseValue;
-  }
 
-  String _getVietnameseValue(String? englishValue, Map<String, String> translations) {
-    if (Localizations.localeOf(context).languageCode == 'vi') {
-      return englishValue ?? '';
-    }
-    return translations.entries
-        .firstWhere((entry) => entry.value == englishValue,
-            orElse: () => const MapEntry('', ''))
-        .key;
-  }
 
   @override
   Widget build(BuildContext context) {

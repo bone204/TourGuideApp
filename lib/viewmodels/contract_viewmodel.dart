@@ -80,7 +80,7 @@ class ContractViewModel extends ChangeNotifier {
             .listen((snapshot) {
           _contracts.clear();
           for (var doc in snapshot.docs) {
-            _contracts.add(ContractModel.fromMap(doc.data() as Map<String, dynamic>));
+            _contracts.add(ContractModel.fromMap(doc.data()));
           }
           notifyListeners();
         });
@@ -257,17 +257,6 @@ class ContractViewModel extends ChangeNotifier {
     'Hết hạn': 'Expired',
   };
 
-  String _convertContractStatusToFirestore(String displayStatus, String locale) {
-    if (locale == 'vi') return displayStatus;
-    
-    // Chuyển từ tiếng Anh sang tiếng Việt để lưu
-    return _contractStatusTranslations.entries
-        .firstWhere(
-          (entry) => entry.value == displayStatus,
-          orElse: () => MapEntry(displayStatus, displayStatus)
-        )
-        .key;
-  }
 
   String getDisplayContractStatus(String firestoreStatus, String locale) {
     if (locale == 'vi') return firestoreStatus;

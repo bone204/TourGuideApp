@@ -95,15 +95,6 @@ class _EateryScreenState extends State<EateryScreen> {
     });
   }
 
-  HomeCardData _convertToHomeCardData(FavouriteCardData eateryData) {
-    return HomeCardData(
-      placeName: eateryData.placeName,
-      imageUrl: eateryData.imageUrl,
-      description: eateryData.description,
-      rating: 4.5,
-      favouriteTimes: 0,
-    );
-  }
 
   DestinationModel _convertToDestinationModel(EateryModel eatery) {
     return DestinationModel(

@@ -121,7 +121,7 @@ class SignupScreen extends StatelessWidget {
                                   },
                                   child: Text(
                                     AppLocalizations.of(context).translate('Sign in'), 
-                                    style: TextStyle(fontSize: 14.sp, color: const Color(0xFFFF7029)), 
+                                    style: TextStyle(fontSize: 14.sp, color: const Color(0xFFFF7029), fontWeight: FontWeight.bold), 
                                   ),
                                 ),
                               ],
