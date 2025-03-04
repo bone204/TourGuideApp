@@ -9,12 +9,16 @@ class ProvinceViewModel extends ChangeNotifier {
   List<Province> _filteredProvinces = [];
   bool _isLoading = false;
   String _error = '';
+  String _searchQuery = '';
 
-  List<Province> get provinces =>
-      _filteredProvinces.isEmpty ? _provinces : _filteredProvinces;
+  List<Province> get provinces => _searchQuery.isEmpty 
+      ? _provinces 
+      : _filteredProvinces;
+
   bool get isLoading => _isLoading;
   String get error => _error;
-  List<ProvinceCard> get provinceCards => _provinces
+  
+  List<ProvinceCard> get provinceCards => provinces
       .map((p) => ProvinceCard(
             name: p.provinceName,
             imageUrl: p.imageUrl,
@@ -30,9 +34,8 @@ class ProvinceViewModel extends ChangeNotifier {
 
     try {
       final snapshot = await _firestore.collection('PROVINCE').get();
-      _provinces =
-          snapshot.docs.map((doc) => Province.fromMap(doc.data())).toList();
-      _filteredProvinces = [];
+      _provinces = snapshot.docs.map((doc) => Province.fromMap(doc.data())).toList();
+      _applySearch(); // Áp dụng tìm kiếm nếu có
       notifyListeners();
     } catch (e) {
       _error = 'Không thể tải danh sách tỉnh thành: $e';
@@ -44,23 +47,21 @@ class ProvinceViewModel extends ChangeNotifier {
   }
 
   void searchProvinces(String query) {
-    if (query.isEmpty) {
-      resetSearch();
+    _searchQuery = _normalizeString(query);
+    _applySearch();
+    notifyListeners();
+  }
+
+  void _applySearch() {
+    if (_searchQuery.isEmpty) {
+      _filteredProvinces = [];
       return;
     }
 
     _filteredProvinces = _provinces.where((province) {
-      final normalizedQuery = _normalizeString(query);
       final normalizedName = _normalizeString(province.provinceName);
-      return normalizedName.contains(normalizedQuery);
+      return normalizedName.contains(_searchQuery);
     }).toList();
-
-    notifyListeners();
-  }
-
-  void resetSearch() {
-    _filteredProvinces = [];
-    notifyListeners();
   }
 
   void filterProvinces(bool Function(Province) filter) {

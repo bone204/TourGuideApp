@@ -3,13 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomIconButton extends StatelessWidget {
   final IconData icon;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const CustomIconButton({
-    super.key,
+    Key? key,
     required this.icon,
-    required this.onPressed,
-  });
+    this.onPressed,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

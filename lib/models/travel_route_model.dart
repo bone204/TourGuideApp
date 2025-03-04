@@ -1,82 +1,37 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-class RouteItinerary {
-  final String destinationId;
-  final String timeline;
-  final bool isCompleted;
-  final DateTime? completedTime;
-
-  RouteItinerary({
-    required this.destinationId,
-    required this.timeline,
-    this.isCompleted = false,
-    this.completedTime,
-  });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'destinationId': destinationId,
-      'timeline': timeline,
-      'isCompleted': isCompleted,
-      'completedTime': completedTime,
-    };
-  }
-
-  factory RouteItinerary.fromMap(Map<String, dynamic> map) {
-    return RouteItinerary(
-      destinationId: map['destinationId'] ?? '',
-      timeline: map['timeline'] ?? '',
-      isCompleted: map['isCompleted'] ?? false,
-      completedTime: map['completedTime'] != null
-          ? (map['completedTime'] as Timestamp).toDate()
-          : null,
-    );
-  }
-}
+import 'package:tourguideapp/models/destination_model.dart';
 
 class TravelRouteModel {
   final String travelRouteId;
   final String userId;
+  final String routeName;
+  final String province;
+  final DateTime createdDate;
   final DateTime startDate;
   final DateTime endDate;
-  final DateTime createdDate;
-  final double averageRating;
-  final String province;
-  final String avatar;
-  final int number;
-  final List<RouteItinerary> routes;
-  final bool isCustom;
-  final String routeTitle;
+  final List<DestinationModel> destinations;
 
   TravelRouteModel({
     required this.travelRouteId,
     required this.userId,
+    required this.routeName,
+    required this.province,
+    required this.createdDate,
     required this.startDate,
     required this.endDate,
-    required this.createdDate,
-    this.averageRating = 0.0,
-    required this.province,
-    required this.avatar,
-    required this.number,
-    required this.routes,
-    this.isCustom = false,
-    required this.routeTitle,
+    required this.destinations,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'travelRouteId': travelRouteId,
       'userId': userId,
+      'routeName': routeName,
+      'province': province,
+      'createdDate': createdDate,
       'startDate': startDate,
       'endDate': endDate,
-      'createdDate': createdDate,
-      'averageRating': averageRating,
-      'province': province,
-      'avatar': avatar,
-      'number': number,
-      'routes': routes.map((route) => route.toMap()).toList(),
-      'isCustom': isCustom,
-      'routeTitle': routeTitle,
+      'destinations': destinations.map((dest) => dest.toMap()).toList(),
     };
   }
 
@@ -84,33 +39,14 @@ class TravelRouteModel {
     return TravelRouteModel(
       travelRouteId: map['travelRouteId'] ?? '',
       userId: map['userId'] ?? '',
+      routeName: map['routeName'] ?? '',
+      province: map['province'] ?? '',
+      createdDate: (map['createdDate'] as Timestamp).toDate(),
       startDate: (map['startDate'] as Timestamp).toDate(),
       endDate: (map['endDate'] as Timestamp).toDate(),
-      createdDate: (map['createdDate'] as Timestamp).toDate(),
-      averageRating: (map['averageRating'] ?? 0.0).toDouble(),
-      province: map['province'] ?? '',
-      avatar: map['avatar'] ?? '',
-      number: map['number']?.toInt() ?? 0,
-      routes: List<RouteItinerary>.from(
-          (map['routes'] ?? []).map((x) => RouteItinerary.fromMap(x))),
-      isCustom: map['isCustom'] ?? false,
-      routeTitle: map['routeTitle'] ?? '',
-    );
-  }
-
-  factory TravelRouteModel.empty() {
-    return TravelRouteModel(
-      travelRouteId: '',
-      userId: '',
-      startDate: DateTime.now(),
-      endDate: DateTime.now(),
-      createdDate: DateTime.now(),
-      province: '',
-      avatar: '',
-      number: 0,
-      routes: [],
-      isCustom: false,
-      routeTitle: '',
+      destinations: List<DestinationModel>.from(
+        (map['destinations'] ?? []).map((x) => DestinationModel.fromMap(x)),
+      ),
     );
   }
 }
