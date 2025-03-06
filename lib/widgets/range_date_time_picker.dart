@@ -80,22 +80,30 @@ class RangeDateTimePicker extends StatelessWidget {
                   height: 16.h,
                   fit: BoxFit.cover,
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: 16.w),
                 Expanded(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        _formatDate(startDate, context),
-                        style: TextStyle(fontSize: 12.sp),
+                      Flexible(
+                        child: Text(
+                          _formatDate(startDate, context),
+                          style: TextStyle(fontSize: 16.sp),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      Text(
-                        " - ",
-                        style: TextStyle(fontSize: 12.sp),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w),
+                        child: Text(
+                          "-",
+                          style: TextStyle(fontSize: 16.sp),
+                        ),
                       ),
-                      Text(
-                        _formatDate(endDate, context),
-                        style: TextStyle(fontSize: 12.sp),
+                      Flexible(
+                        child: Text(
+                          _formatDate(endDate, context),
+                          style: TextStyle(fontSize: 16.sp),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),

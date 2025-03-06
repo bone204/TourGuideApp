@@ -1,3 +1,81 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
+import 'package:tourguideapp/widgets/category_selector.dart';
+
+class RouteDetailScreen extends StatefulWidget {
+  final String routeName;
+  final DateTime startDate;
+  final DateTime endDate;
+
+  const RouteDetailScreen({
+    super.key,
+    required this.routeName,
+    required this.startDate,
+    required this.endDate,
+  });
+
+  @override
+  _RouteDetailScreenState createState() => _RouteDetailScreenState();
+}
+
+class _RouteDetailScreenState extends State<RouteDetailScreen> {
+  late List<String> categories;
+  late String selectedCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    // Tính số ngày giữa startDate và endDate
+    int numberOfDays = widget.endDate.difference(widget.startDate).inDays + 1;
+    
+    // Tạo danh sách các ngày
+    categories = List.generate(numberOfDays, (index) {
+      return 'Day ${index + 1}';
+    });
+    
+    // Chọn ngày đầu tiên làm mặc định
+    selectedCategory = categories.first;
+  }
+
+  void onCategorySelected(String category) {
+    setState(() {
+      selectedCategory = category;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ScreenUtil.init(context, designSize: const Size(375, 812));
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(
+        title: widget.routeName, 
+        onBackPressed: () => Navigator.of(context).pop(),
+      ),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+        child: Column(
+          children: [
+            CategorySelector(
+              selectedCategory: selectedCategory,
+              categories: categories,
+              onCategorySelected: onCategorySelected,
+            )
+          ],
+        )
+      )
+    );
+  }
+}
+
+
+
+
+
+
+
 // import 'dart:async';
 
 // import 'package:flutter/material.dart';

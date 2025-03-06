@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourguideapp/blocs/travel/travel_event.dart';
 import 'package:tourguideapp/blocs/travel/travel_state.dart';
 import 'package:tourguideapp/models/travel_route_model.dart';
+import 'package:tourguideapp/models/user_model.dart';
 
 class TravelBloc extends Bloc<TravelEvent, TravelState> {
   final FirebaseFirestore _firestore;
@@ -18,6 +19,25 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     on<LoadTravelRoutes>(_onLoadRoutes);
     on<AddTravelRoute>(_onAddRoute);
     on<DeleteTravelRoute>(_onDeleteRoute);
+  }
+
+  Future<String> generateRouteName() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return "User's Route";
+
+      final userDoc = await _firestore
+          .collection('USER')
+          .doc(user.uid)
+          .get();
+
+      if (!userDoc.exists) return "User's Route";
+
+      final userData = UserModel.fromMap(userDoc.data()!);
+      return "${userData.name}'s Route";
+    } catch (e) {
+      return "User's Route";
+    }
   }
 
   Future<void> _onLoadRoutes(LoadTravelRoutes event, Emitter<TravelState> emit) async {

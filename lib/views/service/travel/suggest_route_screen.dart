@@ -1,3 +1,94 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/blocs/travel/travel_state.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/views/service/travel/route_detail_screen.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
+import 'package:tourguideapp/widgets/custom_elevated_button.dart';
+import 'package:tourguideapp/widgets/range_date_time_picker.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+class SuggestRouteScreen extends StatefulWidget{
+  final String provinceName;
+
+  const SuggestRouteScreen({
+    super.key,
+    required this.provinceName,
+  });
+
+  @override
+  _SuggestRouteScreenState createState() => _SuggestRouteScreenState();
+}
+
+class _SuggestRouteScreenState extends State<SuggestRouteScreen>{
+  DateTime _startDate = DateTime.now();
+  DateTime _endDate = DateTime.now().add(const Duration(days: 1));
+
+  @override
+  Widget build(BuildContext context){
+    return BlocProvider(
+      create: (context) => TravelBloc(
+        firestore: FirebaseFirestore.instance,
+        auth: FirebaseAuth.instance,
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: CustomAppBar(
+          title: widget.provinceName,
+          onBackPressed: () => Navigator.of(context).pop(),
+        ),
+        body: BlocBuilder<TravelBloc, TravelState>(
+          builder: (context, state) {
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+              child: Column(
+                children: [
+                  RangeDateTimePicker(
+                    startDate: _startDate, 
+                    endDate: _endDate, 
+                    onDateRangeSelected: (DateTimeRange range) {
+                      setState(() {
+                        _startDate = range.start;
+                        _endDate = range.end;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 20.h),
+                  CustomElevatedButton(
+                    text: AppLocalizations.of(context).translate('Create Custom Route'),
+                    onPressed: () async {
+                      final routeName = await context.read<TravelBloc>().generateRouteName();
+                      if (mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RouteDetailScreen(
+                              routeName: routeName,
+                              startDate: _startDate,
+                              endDate: _endDate,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  )
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
 // import 'package:flutter/material.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';
 // import 'package:tourguideapp/color/colors.dart'; 

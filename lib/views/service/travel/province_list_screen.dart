@@ -36,11 +36,11 @@ class _ProvinceListScreenState extends State<ProvinceListScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-          title: AppLocalizations.of(context).translate('Choose province'),
+          title: AppLocalizations.of(context).translate('Choose Province'),
           onBackPressed: () => Navigator.of(context).pop(),
         ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        padding: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 20.h),
         child: Column(
           children: [
             CustomSearchBar(
@@ -94,14 +94,14 @@ class _ProvinceListScreenState extends State<ProvinceListScreen> {
                           // Handle favorite if needed
                         },
                         onTap: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => SuggestRouteScreen(
-                          //       provinceName: card.name,
-                          //     ),
-                          //   ),
-                          // );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SuggestRouteScreen(
+                                provinceName: card.name,
+                              ),
+                            ),
+                          );
                         },
                       );
                     },
