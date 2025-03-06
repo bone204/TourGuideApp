@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/blocs/travel/travel_event.dart';
+import 'package:tourguideapp/blocs/travel/travel_state.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
+import 'package:tourguideapp/widgets/custom_elevated_button.dart';
+import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RouteDetailScreen extends StatefulWidget {
   final String routeName;
   final DateTime startDate;
   final DateTime endDate;
+  final String provinceName;
 
   const RouteDetailScreen({
     super.key,
     required this.routeName,
     required this.startDate,
     required this.endDate,
+    required this.provinceName,
   });
 
   @override
@@ -27,6 +33,8 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
   @override
   void initState() {
     super.initState();
+    // Load routes when screen initializes
+    context.read<TravelBloc>().add(LoadTravelRoutes());
     // Tính số ngày giữa startDate và endDate
     int numberOfDays = widget.endDate.difference(widget.startDate).inDays + 1;
     
@@ -45,27 +53,68 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
     });
   }
 
+  Widget _buildBottomBar(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 4,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: CustomElevatedButton(
+          text: 'Create Route',
+          onPressed: () {
+            context.read<TravelBloc>().add(
+              CreateTravelRoute(
+                routeName: widget.routeName,
+                province: widget.provinceName,
+                startDate: widget.startDate,
+                endDate: widget.endDate,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812));
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: CustomAppBar(
-        title: widget.routeName, 
-        onBackPressed: () => Navigator.of(context).pop(),
+    return BlocListener<TravelBloc, TravelState>(
+      listener: (context, state) {
+        if (state is TravelRouteCreated) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            '/travel',
+            (route) => false,
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: CustomAppBar(
+          title: widget.routeName,
+          onBackPressed: () => Navigator.of(context).pop(),
+        ),
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+          child: Column(
+            children: [
+              CategorySelector(
+                selectedCategory: selectedCategory,
+                categories: categories,
+                onCategorySelected: onCategorySelected,
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: _buildBottomBar(context),
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-        child: Column(
-          children: [
-            CategorySelector(
-              selectedCategory: selectedCategory,
-              categories: categories,
-              onCategorySelected: onCategorySelected,
-            )
-          ],
-        )
-      )
     );
   }
 }
@@ -552,8 +601,6 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
 //                                         );
 //                                       },
 //                                     );
-//                                   },
-//                                 );
 //                               }
 //                               return const Center(child: CircularProgressIndicator());
 //                             },

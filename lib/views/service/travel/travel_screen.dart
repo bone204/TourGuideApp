@@ -6,43 +6,48 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/service/travel/province_list_screen.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
 import 'package:tourguideapp/models/travel_route_model.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 
 class TravelScreen extends StatelessWidget {
+  static const routeName = '/travel';  // Thêm route name
+
+  @override
+  Widget build(BuildContext context) {
+    // Load routes when screen is opened
+    context.read<TravelBloc>().add(LoadTravelRoutes());
+    return const TravelScreenContent();
+  }
+}
+
+class TravelScreenContent extends StatelessWidget {
+  const TravelScreenContent({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
-    return BlocProvider(
-      create: (context) => TravelBloc(
-        firestore: FirebaseFirestore.instance,
-        auth: FirebaseAuth.instance,
-      )..add(LoadTravelRoutes()),
-      child: Scaffold(
-        appBar: CustomAppBar(
-          title: AppLocalizations.of(context).translate('Travel'),
-          onBackPressed: () => Navigator.of(context).pop(),
-        ),
-        body: BlocBuilder<TravelBloc, TravelState>(
-          builder: (context, state) {
-            if (state is TravelLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            
-            if (state is TravelEmpty) {
-              return _buildEmptyView(context);
-            }
-            
-            if (state is TravelLoaded) {
-              return _buildRouteList(context, state.routes);
-            }
-            
-            return const SizedBox();
-          },
-        ),
+    return Scaffold(
+      appBar: CustomAppBar(
+        title: AppLocalizations.of(context).translate('Travel'),
+        onBackPressed: () => Navigator.of(context).pop(),
+      ),
+      body: BlocBuilder<TravelBloc, TravelState>(
+        builder: (context, state) {
+          if (state is TravelLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (state is TravelEmpty) {
+            return _buildEmptyView(context);
+          }
+          
+          if (state is TravelLoaded) {
+            return _buildRouteList(context, state.routes);
+          }
+          
+          return const SizedBox();
+        },
       ),
     );
   }
@@ -50,7 +55,7 @@ class TravelScreen extends StatelessWidget {
   Widget _buildEmptyView(BuildContext context) {
     return Container(
       color: Colors.white,
-      child:Padding(
+      child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 100.h),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -73,11 +78,22 @@ class TravelScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 16.h),
-            CustomElevatedButton(
-              text: 'Create Route',
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProvinceListScreen()));
-              },
+            Builder(
+              builder: (context) => CustomElevatedButton(
+                text: 'Create Route',
+                onPressed: () {
+                  final bloc = context.read<TravelBloc>();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider.value(
+                        value: bloc,
+                        child: const ProvinceListScreen(),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),

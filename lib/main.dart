@@ -2,7 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:provider/provider.dart'; 
+import 'package:provider/provider.dart';
+import 'package:tourguideapp/blocs/travel/travel_bloc.dart'; 
 import 'package:tourguideapp/viewmodels/accountInfo_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/contract_viewmodel.dart';
@@ -16,6 +17,7 @@ import 'package:tourguideapp/viewmodels/personInfo_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/bank_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/signup_viewmodel.dart';
 import 'package:tourguideapp/views/on_boarding/on_boarding_screen.dart';
+import 'package:tourguideapp/views/service/travel/travel_screen.dart';
 import 'localization/app_localizations.dart';
 import 'views/auth/login_screen.dart';
 import 'views/auth/signup_screen.dart';
@@ -27,6 +29,8 @@ import 'package:tourguideapp/viewmodels/bill_viewmodel.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/blocs/auth_bloc.dart';
 import 'package:tourguideapp/services/firebase_auth_services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ImagesPath {
   static const String kOnboarding1 = 'assets/images/img_1.jpg';
@@ -47,6 +51,12 @@ void main() async {
       providers: [
         BlocProvider(
           create: (context) => AuthBloc(),
+        ),
+        BlocProvider(
+          create: (context) => TravelBloc(
+            firestore: FirebaseFirestore.instance,
+            auth: FirebaseAuth.instance,
+          ),
         ),
       ],
       child: MultiProvider(
@@ -146,6 +156,7 @@ class MyAppState extends State<MyApp> {
         '/signup': (context) => SignupScreen(),
         '/home': (context) => const MainScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/travel': (context) => TravelScreen(),
       },
       debugShowCheckedModeBanner: false,
     );

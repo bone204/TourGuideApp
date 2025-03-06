@@ -19,4 +19,22 @@ class TravelLoaded extends TravelState {
   
   @override
   List<Object?> get props => [routes];
+}
+
+class TravelError extends TravelState {
+  final String message;
+  
+  TravelError(this.message);
+  
+  @override
+  List<Object?> get props => [message];
+}
+
+class TravelRouteCreated extends TravelState {
+  final String routeId;
+  
+  TravelRouteCreated(this.routeId);
+  
+  @override
+  List<Object?> get props => [routeId];
 } 
