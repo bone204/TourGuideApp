@@ -354,6 +354,7 @@
     "Not Started": "Chưa Bắt Đầu",
     "In Progress": "Đang Thực Hiện",
     "Completed": "Đã Hoàn Thành",
+    "Add New Route": "Thêm Lộ Trình Mới",
 
     "My Routes": "Lộ Trình Của Tôi",
     "Create New Route": "Tạo Lộ Trình Mới",
@@ -391,6 +392,8 @@
     "No suggested routes available": "Không có lộ trình gợi ý nào",
 
     "Search destinations...": "Tìm kiếm điểm đến...",
-    "No available destinations": "Không có điểm đến nào"
+    "No available destinations": "Không có điểm đến nào",
+
+    "Start": "Bắt Đầu"
 }
   

@@ -9,6 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
 import 'package:tourguideapp/models/travel_route_model.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
+import 'package:tourguideapp/widgets/route_card.dart';
+import 'package:tourguideapp/views/service/travel/route_detail_screen.dart';
 
 class TravelScreen extends StatelessWidget {
   static const routeName = '/travel';  // Thêm route name
@@ -27,27 +29,44 @@ class TravelScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
-    return Scaffold(
-      appBar: CustomAppBar(
-        title: AppLocalizations.of(context).translate('Travel'),
-        onBackPressed: () => Navigator.of(context).pop(),
-      ),
-      body: BlocBuilder<TravelBloc, TravelState>(
-        builder: (context, state) {
-          if (state is TravelLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          
-          if (state is TravelEmpty) {
-            return _buildEmptyView(context);
-          }
-          
-          if (state is TravelLoaded) {
-            return _buildRouteList(context, state.routes);
-          }
-          
-          return const SizedBox();
-        },
+    return PopScope(
+      canPop: false,
+      // ignore: deprecated_member_use
+      onPopInvoked: (didPop) {
+        if (!didPop) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            '/home',
+            (route) => false,
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          title: AppLocalizations.of(context).translate('Travel'),
+          onBackPressed: () {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              '/home',
+              (route) => false,
+            );
+          },
+        ),
+        body: BlocBuilder<TravelBloc, TravelState>(
+          builder: (context, state) {
+            if (state is TravelLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            
+            if (state is TravelEmpty) {
+              return _buildEmptyView(context);
+            }
+            
+            if (state is TravelLoaded) {
+              return _buildRouteList(context, state.routes);
+            }
+            
+            return const SizedBox();
+          },
+        ),
       ),
     );
   }
@@ -102,30 +121,57 @@ class TravelScreenContent extends StatelessWidget {
   }
 
   Widget _buildRouteList(BuildContext context, List<TravelRouteModel> routes) {
-    return ListView.builder(
-      itemCount: routes.length + 1,
-      itemBuilder: (context, index) {
-        if (index == routes.length) {
-          return ElevatedButton(
-            onPressed: () {
-              // Navigate to add route screen
-            },
-            child: Text('Add New Route'),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+      child: ListView.builder(
+        itemCount: routes.length + 1,
+        itemBuilder: (context, index) {
+          if (index == routes.length) {
+            return CustomElevatedButton(
+              text: AppLocalizations.of(context).translate("Add New Route"),
+              onPressed: () {
+                final bloc = context.read<TravelBloc>();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider.value(
+                      value: bloc,
+                      child: const ProvinceListScreen(),
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+          
+          final route = routes[index];
+          return Padding(
+            padding: EdgeInsets.only(bottom: 16.h),
+            child: RouteCard(
+              name: route.routeName,
+              imagePath: 'assets/img/bg_route_${index % 4 + 1}.png', 
+              rating: 5.0, 
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider.value(
+                      value: context.read<TravelBloc>(),
+                      child: RouteDetailScreen(
+                        routeName: route.routeName,
+                        startDate: route.startDate,
+                        endDate: route.endDate,
+                        provinceName: route.province,
+                        existingRouteId: route.travelRouteId,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           );
-        }
-        
-        final route = routes[index];
-        return ListTile(
-          title: Text(route.routeName),
-          subtitle: Text('${route.destinations.length} destinations'),
-          trailing: IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () {
-              context.read<TravelBloc>().add(DeleteTravelRoute(route.travelRouteId));
-            },
-          ),
-        );
-      },
+        },
+      ),
     );
   }
 }

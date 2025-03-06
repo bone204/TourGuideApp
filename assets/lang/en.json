@@ -348,6 +348,7 @@
     "Not Started": "Not Started",
     "In Progress": "In Progress",
     "Completed": "Completed",
+    "Add New Route": "Add New Route",
 
     "My Routes": "My Routes",
     "Create New Route": "Create New Route",
@@ -386,6 +387,8 @@
 
 
     "Search destinations...": "Search destinations...",
-    "No available destinations": "No available destinations"
+    "No available destinations": "No available destinations",
+
+    "Start": "Start"
 }
   

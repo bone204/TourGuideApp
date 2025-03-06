@@ -9,6 +9,7 @@ class CustomElevatedButton extends StatelessWidget {
   final Color foregroundColor;
   final double fontSize;
   final double height;
+  final BorderSide? side;
 
   const CustomElevatedButton({
     Key? key,
@@ -18,6 +19,7 @@ class CustomElevatedButton extends StatelessWidget {
     this.foregroundColor = Colors.white,
     this.fontSize = 18.0,
     this.height = 50.0,
+    this.side,
   }) : super(key: key);
 
   @override
@@ -29,6 +31,7 @@ class CustomElevatedButton extends StatelessWidget {
         foregroundColor: foregroundColor,
         minimumSize: Size(double.infinity, height.h),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+        side: side,
       ),
       child: Text(
         AppLocalizations.of(context).translate(text),

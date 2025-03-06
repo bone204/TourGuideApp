@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/blocs/travel/travel_event.dart';
 import 'package:tourguideapp/blocs/travel/travel_state.dart';
+import 'package:tourguideapp/color/colors.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
@@ -13,6 +15,7 @@ class RouteDetailScreen extends StatefulWidget {
   final DateTime startDate;
   final DateTime endDate;
   final String provinceName;
+  final String? existingRouteId;
 
   const RouteDetailScreen({
     super.key,
@@ -20,6 +23,7 @@ class RouteDetailScreen extends StatefulWidget {
     required this.startDate,
     required this.endDate,
     required this.provinceName,
+    this.existingRouteId,
   });
 
   @override
@@ -54,6 +58,59 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
   }
 
   Widget _buildBottomBar(BuildContext context) {
+    if (widget.existingRouteId != null) {
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 4,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Row(
+            children: [
+              Expanded(
+                child: CustomElevatedButton(
+                  text: 'Delete',
+                  foregroundColor: AppColors.primaryColor,
+                  backgroundColor: Colors.white,
+                  side: const BorderSide(
+                    color: AppColors.primaryColor,
+                    width: 1.5,
+                  ),
+                  onPressed: () {
+                    context.read<TravelBloc>().add(
+                      DeleteTravelRoute(widget.existingRouteId!)
+                    );
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/travel',
+                      (route) => false,
+                    );
+                  },
+                ),
+              ),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: CustomElevatedButton(
+                  text: 'Start',
+                  onPressed: () {
+                    context.read<TravelBloc>().add(
+                      StartTravelRoute(widget.existingRouteId!)
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       decoration: BoxDecoration(
@@ -104,12 +161,18 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CategorySelector(
                 selectedCategory: selectedCategory,
                 categories: categories,
                 onCategorySelected: onCategorySelected,
               ),
+              SizedBox(height: 20.h),
+              CustomElevatedButton(
+                text: AppLocalizations.of(context).translate("Add Destination"), 
+                onPressed: () => {}
+              )
             ],
           ),
         ),
