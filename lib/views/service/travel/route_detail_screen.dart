@@ -4,6 +4,7 @@ import 'package:tourguideapp/blocs/travel/travel_event.dart';
 import 'package:tourguideapp/blocs/travel/travel_state.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/views/service/travel/add_destination_screen.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
@@ -171,7 +172,16 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
               SizedBox(height: 20.h),
               CustomElevatedButton(
                 text: AppLocalizations.of(context).translate("Add Destination"), 
-                onPressed: () => {}
+                onPressed: () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddDestinationScreen(
+                        provinceName: widget.provinceName,
+                      ),
+                    ),
+                  ),
+                }
               )
             ],
           ),

@@ -1,3 +1,116 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
+import 'package:tourguideapp/blocs/travel/travel_event.dart';
+import 'package:tourguideapp/blocs/travel/travel_state.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
+import 'package:tourguideapp/widgets/custom_search_bar.dart';
+import 'package:tourguideapp/widgets/favourite_card.dart';
+
+class AddDestinationScreen extends StatefulWidget {
+  final String provinceName;
+
+  const AddDestinationScreen({
+    Key? key,
+    required this.provinceName,
+  }) : super(key: key);
+
+  @override
+  State<AddDestinationScreen> createState() => _AddDestinationScreenState();
+}
+
+class _AddDestinationScreenState extends State<AddDestinationScreen> {
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<TravelBloc>().add(LoadDestinations(widget.provinceName));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(
+        title: AppLocalizations.of(context).translate('Add Destination'),
+        onBackPressed: () => Navigator.of(context).pop(),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            child: CustomSearchBar(
+              hintText: AppLocalizations.of(context).translate('Search destinations...'),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.toLowerCase();
+                });
+              },
+            ),
+          ),
+          Expanded(
+            child: BlocBuilder<TravelBloc, TravelState>(
+              builder: (context, state) {
+                if (state is TravelLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (state is DestinationsLoaded) {
+                  final filteredDestinations = state.destinations
+                      .where((d) => d.destinationName
+                          .toLowerCase()
+                          .contains(_searchQuery))
+                      .toList();
+
+                  if (filteredDestinations.isEmpty) {
+                    return Center(
+                      child: Text(
+                        _searchQuery.isEmpty
+                            ? 'No destinations available'
+                            : 'No results found',
+                        style: TextStyle(fontSize: 16.sp),
+                      ),
+                    );
+                  }
+
+                  return GridView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 161.w / 185.h,
+                      mainAxisSpacing: 20.h,
+                    ),
+                    itemCount: filteredDestinations.length,
+                    itemBuilder: (context, index) {
+                      final destination = filteredDestinations[index];
+                      return FavouriteCard(
+                        data: FavouriteCardData(
+                          imageUrl: destination.photo.isNotEmpty
+                              ? destination.photo[0]
+                              : 'assets/img/default_destination.png',
+                          placeName: destination.destinationName,
+                          description: destination.province,
+                        ),
+                      );
+                    },
+                  );
+                }
+
+                return const SizedBox();
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
 // import 'package:flutter/material.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';
 // import 'package:tourguideapp/color/colors.dart';

@@ -5,6 +5,7 @@ import 'package:tourguideapp/blocs/travel/travel_event.dart';
 import 'package:tourguideapp/blocs/travel/travel_state.dart';
 import 'package:tourguideapp/models/travel_route_model.dart';
 import 'package:tourguideapp/models/user_model.dart';
+import 'package:tourguideapp/models/destination_model.dart';
 
 class TravelBloc extends Bloc<TravelEvent, TravelState> {
   final FirebaseFirestore _firestore;
@@ -21,6 +22,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     on<DeleteTravelRoute>(_onDeleteRoute);
     on<CreateTravelRoute>(_onCreateRoute);
     on<StartTravelRoute>(_onStartRoute);
+    on<LoadDestinations>(_onLoadDestinations);
   }
 
   Future<String> generateRouteName() async {
@@ -173,6 +175,25 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     try {
       // Implement start route logic here
       // For example, update route status in Firebase
+    } catch (e) {
+      emit(TravelError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadDestinations(LoadDestinations event, Emitter<TravelState> emit) async {
+    try {
+      emit(TravelLoading());
+      
+      final snapshot = await _firestore
+          .collection('DESTINATION')
+          .where('province', isEqualTo: event.province)
+          .get();
+
+      final destinations = snapshot.docs
+          .map((doc) => DestinationModel.fromMap(doc.data()))
+          .toList();
+
+      emit(DestinationsLoaded(destinations));
     } catch (e) {
       emit(TravelError(e.toString()));
     }

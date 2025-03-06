@@ -50,4 +50,13 @@ class StartTravelRoute extends TravelEvent {
   
   @override
   List<Object?> get props => [routeId];
+}
+
+class LoadDestinations extends TravelEvent {
+  final String province;
+  
+  LoadDestinations(this.province);
+  
+  @override
+  List<Object?> get props => [province];
 } 
