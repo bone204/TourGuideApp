@@ -118,14 +118,22 @@ class _AddDestinationScreenContentState extends State<AddDestinationScreenConten
                                 child: DestinationDetailAddPage(
                                   destination: destination,
                                   onAddPressed: () {
-                                    context.read<TravelBloc>().add(
+                                    final bloc = context.read<TravelBloc>();
+                                    bloc.add(
                                       AddDestinationToRoute(
                                         destination,
                                         existingRouteId: widget.existingRouteId,
                                       ),
                                     );
-                                    Navigator.of(context).pop();
-                                    Navigator.of(context).pop();
+                                    
+                                    // Pop cả 2 màn hình và reload destinations
+                                    Navigator.of(context).pop(); // Pop DestinationDetailAddPage
+                                    Navigator.of(context).pop(); // Pop AddDestinationScreen
+                                    
+                                    // Reload destinations sau khi thêm
+                                    if (widget.existingRouteId != null) {
+                                      bloc.add(LoadRouteDestinations(widget.existingRouteId!));
+                                    }
                                   },
                                 ),
                               ),

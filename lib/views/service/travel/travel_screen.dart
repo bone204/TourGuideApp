@@ -166,12 +166,15 @@ class TravelScreenContent extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => RouteDetailScreen(
-                      routeName: route.routeName,
-                      startDate: route.startDate,
-                      endDate: route.endDate,
-                      provinceName: route.province,
-                      existingRouteId: route.travelRouteId,
+                    builder: (context) => BlocProvider.value(
+                      value: context.read<TravelBloc>(),
+                      child: RouteDetailScreen(
+                        routeName: route.routeName,
+                        startDate: route.startDate,
+                        endDate: route.endDate,
+                        provinceName: route.province,
+                        existingRouteId: route.travelRouteId,
+                      ),
                     ),
                   ),
                 );
