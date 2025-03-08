@@ -46,6 +46,7 @@ class TravelScreenContent extends StatelessWidget {
         }
       },
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: CustomAppBar(
           title: AppLocalizations.of(context).translate('Travel'),
           onBackPressed: () {

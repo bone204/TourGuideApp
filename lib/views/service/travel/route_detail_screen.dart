@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/blocs/travel/travel_event.dart';
@@ -12,7 +11,6 @@ import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/widgets/route_card.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class RouteDetailScreen extends StatefulWidget {
   final String routeName;
@@ -58,6 +56,12 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
     setState(() {
       selectedCategory = category;
     });
+    // Cập nhật ngày hiện tại trong bloc
+    context.read<TravelBloc>().setCurrentDay(category);
+    // Load lại destinations cho ngày mới
+    if (widget.existingRouteId != null) {
+      context.read<TravelBloc>().add(LoadRouteDestinations(widget.existingRouteId!));
+    }
   }
 
   Widget _buildBottomBar(BuildContext context) {

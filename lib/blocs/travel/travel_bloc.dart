@@ -10,9 +10,10 @@ import 'package:tourguideapp/models/destination_model.dart';
 class TravelBloc extends Bloc<TravelEvent, TravelState> {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
-  List<String> _tempDestinationIds = [];
+  Map<String, List<String>> _tempDestinationsByDay = {};
   List<DestinationModel>? _cachedDestinations;
   TravelRouteModel? _currentRoute;
+  String _currentDay = 'Day 1';
 
   TravelBloc({
     required FirebaseFirestore firestore,
@@ -28,6 +29,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     on<LoadDestinations>(_onLoadDestinations);
     on<AddDestinationToRoute>(_onAddDestinationToRoute);
     on<LoadRouteDestinations>(_onLoadRouteDestinations);
+    on<LoadTemporaryDestinations>(_onLoadTemporaryDestinations);
   }
 
   Future<String> generateRouteName() async {
@@ -137,15 +139,27 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     try {
       if (event.existingRouteId != null) {
         final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.existingRouteId);
+        
+        // Lấy destinations của ngày hiện tại
+        final currentDayDestinations = _currentRoute?.destinationsByDay[_currentDay] ?? [];
+        
+        // Update destinations cho ngày hiện tại
         await docRef.update({
-          'destinationIds': [..._currentRoute!.destinationIds, event.destination.destinationId]
+          'destinationsByDay.$_currentDay': [...currentDayDestinations, event.destination.destinationId]
         });
         
         add(LoadRouteDestinations(event.existingRouteId!));
       } else {
-        _tempDestinationIds = [..._tempDestinationIds, event.destination.destinationId];
-        final destinations = await _loadDestinationsFromIds(_tempDestinationIds);
-        
+        // Xử lý cho route tạm thời
+        _tempDestinationsByDay[_currentDay] = [
+          ...(_tempDestinationsByDay[_currentDay] ?? []),
+          event.destination.destinationId
+        ];
+
+        // Load chỉ destinations của ngày hiện tại
+        final destinations = await _loadDestinationsFromIds(
+          _tempDestinationsByDay[_currentDay] ?? []
+        );
         emit(RouteDetailLoaded(<TravelRouteModel>[], destinations));
       }
     } catch (e) {
@@ -172,7 +186,10 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       }
 
       _currentRoute = TravelRouteModel.fromMap(doc.data()!);
-      final destinations = await _loadDestinationsFromIds(_currentRoute!.destinationIds);
+      
+      // Load destinations cho ngày hiện tại
+      final currentDayDestinations = _currentRoute!.destinationsByDay[_currentDay] ?? [];
+      final destinations = await _loadDestinationsFromIds(currentDayDestinations);
       
       emit(RouteDetailLoaded(currentRoutes, destinations));
     } catch (e) {
@@ -182,6 +199,8 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
 
   Future<void> _onCreateRoute(CreateTravelRoute event, Emitter<TravelState> emit) async {
     try {
+      emit(TravelLoading());
+
       final user = _auth.currentUser;
       if (user == null) throw Exception('User not logged in');
 
@@ -199,18 +218,35 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         createdDate: DateTime.now(),
         startDate: event.startDate,
         endDate: event.endDate,
-        destinationIds: _tempDestinationIds,
+        destinationsByDay: _tempDestinationsByDay,
       );
 
+      print('Creating route with data: ${newRoute.toMap()}');
+
+      // Đảm bảo ghi dữ liệu lên Firebase thành công
       await _firestore
           .collection('TRAVEL_ROUTE')
           .doc(routeId)
           .set(newRoute.toMap());
-          
-      _tempDestinationIds = [];
+
+      print('Route created successfully with ID: $routeId');
+      
+      _tempDestinationsByDay = {};
       emit(TravelRouteCreated(routeId));
-      add(LoadTravelRoutes());
+      
+      // Load lại routes sau khi tạo thành công
+      final snapshot = await _firestore
+          .collection('TRAVEL_ROUTE')
+          .where('userId', isEqualTo: userData.userId)
+          .get();
+
+      final routes = snapshot.docs
+          .map((doc) => TravelRouteModel.fromMap(doc.data()))
+          .toList();
+
+      emit(TravelLoaded(routes));
     } catch (e) {
+      print('Error creating route: $e');
       emit(TravelError(e.toString()));
     }
   }
@@ -271,11 +307,11 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
   }
 
   bool hasTemporaryData() {
-    return _tempDestinationIds.isNotEmpty;
+    return _tempDestinationsByDay.isNotEmpty;
   }
 
   void clearTemporaryData() {
-    _tempDestinationIds.clear();
+    _tempDestinationsByDay = {};
   }
 
   // Clear cache khi cần
@@ -286,5 +322,17 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
   // Thêm method để reset route hiện tại
   void resetCurrentRoute() {
     _currentRoute = null;
+  }
+
+  void setCurrentDay(String day) {
+    _currentDay = day;
+    add(LoadTemporaryDestinations(day));
+  }
+
+  Future<void> _onLoadTemporaryDestinations(LoadTemporaryDestinations event, Emitter<TravelState> emit) async {
+    final destinations = await _loadDestinationsFromIds(
+      _tempDestinationsByDay[event.day] ?? []
+    );
+    emit(RouteDetailLoaded(<TravelRouteModel>[], destinations));
   }
 } 

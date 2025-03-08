@@ -8,7 +8,7 @@ class TravelRouteModel {
   final DateTime createdDate;
   final DateTime startDate;
   final DateTime endDate;
-  final List<String> destinationIds;
+  final Map<String, List<String>> destinationsByDay;
 
   TravelRouteModel({
     required this.travelRouteId,
@@ -18,7 +18,7 @@ class TravelRouteModel {
     required this.createdDate,
     required this.startDate,
     required this.endDate,
-    required this.destinationIds,
+    required this.destinationsByDay,
   });
 
   Map<String, dynamic> toMap() {
@@ -30,11 +30,19 @@ class TravelRouteModel {
       'createdDate': createdDate,
       'startDate': startDate,
       'endDate': endDate,
-      'destinationIds': destinationIds,
+      'destinationsByDay': destinationsByDay,
     };
   }
 
   factory TravelRouteModel.fromMap(Map<String, dynamic> map) {
+    final rawDestinationsByDay = map['destinationsByDay'] as Map<String, dynamic>? ?? {};
+    final destinationsByDay = rawDestinationsByDay.map((key, value) {
+      return MapEntry(
+        key, 
+        (value as List<dynamic>).map((e) => e.toString()).toList()
+      );
+    });
+
     return TravelRouteModel(
       travelRouteId: map['travelRouteId'] ?? '',
       userId: map['userId'] ?? '',
@@ -43,7 +51,7 @@ class TravelRouteModel {
       createdDate: (map['createdDate'] as Timestamp).toDate(),
       startDate: (map['startDate'] as Timestamp).toDate(),
       endDate: (map['endDate'] as Timestamp).toDate(),
-      destinationIds: List<String>.from(map['destinationIds'] ?? []),
+      destinationsByDay: destinationsByDay,
     );
   }
 }

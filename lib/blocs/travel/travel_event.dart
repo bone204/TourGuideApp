@@ -75,4 +75,12 @@ class AddDestinationToRoute extends TravelEvent {
 class LoadRouteDestinations extends TravelEvent {
   final String routeId;
   LoadRouteDestinations(this.routeId);
+}
+
+class LoadTemporaryDestinations extends TravelEvent {
+  final String day;
+  LoadTemporaryDestinations(this.day);
+  
+  @override
+  List<Object?> get props => [day];
 } 
