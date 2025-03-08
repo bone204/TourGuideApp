@@ -13,12 +13,17 @@ import 'package:tourguideapp/widgets/route_card.dart';
 import 'package:tourguideapp/views/service/travel/route_detail_screen.dart';
 
 class TravelScreen extends StatelessWidget {
-  static const routeName = '/travel';  // Thêm route name
+  static const routeName = '/travel';
 
   @override
   Widget build(BuildContext context) {
-    // Load routes when screen is opened
-    context.read<TravelBloc>().add(LoadTravelRoutes());
+    // Đảm bảo luôn gọi LoadTravelRoutes khi vào màn hình
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        context.read<TravelBloc>().add(LoadTravelRoutes());
+      }
+    });
+    
     return const TravelScreenContent();
   }
 }
@@ -50,13 +55,20 @@ class TravelScreenContent extends StatelessWidget {
             );
           },
         ),
-        body: BlocBuilder<TravelBloc, TravelState>(
+        body: BlocConsumer<TravelBloc, TravelState>(
+          listener: (context, state) {
+            if (state is TravelRouteCreated || state is TravelRouteUpdated) {
+              context.read<TravelBloc>().add(LoadTravelRoutes());
+            }
+          },
           builder: (context, state) {
+            // Xử lý state TravelEmpty ngay sau TravelLoading
             if (state is TravelLoading) {
               return const Center(child: CircularProgressIndicator());
             }
             
-            if (state is TravelEmpty) {
+            // Hiển thị màn hình thêm route khi không có route nào
+            if (state is TravelEmpty || state is TravelInitial) {
               return _buildEmptyView(context);
             }
             
@@ -130,12 +142,11 @@ class TravelScreenContent extends StatelessWidget {
             return CustomElevatedButton(
               text: AppLocalizations.of(context).translate("Add New Route"),
               onPressed: () {
-                final bloc = context.read<TravelBloc>();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => BlocProvider.value(
-                      value: bloc,
+                      value: BlocProvider.of<TravelBloc>(context),
                       child: const ProvinceListScreen(),
                     ),
                   ),
@@ -155,15 +166,12 @@ class TravelScreenContent extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BlocProvider.value(
-                      value: context.read<TravelBloc>(),
-                      child: RouteDetailScreen(
-                        routeName: route.routeName,
-                        startDate: route.startDate,
-                        endDate: route.endDate,
-                        provinceName: route.province,
-                        existingRouteId: route.travelRouteId,
-                      ),
+                    builder: (context) => RouteDetailScreen(
+                      routeName: route.routeName,
+                      startDate: route.startDate,
+                      endDate: route.endDate,
+                      provinceName: route.province,
+                      existingRouteId: route.travelRouteId,
                     ),
                   ),
                 );

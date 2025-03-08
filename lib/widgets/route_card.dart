@@ -27,7 +27,9 @@ class RouteCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.r),
           image: DecorationImage(
-            image: AssetImage(imagePath),
+            image: imagePath.startsWith('http') || imagePath.startsWith('https')
+                ? NetworkImage(imagePath) as ImageProvider
+                : AssetImage(imagePath),
             fit: BoxFit.cover,
           ),
         ),

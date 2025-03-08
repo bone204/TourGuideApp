@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/blocs/travel/travel_event.dart';
@@ -10,6 +11,8 @@ import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourguideapp/widgets/route_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RouteDetailScreen extends StatefulWidget {
   final String routeName;
@@ -38,18 +41,17 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Load routes when screen initializes
-    context.read<TravelBloc>().add(LoadTravelRoutes());
-    // Tính số ngày giữa startDate và endDate
     int numberOfDays = widget.endDate.difference(widget.startDate).inDays + 1;
-    
-    // Tạo danh sách các ngày
     categories = List.generate(numberOfDays, (index) {
       return 'Day ${index + 1}';
     });
-    
-    // Chọn ngày đầu tiên làm mặc định
     selectedCategory = categories.first;
+
+    // Load destinations ngay khi vào màn hình
+    if (widget.existingRouteId != null) {
+      print('Requesting destinations for route: ${widget.existingRouteId}');
+      context.read<TravelBloc>().add(LoadRouteDestinations(widget.existingRouteId!));
+    }
   }
 
   void onCategorySelected(String category) {
@@ -144,50 +146,156 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<TravelBloc, TravelState>(
-      listener: (context, state) {
-        if (state is TravelRouteCreated) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            '/travel',
-            (route) => false,
-          );
+    return BlocProvider(
+      create: (context) {
+        final bloc = TravelBloc(
+          firestore: FirebaseFirestore.instance,
+          auth: FirebaseAuth.instance,
+        );
+        // Load destinations ngay khi tạo bloc
+        if (widget.existingRouteId != null) {
+          bloc.add(LoadRouteDestinations(widget.existingRouteId!));
         }
+        return bloc;
       },
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: CustomAppBar(
-          title: widget.routeName,
-          onBackPressed: () => Navigator.of(context).pop(),
-        ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CategorySelector(
-                selectedCategory: selectedCategory,
-                categories: categories,
-                onCategorySelected: onCategorySelected,
-              ),
-              SizedBox(height: 20.h),
-              CustomElevatedButton(
-                text: AppLocalizations.of(context).translate("Add Destination"), 
-                onPressed: () => {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddDestinationScreen(
-                        provinceName: widget.provinceName,
+      child: BlocListener<TravelBloc, TravelState>(
+        listener: (context, state) {
+          if (state is TravelRouteCreated) {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              '/travel',
+              (route) => false,
+            );
+          }
+        },
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: CustomAppBar(
+            title: widget.routeName,
+            onBackPressed: () async {
+              if (widget.existingRouteId == null && context.read<TravelBloc>().hasTemporaryData()) {
+                final bool shouldPop = await showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Discard Changes?'),
+                    content: const Text('You have unsaved changes. Do you want to discard them and exit?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancel'),
                       ),
-                    ),
+                      TextButton(
+                        onPressed: () {
+                          context.read<TravelBloc>().clearTemporaryData();
+                          Navigator.of(context).pop(true);
+                        },
+                        child: const Text('Discard'),
+                      ),
+                    ],
                   ),
+                ) ?? false;
+
+                if (shouldPop) {
+                  // Load routes khi quay về
+                  context.read<TravelBloc>().add(LoadTravelRoutes());
+                  Navigator.of(context).pop();
                 }
-              )
-            ],
+              } else {
+                Navigator.of(context).pop();
+              }
+            },
           ),
+          body: BlocBuilder<TravelBloc, TravelState>(
+            builder: (context, state) {
+              print('Building with state: $state');
+              
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CategorySelector(
+                      selectedCategory: selectedCategory,
+                      categories: categories,
+                      onCategorySelected: onCategorySelected,
+                    ),
+                    SizedBox(height: 20.h),
+                    Expanded(
+                      child: _buildDestinationsList(state),
+                    ),
+                    SizedBox(height: 20.h),
+                    CustomElevatedButton(
+                      text: AppLocalizations.of(context).translate("Add Destination"),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BlocProvider.value(
+                              value: BlocProvider.of<TravelBloc>(context),
+                              child: AddDestinationScreen(
+                                provinceName: widget.provinceName,
+                                existingRouteId: widget.existingRouteId,
+                              ),
+                            ),
+                          ),
+                        ).then((_) {
+                          if (widget.existingRouteId != null) {
+                            context.read<TravelBloc>().add(
+                              LoadRouteDestinations(widget.existingRouteId!),
+                            );
+                          }
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          bottomNavigationBar: _buildBottomBar(context),
         ),
-        bottomNavigationBar: _buildBottomBar(context),
       ),
+    );
+  }
+
+  Widget _buildDestinationsList(TravelState state) {
+    print('Building destinations list with state: $state');
+
+    // Hiển thị destinations khi có TravelRouteUpdated
+    if (state is TravelRouteUpdated) {
+      print('Got destinations: ${state.destinations.length}');
+      if (state.destinations.isEmpty) {
+        return const Center(
+          child: Text('No destinations added yet'),
+        );
+      }
+
+      return ListView.builder(
+        itemCount: state.destinations.length,
+        itemBuilder: (context, index) {
+          final destination = state.destinations[index];
+          print('Building destination: ${destination.destinationName}');
+          return Padding(
+            padding: EdgeInsets.only(bottom: 16.h),
+            child: RouteCard(
+              name: destination.destinationName,
+              imagePath: destination.photo.isNotEmpty 
+                  ? destination.photo[0] 
+                  : 'assets/images/default.jpg',
+              rating: destination.favouriteTimes.toDouble(),
+            ),
+          );
+        },
+      );
+    }
+
+    // Hiển thị loading chỉ khi đang load
+    if (state is TravelLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // Hiển thị "No destinations" cho các state khác
+    return const Center(
+      child: Text('No destinations added yet'),
     );
   }
 }

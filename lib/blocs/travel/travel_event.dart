@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/models/travel_route_model.dart';
 
 abstract class TravelEvent extends Equatable {
@@ -59,4 +60,19 @@ class LoadDestinations extends TravelEvent {
   
   @override
   List<Object?> get props => [province];
+}
+
+class AddDestinationToRoute extends TravelEvent {
+  final DestinationModel destination;
+  final String? existingRouteId;
+  
+  AddDestinationToRoute(this.destination, {this.existingRouteId});
+  
+  @override
+  List<Object?> get props => [destination, existingRouteId];
+}
+
+class LoadRouteDestinations extends TravelEvent {
+  final String routeId;
+  LoadRouteDestinations(this.routeId);
 } 

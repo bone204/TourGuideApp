@@ -47,4 +47,15 @@ class DestinationsLoaded extends TravelState {
   
   @override
   List<Object?> get props => [destinations];
-} 
+}
+
+class TravelRouteUpdated extends TravelState {
+  final List<DestinationModel> destinations;
+  
+  TravelRouteUpdated(this.destinations);
+  
+  @override
+  List<Object?> get props => [destinations];
+}
+
+class DestinationsLoading extends TravelState {} 

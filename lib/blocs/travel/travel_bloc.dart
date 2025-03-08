@@ -10,6 +10,8 @@ import 'package:tourguideapp/models/destination_model.dart';
 class TravelBloc extends Bloc<TravelEvent, TravelState> {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+  List<String> _tempDestinationIds = [];
+  List<DestinationModel>? _cachedDestinations;
 
   TravelBloc({
     required FirebaseFirestore firestore,
@@ -23,6 +25,8 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     on<CreateTravelRoute>(_onCreateRoute);
     on<StartTravelRoute>(_onStartRoute);
     on<LoadDestinations>(_onLoadDestinations);
+    on<AddDestinationToRoute>(_onAddDestinationToRoute);
+    on<LoadRouteDestinations>(_onLoadRouteDestinations);
   }
 
   Future<String> generateRouteName() async {
@@ -46,7 +50,9 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
 
   Future<void> _onLoadRoutes(LoadTravelRoutes event, Emitter<TravelState> emit) async {
     try {
+      // Luôn emit loading khi bắt đầu load routes
       emit(TravelLoading());
+      print('Loading travel routes...');
       
       final user = _auth.currentUser;
       if (user == null) {
@@ -54,18 +60,13 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         return;
       }
 
-      final userDoc = await _firestore
-          .collection('USER')
-          .doc(user.uid)
-          .get();
-
+      final userDoc = await _firestore.collection('USER').doc(user.uid).get();
       if (!userDoc.exists) {
         emit(TravelEmpty());
         return;
       }
 
       final userData = UserModel.fromMap(userDoc.data()!);
-
       final snapshot = await _firestore
           .collection('TRAVEL_ROUTE')
           .where('userId', isEqualTo: userData.userId)
@@ -75,12 +76,15 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
           .map((doc) => TravelRouteModel.fromMap(doc.data()))
           .toList();
 
+      print('Loaded ${routes.length} routes');
+
       if (routes.isEmpty) {
         emit(TravelEmpty());
       } else {
         emit(TravelLoaded(routes));
       }
     } catch (e) {
+      print('Error loading routes: $e');
       emit(TravelEmpty());
     }
   }
@@ -133,16 +137,69 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     }
   }
 
+  Future<void> _onAddDestinationToRoute(AddDestinationToRoute event, Emitter<TravelState> emit) async {
+    try {
+      if (event.existingRouteId != null) {
+        final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.existingRouteId);
+        final doc = await docRef.get();
+        if (doc.exists) {
+          final route = TravelRouteModel.fromMap(doc.data()!);
+          final updatedDestinationIds = [...route.destinationIds, event.destination.destinationId];
+          
+          await docRef.update({'destinationIds': updatedDestinationIds});
+          final destinations = await _loadDestinationsFromIds(updatedDestinationIds);
+          emit(TravelRouteUpdated(destinations));
+        }
+      } else {
+        _tempDestinationIds = [..._tempDestinationIds, event.destination.destinationId];
+        final destinations = await _loadDestinationsFromIds(_tempDestinationIds);
+        emit(TravelRouteUpdated(destinations));
+      }
+    } catch (e) {
+      emit(TravelError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadRouteDestinations(LoadRouteDestinations event, Emitter<TravelState> emit) async {
+    try {
+      emit(TravelLoading());
+      print('Loading destinations for route: ${event.routeId}');
+
+      final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.routeId);
+      final doc = await docRef.get();
+      
+      if (!doc.exists) {
+        print('Route not found: ${event.routeId}');
+        emit(TravelError("Route not found"));
+        return;
+      }
+
+      final route = TravelRouteModel.fromMap(doc.data()!);
+      print('Found route: ${route.travelRouteId} with ${route.destinationIds.length} destinations');
+      print('Destination IDs: ${route.destinationIds}'); // Log để debug
+      
+      final destinations = await _loadDestinationsFromIds(route.destinationIds);
+      print('Successfully loaded ${destinations.length} destinations');
+      
+      // Log chi tiết từng destination
+      destinations.forEach((dest) {
+        print('Destination loaded: ${dest.destinationName} (${dest.destinationId})');
+      });
+      
+      emit(TravelRouteUpdated(destinations));
+      print('Emitted TravelRouteUpdated with ${destinations.length} destinations');
+    } catch (e) {
+      print('Error loading destinations: $e');
+      emit(TravelError(e.toString()));
+    }
+  }
+
   Future<void> _onCreateRoute(CreateTravelRoute event, Emitter<TravelState> emit) async {
     try {
       final user = _auth.currentUser;
       if (user == null) throw Exception('User not logged in');
 
-      final userDoc = await _firestore
-          .collection('USER')
-          .doc(user.uid)
-          .get();
-
+      final userDoc = await _firestore.collection('USER').doc(user.uid).get();
       if (!userDoc.exists) throw Exception('User data not found');
       
       final userData = UserModel.fromMap(userDoc.data()!);
@@ -156,7 +213,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         createdDate: DateTime.now(),
         startDate: event.startDate,
         endDate: event.endDate,
-        destinations: [],
+        destinationIds: _tempDestinationIds,
       );
 
       await _firestore
@@ -164,6 +221,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
           .doc(routeId)
           .set(newRoute.toMap());
           
+      _tempDestinationIds = [];
       emit(TravelRouteCreated(routeId));
       add(LoadTravelRoutes());
     } catch (e) {
@@ -182,7 +240,13 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
 
   Future<void> _onLoadDestinations(LoadDestinations event, Emitter<TravelState> emit) async {
     try {
-      emit(TravelLoading());
+      // Nếu đã có cache và cùng province, dùng lại
+      if (_cachedDestinations != null) {
+        emit(DestinationsLoaded(_cachedDestinations!));
+        return;
+      }
+
+      emit(DestinationsLoading());
       
       final snapshot = await _firestore
           .collection('DESTINATION')
@@ -193,9 +257,43 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
           .map((doc) => DestinationModel.fromMap(doc.data()))
           .toList();
 
+      _cachedDestinations = destinations; // Cache lại kết quả
       emit(DestinationsLoaded(destinations));
     } catch (e) {
       emit(TravelError(e.toString()));
     }
+  }
+
+  Future<List<DestinationModel>> _loadDestinationsFromIds(List<String> ids) async {
+    if (ids.isEmpty) return [];
+
+    final futures = ids.map((id) => 
+      _firestore.collection('DESTINATION').doc(id).get()
+    );
+    
+    final snapshots = await Future.wait(futures);
+    final destinations = snapshots
+        .where((doc) => doc.exists)
+        .map((doc) {
+          final destination = DestinationModel.fromMap(doc.data()!);
+          print('Loaded destination: ${destination.destinationName}');
+          return destination;
+        })
+        .toList();
+    
+    return destinations;
+  }
+
+  bool hasTemporaryData() {
+    return _tempDestinationIds.isNotEmpty;
+  }
+
+  void clearTemporaryData() {
+    _tempDestinationIds.clear();
+  }
+
+  // Clear cache khi cần
+  void clearDestinationsCache() {
+    _cachedDestinations = null;
   }
 } 
