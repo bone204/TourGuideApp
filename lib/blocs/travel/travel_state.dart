@@ -32,9 +32,16 @@ class RouteDetailLoading extends RouteDetailState {
 
 class RouteDetailLoaded extends RouteDetailState {
   final List<DestinationModel> destinations;
-  RouteDetailLoaded(List<TravelRouteModel> routes, this.destinations) : super(routes);
+  final Map<String, String> timeSlots;
+
+  RouteDetailLoaded(
+    List<TravelRouteModel> routes, 
+    this.destinations,
+    {this.timeSlots = const {}}
+  ) : super(routes);
+  
   @override
-  List<Object?> get props => [routes, destinations];
+  List<Object?> get props => [routes, destinations, timeSlots];
 }
 
 // Common states

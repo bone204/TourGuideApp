@@ -6,6 +6,7 @@ import 'package:tourguideapp/blocs/travel/travel_state.dart';
 import 'package:tourguideapp/models/travel_route_model.dart';
 import 'package:tourguideapp/models/user_model.dart';
 import 'package:tourguideapp/models/destination_model.dart';
+import 'package:tourguideapp/utils/time_slot_manager.dart';
 
 class TravelBloc extends Bloc<TravelEvent, TravelState> {
   final FirebaseFirestore _firestore;
@@ -333,6 +334,13 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     final destinations = await _loadDestinationsFromIds(
       _tempDestinationsByDay[event.day] ?? []
     );
-    emit(RouteDetailLoaded(<TravelRouteModel>[], destinations));
+    
+    final timeSlots = Map.fromEntries(
+      destinations.asMap().entries.map((e) => 
+        MapEntry(e.value.destinationId, TimeSlotManager.getTimeSlot(e.key))
+      )
+    );
+    
+    emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots));
   }
 } 

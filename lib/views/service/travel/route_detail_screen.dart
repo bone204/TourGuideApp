@@ -10,7 +10,8 @@ import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tourguideapp/widgets/route_card.dart';
+import 'package:tourguideapp/widgets/destination_route_card.dart';
+import 'package:tourguideapp/utils/time_slot_manager.dart';
 
 class RouteDetailScreen extends StatefulWidget {
   final String routeName;
@@ -249,10 +250,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
   }
 
   Widget _buildDestinationsList(TravelState state) {
-    print('Building destinations list with state: $state');
-
     if (state is RouteDetailLoaded) {
-      print('Got destinations: ${state.destinations.length}');
       if (state.destinations.isEmpty) {
         return const Center(
           child: Text('No destinations added yet'),
@@ -265,12 +263,16 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
           final destination = state.destinations[index];
           return Padding(
             padding: EdgeInsets.only(bottom: 16.h),
-            child: RouteCard(
+            child: DestinationRouteCard(
               name: destination.destinationName,
               imagePath: destination.photo.isNotEmpty 
                   ? destination.photo[0] 
                   : 'assets/images/default.jpg',
-              rating: destination.favouriteTimes.toDouble(),
+              timeRange: state.timeSlots[destination.destinationId] ?? 
+                        TimeSlotManager.getTimeSlot(index),
+              onTap: () {
+                // Xử lý khi tap vào destination
+              },
             ),
           );
         },
