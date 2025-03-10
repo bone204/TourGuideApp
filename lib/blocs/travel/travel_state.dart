@@ -3,6 +3,8 @@ import 'package:tourguideapp/models/travel_route_model.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 
 abstract class TravelState extends Equatable {
+  const TravelState();
+
   @override
   List<Object?> get props => [];
 }
@@ -13,48 +15,52 @@ class TravelLoading extends TravelState {}
 class TravelEmpty extends TravelState {}
 class TravelLoaded extends TravelState {
   final List<TravelRouteModel> routes;
-  TravelLoaded(this.routes);
+
+  const TravelLoaded(this.routes);
+
   @override
   List<Object?> get props => [routes];
 }
 
 // States cho RouteDetailScreen
-class RouteDetailState extends TravelState {
-  final List<TravelRouteModel> routes;  // Giữ lại routes để có thể quay lại
-  RouteDetailState(this.routes);
+abstract class RouteDetailState extends TravelState {
+  final List<TravelRouteModel> routes;
+  final List<DestinationModel> destinations;
+  final Map<String, String>? timeSlots;
+
+  const RouteDetailState(this.routes, this.destinations, {this.timeSlots});
+
   @override
-  List<Object?> get props => [routes];
+  List<Object?> get props => [routes, destinations, timeSlots];
 }
 
 class RouteDetailLoading extends RouteDetailState {
-  RouteDetailLoading(super.routes);
+  RouteDetailLoading(List<TravelRouteModel> routes) : super(routes, []);
 }
 
 class RouteDetailLoaded extends RouteDetailState {
-  final List<DestinationModel> destinations;
-  final Map<String, String> timeSlots;
-
-  RouteDetailLoaded(
-    List<TravelRouteModel> routes, 
-    this.destinations,
-    {this.timeSlots = const {}}
-  ) : super(routes);
-  
-  @override
-  List<Object?> get props => [routes, destinations, timeSlots];
+  const RouteDetailLoaded(
+    List<TravelRouteModel> routes,
+    List<DestinationModel> destinations, {
+    Map<String, String>? timeSlots,
+  }) : super(routes, destinations, timeSlots: timeSlots);
 }
 
 // Common states
 class TravelError extends TravelState {
   final String message;
-  TravelError(this.message);
+
+  const TravelError(this.message);
+
   @override
   List<Object?> get props => [message];
 }
 
 class TravelRouteCreated extends TravelState {
   final String routeId;
-  TravelRouteCreated(this.routeId);
+
+  const TravelRouteCreated(this.routeId);
+
   @override
   List<Object?> get props => [routeId];
 }

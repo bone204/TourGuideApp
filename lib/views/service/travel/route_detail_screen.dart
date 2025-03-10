@@ -250,17 +250,48 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
   }
 
   Widget _buildDestinationsList(TravelState state) {
+    print('Building destinations list with state: $state');
+    
     if (state is RouteDetailLoaded) {
+      print('State is RouteDetailLoaded');
+      print('Number of destinations: ${state.destinations.length}');
+      print('Time slots: ${state.timeSlots}');
+      
       if (state.destinations.isEmpty) {
+        print('No destinations found');
         return const Center(
           child: Text('No destinations added yet'),
         );
       }
 
+      // Tạo map để theo dõi số lần xuất hiện của mỗi destination
+      final Map<String, int> destinationCount = {};
+      
       return ListView.builder(
         itemCount: state.destinations.length,
         itemBuilder: (context, index) {
           final destination = state.destinations[index];
+          print('Building card for destination: ${destination.destinationName}');
+          print('Destination ID: ${destination.destinationId}');
+          print('Available timeSlots: ${state.timeSlots}');
+          
+          // Tăng số lần xuất hiện của destination này
+          destinationCount[destination.destinationId] = (destinationCount[destination.destinationId] ?? 0) + 1;
+          final currentCount = destinationCount[destination.destinationId]! - 1; // Lấy số lần xuất hiện trước đó
+          
+          // Lấy tất cả uniqueId cho destination này
+          final uniqueIds = state.timeSlots?.keys
+              .where((key) => key.startsWith(destination.destinationId))
+              .toList() ?? [];
+          
+          print('Found uniqueIds for this destination: $uniqueIds');
+          
+          // Lấy uniqueId tương ứng với vị trí hiện tại của destination này
+          final uniqueId = uniqueIds.length > currentCount ? uniqueIds[currentCount] : destination.destinationId;
+          
+          print('Selected uniqueId: $uniqueId');
+          print('Time for this destination: ${state.timeSlots?[uniqueId]}');
+          
           return Padding(
             padding: EdgeInsets.only(bottom: 16.h),
             child: DestinationRouteCard(
@@ -268,8 +299,8 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
               imagePath: destination.photo.isNotEmpty 
                   ? destination.photo[0] 
                   : 'assets/images/default.jpg',
-              timeRange: state.timeSlots[destination.destinationId] ?? 
-                        TimeSlotManager.getTimeSlot(index),
+              timeRange: state.timeSlots?[uniqueId] ?? 
+                        TimeSlotManager.formatTimeRange('08:00', '09:00'),
               onTap: () {
                 // Xử lý khi tap vào destination
               },
@@ -280,9 +311,11 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
     }
 
     if (state is RouteDetailLoading) {
+      print('State is RouteDetailLoading');
       return const Center(child: CircularProgressIndicator());
     }
 
+    print('State is neither RouteDetailLoaded nor RouteDetailLoading');
     return const Center(
       child: Text('No destinations added yet'),
     );
