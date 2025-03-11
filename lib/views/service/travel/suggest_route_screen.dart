@@ -23,6 +23,10 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen>{
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 1));
 
+  int _calculateNumberOfDays() {
+    return _endDate.difference(_startDate).inDays + 1;
+  }
+
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -57,8 +61,7 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen>{
                       value: context.read<TravelBloc>(),
                       child: RouteDetailScreen(
                         routeName: routeName,
-                        startDate: _startDate,
-                        endDate: _endDate,
+                        numberOfDays: _calculateNumberOfDays(),
                         provinceName: widget.provinceName,
                       ),
                     ),

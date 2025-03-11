@@ -6,8 +6,7 @@ class TravelRouteModel {
   final String routeName;
   final String province;
   final DateTime createdDate;
-  final DateTime startDate;
-  final DateTime endDate;
+  final int numberOfDays;
   final Map<String, List<Map<String, String?>>> destinationsByDay;
 
   TravelRouteModel({
@@ -16,8 +15,7 @@ class TravelRouteModel {
     required this.routeName,
     required this.province,
     required this.createdDate,
-    required this.startDate,
-    required this.endDate,
+    required this.numberOfDays,
     required this.destinationsByDay,
   });
 
@@ -28,8 +26,7 @@ class TravelRouteModel {
       'routeName': routeName,
       'province': province,
       'createdDate': createdDate,
-      'startDate': startDate,
-      'endDate': endDate,
+      'numberOfDays': numberOfDays,
       'destinationsByDay': destinationsByDay,
     };
   }
@@ -65,8 +62,7 @@ class TravelRouteModel {
       routeName: map['routeName']?.toString() ?? '',
       province: map['province']?.toString() ?? '',
       createdDate: (map['createdDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      startDate: (map['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      endDate: (map['endDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      numberOfDays: map['numberOfDays']?.toInt() ?? 1,
       destinationsByDay: destinationsByDay,
     );
   }

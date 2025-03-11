@@ -16,16 +16,14 @@ import 'package:tourguideapp/widgets/destination_edit_modal.dart';
 
 class RouteDetailScreen extends StatefulWidget {
   final String routeName;
-  final DateTime startDate;
-  final DateTime endDate;
+  final int numberOfDays;
   final String provinceName;
   final String? existingRouteId;
 
   const RouteDetailScreen({
     super.key,
     required this.routeName,
-    required this.startDate,
-    required this.endDate,
+    required this.numberOfDays,
     required this.provinceName,
     this.existingRouteId,
   });
@@ -41,8 +39,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
   @override
   void initState() {
     super.initState();
-    int numberOfDays = widget.endDate.difference(widget.startDate).inDays + 1;
-    categories = List.generate(numberOfDays, (index) {
+    categories = List.generate(widget.numberOfDays, (index) {
       return 'Day ${index + 1}';
     });
     selectedCategory = categories.first;
@@ -140,8 +137,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
               CreateTravelRoute(
                 routeName: widget.routeName,
                 province: widget.provinceName,
-                startDate: widget.startDate,
-                endDate: widget.endDate,
+                numberOfDays: widget.numberOfDays,
               ),
             );
           },

@@ -171,8 +171,7 @@ class TravelScreenContent extends StatelessWidget {
                       value: context.read<TravelBloc>(),
                       child: RouteDetailScreen(
                         routeName: route.routeName,
-                        startDate: route.startDate,
-                        endDate: route.endDate,
+                        numberOfDays: route.numberOfDays,
                         provinceName: route.province,
                         existingRouteId: route.travelRouteId,
                       ),

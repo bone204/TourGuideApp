@@ -360,14 +360,12 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         routeName: event.routeName,
         province: event.province,
         createdDate: DateTime.now(),
-        startDate: event.startDate,
-        endDate: event.endDate,
+        numberOfDays: event.numberOfDays,
         destinationsByDay: _tempDestinationsByDay,
       );
 
       print('Creating route with data: ${newRoute.toMap()}');
 
-      // Đảm bảo ghi dữ liệu lên Firebase thành công
       await _firestore
           .collection('TRAVEL_ROUTE')
           .doc(routeId)
@@ -378,7 +376,6 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       _tempDestinationsByDay = {};
       emit(TravelRouteCreated(routeId));
       
-      // Load lại routes sau khi tạo thành công
       final snapshot = await _firestore
           .collection('TRAVEL_ROUTE')
           .where('userId', isEqualTo: userData.userId)
