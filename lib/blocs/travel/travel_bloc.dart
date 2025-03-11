@@ -31,6 +31,8 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     on<AddDestinationToRoute>(_onAddDestinationToRoute);
     on<LoadRouteDestinations>(_onLoadRouteDestinations);
     on<LoadTemporaryDestinations>(_onLoadTemporaryDestinations);
+    on<UpdateDestinationTime>(_onUpdateDestinationTime);
+    on<DeleteDestinationFromRoute>(_onDeleteDestinationFromRoute);
   }
 
   Future<String> generateRouteName() async {
@@ -494,5 +496,195 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     );
     
     emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots));
+  }
+
+  Future<void> _onUpdateDestinationTime(
+    UpdateDestinationTime event,
+    Emitter<TravelState> emit,
+  ) async {
+    try {
+      List<Map<String, String?>> destinations;
+      
+      if (event.routeId != null) {
+        // Cập nhật cho route đã tồn tại
+        final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.routeId);
+        final doc = await docRef.get();
+        if (!doc.exists) {
+          emit(TravelError("Route not found"));
+          return;
+        }
+        
+        _currentRoute = TravelRouteModel.fromMap(doc.data()!);
+        destinations = List<Map<String, String?>>.from(
+          _currentRoute!.destinationsByDay[event.currentDay] ?? []
+        );
+      } else {
+        // Cập nhật cho route tạm thời
+        destinations = List<Map<String, String?>>.from(
+          _tempDestinationsByDay[event.currentDay] ?? []
+        );
+      }
+
+      // Tìm và cập nhật thời gian cho địa điểm
+      final index = destinations.indexWhere(
+        (d) => d['uniqueId'] == event.uniqueId
+      );
+      
+      if (index != -1) {
+        final updatedDestination = Map<String, String?>.from(destinations[index]);
+        updatedDestination['startTime'] = event.startTime;
+        updatedDestination['endTime'] = event.endTime;
+        destinations.removeAt(index);
+        
+        // Tìm vị trí phù hợp để chèn dựa trên thời gian bắt đầu
+        int insertIndex = 0;
+        for (int i = 0; i < destinations.length; i++) {
+          final currentStartTime = destinations[i]['startTime'] ?? '00:00';
+          if (_compareTime(event.startTime, currentStartTime) <= 0) {
+            break;
+          }
+          insertIndex = i + 1;
+        }
+        
+        destinations.insert(insertIndex, updatedDestination);
+        
+        // Cập nhật thời gian cho các địa điểm sau
+        _updateFollowingDestinationsTimes(destinations, insertIndex + 1);
+
+        if (event.routeId != null) {
+          // Cập nhật lên Firestore
+          await _firestore.collection('TRAVEL_ROUTE').doc(event.routeId).update({
+            'destinationsByDay.${event.currentDay}': destinations,
+          });
+          
+          // Load lại route details
+          add(LoadRouteDestinations(event.routeId!));
+        } else {
+          // Cập nhật route tạm thời
+          _tempDestinationsByDay[event.currentDay] = destinations;
+          
+          // Load lại destinations
+          final destinationIds = destinations.map((d) => d['destinationId'] as String).toList();
+          final updatedDestinations = await _loadDestinationsFromIds(destinationIds);
+          
+          // Tạo time slots mới
+          final timeSlots = Map<String, String>.fromEntries(
+            destinations.map((entry) => MapEntry(
+              entry['uniqueId'] as String,
+              TimeSlotManager.formatTimeRange(
+                entry['startTime'] as String,
+                entry['endTime'] as String
+              )
+            ))
+          );
+          
+          emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots));
+        }
+      }
+    } catch (e) {
+      emit(TravelError(e.toString()));
+    }
+  }
+
+  int _compareTime(String time1, String time2) {
+    final parts1 = time1.split(':');
+    final parts2 = time2.split(':');
+    
+    final hours1 = int.parse(parts1[0]);
+    final hours2 = int.parse(parts2[0]);
+    
+    if (hours1 != hours2) {
+      return hours1.compareTo(hours2);
+    }
+    
+    final minutes1 = int.parse(parts1[1]);
+    final minutes2 = int.parse(parts2[1]);
+    return minutes1.compareTo(minutes2);
+  }
+
+  void _updateFollowingDestinationsTimes(List<Map<String, String?>> destinations, int startIndex) {
+    for (int i = startIndex; i < destinations.length; i++) {
+      if (i == 0) continue;
+      
+      final previousEnd = destinations[i - 1]['endTime'] ?? '00:00';
+      final previousEndParts = previousEnd.split(':');
+      var nextStartHour = int.parse(previousEndParts[0]);
+      
+      // Đặt thời gian bắt đầu của địa điểm tiếp theo là 1 tiếng sau thời gian kết thúc của địa điểm trước
+      final startTime = '${nextStartHour.toString().padLeft(2, '0')}:${previousEndParts[1]}';
+      final endTime = '${(nextStartHour + 1).toString().padLeft(2, '0')}:${previousEndParts[1]}';
+      
+      destinations[i]['startTime'] = startTime;
+      destinations[i]['endTime'] = endTime;
+    }
+  }
+
+  Future<void> _onDeleteDestinationFromRoute(
+    DeleteDestinationFromRoute event,
+    Emitter<TravelState> emit,
+  ) async {
+    try {
+      if (event.routeId != null) {
+        // Xóa khỏi route đã tồn tại
+        final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.routeId);
+        final doc = await docRef.get();
+        if (!doc.exists) {
+          emit(TravelError("Route not found"));
+          return;
+        }
+        
+        _currentRoute = TravelRouteModel.fromMap(doc.data()!);
+        final destinations = List<Map<String, String?>>.from(
+          _currentRoute!.destinationsByDay[event.currentDay] ?? []
+        );
+
+        // Tìm và xóa địa điểm
+        destinations.removeWhere((d) => d['uniqueId'] == event.uniqueId);
+
+        // Cập nhật thời gian cho các địa điểm còn lại
+        _updateFollowingDestinationsTimes(destinations, 0);
+
+        // Cập nhật lên Firestore
+        await docRef.update({
+          'destinationsByDay.${event.currentDay}': destinations,
+        });
+
+        // Load lại route details
+        add(LoadRouteDestinations(event.routeId!));
+      } else {
+        // Xóa khỏi route tạm thời
+        final destinations = List<Map<String, String?>>.from(
+          _tempDestinationsByDay[event.currentDay] ?? []
+        );
+
+        // Tìm và xóa địa điểm
+        destinations.removeWhere((d) => d['uniqueId'] == event.uniqueId);
+
+        // Cập nhật thời gian cho các địa điểm còn lại
+        _updateFollowingDestinationsTimes(destinations, 0);
+
+        // Cập nhật route tạm thời
+        _tempDestinationsByDay[event.currentDay] = destinations;
+
+        // Load lại destinations
+        final destinationIds = destinations.map((d) => d['destinationId'] as String).toList();
+        final updatedDestinations = await _loadDestinationsFromIds(destinationIds);
+
+        // Tạo time slots mới
+        final timeSlots = Map<String, String>.fromEntries(
+          destinations.map((entry) => MapEntry(
+            entry['uniqueId'] as String,
+            TimeSlotManager.formatTimeRange(
+              entry['startTime'] as String,
+              entry['endTime'] as String
+            )
+          ))
+        );
+
+        emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots));
+      }
+    } catch (e) {
+      emit(TravelError(e.toString()));
+    }
   }
 } 

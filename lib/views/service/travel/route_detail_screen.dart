@@ -12,6 +12,7 @@ import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/widgets/destination_route_card.dart';
 import 'package:tourguideapp/utils/time_slot_manager.dart';
+import 'package:tourguideapp/widgets/destination_edit_modal.dart';
 
 class RouteDetailScreen extends StatefulWidget {
   final String routeName;
@@ -277,7 +278,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
           
           // Tăng số lần xuất hiện của destination này
           destinationCount[destination.destinationId] = (destinationCount[destination.destinationId] ?? 0) + 1;
-          final currentCount = destinationCount[destination.destinationId]! - 1; // Lấy số lần xuất hiện trước đó
+          final currentCount = destinationCount[destination.destinationId]! - 1;
           
           // Lấy tất cả uniqueId cho destination này
           final uniqueIds = state.timeSlots?.keys
@@ -290,6 +291,13 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
           final uniqueId = uniqueIds.length > currentCount ? uniqueIds[currentCount] : destination.destinationId;
           
           print('Selected uniqueId: $uniqueId');
+          
+          final timeRange = state.timeSlots?[uniqueId] ?? 
+                    TimeSlotManager.formatTimeRange('08:00', '09:00');
+          
+          final startTime = timeRange.split(' - ')[0];
+          final endTime = timeRange.split(' - ')[1];
+          
           print('Time for this destination: ${state.timeSlots?[uniqueId]}');
           
           return Padding(
@@ -299,10 +307,38 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
               imagePath: destination.photo.isNotEmpty 
                   ? destination.photo[0] 
                   : 'assets/images/default.jpg',
-              timeRange: state.timeSlots?[uniqueId] ?? 
-                        TimeSlotManager.formatTimeRange('08:00', '09:00'),
+              timeRange: timeRange,
               onTap: () {
-                // Xử lý khi tap vào destination
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => DestinationEditModal(
+                    destinationName: destination.destinationName,
+                    currentStartTime: startTime,
+                    currentEndTime: endTime,
+                    onUpdateTime: (newStartTime, newEndTime) {
+                      context.read<TravelBloc>().add(
+                        UpdateDestinationTime(
+                          uniqueId: uniqueId,
+                          startTime: newStartTime,
+                          endTime: newEndTime,
+                          routeId: widget.existingRouteId,
+                          currentDay: selectedCategory,
+                        ),
+                      );
+                    },
+                    onDelete: () {
+                      context.read<TravelBloc>().add(
+                        DeleteDestinationFromRoute(
+                          uniqueId: uniqueId,
+                          routeId: widget.existingRouteId,
+                          currentDay: selectedCategory,
+                        ),
+                      );
+                    },
+                  ),
+                );
               },
             ),
           );

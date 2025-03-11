@@ -83,4 +83,35 @@ class LoadTemporaryDestinations extends TravelEvent {
   
   @override
   List<Object?> get props => [day];
+}
+
+class UpdateDestinationTime extends TravelEvent {
+  final String uniqueId;
+  final String startTime;
+  final String endTime;
+  final String? routeId;
+  final String currentDay;
+
+  UpdateDestinationTime({
+    required this.uniqueId,
+    required this.startTime,
+    required this.endTime,
+    this.routeId,
+    required this.currentDay,
+  });
+}
+
+class DeleteDestinationFromRoute extends TravelEvent {
+  final String uniqueId;
+  final String? routeId;
+  final String currentDay;
+
+  DeleteDestinationFromRoute({
+    required this.uniqueId,
+    this.routeId,
+    required this.currentDay,
+  });
+
+  @override
+  List<Object?> get props => [uniqueId, routeId, currentDay];
 } 

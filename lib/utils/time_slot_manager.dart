@@ -22,15 +22,42 @@ class TimeSlotManager {
   }
 
   static String formatTimeRange(String startTime, String endTime) {
-    final start = _convert24To12Hour(startTime);
-    final end = _convert24To12Hour(endTime);
-    return "$start - $end";
+    return '$startTime - $endTime';
   }
 
-  static String _convert24To12Hour(String time24) {
-    final hour = int.parse(time24.split(':')[0]);
-    final period = hour >= 12 ? "PM" : "AM";
-    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    return "${displayHour.toString().padLeft(2, '0')}:00 $period";
+  static String convertTo24Hour(String time) {
+    // Nếu không có AM/PM, giả định là đã ở định dạng 24h
+    if (!time.toUpperCase().contains('AM') && !time.toUpperCase().contains('PM')) {
+      return time;
+    }
+
+    final parts = time.split(' ');
+    final timeParts = parts[0].split(':');
+    var hour = int.parse(timeParts[0]);
+    final minute = timeParts[1];
+    final isPM = parts[1].toUpperCase() == 'PM';
+
+    if (isPM && hour != 12) {
+      hour += 12;
+    } else if (!isPM && hour == 12) {
+      hour = 0;
+    }
+
+    return '${hour.toString().padLeft(2, '0')}:$minute';
+  }
+
+  static String convertTo12Hour(String time) {
+    final parts = time.split(':');
+    var hour = int.parse(parts[0]);
+    final minute = parts[1];
+    final isPM = hour >= 12;
+
+    if (hour > 12) {
+      hour -= 12;
+    } else if (hour == 0) {
+      hour = 12;
+    }
+
+    return '${hour.toString().padLeft(2, '0')}:$minute ${isPM ? 'PM' : 'AM'}';
   }
 } 
