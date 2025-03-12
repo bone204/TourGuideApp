@@ -83,7 +83,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       if (routes.isEmpty) {
         emit(TravelEmpty());
       } else {
-        emit(TravelLoaded(routes));  // Luôn emit TravelLoaded với routes
+        emit(TravelLoaded(routes));  
       }
     } catch (e) {
       emit(TravelEmpty());
@@ -141,24 +141,20 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
   Future<void> _onAddDestinationToRoute(AddDestinationToRoute event, Emitter<TravelState> emit) async {
     try {
       if (event.existingRouteId != null) {
-        print('Adding destination to existing route: ${event.existingRouteId}');
         final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.existingRouteId);
         
         // Load lại current route từ Firestore
         final doc = await docRef.get();
         if (!doc.exists) {
-          print('Route not found');
           emit(TravelError("Route not found"));
           return;
         }
         
         // Cập nhật _currentRoute với dữ liệu mới nhất
         _currentRoute = TravelRouteModel.fromMap(doc.data()!);
-        print('Current route loaded: ${_currentRoute?.routeName}');
         
         // Lấy destinations của ngày hiện tại
         final currentDayDestinations = _currentRoute!.destinationsByDay[_currentDay] ?? [];
-        print('Current day destinations: $currentDayDestinations');
         
         // Tạo ID duy nhất cho lần thêm mới này
         final uniqueId = '${event.destination.destinationId}_${DateTime.now().millisecondsSinceEpoch}';
@@ -168,8 +164,6 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         final endHour = startHour + 1;
         final startTime = '${startHour.toString().padLeft(2, '0')}:00';
         final endTime = '${endHour.toString().padLeft(2, '0')}:00';
-        
-        print('Adding destination with time: $startTime - $endTime');
         
         // Tạo danh sách destinations mới
         final updatedDestinations = List<Map<String, String>>.from(currentDayDestinations);
@@ -194,9 +188,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
           entry['destinationId'] as String
         ).toList();
         
-        print('Loading destinations with IDs: $destinationIds');
         final destinations = await _loadDestinationsFromIds(destinationIds);
-        print('Loaded ${destinations.length} destinations');
         
         // Tạo map time slots từ dữ liệu đã lưu
         final timeSlots = Map<String, String>.fromEntries(
@@ -211,7 +203,6 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
           )
         );
         
-        print('Updated timeSlots: $timeSlots');
         emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots));
       } else {
         // Xử lý cho route tạm thời
@@ -225,8 +216,6 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         final endHour = startHour + 1;
         final startTime = '${startHour.toString().padLeft(2, '0')}:00';
         final endTime = '${endHour.toString().padLeft(2, '0')}:00';
-        
-        print('Adding temporary destination with time: $startTime - $endTime');
         
         // Thêm destination mới vào cuối danh sách
         currentDayDestinations.add({
@@ -258,19 +247,15 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
           )
         );
         
-        print('Updated temporary timeSlots: $timeSlots');
         emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots));
       }
     } catch (e) {
-      print('Error adding destination: $e');
       emit(TravelError(e.toString()));
     }
   }
 
   Future<void> _onLoadRouteDestinations(LoadRouteDestinations event, Emitter<TravelState> emit) async {
-    try {
-      print('Loading route destinations for route ID: ${event.routeId}');
-      
+    try {      
       final List<TravelRouteModel> currentRoutes = (state is TravelLoaded) 
           ? (state as TravelLoaded).routes 
           : (state is RouteDetailState) 
@@ -283,27 +268,22 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       final doc = await docRef.get();
       
       if (!doc.exists) {
-        print('Route not found in Firestore');
         emit(TravelError("Route not found"));
         return;
       }
 
       final data = doc.data();
       if (data == null) {
-        print('Route data is null');
         emit(TravelError("Route data is null"));
         return;
       }
 
       _currentRoute = TravelRouteModel.fromMap(data);
-      print('Current route loaded: ${_currentRoute?.routeName}');
       
       // Load destinations cho ngày hiện tại
       final currentDayDestinations = _currentRoute!.destinationsByDay[_currentDay] ?? [];
-      print('Current day destinations: $currentDayDestinations');
       
       if (currentDayDestinations.isEmpty) {
-        print('No destinations found for current day');
         emit(RouteDetailLoaded(currentRoutes, [], timeSlots: {}));
         return;
       }
@@ -313,17 +293,16 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         entry['destinationId'] as String
       ).toList();
       
-      print('Loading destinations with IDs: $destinationIds');
       final destinations = await _loadDestinationsFromIds(destinationIds);
       print('Loaded ${destinations.length} destinations');
       
       // Tạo map time slots cho destinations
       final timeSlots = Map<String, String>.fromEntries(
         currentDayDestinations.map((entry) {
-          final uniqueId = entry['uniqueId'] as String? ?? 
+          final uniqueId = entry['uniqueId'] ?? 
             '${entry['destinationId']}_${DateTime.now().millisecondsSinceEpoch}';
-          final startTime = entry['startTime'] as String? ?? '08:00';
-          final endTime = entry['endTime'] as String? ?? '09:00';
+          final startTime = entry['startTime'] ?? '08:00';
+          final endTime = entry['endTime'] ?? '09:00';
           
           return MapEntry(
             uniqueId,
@@ -332,11 +311,9 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         })
       );
       
-      print('Generated timeSlots: $timeSlots');
       
       emit(RouteDetailLoaded(currentRoutes, destinations, timeSlots: timeSlots));
     } catch (e) {
-      print('Error loading route destinations: $e');
       emit(TravelError(e.toString()));
     }
   }
@@ -364,14 +341,10 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         destinationsByDay: _tempDestinationsByDay,
       );
 
-      print('Creating route with data: ${newRoute.toMap()}');
-
       await _firestore
           .collection('TRAVEL_ROUTE')
           .doc(routeId)
           .set(newRoute.toMap());
-
-      print('Route created successfully with ID: $routeId');
       
       _tempDestinationsByDay = {};
       emit(TravelRouteCreated(routeId));
@@ -387,7 +360,6 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
 
       emit(TravelLoaded(routes));
     } catch (e) {
-      print('Error creating route: $e');
       emit(TravelError(e.toString()));
     }
   }
@@ -439,7 +411,6 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         .where((doc) => doc.exists)
         .map((doc) {
           final destination = DestinationModel.fromMap(doc.data()!);
-          print('Loaded destination: ${destination.destinationName}');
           return destination;
         })
         .toList();

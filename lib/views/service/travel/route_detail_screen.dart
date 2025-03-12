@@ -207,12 +207,14 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CategorySelector(
-                    selectedCategory: selectedCategory,
-                    categories: categories,
-                    onCategorySelected: onCategorySelected,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: CategorySelector(
+                      selectedCategory: selectedCategory,
+                      categories: categories,
+                      onCategorySelected: onCategorySelected,
+                    ),
                   ),
                   SizedBox(height: 20.h),
                   Expanded(
@@ -348,8 +350,27 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
     }
 
     print('State is neither RouteDetailLoaded nor RouteDetailLoading');
-    return const Center(
-      child: Text('No destinations added yet'),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ClipRect(
+          child: Image.asset(
+            'assets/img/my_vehicle_1.png',
+            height: 192.h,
+            width: 192.w,
+            fit: BoxFit.fill,
+          ),
+        ),
+        SizedBox(height: 16.h),
+        Text(
+          AppLocalizations.of(context).translate("No destinations added yet."),
+          style: TextStyle(
+            color: const Color(0xFF6C6C6C),
+            fontWeight: FontWeight.bold,
+            fontSize: 16.sp,
+          ),
+        ),
+      ],
     );
   }
 }
