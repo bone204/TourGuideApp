@@ -47,100 +47,98 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
     ];
 
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h),
-          child: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            flexibleSpace: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40.h,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft, 
-                        child: CustomIconButton(
-                          icon: Icons.chevron_left,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60.h),
+        child: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          flexibleSpace: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              SizedBox(
+                height: 40.h,
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft, 
+                      child: CustomIconButton(
+                        icon: Icons.chevron_left,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        AppLocalizations.of(context).translate('Vehicle Detail'),
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
                         ),
                       ),
-                      Center(
-                        child: Text(
-                          AppLocalizations.of(context).translate('Vehicle Detail'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: CustomIconButton(
-                          icon: Icons.edit,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => EditVehicleScreen(
-                                  vehicle: widget.vehicle,
-                                ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: CustomIconButton(
+                        icon: Icons.edit,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditVehicleScreen(
+                                vehicle: widget.vehicle,
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          );
+                        },
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-        body: StreamBuilder<RentalVehicleModel>(
-          stream: vehicleStream,
-          initialData: widget.vehicle,
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final updatedVehicle = snapshot.data!;
-            return Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-                  child: CategorySelector(
-                    categories: categories,
-                    selectedCategory: AppLocalizations.of(context).translate(selectedCategory),
-                    onCategorySelected: (category) {
-                      setState(() {
-                        if (category == AppLocalizations.of(context).translate('Information')) {
-                          selectedCategory = 'Information';
-                        } else if (category == AppLocalizations.of(context).translate('Documentation')) {
-                          selectedCategory = 'Documentation';
-                        } else {
-                          selectedCategory = 'Rental Info';
-                        }
-                      });
-                    },
-                  ),
+      ),
+      body: StreamBuilder<RentalVehicleModel>(
+        stream: vehicleStream,
+        initialData: widget.vehicle,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+    
+          final updatedVehicle = snapshot.data!;
+          return Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                child: CategorySelector(
+                  categories: categories,
+                  selectedCategory: AppLocalizations.of(context).translate(selectedCategory),
+                  onCategorySelected: (category) {
+                    setState(() {
+                      if (category == AppLocalizations.of(context).translate('Information')) {
+                        selectedCategory = 'Information';
+                      } else if (category == AppLocalizations.of(context).translate('Documentation')) {
+                        selectedCategory = 'Documentation';
+                      } else {
+                        selectedCategory = 'Rental Info';
+                      }
+                    });
+                  },
                 ),
-                Expanded(
-                  child: _buildContent(updatedVehicle),
-                ),
-              ],
-            );
-          },
-        ),
+              ),
+              Expanded(
+                child: _buildContent(updatedVehicle),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

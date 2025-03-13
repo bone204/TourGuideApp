@@ -291,64 +291,62 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Khởi tạo ScreenUtil
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h),
-          child: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            flexibleSpace: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40.h,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft, 
-                        child: CustomIconButton(
-                          icon: Icons.chevron_left,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60.h),
+        child: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          flexibleSpace: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              SizedBox(
+                height: 40.h,
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft, 
+                      child: CustomIconButton(
+                        icon: Icons.chevron_left,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        AppLocalizations.of(context).translate('My Vehicle'),
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
                         ),
                       ),
-                      Center(
-                        child: Text(
-                          AppLocalizations.of(context).translate('My Vehicle'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
-                          ),
-                        ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight, 
+                      child: CustomIconButton(
+                        icon: Icons.info_rounded,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const BankingInformationScreen(),
+                            ),
+                          );
+                        },
                       ),
-                      Align(
-                        alignment: Alignment.centerRight, 
-                        child: CustomIconButton(
-                          icon: Icons.info_rounded,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const BankingInformationScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-        body: _buildBody(),
       ),
+      body: _buildBody(),
     );
   }
 }

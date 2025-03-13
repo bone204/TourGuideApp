@@ -258,8 +258,27 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
       
       if (state.destinations.isEmpty) {
         print('No destinations found');
-        return const Center(
-          child: Text('No destinations added yet'),
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ClipRect(
+              child: Image.asset(
+                'assets/img/my_vehicle_1.png',
+                height: 192.h,
+                width: 192.w,
+                fit: BoxFit.fill,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              AppLocalizations.of(context).translate("No destinations added yet."),
+              style: TextStyle(
+                color: const Color(0xFF6C6C6C),
+                fontWeight: FontWeight.bold,
+                fontSize: 16.sp,
+              ),
+            ),
+          ],
         );
       }
 

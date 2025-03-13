@@ -41,68 +41,66 @@ class _TravelHistoryScreenState extends State<TravelHistoryScreen> {
           (index) => '26-27/01/2024'
         );
 
-        return SafeArea(
-          child: Scaffold(
-            backgroundColor: Colors.white,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(60.h),
-              child: AppBar(
-                backgroundColor: Colors.white,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                surfaceTintColor: Colors.transparent,
-                automaticallyImplyLeading: false,
-                flexibleSpace: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      height: 40.h,
-                      child: Stack(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft, 
-                            child: CustomIconButton(
-                              icon: Icons.chevron_left,
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(60.h),
+            child: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              surfaceTintColor: Colors.transparent,
+              automaticallyImplyLeading: false,
+              flexibleSpace: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  SizedBox(
+                    height: 40.h,
+                    child: Stack(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft, 
+                          child: CustomIconButton(
+                            icon: Icons.chevron_left,
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                        Center(
+                          child: Text(
+                            AppLocalizations.of(context).translate('Travel History'),
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20.sp,
                             ),
                           ),
-                          Center(
-                            child: Text(
-                              AppLocalizations.of(context).translate('Travel History'),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20.sp,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-            body: Padding(
-              padding: EdgeInsets.only(top: 20.h),
-              child: Column(
-                children: [
-                  _buildSearchBar(provinceViewModel),
-                  if (provinceViewModel.isLoading)
-                    const Center(child: CircularProgressIndicator())
-                  else if (provinceViewModel.error.isNotEmpty)
-                    Center(child: Text(provinceViewModel.error))
-                  else
-                    HistoricalProvinceCardList(
-                      provinces: provinceViewModel.provinces,
-                      visitDates: visitDates,
-                    ),
-                ]
-              ),
-            )
           ),
+          body: Padding(
+            padding: EdgeInsets.only(top: 20.h),
+            child: Column(
+              children: [
+                _buildSearchBar(provinceViewModel),
+                if (provinceViewModel.isLoading)
+                  const Center(child: CircularProgressIndicator())
+                else if (provinceViewModel.error.isNotEmpty)
+                  Center(child: Text(provinceViewModel.error))
+                else
+                  HistoricalProvinceCardList(
+                    provinces: provinceViewModel.provinces,
+                    visitDates: visitDates,
+                  ),
+              ]
+            ),
+          )
         );
       }
     );

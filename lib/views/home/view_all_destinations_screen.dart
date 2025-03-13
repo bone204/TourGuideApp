@@ -84,99 +84,97 @@ class _ViewAllDestinationsScreenState extends State<ViewAllDestinationsScreen> {
     final destinationsViewModel = Provider.of<DestinationsViewModel>(context);
     final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h),
-          child: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            surfaceTintColor: Colors.transparent,
-            automaticallyImplyLeading: false,
-            flexibleSpace: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40.h,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: CustomIconButton(
-                          icon: Icons.chevron_left,
-                          onPressed: () {
-                            Navigator.of(context).pop();
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60.h),
+        child: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
+          automaticallyImplyLeading: false,
+          flexibleSpace: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              SizedBox(
+                height: 40.h,
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: CustomIconButton(
+                        icon: Icons.chevron_left,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        AppLocalizations.of(context).translate(widget.sectionTitle),
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          SizedBox(height: 20.h),
+          _buildSearchBar(context),
+          Expanded(
+            child: GridView.builder(
+              padding: EdgeInsets.only(top: 10.h, right: 10.w, left: 10.w, bottom: 20.h),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 161.w / 190.h,
+                mainAxisSpacing: 20.h,
+                crossAxisSpacing: 0,
+              ),
+              itemCount: _filteredList.length,
+              itemBuilder: (context, index) {
+                final cardData = _filteredList[index];
+                final destination = destinationsViewModel.destinations.firstWhere(
+                  (dest) => dest.destinationName == cardData.placeName,
+                );
+    
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DestinationDetailPage(
+                          cardData: cardData,
+                          destinationData: destination,
+                          isFavourite: favouriteViewModel.isFavourite(destination),
+                          onFavouriteToggle: (isFavourite) {
+                            favouriteViewModel.toggleFavourite(destination);
                           },
                         ),
                       ),
-                      Center(
-                        child: Text(
-                          AppLocalizations.of(context).translate(widget.sectionTitle),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                      ),
-                    ],
+                    );
+                  },
+                  child: FavouriteCard(
+                    data: FavouriteCardData(
+                      placeName: cardData.placeName,
+                      imageUrl: cardData.imageUrl,
+                      description: cardData.description,
+                    ),
                   ),
-                ),
-              ],
+                );
+              },
             ),
           ),
-        ),
-        body: Column(
-          children: [
-            SizedBox(height: 20.h),
-            _buildSearchBar(context),
-            Expanded(
-              child: GridView.builder(
-                padding: EdgeInsets.only(top: 10.h, right: 10.w, left: 10.w, bottom: 20.h),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 161.w / 190.h,
-                  mainAxisSpacing: 20.h,
-                  crossAxisSpacing: 0,
-                ),
-                itemCount: _filteredList.length,
-                itemBuilder: (context, index) {
-                  final cardData = _filteredList[index];
-                  final destination = destinationsViewModel.destinations.firstWhere(
-                    (dest) => dest.destinationName == cardData.placeName,
-                  );
-
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DestinationDetailPage(
-                            cardData: cardData,
-                            destinationData: destination,
-                            isFavourite: favouriteViewModel.isFavourite(destination),
-                            onFavouriteToggle: (isFavourite) {
-                              favouriteViewModel.toggleFavourite(destination);
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                    child: FavouriteCard(
-                      data: FavouriteCardData(
-                        placeName: cardData.placeName,
-                        imageUrl: cardData.imageUrl,
-                        description: cardData.description,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
