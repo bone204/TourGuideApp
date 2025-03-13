@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/blocs/travel/travel_event.dart';
 import 'package:tourguideapp/blocs/travel/travel_state.dart';
-import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/service/travel/add_destination_screen.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
@@ -65,56 +64,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
 
   Widget _buildBottomBar(BuildContext context) {
     if (widget.existingRouteId != null) {
-      return Container(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.25),
-              blurRadius: 4,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Row(
-            children: [
-              Expanded(
-                child: CustomElevatedButton(
-                  text: 'Delete',
-                  foregroundColor: AppColors.primaryColor,
-                  backgroundColor: Colors.white,
-                  side: const BorderSide(
-                    color: AppColors.primaryColor,
-                    width: 1.5,
-                  ),
-                  onPressed: () {
-                    context.read<TravelBloc>().add(
-                      DeleteTravelRoute(widget.existingRouteId!)
-                    );
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/travel',
-                      (route) => false,
-                    );
-                  },
-                ),
-              ),
-              SizedBox(width: 16.w),
-              Expanded(
-                child: CustomElevatedButton(
-                  text: 'Start',
-                  onPressed: () {
-                    context.read<TravelBloc>().add(
-                      StartTravelRoute(widget.existingRouteId!)
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return const SizedBox.shrink();
     }
 
     return Container(
@@ -148,7 +98,6 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Bỏ BlocProvider và sử dụng BlocListener trực tiếp
     return BlocListener<TravelBloc, TravelState>(
       listener: (context, state) {
         if (state is TravelRouteCreated) {
@@ -162,6 +111,29 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
           title: widget.routeName,
+          actions: widget.existingRouteId != null
+              ? [
+                  PopupMenuButton<int>(
+                    onSelected: (value) {
+                      if (value == 1) {
+                        context.read<TravelBloc>().add(
+                          DeleteTravelRoute(widget.existingRouteId!)
+                        );
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/travel',
+                          (route) => false,
+                        );
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 1,
+                        child: Text('Delete Route'),
+                      ),
+                    ],
+                  ),
+                ]
+              : null,
           onBackPressed: () async {
             if (widget.existingRouteId == null && context.read<TravelBloc>().hasTemporaryData()) {
               final bool shouldPop = await showDialog(
