@@ -674,4 +674,19 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       emit(TravelError(e.toString()));
     }
   }
+
+  void deleteTemporaryDay(String day) {
+    _tempDestinationsByDay.remove(day);
+  }
+
+  bool hasDestinationsForDay(String day) {
+    return _tempDestinationsByDay.containsKey(day);
+  }
+
+  void moveTemporaryDestinations(String fromDay, String toDay) {
+    if (_tempDestinationsByDay.containsKey(fromDay)) {
+      _tempDestinationsByDay[toDay] = _tempDestinationsByDay[fromDay]!;
+      _tempDestinationsByDay.remove(fromDay);
+    }
+  }
 } 

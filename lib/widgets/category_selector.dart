@@ -94,11 +94,14 @@ class _CategorySelectorState extends State<CategorySelector> {
                 widget.categories.add(newDay);
               });
               widget.onCategorySelected(newDay);
-              // Cập nhật numberOfDays trong TravelRouteModel
-              context.read<TravelBloc>().add(UpdateTravelRoute(
-                travelRouteId: widget.existingRouteId!,
-                numberOfDays: widget.categories.length,
-              ));
+              
+              // Chỉ gọi UpdateTravelRoute khi có existingRouteId
+              if (widget.existingRouteId != null) {
+                context.read<TravelBloc>().add(UpdateTravelRoute(
+                  travelRouteId: widget.existingRouteId!,
+                  numberOfDays: widget.categories.length,
+                ));
+              }
             },
           ),
         ],

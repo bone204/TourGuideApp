@@ -287,21 +287,37 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                                   }
                                 });
 
-                                // Cập nhật số ngày và xóa dữ liệu của ngày bị xóa
-                                context.read<TravelBloc>().add(
-                                  UpdateTravelRoute(
-                                    travelRouteId: widget.existingRouteId!,
-                                    numberOfDays: categories.length,
-                                    dayToDelete: dayToDelete,
-                                  ),
-                                );
-
-                                // Load lại destinations cho ngày mới được chọn
-                                context.read<TravelBloc>().setCurrentDay(selectedCategory);
                                 if (widget.existingRouteId != null) {
+                                  // Cập nhật số ngày và xóa dữ liệu của ngày bị xóa trong database
+                                  context.read<TravelBloc>().add(
+                                    UpdateTravelRoute(
+                                      travelRouteId: widget.existingRouteId!,
+                                      numberOfDays: categories.length,
+                                      dayToDelete: dayToDelete,
+                                    ),
+                                  );
+
+                                  // Load lại destinations cho ngày mới được chọn
+                                  context.read<TravelBloc>().setCurrentDay(selectedCategory);
                                   context.read<TravelBloc>().add(
                                     LoadRouteDestinations(widget.existingRouteId!),
                                   );
+                                } else {
+                                  // Xóa dữ liệu tạm thời của ngày bị xóa
+                                  context.read<TravelBloc>().deleteTemporaryDay(dayToDelete);
+                                  
+                                  // Cập nhật lại tên các ngày trong dữ liệu tạm thời
+                                  final bloc = context.read<TravelBloc>();
+                                  for (int i = 0; i < categories.length; i++) {
+                                    final oldDay = 'Day ${i + 2}';
+                                    final newDay = 'Day ${i + 1}';
+                                    if (bloc.hasDestinationsForDay(oldDay)) {
+                                      bloc.moveTemporaryDestinations(oldDay, newDay);
+                                    }
+                                  }
+                                  
+                                  // Cập nhật ngày hiện tại và load lại destinations
+                                  context.read<TravelBloc>().setCurrentDay(selectedCategory);
                                 }
                               }
                             }
