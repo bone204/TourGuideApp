@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/blocs/travel/travel_event.dart';
 import 'package:tourguideapp/blocs/travel/travel_state.dart';
+import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/service/travel/add_destination_screen.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
@@ -126,7 +127,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                       }
                     },
                     itemBuilder: (context) => [
-                      PopupMenuItem(
+                      const PopupMenuItem(
                         value: 1,
                         child: Text('Delete Route'),
                       ),
@@ -174,7 +175,6 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
         ),
         body: BlocBuilder<TravelBloc, TravelState>(
           builder: (context, state) {
-            print('Building with state: $state');
             
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
@@ -195,22 +195,120 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                     child: _buildDestinationsList(state),
                   ),
                   SizedBox(height: 20.h),
-                  CustomElevatedButton(
-                    text: AppLocalizations.of(context).translate("Add Destination"),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BlocProvider.value(
-                            value: context.read<TravelBloc>(),
-                            child: AddDestinationScreen(
-                              provinceName: widget.provinceName,
-                              existingRouteId: widget.existingRouteId,
-                            ),
-                          ),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: CustomElevatedButton(
+                          text: AppLocalizations.of(context).translate("Add Destination"),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BlocProvider.value(
+                                  value: context.read<TravelBloc>(),
+                                  child: AddDestinationScreen(
+                                    provinceName: widget.provinceName,
+                                    existingRouteId: widget.existingRouteId,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                      ),
+                      SizedBox(width: 16.w),
+                      Expanded(
+                        flex: 2,
+                        child: CustomElevatedButton(
+                          text: AppLocalizations.of(context).translate("Delete Day"),
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.primaryColor,
+                          side: const BorderSide(
+                            color: AppColors.primaryColor,
+                            width: 1.5,
+                          ),
+                          onPressed: () async {
+                            if (categories.length > 1) {
+                              // Hiển thị hộp thoại xác nhận
+                              final bool? shouldDelete = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text(
+                                    AppLocalizations.of(context).translate("Delete Day"),
+                                  ),
+                                  content: Text(
+                                    AppLocalizations.of(context).translate(
+                                      "Are you sure you want to delete this day? All destinations in this day will be deleted.",
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(context).pop(false),
+                                      child: Text(
+                                        AppLocalizations.of(context).translate("Cancel"),
+                                        style: const TextStyle(
+                                          color: AppColors.primaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.of(context).pop(true),
+                                      child: Text(
+                                        AppLocalizations.of(context).translate("Delete"),
+                                        style: const TextStyle(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              // Chỉ xóa nếu người dùng xác nhận
+                              if (shouldDelete == true) {
+                                final currentIndex = categories.indexOf(selectedCategory);
+                                final dayToDelete = selectedCategory;
+                                
+                                setState(() {
+                                  // Xóa ngày hiện tại
+                                  categories.removeAt(currentIndex);
+                                  
+                                  // Cập nhật lại tên các ngày sau khi xóa
+                                  for (int i = 0; i < categories.length; i++) {
+                                    categories[i] = 'Day ${i + 1}';
+                                  }
+                                  
+                                  // Chọn ngày mới sau khi xóa
+                                  if (currentIndex > 0) {
+                                    selectedCategory = categories[currentIndex - 1];
+                                  } else {
+                                    selectedCategory = categories[0];
+                                  }
+                                });
+
+                                // Cập nhật số ngày và xóa dữ liệu của ngày bị xóa
+                                context.read<TravelBloc>().add(
+                                  UpdateTravelRoute(
+                                    travelRouteId: widget.existingRouteId!,
+                                    numberOfDays: categories.length,
+                                    dayToDelete: dayToDelete,
+                                  ),
+                                );
+
+                                // Load lại destinations cho ngày mới được chọn
+                                context.read<TravelBloc>().setCurrentDay(selectedCategory);
+                                if (widget.existingRouteId != null) {
+                                  context.read<TravelBloc>().add(
+                                    LoadRouteDestinations(widget.existingRouteId!),
+                                  );
+                                }
+                              }
+                            }
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -223,15 +321,9 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
   }
 
   Widget _buildDestinationsList(TravelState state) {
-    print('Building destinations list with state: $state');
     
     if (state is RouteDetailLoaded) {
-      print('State is RouteDetailLoaded');
-      print('Number of destinations: ${state.destinations.length}');
-      print('Time slots: ${state.timeSlots}');
-      
       if (state.destinations.isEmpty) {
-        print('No destinations found');
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -262,11 +354,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
       return ListView.builder(
         itemCount: state.destinations.length,
         itemBuilder: (context, index) {
-          final destination = state.destinations[index];
-          print('Building card for destination: ${destination.destinationName}');
-          print('Destination ID: ${destination.destinationId}');
-          print('Available timeSlots: ${state.timeSlots}');
-          
+          final destination = state.destinations[index];  
           // Tăng số lần xuất hiện của destination này
           destinationCount[destination.destinationId] = (destinationCount[destination.destinationId] ?? 0) + 1;
           final currentCount = destinationCount[destination.destinationId]! - 1;
@@ -288,8 +376,6 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
           
           final startTime = timeRange.split(' - ')[0];
           final endTime = timeRange.split(' - ')[1];
-          
-          print('Time for this destination: ${state.timeSlots?[uniqueId]}');
           
           return Padding(
             padding: EdgeInsets.only(bottom: 16.h),
@@ -338,11 +424,8 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
     }
 
     if (state is RouteDetailLoading) {
-      print('State is RouteDetailLoading');
       return const Center(child: CircularProgressIndicator());
     }
-
-    print('State is neither RouteDetailLoaded nor RouteDetailLoading');
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

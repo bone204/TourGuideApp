@@ -142,7 +142,15 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
   Future<void> _onUpdateTravelRoute(UpdateTravelRoute event, Emitter<TravelState> emit) async {
     try {
       final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.travelRouteId);
-      await docRef.update({'numberOfDays': event.numberOfDays});
+      final updates = <String, dynamic>{
+        'numberOfDays': event.numberOfDays
+      };
+      
+      if (event.dayToDelete != null) {
+        updates['destinationsByDay.${event.dayToDelete}'] = FieldValue.delete();
+      }
+      
+      await docRef.update(updates);
       add(LoadRouteDestinations(event.travelRouteId));
     } catch (e) {
       emit(TravelError(e.toString()));

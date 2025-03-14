@@ -342,7 +342,7 @@
     "Start Route": "Bắt Đầu Lộ Trình",
     "Wait until start date": "Chờ đến ngày bắt đầu",
     "Day": "Ngày",
-    "Add Destination": "Thêm Điểm Đến",
+    "Add Destination": "Thêm Địa Điểm",
     "Edit Timeline": "Chỉnh Sửa Thời Gian",
     "Delete Route": "Xóa Lộ Trình",
     "Are you sure you want to delete this route?": "Bạn có chắc chắn muốn xóa lộ trình này?",
@@ -395,6 +395,7 @@
     "No available destinations": "Không có điểm đến nào",
 
     "Start": "Bắt Đầu",
-    "No destinations added yet.": "Chưa có điểm đến nào được thêm."
+    "No destinations added yet.": "Chưa có điểm đến nào được thêm.",
+    "Delete Day": "Xóa Ngày"
 }
   

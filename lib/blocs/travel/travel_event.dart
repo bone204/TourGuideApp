@@ -21,8 +21,9 @@ class AddTravelRoute extends TravelEvent {
 class UpdateTravelRoute extends TravelEvent {
   final String travelRouteId;
   final int numberOfDays;
+  final String? dayToDelete;
 
-  UpdateTravelRoute({required this.travelRouteId, required this.numberOfDays});
+  UpdateTravelRoute({required this.travelRouteId, required this.numberOfDays, this.dayToDelete});
 }
 
 class DeleteTravelRoute extends TravelEvent {
