@@ -18,6 +18,13 @@ class AddTravelRoute extends TravelEvent {
   List<Object?> get props => [route];
 }
 
+class UpdateTravelRoute extends TravelEvent {
+  final String travelRouteId;
+  final int numberOfDays;
+
+  UpdateTravelRoute({required this.travelRouteId, required this.numberOfDays});
+}
+
 class DeleteTravelRoute extends TravelEvent {
   final String routeId;
   

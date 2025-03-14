@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
+import 'package:tourguideapp/blocs/travel/travel_event.dart';
 import 'package:tourguideapp/color/colors.dart';
 
 class CategorySelector extends StatefulWidget {
   final String selectedCategory;
   final List<String> categories;
   final Function(String) onCategorySelected;
+  final bool showAddButton;
+  final String? existingRouteId;
 
   const CategorySelector({
     Key? key,
     required this.selectedCategory,
     required this.categories,
     required this.onCategorySelected,
+    this.showAddButton = false,
+    this.existingRouteId,
   }) : super(key: key);
 
   @override
@@ -53,10 +60,11 @@ class _CategorySelectorState extends State<CategorySelector> {
       controller: _scrollController,
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: widget.categories.map((category) {
-          final isSelected = category == widget.selectedCategory;
-          return Padding(
-            padding: EdgeInsets.only(right: 12.w),
+        children: [
+          ...widget.categories.map((category) {
+            final isSelected = category == widget.selectedCategory;
+            return Padding(
+              padding: EdgeInsets.only(right: 12.w),
             child: GestureDetector(
               onTap: () => widget.onCategorySelected(category),
               child: Container(
@@ -77,6 +85,23 @@ class _CategorySelectorState extends State<CategorySelector> {
             ),
           );
         }).toList(),
+        if (widget.showAddButton) // Chỉ hiển thị nút Add khi cờ được bật
+          IconButton(
+            icon: Icon(Icons.add, color: AppColors.primaryColor),
+            onPressed: () {
+              final newDay = 'Day ${widget.categories.length + 1}';
+              setState(() {
+                widget.categories.add(newDay);
+              });
+              widget.onCategorySelected(newDay);
+              // Cập nhật numberOfDays trong TravelRouteModel
+              context.read<TravelBloc>().add(UpdateTravelRoute(
+                travelRouteId: widget.existingRouteId!,
+                numberOfDays: widget.categories.length,
+              ));
+            },
+          ),
+        ],
       ),
     );
   }

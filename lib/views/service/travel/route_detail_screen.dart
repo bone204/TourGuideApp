@@ -186,6 +186,8 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                       selectedCategory: selectedCategory,
                       categories: categories,
                       onCategorySelected: onCategorySelected,
+                      showAddButton: true,
+                      existingRouteId: widget.existingRouteId,
                     ),
                   ),
                   SizedBox(height: 20.h),

@@ -33,6 +33,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     on<LoadTemporaryDestinations>(_onLoadTemporaryDestinations);
     on<UpdateDestinationTime>(_onUpdateDestinationTime);
     on<DeleteDestinationFromRoute>(_onDeleteDestinationFromRoute);
+    on<UpdateTravelRoute>(_onUpdateTravelRoute);
   }
 
   Future<String> generateRouteName() async {
@@ -135,6 +136,16 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     } catch (e) {
       // Nếu có lỗi, tạo ID ngẫu nhiên
       return 'TR${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+    }
+  }
+
+  Future<void> _onUpdateTravelRoute(UpdateTravelRoute event, Emitter<TravelState> emit) async {
+    try {
+      final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.travelRouteId);
+      await docRef.update({'numberOfDays': event.numberOfDays});
+      add(LoadRouteDestinations(event.travelRouteId));
+    } catch (e) {
+      emit(TravelError(e.toString()));
     }
   }
 
