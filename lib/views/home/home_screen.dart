@@ -15,6 +15,7 @@ import 'package:tourguideapp/views/home/view_all_destinations_screen.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/views/search/search_screen.dart';
+import 'package:tourguideapp/widgets/shimmer_cards.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -422,30 +423,70 @@ class _HomeScreenState extends State<HomeScreen> {
           cardDataList: cardDataList,
         ),
         SizedBox(height: 12.h),
-        HomeCardListView(
-          cardDataList: cardDataList,
-          onCardTap: (cardData) {
-            final destination = destinationsViewModel.destinations.firstWhere(
-              (dest) => dest.destinationName == cardData.placeName,
-            );
-            
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DestinationDetailPage(
-                  cardData: cardData,
-                  destinationData: destination,
-                  isFavourite: favouriteViewModel.isFavourite(destination),
-                  onFavouriteToggle: (isFavourite) {
-                    favouriteViewModel.toggleFavourite(destination);
-                  },
-                ),
+        cardDataList.isEmpty
+            ? _buildShimmerHomeCards()
+            : FutureBuilder<bool>(
+                future: _precacheImages(cardDataList, context),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData || !snapshot.data!) {
+                    return _buildShimmerHomeCards();
+                  }
+                  return HomeCardListView(
+                    cardDataList: cardDataList,
+                    onCardTap: (cardData) {
+                      final destination = destinationsViewModel.destinations.firstWhere(
+                        (dest) => dest.destinationName == cardData.placeName,
+                      );
+                      
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DestinationDetailPage(
+                            cardData: cardData,
+                            destinationData: destination,
+                            isFavourite: favouriteViewModel.isFavourite(destination),
+                            onFavouriteToggle: (isFavourite) {
+                              favouriteViewModel.toggleFavourite(destination);
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
-            );
-          },
-        ),
       ],
     );
+  }
+
+  Widget _buildShimmerHomeCards() {
+    return SizedBox(
+      height: 400.h,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 2,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(4.w, 4.h, 12.w, 6.h),
+            child: const ShimmerHomeCard(),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<bool> _precacheImages(List<HomeCardData> cardDataList, BuildContext context) async {
+    try {
+      await Future.wait(
+        cardDataList.map((card) => precacheImage(
+          NetworkImage(card.imageUrl),
+          context,
+        )),
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
 
@@ -530,6 +571,36 @@ class ProvinceSection extends StatelessWidget {
     required this.onCardTap,
   }) : super(key: key);
 
+  Future<bool> _precacheImages(List<HomeCardData> cardDataList, BuildContext context) async {
+    try {
+      await Future.wait(
+        cardDataList.map((card) => precacheImage(
+          NetworkImage(card.imageUrl),
+          context,
+        )),
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Widget _buildShimmerHomeCards() {
+    return SizedBox(
+      height: 400.h,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 2,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(4.w, 4.h, 12.w, 6.h),
+            child: const ShimmerHomeCard(),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -560,10 +631,20 @@ class ProvinceSection extends StatelessWidget {
             onCategorySelected: onProvinceSelected,
           ),
           SizedBox(height: 16.h),
-          HomeCardListView(
-            cardDataList: cardDataList,
-            onCardTap: onCardTap,
-          ),
+          cardDataList.isEmpty
+              ? _buildShimmerHomeCards()
+              : FutureBuilder<bool>(
+                  future: _precacheImages(cardDataList, context),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData || !snapshot.data!) {
+                      return _buildShimmerHomeCards();
+                    }
+                    return HomeCardListView(
+                      cardDataList: cardDataList,
+                      onCardTap: onCardTap,
+                    );
+                  },
+                ),
         ],
       ),
     );
@@ -612,33 +693,77 @@ class InspirationSection extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16.h),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.zero,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 161.w / 190.h,
-              mainAxisSpacing: 20.h,
-              crossAxisSpacing: 10.w,
-            ),
-            itemCount: cardDataList.length,
-            itemBuilder: (context, index) {
-              final cardData = cardDataList[index];
-              return GestureDetector(
-                onTap: () => onCardTap(cardData),
-                child: FavouriteCard(
-                  data: FavouriteCardData(
-                    placeName: cardData.placeName,
-                    imageUrl: cardData.imageUrl,
-                    description: cardData.description,
-                  ),
+          cardDataList.isEmpty
+              ? _buildShimmerGrid()
+              : FutureBuilder<bool>(
+                  future: _precacheImages(cardDataList, context),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData || !snapshot.data!) {
+                      return _buildShimmerGrid();
+                    }
+                    return _buildContentGrid(context);
+                  },
                 ),
-              );
-            },
-          ),
         ],
       ),
     );
+  }
+
+  Widget _buildShimmerGrid() {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 161.w / 190.h,
+        mainAxisSpacing: 20.h,
+        crossAxisSpacing: 10.w,
+      ),
+      itemCount: 4,
+      itemBuilder: (context, index) => const ShimmerFavoriteCard(),
+    );
+  }
+
+  Widget _buildContentGrid(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 161.w / 190.h,
+        mainAxisSpacing: 20.h,
+        crossAxisSpacing: 10.w,
+      ),
+      itemCount: cardDataList.length,
+      itemBuilder: (context, index) {
+        final cardData = cardDataList[index];
+        return GestureDetector(
+          onTap: () => onCardTap(cardData),
+          child: FavouriteCard(
+            data: FavouriteCardData(
+              placeName: cardData.placeName,
+              imageUrl: cardData.imageUrl,
+              description: cardData.description,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool> _precacheImages(List<HomeCardData> cardDataList, BuildContext context) async {
+    try {
+      await Future.wait(
+        cardDataList.map((card) => precacheImage(
+          NetworkImage(card.imageUrl),
+          context,
+        )),
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
