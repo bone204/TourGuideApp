@@ -16,6 +16,7 @@ import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/views/search/search_screen.dart';
 import 'package:tourguideapp/widgets/shimmer_cards.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -416,12 +417,43 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeadline(
-          title: title,
-          subtitle: subtitle,
-          viewAllColor: const Color(0xFFFF7029),
-          cardDataList: cardDataList,
-        ),
+        cardDataList.isEmpty
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 120.w,
+                      height: 24.h,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 5.h),
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 200.w,
+                      height: 16.h,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : SectionHeadline(
+                title: title,
+                subtitle: subtitle,
+                viewAllColor: const Color(0xFFFF7029),
+                cardDataList: cardDataList,
+              ),
         SizedBox(height: 12.h),
         cardDataList.isEmpty
             ? _buildShimmerHomeCards()

@@ -43,68 +43,19 @@ class ShimmerHomeCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      width: 190.w,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 150.w,
-                            height: 18.h,
-                            color: Colors.white,
-                          ),
-                          SizedBox(height: 8.h),
-                          Row(
-                            children: [
-                              Container(
-                                width: 12.w,
-                                height: 12.h,
-                                color: Colors.white,
-                              ),
-                              SizedBox(width: 4.w),
-                              Container(
-                                width: 100.w,
-                                height: 15.h,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 12.w,
-                              height: 12.h,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 2.w),
-                            Container(
-                              width: 30.w,
-                              height: 15.h,
-                              color: Colors.white,
-                            ),
-                          ],
+                        Container(
+                          width: 200.w,
+                          height: 18.h,
+                          color: Colors.white,
                         ),
                         SizedBox(height: 8.h),
-                        Row(
-                          children: [
-                            Container(
-                              width: 12.w,
-                              height: 12.h,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 2.w),
-                            Container(
-                              width: 30.w,
-                              height: 15.h,
-                              color: Colors.white,
-                            ),
-                          ],
+                        Container(
+                          width: 200.w,
+                          height: 18.h,
+                          color: Colors.white,
                         ),
                       ],
                     ),
