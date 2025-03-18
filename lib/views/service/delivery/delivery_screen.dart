@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/service/delivery/delivery_detail_screen.dart';
-import 'package:tourguideapp/widgets/custom_icon_button.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/location_picker.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/widgets/styled_textfield.dart';
@@ -53,44 +53,14 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.h),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          flexibleSpace: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                height: 40.h,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: CustomIconButton(
-                        icon: Icons.chevron_left,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        AppLocalizations.of(context).translate("Fast Delivery"),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.sp,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+      appBar: CustomAppBar(
+        title: AppLocalizations.of(context).translate('Fast Delivery'),
+        onBackPressed: () {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            '/home',
+            (route) => false,
+          );
+        },
       ),
       body: SingleChildScrollView(
         child: Padding(

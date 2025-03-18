@@ -210,6 +210,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                           image: 'assets/img/eatery_home.png', 
                                           text: "Find Eatery"
                                         ),
+                                        HomeNavigator(
+                                          image: 'assets/img/bus_home.png', 
+                                          text: "Bus Booking"
+                                        ),
                                       ],
                                     ),
                                   ],

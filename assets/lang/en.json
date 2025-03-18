@@ -391,6 +391,9 @@
 
     "Start": "Start",
     "No destinations added yet.": "No destinations added yet.",
-    "Delete Day": "Delete Day"
+    "Delete Day": "Delete Day",
+    "Bus Booking": "Bus Booking",
+    "From": "From",
+    "To": "To"
 }
   

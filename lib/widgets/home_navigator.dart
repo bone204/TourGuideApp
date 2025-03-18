@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/views/service/bus_booking/bus_screen.dart';
 import 'package:tourguideapp/views/service/delivery/delivery_screen.dart';
 import 'package:tourguideapp/views/service/eatery/eatery_screen.dart';
 import 'package:tourguideapp/views/service/hotel/hotel_booking_screen.dart';
@@ -83,6 +84,15 @@ class HomeNavigator extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => DeliveryScreen(),
+            ),
+          );
+        }
+
+        if (text == "Bus Booking") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BusScreen(),
             ),
           );
         }
