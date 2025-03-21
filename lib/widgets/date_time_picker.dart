@@ -8,6 +8,7 @@ class DateTimePicker extends StatefulWidget {
   final String title;
   final DateTime? firstDate;
   final bool showTime;
+  final DateTime? minDate;
 
   const DateTimePicker({
     Key? key,
@@ -16,6 +17,7 @@ class DateTimePicker extends StatefulWidget {
     required this.title,
     this.firstDate,
     this.showTime = false,
+    this.minDate,
   }) : super(key: key);
 
   @override
@@ -75,8 +77,8 @@ class _DateTimePickerState extends State<DateTimePicker> {
             final DateTime? pickedDate = await showDatePicker(
               context: context,
               initialDate: currentDate,
-              firstDate: widget.firstDate ?? DateTime.now(),
-              lastDate: DateTime.now().add(const Duration(days: 365)),
+              firstDate: widget.minDate ?? DateTime.now(),
+              lastDate: DateTime(2101),
             );
 
             if (pickedDate != null) {
@@ -109,7 +111,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
             }
           },
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w),
+            padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
             decoration: BoxDecoration(
               color: const Color(0xFFF7F7F9),
               borderRadius: BorderRadius.circular(16.r),
@@ -118,11 +120,11 @@ class _DateTimePickerState extends State<DateTimePicker> {
               children: [
                 Image.asset(
                   'assets/img/calendar.png',
-                  width: 24.w,
-                  height: 24.h,
+                  width: 16.w,
+                  height: 16.h,
                   fit: BoxFit.cover,
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: 8.w),
                 Text(
                   widget.showTime
                       ? "${_getDayAbbreviation(currentDate, context)}, ${currentDate.day.toString().padLeft(2, '0')}/${currentDate.month.toString().padLeft(2, '0')}/${currentDate.year} - ${_formatTime(TimeOfDay.fromDateTime(currentDate))}"

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/widgets/custom_icon_button.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/models/province_model.dart';
 import 'package:tourguideapp/widgets/custom_search_bar.dart';
@@ -10,11 +10,13 @@ import 'package:tourguideapp/widgets/custom_search_bar.dart';
 class ProvincePicker extends StatefulWidget {
   final Function(Map<String, String>) onRegionSelected;
   final String? title;
+  final bool provinceOnly;
 
   const ProvincePicker({
     Key? key,
     required this.onRegionSelected,
     this.title,
+    this.provinceOnly = false,
   }) : super(key: key);
 
   @override
@@ -23,10 +25,12 @@ class ProvincePicker extends StatefulWidget {
 
 class _ProvinceSearchScreen extends StatefulWidget {
   final Function(Map<String, String>) onRegionSelected;
+  final bool provinceOnly;
 
   const _ProvinceSearchScreen({
     Key? key,
     required this.onRegionSelected,
+    required this.provinceOnly,
   }) : super(key: key);
 
   @override
@@ -59,22 +63,31 @@ class _ProvinceSearchScreenState extends State<_ProvinceSearchScreen> {
           'provinceId': doc.id,
         });
         
-        // Thêm City-Province nếu có city
-        if (province.city.isNotEmpty) {
+        if (widget.provinceOnly) {
+          // Nếu chỉ cần tên tỉnh, chỉ thêm một lần
           options.add(LocationOption(
             province: province.provinceName,
-            city: province.city,
-            district: '', // District rỗng khi có city
+            city: '',
+            district: '',
           ));
-        }
+        } else {
+          // Thêm City-Province nếu có city
+          if (province.city.isNotEmpty) {
+            options.add(LocationOption(
+              province: province.provinceName,
+              city: province.city,
+              district: '', // District rỗng khi có city
+            ));
+          }
 
-        // Thêm District-Province cho từng district
-        for (String district in province.district) {
-          options.add(LocationOption(
-            province: province.provinceName,
-            city: '', // City rỗng khi có district
-            district: district,
-          ));
+          // Thêm District-Province cho từng district
+          for (String district in province.district) {
+            options.add(LocationOption(
+              province: province.provinceName,
+              city: '', // City rỗng khi có district
+              district: district,
+            ));
+          }
         }
       }
       
@@ -169,92 +182,68 @@ class _ProvinceSearchScreenState extends State<_ProvinceSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        resizeToAvoidBottomInset: false,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h),
-          child: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            scrolledUnderElevation: 0,
-            surfaceTintColor: Colors.transparent,
-            flexibleSpace: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40.h,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: CustomIconButton(
-                          icon: Icons.chevron_left,
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          AppLocalizations.of(context).translate('Choose Region'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60.h),
+        child: CustomAppBar(
+          title: AppLocalizations.of(context).translate('Choose region'),
+          onBackPressed: () => Navigator.of(context).pop(),
+        )
+      ),
+      body: Column(
+        children: [
+          CustomSearchBar(
+            controller: _searchController,
+            hintText: 'Search region',
+            onChanged: _filterLocations,
+            margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
           ),
-        ),
-        body: Column(
-          children: [
-            CustomSearchBar(
-              controller: _searchController,
-              hintText: 'Search region',
-              onChanged: _filterLocations,
-              margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-            ),
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                      itemCount: _filteredOptions.length,
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      itemBuilder: (context, index) {
-                        final option = _filteredOptions[index];
-                        return ListTile(
-                          leading: const Icon(Icons.location_on, color: AppColors.primaryColor),
-                          title: Text(
-                            option.district.isNotEmpty ? option.district : option.city,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.sp,
-                            ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: _filteredOptions.length,
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    itemBuilder: (context, index) {
+                      final option = _filteredOptions[index];
+                      return ListTile(
+                        leading: const Icon(Icons.location_on, color: AppColors.primaryColor),
+                        title: Text(
+                          widget.provinceOnly 
+                              ? option.province
+                              : (option.district.isNotEmpty ? option.district : option.city),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.sp,
                           ),
-                          subtitle: Text(
-                            option.province,
-                            style: TextStyle(fontSize: 14.sp),
-                          ),
-                          onTap: () {
+                        ),
+                        subtitle: widget.provinceOnly ? null : Text(
+                          option.province,
+                          style: TextStyle(fontSize: 14.sp),
+                        ),
+                        onTap: () {
+                          if (widget.provinceOnly) {
+                            widget.onRegionSelected({
+                              'province': option.province,
+                              'city': '',
+                              'district': '',
+                            });
+                          } else {
                             widget.onRegionSelected({
                               'province': option.province,
                               'city': option.city,
                               'district': option.district,
                             });
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
+                          }
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -276,12 +265,17 @@ class _ProvincePickerState extends State<ProvincePicker> {
         builder: (context) => _ProvinceSearchScreen(
           onRegionSelected: (details) {
             setState(() {
-              selectedLocation = (details['district'] ?? '').isNotEmpty 
-                  ? '${details['district']}, ${details['province']}'
-                  : '${details['city']}, ${details['province']}';
+              if (widget.provinceOnly) {
+                selectedLocation = details['province'] ?? '';
+              } else {
+                selectedLocation = (details['district'] ?? '').isNotEmpty 
+                    ? '${details['district']}, ${details['province']}'
+                    : '${details['city']}, ${details['province']}';
+              }
             });
             widget.onRegionSelected(details);
           },
+          provinceOnly: widget.provinceOnly,
         ),
       ),
     );

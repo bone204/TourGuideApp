@@ -13,5 +13,3 @@ class SetToLocation extends BusBookingEvent {
 
   SetToLocation(this.location, this.details);
 }
-
-class SearchBusTickets extends BusBookingEvent {} 
