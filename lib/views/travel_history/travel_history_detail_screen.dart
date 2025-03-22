@@ -5,7 +5,7 @@ import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/province_model.dart';
 import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
-import 'package:tourguideapp/widgets/custom_icon_button.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/historical_destination_list.dart';
 import 'package:tourguideapp/widgets/service_card.dart';
 
@@ -65,44 +65,9 @@ class _TravelHistoryDetailScreenState extends State<TravelHistoryDetailScreen> w
 
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(60.h),
-            child: AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              automaticallyImplyLeading: false,
-              flexibleSpace: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    height: 40.h,
-                    child: Stack(
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: CustomIconButton(
-                            icon: Icons.chevron_left,
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ),
-                        Center(
-                          child: Text(
-                            widget.province.provinceName,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20.sp,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          appBar: CustomAppBar(
+            title: widget.province.provinceName,
+            onBackPressed: () => Navigator.of(context).pop(),
           ),
           body: SingleChildScrollView(
             child: Column(

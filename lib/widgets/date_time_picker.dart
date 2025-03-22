@@ -114,7 +114,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
             padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
             decoration: BoxDecoration(
               color: const Color(0xFFF7F7F9),
-              borderRadius: BorderRadius.circular(16.r),
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Row(
               children: [

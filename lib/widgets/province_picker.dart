@@ -107,8 +107,8 @@ class _ProvinceSearchScreenState extends State<_ProvinceSearchScreen> {
   // Thêm hàm để chuẩn hóa chuỗi (bỏ dấu và chuyển về lowercase)
   String _normalizeString(String str) {
     // Chuyển đổi các ký tự có dấu thành không dấu
-    final vietnamese = 'aáàảãạăắằẳẵặâấầẩẫậđeéèẻẽẹêếềểễệiíìỉĩịoóòỏõọôốồổỗộơớờởỡợuúùủũụưứừửữựyýỳỷỹỵ';
-    final latin = 'aaaaaaaaaaaaaaaaaadeeeeeeeeeeeiiiiiioooooooooooooooooouuuuuuuuuuuyyyyy';
+    const vietnamese = 'aáàảãạăắằẳẵặâấầẩẫậđeéèẻẽẹêếềểễệiíìỉĩịoóòỏõọôốồổỗộơớờởỡợuúùủũụưứừửữựyýỳỷỹỵ';
+    const latin = 'aaaaaaaaaaaaaaaaaadeeeeeeeeeeeiiiiiioooooooooooooooooouuuuuuuuuuuyyyyy';
     
     String result = str.toLowerCase();
     for (int i = 0; i < vietnamese.length; i++) {
@@ -297,7 +297,7 @@ class _ProvincePickerState extends State<ProvincePicker> {
             padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w),
             decoration: BoxDecoration(
               color: AppColors.lightGrey,
-              borderRadius: BorderRadius.circular(16.r),
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Row(
               children: [

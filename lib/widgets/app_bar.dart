@@ -4,14 +4,18 @@ import 'package:tourguideapp/widgets/custom_icon_button.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
+  final String subtitle;
   final VoidCallback? onBackPressed;
   final List<Widget>? actions;
+  final bool isColumnTitle;
 
   const CustomAppBar({
     Key? key,
     required this.title,
+    this.subtitle = '',
     this.onBackPressed,
     this.actions,
+    this.isColumnTitle = false,
   }) : super(key: key);
 
   @override
@@ -26,43 +30,94 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         automaticallyImplyLeading: false,
         flexibleSpace: Column(
           mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              height: 40.h,
-              child: Stack(
-                children: [
-                  if (onBackPressed != null)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: CustomIconButton(
-                        icon: Icons.chevron_left,
-                        onPressed: onBackPressed,
+            if(!isColumnTitle)
+              SizedBox(
+                height: 40.h,
+                child: Stack(
+                  children: [
+                    if (onBackPressed != null)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: CustomIconButton(
+                          icon: Icons.chevron_left,
+                          onPressed: onBackPressed,
+                        ),
                       ),
-                    ),
-                  Center(
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20.sp,
-                      ),
-                    ),
-                  ),
-                  if (actions != null)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 16.w),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: actions!,
+                    Center(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.sp,
                         ),
                       ),
                     ),
-                ],
-              ),
-            ),
+                    if (actions != null)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 16.w),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: actions!,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              )
+            else
+              SizedBox(
+                height: 60.h,
+                child: Stack(
+                  children: [
+                    if (onBackPressed != null)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: CustomIconButton(
+                          icon: Icons.chevron_left,
+                          onPressed: onBackPressed,
+                        ),
+                      ),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            title,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 20.sp,
+                            ),
+                          ),
+                          Text(
+                            subtitle,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (actions != null)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 16.w),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: actions!,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              )
           ],
         ),
       ),

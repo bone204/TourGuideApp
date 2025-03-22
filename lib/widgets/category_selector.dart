@@ -68,10 +68,10 @@ class _CategorySelectorState extends State<CategorySelector> {
             child: GestureDetector(
               onTap: () => widget.onCategorySelected(category),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.primaryColor : AppColors.lightGrey,
-                  borderRadius: BorderRadius.circular(20.r),
+                  borderRadius: BorderRadius.circular(16.r),
                 ),
                 child: Text(
                   category,

@@ -8,6 +8,7 @@ import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/service/bus_booking/bus_list.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
+import 'package:tourguideapp/widgets/custom_combo_box.dart';
 import 'package:tourguideapp/widgets/date_time_picker.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/widgets/province_picker.dart';
@@ -19,11 +20,15 @@ class BusScreen extends StatefulWidget {
 
 class _BusScreenState extends State<BusScreen> {
   DateTime arrivalDate = DateTime.now();
-  DateTime? departureDate;
+  DateTime? returnDate;
+  
   bool showReturnDate = false;
+  String? selectedTickets;
+  final List<String> ticketOptions = ['1', '2', '3', '4', '5', '6'];
 
   @override
   Widget build(BuildContext context) {
+    
     return BlocProvider(
       create: (context) => BusBookingBloc(),
       child: BlocBuilder<BusBookingBloc, BusBookingState>(
@@ -83,8 +88,8 @@ class _BusScreenState extends State<BusScreen> {
                             onDateSelected: (date) {
                               setState(() {
                                 arrivalDate = date;
-                                if (departureDate != null && departureDate!.isBefore(date)) {
-                                  departureDate = date;
+                                if (returnDate != null && returnDate!.isBefore(date)) {
+                                  returnDate = date;
                                 }
                               });
                             },
@@ -97,10 +102,10 @@ class _BusScreenState extends State<BusScreen> {
                             child: Stack(
                               children: [
                                 DateTimePicker(
-                                  selectedDate: departureDate ?? arrivalDate,
+                                  selectedDate: returnDate ?? arrivalDate,
                                   onDateSelected: (date) {
                                     setState(() {
-                                      departureDate = date;
+                                      returnDate = date;
                                     });
                                   },
                                   title: AppLocalizations.of(context).translate("Return Date"),
@@ -113,7 +118,7 @@ class _BusScreenState extends State<BusScreen> {
                                     onTap: () {
                                       setState(() {
                                         showReturnDate = false;
-                                        departureDate = null;
+                                        returnDate = null;
                                       });
                                     },
                                     child: Container(
@@ -147,7 +152,7 @@ class _BusScreenState extends State<BusScreen> {
                                   onTap: () {
                                     setState(() {
                                       showReturnDate = true;
-                                      departureDate = arrivalDate;
+                                      returnDate = arrivalDate;
                                     });
                                   },
                                   child: Container(
@@ -174,16 +179,70 @@ class _BusScreenState extends State<BusScreen> {
                           ),
                       ],
                     ),
+                    SizedBox(height: 18.h),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                AppLocalizations.of(context).translate("Tickets"),
+                                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 8.h),
+                              CustomComboBox(
+                                hintText: "Select",
+                                value: selectedTickets,
+                                items: ticketOptions,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedTickets = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: 16.w),
+                        const Expanded(
+                          child: SizedBox(),
+                        ),
+                      ],
+                    ),
                     SizedBox(height: 50.h),
                     CustomElevatedButton(
                       text: "Search Tickets",
                       onPressed: () {
+                        if (state.fromLocation.isEmpty || state.toLocation.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(context).translate('Please select departure and arrival locations'),
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        context.read<BusBookingBloc>().add(
+                          SearchBuses(
+                            arrivalDate: arrivalDate,
+                            returnDate: returnDate,
+                            fromLocation: state.fromLocation,
+                            toLocation: state.toLocation,
+                          ),
+                        );
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => BusListScreen(
                               arrivalDate: arrivalDate,
-                              departureDate: departureDate,
+                              returnDate: returnDate,
+                              fromLocation: state.fromLocation,
+                              toLocation: state.toLocation,
                             ),
                           ),
                         );
