@@ -6,9 +6,9 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/user_model.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/contract_viewmodel.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/checkbox_row.dart';
 import 'package:tourguideapp/widgets/custom_combo_box.dart';
-import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -300,44 +300,9 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
       child: SafeArea(
         child: Scaffold(
           backgroundColor: Colors.white,
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(60.h),
-            child: AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              automaticallyImplyLeading: false,
-              flexibleSpace: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    height: 40.h,
-                    child: Stack(
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: CustomIconButton(
-                            icon: Icons.chevron_left,
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ),
-                        Center(
-                          child: Text(
-                            AppLocalizations.of(context).translate('My Vehicle'),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20.sp,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          appBar: CustomAppBar(
+            title: AppLocalizations.of(context).translate("My Vehicle"),
+            onBackPressed: () => Navigator.of(context).pop(),
           ),
           body: Column(
             children: [

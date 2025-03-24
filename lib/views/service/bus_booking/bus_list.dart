@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
+import 'package:tourguideapp/widgets/bus_ticket.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/date_time_picker.dart';
 import 'package:tourguideapp/color/colors.dart';
@@ -150,29 +151,12 @@ class _BusListScreenState extends State<BusListScreen> with SingleTickerProvider
                   SingleChildScrollView(
                     child: Padding(
                       padding: EdgeInsets.all(20.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '$fromLocation → $toLocation',
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 16.h),
-                          DateTimePicker(
-                            selectedDate: arrivalDate,
-                            onDateSelected: (date) {
-                              setState(() {
-                                arrivalDate = date;
-                              });
-                            },
-                            title: AppLocalizations.of(context).translate("Departure Date"),
-                          ),
-                          SizedBox(height: 20.h),
-                        ],
-                      ),
+                      child: BusTicket(
+                        fromLocation: fromLocation, 
+                        toLocation: toLocation, 
+                        arrivalDate: arrivalDate,
+                        returnDate: returnDate,
+                      )
                     ),
                   ),
                   if (hasReturnDate)
@@ -201,7 +185,6 @@ class _BusListScreenState extends State<BusListScreen> with SingleTickerProvider
                               minDate: arrivalDate,
                             ),
                             SizedBox(height: 20.h),
-                            // Add your bus list here
                           ],
                         ),
                       ),
