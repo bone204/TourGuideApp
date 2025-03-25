@@ -25,7 +25,12 @@ class BusTicket extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => BusTicketDetail(),
+            builder: (context) => BusTicketDetail(
+              arrivalDate: arrivalDate,
+              returnDate: returnDate,
+              fromLocation: fromLocation,
+              toLocation: toLocation,
+            ),
           ),
         );
       },
