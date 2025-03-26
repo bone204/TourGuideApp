@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/blocs/bus_booking/bus_booking_bloc.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/views/service/bus_booking/bus_ticket_detail.dart';
 
@@ -25,11 +27,14 @@ class BusTicket extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => BusTicketDetail(
-              arrivalDate: arrivalDate,
-              returnDate: returnDate,
-              fromLocation: fromLocation,
-              toLocation: toLocation,
+            builder: (context) => BlocProvider(
+              create: (context) => BusBookingBloc(),
+              child: BusTicketDetail(
+                arrivalDate: arrivalDate,
+                returnDate: returnDate,
+                fromLocation: fromLocation,
+                toLocation: toLocation,
+              ),
             ),
           ),
         );

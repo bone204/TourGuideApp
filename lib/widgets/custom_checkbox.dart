@@ -17,13 +17,9 @@ class CustomCheckbox extends StatefulWidget {
 class _CustomCheckboxState extends State<CustomCheckbox> {
   @override
   Widget build(BuildContext context) {
-    return Transform.scale(
-      scale: 1.5,
+    return Container(
+      alignment: Alignment.topLeft,
       child: Checkbox(
-        visualDensity: const VisualDensity(
-          horizontal: VisualDensity.maximumDensity,
-          vertical: 0.0,
-        ),
         value: widget.value,
         onChanged: widget.onChanged,
         checkColor: Colors.white,
@@ -35,6 +31,7 @@ class _CustomCheckboxState extends State<CustomCheckbox> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4.0),
         ),
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
     );
   }

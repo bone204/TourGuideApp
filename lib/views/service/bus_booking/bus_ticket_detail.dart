@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/blocs/bus_booking/bus_booking_bloc.dart';
+import 'package:tourguideapp/blocs/bus_booking/bus_booking_event.dart';
+import 'package:tourguideapp/blocs/bus_booking/bus_booking_state.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/widgets/bus_seat_layout.dart';
+import 'package:tourguideapp/widgets/checkbox_row.dart';
+import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/seat_widget.dart';
 
 class BusTicketDetail extends StatefulWidget {
@@ -63,6 +69,14 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
   List<SeatPosition> departureSelectedSeats = [];
   List<SeatPosition> returnSelectedSeats = [];
 
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+
+  String additionalMessages = '';
+
+  bool _isCheckboxChecked = false; 
+
   void toggleSeatSelection(int row, int col, bool isUpper, bool isDeparture) {
     setState(() {
       final seatLayout = isDeparture
@@ -118,6 +132,8 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
     
     _pageController = PageController();
     _scrollController = ScrollController();
+    // Load user data thông qua bloc
+    context.read<BusBookingBloc>().add(LoadUserData());
   }
 
   @override
@@ -272,19 +288,55 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
           ),
 
           // Navigation buttons
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (_currentStep > 0)
+          Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.black,
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (_currentStep > 0)
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _previousStep,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF007BFF),
+                          side: const BorderSide(color: Color(0xFF007BFF)),
+                          minimumSize: Size(double.infinity, 50.h),
+                          padding: EdgeInsets.symmetric(vertical: 16.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                        ),
+                        child: Text(
+                          AppLocalizations.of(context).translate("Previous"),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.sp,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (_currentStep > 0)
+                    SizedBox(width: 16.w),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _previousStep,
+                      onPressed: _currentStep == 3 ? () {
+                        // Handle confirmation
+                      } : _nextStep,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF007BFF),
-                        side: const BorderSide(color: Color(0xFF007BFF)),
+                        backgroundColor: const Color(0xFF007BFF),
+                        foregroundColor: Colors.white,
                         minimumSize: Size(double.infinity, 50.h),
                         padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(
@@ -292,7 +344,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                         ),
                       ),
                       child: Text(
-                        AppLocalizations.of(context).translate("Previous"),
+                        _currentStep == 3 ? AppLocalizations.of(context).translate("Confirm") : AppLocalizations.of(context).translate("Next"),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16.sp,
@@ -300,32 +352,8 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                       ),
                     ),
                   ),
-                if (_currentStep > 0)
-                  SizedBox(width: 16.w),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _currentStep == 3 ? () {
-                      // Handle confirmation
-                    } : _nextStep,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF007BFF),
-                      foregroundColor: Colors.white,
-                      minimumSize: Size(double.infinity, 50.h),
-                      padding: EdgeInsets.symmetric(vertical: 16.h),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                    child: Text(
-                      _currentStep == 3 ? AppLocalizations.of(context).translate("Confirm") : AppLocalizations.of(context).translate("Next"),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.sp,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -483,18 +511,144 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
   }
 
   Widget _buildPassengerInfoPage() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.all(20.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Passenger Information'),
-            // Add your passenger info widgets
-          ],
-        ),
-      ),
+    return BlocConsumer<BusBookingBloc, BusBookingState>(
+      listener: (context, state) {
+        print('Listener called'); // Debug print
+      },
+      builder: (context, state) {
+        // Gán giá trị trực tiếp trong builder
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (state.fullName != null) {
+            _fullNameController.text = state.fullName!;
+          }
+          if (state.email != null) {
+            _emailController.text = state.email!;
+          }
+          if (state.phoneNumber != null) {
+            _phoneNumberController.text = state.phoneNumber!;
+          }
+        });
+
+        return SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+            child: Column(
+              children: [
+                _buildTextField(
+                  controller: _fullNameController,
+                  hintText: AppLocalizations.of(context).translate("Enter your full name"),
+                  label: AppLocalizations.of(context).translate("Full Name"),
+                  isEditing: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return AppLocalizations.of(context).translate("Please enter your full name");
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.h),
+                _buildTextField(
+                  controller: _emailController,
+                  hintText: AppLocalizations.of(context).translate("Enter your email"),
+                  label: AppLocalizations.of(context).translate("Email"),
+                  isEditing: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return AppLocalizations.of(context).translate("Please enter your email");
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.h),
+                _buildTextField(
+                  controller: _phoneNumberController,
+                  hintText: AppLocalizations.of(context).translate("Enter your phone number"),
+                  label: AppLocalizations.of(context).translate("Phone Number"),
+                  isEditing: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return AppLocalizations.of(context).translate("Please enter your phone number");
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 40.h),
+                Center(
+                  child: Text(
+                    AppLocalizations.of(context).translate("TERMS AND CONDITIONS"),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.orange,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                RichText(
+                  textAlign: TextAlign.justify,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '(*) Quý khách vui lòng có mặt tại bến xuất phát của xe trước ít nhất 30 phút giờ xe khởi hành, mang theo thông báo đã thanh toán vé thành công có chứa mã vé được gửi từ hệ thống FUTA BUS LINES. Vui lòng liên hệ Trung tâm tổng đài ',
+                        style: TextStyle(color: AppColors.black, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
+                      ),
+                      TextSpan(
+                        text: '1900 6067',
+                        style: TextStyle(color: AppColors.orange, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
+                      ),
+                      TextSpan(
+                        text: ' để được hỗ trợ.',
+                        style: TextStyle(color: AppColors.black, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '(*) Nếu quý khách có nhu cầu trung chuyển, vui lòng liên hệ Tổng đài trung chuyển ',
+                        style: TextStyle(color: AppColors.black, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
+                      ),
+                      TextSpan(
+                        text: '1900 6918',
+                        style: TextStyle(color: AppColors.orange, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
+                      ),
+                      TextSpan(
+                        text: ' trước khi đặt vé. Chúng tôi không đón/trung chuyển tại những điểm xe trung chuyển không thể tới được.',
+                        style: TextStyle(color: AppColors.black, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                CheckboxRow(
+                  title: AppLocalizations.of(context).translate("I confirm all data provided is accurate and truthful. I have read and agree to "),
+                  link: AppLocalizations.of(context).translate("Traveline's Privacy Policy."),
+                  onTitleTap: _handleTitleTap,
+                  value: _isCheckboxChecked,
+                  onChanged: (bool? newValue) {
+                    setState(() {
+                      _isCheckboxChecked = newValue ?? false;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
+  }
+
+  void _handleTitleTap() {
+    // Handle the tap on the link
+    // For example, navigate to the privacy policy page
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => PrivacyPolicyPage()),
+    // );
   }
 
   Widget _buildPaymentPage() {
@@ -504,7 +658,10 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Payment'),
+            Text(
+              AppLocalizations.of(context).translate("Passenger Information"),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+            ),
             // Add your payment widgets
           ],
         ),
@@ -516,7 +673,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(20.w),
-        child: Column(
+        child: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Confirmation'),
@@ -535,4 +692,35 @@ class SeatPosition {
   final bool isUpper;
 
   SeatPosition(this.row, this.col, this.isUpper);
+}
+
+Widget _buildTextField({required TextEditingController controller, required String label, required String hintText, required bool isEditing, required Function(String?) validator}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(width: 4.w),
+          const Text(
+            '*',
+            style: TextStyle(
+              color: AppColors.orange,
+            ),
+          ),
+        ],
+      ),
+      SizedBox(height: 4.h),
+      CustomTextField(
+        controller: controller,
+        hintText: hintText,
+      ),
+    ],
+  );
 }

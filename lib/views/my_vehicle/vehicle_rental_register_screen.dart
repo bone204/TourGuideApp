@@ -297,161 +297,137 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
     return Form(
       key: _formKey,
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          appBar: CustomAppBar(
-            title: AppLocalizations.of(context).translate("My Vehicle"),
-            onBackPressed: () => Navigator.of(context).pop(),
-          ),
-          body: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 20.h),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(3, (index) {
-                              return Row(
-                                children: [
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: CustomAppBar(
+          title: AppLocalizations.of(context).translate("My Vehicle"),
+          onBackPressed: () => Navigator.of(context).pop(),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.h),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(3, (index) {
+                            return Row(
+                              children: [
+                                Container(
+                                  width: 30.w,
+                                  height: 30.h,
+                                  decoration: BoxDecoration(
+                                    color: _currentStep >= index ? const Color(0xFF007BFF) : Colors.transparent,
+                                    border: Border.all(
+                                      color: _currentStep >= index ? const Color(0xFF007BFF) : Colors.grey,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      _stepCompleted[index] ? Icons.check : Icons.circle,
+                                      color: _currentStep >= index ? Colors.white : Colors.white,
+                                      size: 20.sp,
+                                    ),
+                                  ),
+                                ),
+                                if (index < 2)
                                   Container(
-                                    width: 30.w,
-                                    height: 30.h,
-                                    decoration: BoxDecoration(
-                                      color: _currentStep >= index ? const Color(0xFF007BFF) : Colors.transparent,
-                                      border: Border.all(
-                                        color: _currentStep >= index ? const Color(0xFF007BFF) : Colors.grey,
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: Icon(
-                                        _stepCompleted[index] ? Icons.check : Icons.circle,
-                                        color: _currentStep >= index ? Colors.white : Colors.white,
-                                        size: 20.sp,
-                                      ),
-                                    ),
+                                    width: 97.w,
+                                    height: 1.h,
+                                    color: _currentStep > index ? const Color(0xFF007BFF) : Colors.grey,
                                   ),
-                                  if (index < 2)
-                                    Container(
-                                      width: 97.w,
-                                      height: 1.h,
-                                      color: _currentStep > index ? const Color(0xFF007BFF) : Colors.grey,
-                                    ),
-                                ],
-                              );
-                            }),
-                          ),
-                          SizedBox(height: 8.h),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 80.w,
-                                child: Text(
-                                  AppLocalizations.of(context).translate('Identification Information'),
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.visible,
-                                ),
-                              ),
-                              SizedBox(width: 42.w),
-                              SizedBox(
-                                width: 90.w,
-                                child: Text(
-                                  AppLocalizations.of(context).translate("Tax Information"),
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.visible,
-                                ),
-                              ),
-                              SizedBox(width: 42.w),
-                              SizedBox(
-                                width: 80.w,
-                                child: Text(
-                                  AppLocalizations.of(context).translate("Billing Information"),
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.visible,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  children: List<Widget>.generate(
-                    3,
-                    (index) {
-                      if (index == 0) {
-                        return _buildStep1();
-                      } else if (index == 1) {
-                        return _buildStep2();
-                      } else if (index == 2) {
-                        return _buildStep3();
-                      }
-                      return Container();
-                    },
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (_currentStep > 0)
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: _previousStep,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: const Color(0xFF007BFF),
-                            side: const BorderSide(color: Color(0xFF007BFF)),
-                            minimumSize: Size(double.infinity, 50.h),
-                            padding: EdgeInsets.symmetric(vertical: 16.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                          ),
-                          child: Text(
-                            AppLocalizations.of(context).translate("Previous"),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.sp,
-                            ),
-                          ),
+                              ],
+                            );
+                          }),
                         ),
-                      ),
-                    if (_currentStep > 0)
-                      SizedBox(width: 16.w),
+                        SizedBox(height: 8.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 80.w,
+                              child: Text(
+                                AppLocalizations.of(context).translate('Identification Information'),
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.visible,
+                              ),
+                            ),
+                            SizedBox(width: 42.w),
+                            SizedBox(
+                              width: 90.w,
+                              child: Text(
+                                AppLocalizations.of(context).translate("Tax Information"),
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.visible,
+                              ),
+                            ),
+                            SizedBox(width: 42.w),
+                            SizedBox(
+                              width: 80.w,
+                              child: Text(
+                                AppLocalizations.of(context).translate("Billing Information"),
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.visible,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                children: List<Widget>.generate(
+                  3,
+                  (index) {
+                    if (index == 0) {
+                      return _buildStep1();
+                    } else if (index == 1) {
+                      return _buildStep2();
+                    } else if (index == 2) {
+                      return _buildStep3();
+                    }
+                    return Container();
+                  },
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (_currentStep > 0)
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: _currentStep == 2 ? _completeRegistration : _nextStep,
+                        onPressed: _previousStep,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF007BFF),
-                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF007BFF),
+                          side: const BorderSide(color: Color(0xFF007BFF)),
                           minimumSize: Size(double.infinity, 50.h),
                           padding: EdgeInsets.symmetric(vertical: 16.h),
                           shape: RoundedRectangleBorder(
@@ -459,7 +435,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                           ),
                         ),
                         child: Text(
-                          _currentStep == 2 ? AppLocalizations.of(context).translate("Confirm") : AppLocalizations.of(context).translate("Next"),
+                          AppLocalizations.of(context).translate("Previous"),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16.sp,
@@ -467,11 +443,33 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  if (_currentStep > 0)
+                    SizedBox(width: 16.w),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _currentStep == 2 ? _completeRegistration : _nextStep,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF007BFF),
+                        foregroundColor: Colors.white,
+                        minimumSize: Size(double.infinity, 50.h),
+                        padding: EdgeInsets.symmetric(vertical: 16.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                      child: Text(
+                        _currentStep == 2 ? AppLocalizations.of(context).translate("Confirm") : AppLocalizations.of(context).translate("Next"),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -795,11 +793,11 @@ Widget _buildTextField({required TextEditingController controller, required Stri
       Text(
         label,
         style: TextStyle(
-          fontSize: 18.sp,
+          fontSize: 12.sp,
           fontWeight: FontWeight.bold,
         ),
       ),
-      SizedBox(height: 12.h),
+      SizedBox(height: 4.h),
       CustomTextField(
         controller: controller,
         hintText: hintText,
@@ -820,11 +818,11 @@ Widget _buildDropdown({
       Text(
         label,
         style: TextStyle(
-          fontSize: 18.sp,
+          fontSize: 12.sp,
           fontWeight: FontWeight.bold,
         ),
       ),
-      SizedBox(height: 12.h),
+      SizedBox(height: 4.h),
       CustomComboBox(
         hintText: label,
         value: selectedItem,

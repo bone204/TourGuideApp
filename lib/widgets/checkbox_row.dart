@@ -25,6 +25,7 @@ class CheckboxRow extends StatelessWidget {
     ScreenUtil.init(context, designSize: const Size(375, 812));
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         CustomCheckbox(
           value: value,
@@ -37,15 +38,17 @@ class CheckboxRow extends StatelessWidget {
                 TextSpan(
                   text: title,
                   style: TextStyle(
-                    fontSize: 16.sp,
+                    fontSize: 12.sp,
                     color: Colors.black,
+                    fontWeight: FontWeight.w500,
                   )
                 ),
                 TextSpan(
                   text: link,
                   style: TextStyle(
-                    fontSize: 16.sp,
+                    fontSize: 12.sp,
                     color: const Color(0xFF007BFF),
+                    fontWeight: FontWeight.w500,
                   ),
                   recognizer: TapGestureRecognizer()..onTap = onTitleTap,
                 ),

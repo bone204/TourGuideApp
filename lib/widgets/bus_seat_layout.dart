@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tourguideapp/color/colors.dart';
 import 'seat_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -35,7 +36,19 @@ class BusSeatLayout extends StatelessWidget {
           ),
         ),
         SizedBox(height: 16.h),
-        
+
+        if (!isUpper) 
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/img/ic_steering_wheel.png', width: 48.w, height: 48.h),
+              SizedBox(width: 136.w),
+              Icon(Icons.arrow_right_alt, color: AppColors.grey, size: 48.sp),
+            ]
+          ),
+        if (!isUpper) 
+          SizedBox(height: 16.h),
+          
         // Seat rows
         ...List.generate(
           deckLayout.length,

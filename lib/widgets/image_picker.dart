@@ -86,7 +86,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
             Text(
               widget.title,
               style: TextStyle(
-                fontSize: 18.sp,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -101,7 +101,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
               ),
           ],
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 4.h),
         InkWell(
           onTap: _showPickerOptions,
           child: Container(

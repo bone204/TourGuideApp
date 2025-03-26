@@ -27,3 +27,5 @@ class SearchBuses extends BusBookingEvent {
     required this.toLocation,
   });
 }
+
+class LoadUserData extends BusBookingEvent {}
