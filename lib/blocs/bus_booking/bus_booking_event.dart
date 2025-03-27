@@ -15,13 +15,13 @@ class SetToLocation extends BusBookingEvent {
 }
 
 class SearchBuses extends BusBookingEvent {
-  final DateTime arrivalDate;
+  final DateTime departureDate;
   final DateTime? returnDate;
   final String fromLocation;
   final String toLocation;
 
   SearchBuses({
-    required this.arrivalDate,
+    required this.departureDate,
     this.returnDate,
     required this.fromLocation,
     required this.toLocation,

@@ -31,6 +31,7 @@ class CheckboxRow extends StatelessWidget {
           value: value,
           onChanged: onChanged,
         ),
+        SizedBox(width: 10.w),
         Expanded(
           child: Text.rich(
             TextSpan(

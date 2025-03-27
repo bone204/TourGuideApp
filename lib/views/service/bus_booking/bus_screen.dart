@@ -19,7 +19,7 @@ class BusScreen extends StatefulWidget {
 }
 
 class _BusScreenState extends State<BusScreen> {
-  DateTime arrivalDate = DateTime.now();
+  DateTime departureDate = DateTime.now();
   DateTime? returnDate;
   
   bool showReturnDate = false;
@@ -84,10 +84,10 @@ class _BusScreenState extends State<BusScreen> {
                       children: [
                         Expanded(
                           child: DateTimePicker(
-                            selectedDate: arrivalDate,
+                            selectedDate: departureDate,
                             onDateSelected: (date) {
                               setState(() {
-                                arrivalDate = date;
+                                departureDate = date;
                                 if (returnDate != null && returnDate!.isBefore(date)) {
                                   returnDate = date;
                                 }
@@ -102,14 +102,14 @@ class _BusScreenState extends State<BusScreen> {
                             child: Stack(
                               children: [
                                 DateTimePicker(
-                                  selectedDate: returnDate ?? arrivalDate,
+                                  selectedDate: returnDate ?? departureDate,
                                   onDateSelected: (date) {
                                     setState(() {
                                       returnDate = date;
                                     });
                                   },
                                   title: AppLocalizations.of(context).translate("Return Date"),
-                                  minDate: arrivalDate,
+                                  minDate: departureDate,
                                 ),
                                 Positioned(
                                   top: 0,
@@ -152,7 +152,7 @@ class _BusScreenState extends State<BusScreen> {
                                   onTap: () {
                                     setState(() {
                                       showReturnDate = true;
-                                      returnDate = arrivalDate;
+                                      returnDate = departureDate;
                                     });
                                   },
                                   child: Container(
@@ -229,7 +229,7 @@ class _BusScreenState extends State<BusScreen> {
 
                         context.read<BusBookingBloc>().add(
                           SearchBuses(
-                            arrivalDate: arrivalDate,
+                            departureDate: departureDate,
                             returnDate: returnDate,
                             fromLocation: state.fromLocation,
                             toLocation: state.toLocation,
@@ -239,7 +239,7 @@ class _BusScreenState extends State<BusScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => BusListScreen(
-                              arrivalDate: arrivalDate,
+                              departureDate: departureDate,
                               returnDate: returnDate,
                               fromLocation: state.fromLocation,
                               toLocation: state.toLocation,

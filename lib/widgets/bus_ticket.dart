@@ -8,14 +8,14 @@ import 'package:tourguideapp/views/service/bus_booking/bus_ticket_detail.dart';
 class BusTicket extends StatelessWidget {
   final String fromLocation;
   final String toLocation;
-  final DateTime arrivalDate;
+  final DateTime departureDate;
   final DateTime? returnDate;
 
   const BusTicket({
     Key? key,
     required this.fromLocation,
     required this.toLocation,
-    required this.arrivalDate,
+    required this.departureDate,
     this.returnDate,
   }) : super(key: key);
 
@@ -30,7 +30,7 @@ class BusTicket extends StatelessWidget {
             builder: (context) => BlocProvider(
               create: (context) => BusBookingBloc(),
               child: BusTicketDetail(
-                arrivalDate: arrivalDate,
+                departureDate: departureDate,
                 returnDate: returnDate,
                 fromLocation: fromLocation,
                 toLocation: toLocation,

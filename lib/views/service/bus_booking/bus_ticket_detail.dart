@@ -7,20 +7,23 @@ import 'package:tourguideapp/blocs/bus_booking/bus_booking_state.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/color/colors.dart';
+import 'package:tourguideapp/widgets/bus_sation_picker.dart';
 import 'package:tourguideapp/widgets/bus_seat_layout.dart';
+import 'package:tourguideapp/widgets/bus_station_list.dart';
 import 'package:tourguideapp/widgets/checkbox_row.dart';
+import 'package:tourguideapp/widgets/custom_radio_options.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/seat_widget.dart';
 
 class BusTicketDetail extends StatefulWidget {
-  final DateTime arrivalDate;
+  final DateTime departureDate;
   final DateTime? returnDate;
   final String fromLocation;
   final String toLocation;
 
   const BusTicketDetail({
     Key? key,
-    required this.arrivalDate,
+    required this.departureDate,
     this.returnDate,
     required this.fromLocation,
     required this.toLocation,
@@ -31,7 +34,7 @@ class BusTicketDetail extends StatefulWidget {
 }
 
 class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProviderStateMixin {
-  late DateTime arrivalDate;
+  late DateTime departureDate;
   late DateTime? returnDate;
   late String fromLocation;
   late String toLocation;
@@ -77,6 +80,24 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
 
   bool _isCheckboxChecked = false; 
 
+  int _selectedOption = 1;
+
+  BusStation? selectedBusStation; // Biến để lưu trữ bến xe được chọn
+
+  final List<BusStation> busStations = [
+    BusStation(
+      id: 1,
+      name: 'Bến xe Miền Đông mới',
+      address: '292 Đinh Bộ Lĩnh, Phường 26, Bình Thạnh, TP.HCM',
+    ),
+    BusStation(
+      id: 2,
+      name: 'Bến xe Miền Tây',
+      address: '395 Kinh Dương Vương, An Lạc, Bình Tân, TP.HCM',
+    ),
+    // Add more BusStation instances as needed
+  ];
+
   void toggleSeatSelection(int row, int col, bool isUpper, bool isDeparture) {
     setState(() {
       final seatLayout = isDeparture
@@ -117,10 +138,19 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
     }
   }
 
+  // Phương thức trả về bến xe mặc định
+  BusStation getDefaultBusStation() {
+    return BusStation(
+      id: 1,
+      name: 'Bến xe Miền Đông mới',
+      address: '292 Đinh Bộ Lĩnh, Phường 26, Bình Thạnh, TP.HCM',
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    arrivalDate = widget.arrivalDate;
+    departureDate = widget.departureDate;
     returnDate = widget.returnDate;
     fromLocation = widget.fromLocation;
     toLocation = widget.toLocation;
@@ -132,6 +162,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
     
     _pageController = PageController();
     _scrollController = ScrollController();
+
     // Load user data thông qua bloc
     context.read<BusBookingBloc>().add(LoadUserData());
   }
@@ -203,7 +234,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
       appBar: CustomAppBar(
         title: '$fromLocation - $toLocation',
         isColumnTitle: true,
-        subtitle: '${_getDayAbbreviation(arrivalDate, context)}, ${arrivalDate.day}/${arrivalDate.month}/${arrivalDate.year}',
+        subtitle: '${_getDayAbbreviation(departureDate, context)}, ${departureDate.day}/${departureDate.month}/${departureDate.year}',
         onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: Column(
@@ -281,7 +312,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
               children: [
                 _buildSeatPage(),
                 _buildPassengerInfoPage(),
-                _buildPaymentPage(),
+                _buildPickupDropPage(),
                 _buildConfirmationPage(),
               ],
             ),
@@ -375,7 +406,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
             tabs: [
               Tab(
                 child: Text(
-                  '${_getDayAbbreviation(arrivalDate, context)}, ${arrivalDate.day}/${arrivalDate.month}',
+                  '${_getDayAbbreviation(departureDate, context)}, ${departureDate.day}/${departureDate.month}',
                   style: TextStyle(fontSize: 16.sp),
                 ),
               ),
@@ -533,7 +564,13 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  AppLocalizations.of(context).translate("Passenger Information"),
+                  style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 16.h),
                 _buildTextField(
                   controller: _fullNameController,
                   hintText: AppLocalizations.of(context).translate("Enter your full name"),
@@ -589,7 +626,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: '(*) Quý khách vui lòng có mặt tại bến xuất phát của xe trước ít nhất 30 phút giờ xe khởi hành, mang theo thông báo đã thanh toán vé thành công có chứa mã vé được gửi từ hệ thống FUTA BUS LINES. Vui lòng liên hệ Trung tâm tổng đài ',
+                        text: '(*) Quý khách vui lòng có mặt tại bến xuất phát của xe trước ít nhất 30 phút giờ xe khởi hành, mang theo thông báo đã thanh toán vé thành công có chứa mã vé được gửi từ hệ thống TRAVELINE. Vui lòng liên hệ Trung tâm tổng đài ',
                         style: TextStyle(color: AppColors.black, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
                       ),
                       TextSpan(
@@ -651,18 +688,77 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
     // );
   }
 
-  Widget _buildPaymentPage() {
+  Widget _buildPickupDropPage() {
+    // Khởi tạo selectedBusStation với giá trị mặc định nếu nó là null
+    if (selectedBusStation == null) {
+      selectedBusStation = getDefaultBusStation();
+    }
+    
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.all(20.w),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context).translate("Passenger Information"),
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+              AppLocalizations.of(context).translate("Pick-up/Drop Information"),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500),
             ),
-            // Add your payment widgets
+            SizedBox(height: 4.h),
+            Text(
+              AppLocalizations.of(context).translate("Departure trip - ${_getDayAbbreviation(departureDate, context)}, ${departureDate.day}/${departureDate.month}/${departureDate.year}"),
+              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+            ),
+            SizedBox(height: 40.h),
+            Text(
+              AppLocalizations.of(context).translate("BUS STATION/COMPANY OFFICE"),
+              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+            ),
+            SizedBox(height: 20.h),
+            RadioOptionsWidget(
+              titles: [
+                AppLocalizations.of(context).translate("Bus Station/\nCompany Office"),
+                AppLocalizations.of(context).translate("Shuttle Service"),
+              ],
+              selectedOption: _selectedOption,
+              onOptionChanged: (value) {
+                setState(() {
+                  _selectedOption = value ?? 1;
+                });
+              },
+            ),
+            SizedBox(height: 20.h),
+            BusStationPicker(
+              initialSelectedStation: selectedBusStation ?? getDefaultBusStation(),
+              onStationSelected: (station) {
+                setState(() {
+                  selectedBusStation = station;
+                });
+              },
+            ),
+            SizedBox(height: 20.h),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Quý khách vui lòng có mặt tại Bến xe/Văn phòng ',
+                    style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.w500, height: 1.5),
+                  ),
+                  TextSpan(
+                    text: selectedBusStation?.name ?? getDefaultBusStation().name,
+                    style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.bold, height: 1.5),
+                  ),
+                  TextSpan(
+                    text: ' trước 21:30 ngày ${departureDate.day}/${departureDate.month}/${departureDate.year} ',
+                    style: TextStyle(color: AppColors.orange, fontSize: 14.sp, fontWeight: FontWeight.w500, height: 1.5),
+                  ),
+                  TextSpan(
+                    text: 'để được trung chuyển hoặc kiểm tra thông tin trước khi lên xe.',
+                    style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.w500, height: 1.5),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

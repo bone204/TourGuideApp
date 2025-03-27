@@ -8,14 +8,14 @@ import 'package:tourguideapp/widgets/date_time_picker.dart';
 import 'package:tourguideapp/color/colors.dart';
 
 class BusListScreen extends StatefulWidget {
-  final DateTime arrivalDate;
+  final DateTime departureDate;
   final DateTime? returnDate;
   final String fromLocation;
   final String toLocation;
 
   const BusListScreen({
     super.key,
-    required this.arrivalDate,
+    required this.departureDate,
     this.returnDate,
     required this.fromLocation,
     required this.toLocation,
@@ -26,7 +26,7 @@ class BusListScreen extends StatefulWidget {
 }
 
 class _BusListScreenState extends State<BusListScreen> with SingleTickerProviderStateMixin {
-  late DateTime arrivalDate;
+  late DateTime departureDate;
   late DateTime? returnDate;
   late String fromLocation;
   late String toLocation;
@@ -44,7 +44,7 @@ class _BusListScreenState extends State<BusListScreen> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    arrivalDate = widget.arrivalDate;
+    departureDate = widget.departureDate;
     returnDate = widget.returnDate;
     fromLocation = widget.fromLocation;
     toLocation = widget.toLocation;
@@ -77,7 +77,7 @@ class _BusListScreenState extends State<BusListScreen> with SingleTickerProvider
       appBar: CustomAppBar(
         title: '$fromLocation - $toLocation',
         isColumnTitle: true,
-        subtitle: '${_getDayAbbreviation(arrivalDate, context)}, ${arrivalDate.day}/${arrivalDate.month}/${arrivalDate.year}',
+        subtitle: '${_getDayAbbreviation(departureDate, context)}, ${departureDate.day}/${departureDate.month}/${departureDate.year}',
         onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: Padding(
@@ -107,7 +107,7 @@ class _BusListScreenState extends State<BusListScreen> with SingleTickerProvider
                             ),
                             SizedBox(height: 4.h),
                             Text(
-                              '${_getDayAbbreviation(arrivalDate, context)}, ${arrivalDate.day}/${arrivalDate.month}/${arrivalDate.year}',
+                              '${_getDayAbbreviation(departureDate, context)}, ${departureDate.day}/${departureDate.month}/${departureDate.year}',
                               style: TextStyle(fontSize: 32.sp),
                             ),
                           ],
@@ -154,7 +154,7 @@ class _BusListScreenState extends State<BusListScreen> with SingleTickerProvider
                       child: BusTicket(
                         fromLocation: fromLocation, 
                         toLocation: toLocation, 
-                        arrivalDate: arrivalDate,
+                        departureDate: departureDate,
                         returnDate: returnDate,
                       )
                     ),
@@ -182,7 +182,7 @@ class _BusListScreenState extends State<BusListScreen> with SingleTickerProvider
                                 });
                               },
                               title: AppLocalizations.of(context).translate("Return Date"),
-                              minDate: arrivalDate,
+                              minDate: departureDate,
                             ),
                             SizedBox(height: 20.h),
                           ],
