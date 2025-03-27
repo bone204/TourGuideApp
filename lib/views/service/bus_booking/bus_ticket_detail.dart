@@ -7,7 +7,7 @@ import 'package:tourguideapp/blocs/bus_booking/bus_booking_state.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/color/colors.dart';
-import 'package:tourguideapp/widgets/bus_sation_picker.dart';
+import 'package:tourguideapp/widgets/bus_station_picker.dart';
 import 'package:tourguideapp/widgets/bus_seat_layout.dart';
 import 'package:tourguideapp/widgets/bus_station_list.dart';
 import 'package:tourguideapp/widgets/checkbox_row.dart';
@@ -82,7 +82,20 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
 
   int _selectedOption = 1;
 
-  BusStation? selectedBusStation; // Biến để lưu trữ bến xe được chọn
+  BusStation? selectedDepartureBusStation; // Bến xe cho chiều đi
+  BusStation? selectedReturnBusStation; // Bến xe cho chiều về
+
+  // Thêm các biến để lưu trữ thông tin điểm đón và trả
+  BusStation? selectedDeparturePickupStation;
+  BusStation? selectedDepartureDropStation;
+  BusStation? selectedReturnPickupStation;
+  BusStation? selectedReturnDropStation;
+
+  // Các biến để lưu trữ tùy chọn dịch vụ đưa đón riêng biệt
+  int _selectedDeparturePickupOption = 1;
+  int _selectedDepartureDropOption = 1;
+  int _selectedReturnPickupOption = 1;
+  int _selectedReturnDropOption = 1;
 
   final List<BusStation> busStations = [
     BusStation(
@@ -162,6 +175,12 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
     
     _pageController = PageController();
     _scrollController = ScrollController();
+
+    // Khởi tạo giá trị mặc định cho bến xe chiều đi và về
+    selectedDeparturePickupStation = getDefaultBusStation();
+    selectedDepartureDropStation = getDefaultBusStation();
+    selectedReturnPickupStation = getDefaultBusStation();
+    selectedReturnDropStation = getDefaultBusStation();
 
     // Load user data thông qua bloc
     context.read<BusBookingBloc>().add(LoadUserData());
@@ -689,72 +708,321 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
   }
 
   Widget _buildPickupDropPage() {
-    // Khởi tạo selectedBusStation với giá trị mặc định nếu nó là null
-    if (selectedBusStation == null) {
-      selectedBusStation = getDefaultBusStation();
-    }
-    
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              AppLocalizations.of(context).translate("Pick-up/Drop Information"),
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500),
+            // Phần thông tin đón/trả cho chiều đi
+            _buildTripSection(
+              title: AppLocalizations.of(context).translate("Pick-up/Drop Information"),
+              subtitle: AppLocalizations.of(context).translate("Departure trip - ${_getDayAbbreviation(departureDate, context)}, ${departureDate.day}/${departureDate.month}/${departureDate.year}"),
+              date: departureDate,
+              isDeparture: true,
             ),
-            SizedBox(height: 4.h),
-            Text(
-              AppLocalizations.of(context).translate("Departure trip - ${_getDayAbbreviation(departureDate, context)}, ${departureDate.day}/${departureDate.month}/${departureDate.year}"),
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
-            ),
+
             SizedBox(height: 40.h),
+            
+            // Phần thông tin đón/trả cho chiều về (nếu có)
+            if (hasReturnDate) 
+              _buildTripSection(
+                title: AppLocalizations.of(context).translate("Pick-up/Drop Information"),
+                subtitle: AppLocalizations.of(context).translate("Return trip - ${_getDayAbbreviation(returnDate!, context)}, ${returnDate!.day}/${returnDate!.month}/${returnDate!.year}"),
+                date: returnDate!,
+                isDeparture: false,
+              ),
+            SizedBox(height: 20.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Phương thức tạo mục thông tin pickup/drop cho một chuyến đi
+  Widget _buildTripSection({
+    required String title,
+    required String subtitle,
+    required DateTime date,
+    required bool isDeparture,
+  }) {
+    // Xác định các biến tương ứng dựa trên chiều đi/về
+    final pickupOption = isDeparture ? _selectedDeparturePickupOption : _selectedReturnPickupOption;
+    final dropOption = isDeparture ? _selectedDepartureDropOption : _selectedReturnDropOption;
+    final pickupStation = isDeparture ? selectedDeparturePickupStation : selectedReturnPickupStation;
+    final dropStation = isDeparture ? selectedDepartureDropStation : selectedReturnDropStation;
+    
+    // Xác định các điểm đi và đến
+    final fromLoc = isDeparture ? fromLocation : toLocation;
+    final toLoc = isDeparture ? toLocation : fromLocation;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500),
+        ),
+        SizedBox(height: 4.h),
+        Text(
+          subtitle,
+          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+        ),
+        SizedBox(height: 20.h),
+        
+        // Phần điểm đón (pickup)
+        Container(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade50,
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'ĐIỂM ĐÓN - $fromLoc',
+                style: TextStyle(
+                  fontSize: 16.sp, 
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryColor,
+                ),
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                AppLocalizations.of(context).translate("BUS STATION/COMPANY OFFICE"),
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+              ),
+              SizedBox(height: 16.h),
+              RadioOptionsWidget(
+                titles: [
+                  AppLocalizations.of(context).translate("Bus Station/\nCompany Office"),
+                  AppLocalizations.of(context).translate("Shuttle Service"),
+                ],
+                selectedOption: pickupOption,
+                onOptionChanged: (value) {
+                  setState(() {
+                    if (isDeparture) {
+                      _selectedDeparturePickupOption = value ?? 1;
+                    } else {
+                      _selectedReturnPickupOption = value ?? 1;
+                    }
+                  });
+                },
+              ),
+              SizedBox(height: 16.h),
+              BusStationPicker(
+                initialSelectedStation: pickupStation ?? getDefaultBusStation(),
+                onStationSelected: (station) {
+                  setState(() {
+                    if (isDeparture) {
+                      selectedDeparturePickupStation = station;
+                    } else {
+                      selectedReturnPickupStation = station;
+                    }
+                  });
+                },
+              ),
+              SizedBox(height: 16.h),
+              _buildInstructionText(date, pickupStation, isPickup: true),
+            ],
+          ),
+        ),
+        
+        SizedBox(height: 20.h),
+        
+        // Phần điểm trả (drop)
+        Container(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: Colors.green.shade50,
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'ĐIỂM TRẢ - $toLoc',
+                style: TextStyle(
+                  fontSize: 16.sp, 
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.green,
+                ),
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                AppLocalizations.of(context).translate("BUS STATION/COMPANY OFFICE"),
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+              ),
+              SizedBox(height: 16.h),
+              RadioOptionsWidget(
+                titles: [
+                  AppLocalizations.of(context).translate("Bus Station/\nCompany Office"),
+                  AppLocalizations.of(context).translate("Shuttle Service"),
+                ],
+                selectedOption: dropOption,
+                onOptionChanged: (value) {
+                  setState(() {
+                    if (isDeparture) {
+                      _selectedDepartureDropOption = value ?? 1;
+                    } else {
+                      _selectedReturnDropOption = value ?? 1;
+                    }
+                  });
+                },
+              ),
+              SizedBox(height: 16.h),
+              BusStationPicker(
+                initialSelectedStation: dropStation ?? getDefaultBusStation(),
+                onStationSelected: (station) {
+                  setState(() {
+                    if (isDeparture) {
+                      selectedDepartureDropStation = station;
+                    } else {
+                      selectedReturnDropStation = station;
+                    }
+                  });
+                },
+              ),
+              SizedBox(height: 16.h),
+              _buildInstructionText(date, dropStation, isPickup: false),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Phương thức tạo văn bản hướng dẫn tùy chỉnh cho pickup hoặc drop
+  Widget _buildInstructionText(DateTime date, BusStation? station, {required bool isPickup}) {
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: isPickup 
+                ? 'Quý khách vui lòng có mặt tại Bến xe/Văn phòng ' 
+                : 'Quý khách sẽ được trả tại Bến xe/Văn phòng ',
+            style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.w500, height: 1.5),
+          ),
+          TextSpan(
+            text: station?.name ?? getDefaultBusStation().name,
+            style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.bold, height: 1.5),
+          ),
+          TextSpan(
+            text: isPickup 
+                ? ' trước 21:30 ngày ${date.day}/${date.month}/${date.year} ' 
+                : ' vào khoảng ${(date.hour + 8).toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')} ngày ${date.day}/${date.month}/${date.year} ',
+            style: TextStyle(color: AppColors.orange, fontSize: 14.sp, fontWeight: FontWeight.w500, height: 1.5),
+          ),
+          TextSpan(
+            text: isPickup
+                ? 'để được đón và kiểm tra thông tin trước khi lên xe.'
+                : '(thời gian dự kiến, có thể thay đổi tùy tình hình giao thông).',
+            style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.w500, height: 1.5),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConfirmationPage() {
+    // Tính tổng số ghế và giá vé
+    final totalDepartureSeats = departureSelectedSeats.length;
+    final totalReturnSeats = returnSelectedSeats.length;
+    final totalSeats = totalDepartureSeats + totalReturnSeats;
+    final totalPrice = totalSeats * seatPrice;
+    
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Text(
-              AppLocalizations.of(context).translate("BUS STATION/COMPANY OFFICE"),
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+              'Xác nhận thông tin đặt vé',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             SizedBox(height: 20.h),
-            RadioOptionsWidget(
-              titles: [
-                AppLocalizations.of(context).translate("Bus Station/\nCompany Office"),
-                AppLocalizations.of(context).translate("Shuttle Service"),
+            
+            // Thông tin hành khách
+            _buildConfirmationSection(
+              title: 'Thông tin hành khách',
+              content: [
+                'Họ tên: ${_fullNameController.text}',
+                'Email: ${_emailController.text}',
+                'Số điện thoại: ${_phoneNumberController.text}',
               ],
-              selectedOption: _selectedOption,
-              onOptionChanged: (value) {
-                setState(() {
-                  _selectedOption = value ?? 1;
-                });
-              },
             ),
-            SizedBox(height: 20.h),
-            BusStationPicker(
-              initialSelectedStation: selectedBusStation ?? getDefaultBusStation(),
-              onStationSelected: (station) {
-                setState(() {
-                  selectedBusStation = station;
-                });
-              },
+            
+            // Thông tin chuyến đi
+            _buildConfirmationSection(
+              title: 'Thông tin chuyến đi',
+              content: [
+                'Chiều đi: $fromLocation - $toLocation',
+                'Ngày đi: ${departureDate.day}/${departureDate.month}/${departureDate.year}',
+                'Số ghế: $totalDepartureSeats',
+                'Điểm đón: ${selectedDeparturePickupStation?.name ?? ""}',
+                'Điểm trả: ${selectedDepartureDropStation?.name ?? ""}',
+                if (hasReturnDate) 'Chiều về: $toLocation - $fromLocation',
+                if (hasReturnDate) 'Ngày về: ${returnDate!.day}/${returnDate!.month}/${returnDate!.year}',
+                if (hasReturnDate) 'Số ghế: $totalReturnSeats',
+                if (hasReturnDate) 'Điểm đón: ${selectedReturnPickupStation?.name ?? ""}',
+                if (hasReturnDate) 'Điểm trả: ${selectedReturnDropStation?.name ?? ""}',
+              ],
             ),
-            SizedBox(height: 20.h),
-            RichText(
-              text: TextSpan(
+            
+            // Tổng tiền
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(16.w),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: Column(
                 children: [
-                  TextSpan(
-                    text: 'Quý khách vui lòng có mặt tại Bến xe/Văn phòng ',
-                    style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.w500, height: 1.5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Tổng số vé:',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        '$totalSeats',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                  TextSpan(
-                    text: selectedBusStation?.name ?? getDefaultBusStation().name,
-                    style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.bold, height: 1.5),
-                  ),
-                  TextSpan(
-                    text: ' trước 21:30 ngày ${departureDate.day}/${departureDate.month}/${departureDate.year} ',
-                    style: TextStyle(color: AppColors.orange, fontSize: 14.sp, fontWeight: FontWeight.w500, height: 1.5),
-                  ),
-                  TextSpan(
-                    text: 'để được trung chuyển hoặc kiểm tra thông tin trước khi lên xe.',
-                    style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.w500, height: 1.5),
+                  SizedBox(height: 8.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Tổng tiền:',
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '${totalPrice.toStringAsFixed(0)} VND',
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -764,18 +1032,38 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
       ),
     );
   }
-
-  Widget _buildConfirmationPage() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.all(20.w),
-        child: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Confirmation'),
-            // Add your confirmation widgets
-          ],
-        ),
+  
+  // Phương thức để hiển thị phần thông tin trong trang xác nhận
+  Widget _buildConfirmationSection({required String title, required List<String> content}) {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(bottom: 20.h),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          ...content.map((item) => Padding(
+            padding: EdgeInsets.only(bottom: 8.h),
+            child: Text(
+              item,
+              style: TextStyle(
+                fontSize: 14.sp,
+              ),
+            ),
+          )).toList(),
+        ],
       ),
     );
   }
