@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
-import '../../widgets/custom_icon_button.dart';
 import '../../viewmodels/personInfo_viewmodel.dart';
 import '../../viewmodels/bank_viewmodel.dart';
 import '../../widgets/custom_text_field.dart';

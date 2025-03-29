@@ -5,7 +5,7 @@ import 'package:tourguideapp/views/service/delivery/delivery_detail_screen.dart'
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/location_picker.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
-import 'package:tourguideapp/widgets/styled_textfield.dart';
+import 'package:tourguideapp/widgets/custom_text_field.dart';
 
 class DeliveryScreen extends StatefulWidget {
   @override
@@ -20,6 +20,9 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
   String recipientName = '';
   String recipientPhone = '';
 
+  final TextEditingController _recipientNameController = TextEditingController();
+  final TextEditingController _recipientPhoneController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +30,8 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
 
   @override
   void dispose() {
+    _recipientNameController.dispose();
+    _recipientPhoneController.dispose();
     super.dispose();
   }
 
@@ -78,24 +83,63 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                 onLocationSelected: onDeliveryLocationSelected,
               ),
               SizedBox(height: 24.h),
-              StyledTextField(
-                title: AppLocalizations.of(context).translate("Recipient's Full Name"),
-                hintText: AppLocalizations.of(context).translate("Enter recipient's full name"),
-                onTextChanged: (value) {
-                  setState(() {
-                    recipientName = value;
-                  });
-                },
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context).translate("Recipient's Full Name"),
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  CustomTextField(
+                    controller: _recipientNameController,
+                    hintText: AppLocalizations.of(context).translate("Enter recipient's full name"),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return AppLocalizations.of(context).translate("Please enter recipient's name");
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        recipientName = value;
+                      });
+                    },
+                  ),
+                ],
               ),
               SizedBox(height: 24.h),
-              StyledTextField(
-                title: AppLocalizations.of(context).translate("Recipient's Phone Number"),
-                hintText: AppLocalizations.of(context).translate("Enter recipient's phone number"),
-                onTextChanged: (value) {
-                  setState(() {
-                    recipientPhone = value;
-                  });
-                },
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context).translate("Recipient's Phone Number"),
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  CustomTextField(
+                    controller: _recipientPhoneController,
+                    hintText: AppLocalizations.of(context).translate("Enter recipient's phone number"),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return AppLocalizations.of(context).translate("Please enter recipient's phone number");
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        recipientPhone = value;
+                      });
+                    },
+                  ),
+                ],
               ),
               SizedBox(height: 50.h),
               CustomElevatedButton(
