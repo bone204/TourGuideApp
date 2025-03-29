@@ -50,7 +50,7 @@ class TimePicker extends StatelessWidget {
       children: [
         Text(
           "Time",
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8.h),
         Column(

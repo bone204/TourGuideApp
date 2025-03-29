@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-// import 'package:tourguideapp/widgets/interactive_row_widget.dart';
-import '../../widgets/custom_icon_button.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 
@@ -84,124 +83,87 @@ class _PasswordScreenScreenState extends State<PasswordScreen> {
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Khởi tạo ScreenUtil
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h),
-          child: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            flexibleSpace: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40.h,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft, 
-                        child: CustomIconButton(
-                          icon: Icons.chevron_left,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(
+        title: AppLocalizations.of(context).translate('Change Password'),
+        onBackPressed: () => Navigator.of(context).pop(),
+      ),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h), // Padding sử dụng ScreenUtil
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 20.h),
+              Text(
+                AppLocalizations.of(context).translate("Old Password"),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              CustomPasswordField(
+                controller: _oldPasswordController,
+                hintText: AppLocalizations.of(context).translate('Old Password'),
+              ),
+              
+              SizedBox(height: 16.h),
+              Text(
+                AppLocalizations.of(context).translate("New Password"),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              CustomPasswordField(
+                controller: _newPasswordController,
+                hintText: AppLocalizations.of(context).translate('New Password'),
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                AppLocalizations.of(context).translate("Confirm New Password"),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              CustomPasswordField(
+                controller: _confirmPasswordController,
+                hintText: AppLocalizations.of(context).translate('Confirm New Password'),
+                validator: (value) {
+                  if (value != _newPasswordController.text) {
+                    return AppLocalizations.of(context).translate('Passwords do not match');
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 32.h),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _changePassword,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                        AppLocalizations.of(context).translate('Change Password'),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Center(
-                        child: Text(
-                          AppLocalizations.of(context).translate('Change Password'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h), // Padding sử dụng ScreenUtil
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(height: 20.h),
-                Text(
-                  AppLocalizations.of(context).translate("Old Password"),
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                CustomPasswordField(
-                  controller: _oldPasswordController,
-                  hintText: AppLocalizations.of(context).translate('Old Password'),
-                ),
-                
-                SizedBox(height: 16.h),
-                Text(
-                  AppLocalizations.of(context).translate("New Password"),
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                CustomPasswordField(
-                  controller: _newPasswordController,
-                  hintText: AppLocalizations.of(context).translate('New Password'),
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  AppLocalizations.of(context).translate("Confirm New Password"),
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                CustomPasswordField(
-                  controller: _confirmPasswordController,
-                  hintText: AppLocalizations.of(context).translate('Confirm New Password'),
-                  validator: (value) {
-                    if (value != _newPasswordController.text) {
-                      return AppLocalizations.of(context).translate('Passwords do not match');
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 32.h),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _changePassword,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    padding: EdgeInsets.symmetric(vertical: 16.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          AppLocalizations.of(context).translate('Change Password'),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

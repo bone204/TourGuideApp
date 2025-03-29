@@ -58,12 +58,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     if (actions != null)
                       Align(
                         alignment: Alignment.centerRight,
-                        child: Padding(
-                          padding: EdgeInsets.only(right: 16.w),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: actions!,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: actions!,
                         ),
                       ),
                   ],

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import '../../widgets/custom_icon_button.dart';
 import '../../viewmodels/personInfo_viewmodel.dart';
 import '../../viewmodels/bank_viewmodel.dart';
@@ -34,117 +35,81 @@ class _BankingInformationScreennState extends State<BankingInformationScreen> {
     final viewModel = Provider.of<PersonInfoViewModel>(context);
     final bankViewModel = Provider.of<BankViewModel>(context);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h),
-          child: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            flexibleSpace: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40.h,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: CustomIconButton(
-                          icon: Icons.chevron_left,
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          AppLocalizations.of(context).translate('Banking Information'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () async {
-                            await viewModel.saveData();
-                            if (context.mounted) {
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: Text(
-                            AppLocalizations.of(context).translate("Done"),
-                            style: TextStyle(
-                              color: AppColors.green,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(
+        title: AppLocalizations.of(context).translate("Banking Information"),
+        onBackPressed: () => Navigator.of(context).pop(),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await viewModel.saveData();
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            },
+            child: Text(
+              AppLocalizations.of(context).translate("Done"),
+              style: TextStyle(
+                color: AppColors.green,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 36.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context).translate("Bank Name"),
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 36.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppLocalizations.of(context).translate("Bank Name"),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
                 ),
-                SizedBox(height: 8.h),
-                CustomComboBox(
-                  hintText: AppLocalizations.of(context).translate("Bank Name"),
-                  value: viewModel.bankNameController.text,
-                  items: bankViewModel.banks.map((bank) => bank.bankName).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      viewModel.bankNameController.text = value ?? '';
-                    });
-                  },
+              ),
+              SizedBox(height: 8.h),
+              CustomComboBox(
+                hintText: AppLocalizations.of(context).translate("Bank Name"),
+                value: viewModel.bankNameController.text,
+                items: bankViewModel.banks.map((bank) => bank.bankName).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    viewModel.bankNameController.text = value ?? '';
+                  });
+                },
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                AppLocalizations.of(context).translate("Bank Account Number"),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
                 ),
-                SizedBox(height: 16.h),
-                Text(
-                  AppLocalizations.of(context).translate("Bank Account Number"),
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ),
+              SizedBox(height: 8.h),
+              CustomTextField(
+                hintText: AppLocalizations.of(context).translate("Bank Account Number"),
+                controller: viewModel.bankAccountNumberController,
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                AppLocalizations.of(context).translate("Bank Account Name"),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
                 ),
-                SizedBox(height: 8.h),
-                CustomTextField(
-                  hintText: AppLocalizations.of(context).translate("Bank Account Number"),
-                  controller: viewModel.bankAccountNumberController,
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  AppLocalizations.of(context).translate("Bank Account Name"),
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                CustomTextField(
-                  hintText: AppLocalizations.of(context).translate("Bank Account Name"),
-                  controller: viewModel.bankAccountNameController,
-                ),
-              ],
-            ),
+              ),
+              SizedBox(height: 8.h),
+              CustomTextField(
+                hintText: AppLocalizations.of(context).translate("Bank Account Name"),
+                controller: viewModel.bankAccountNameController,
+              ),
+            ],
           ),
         ),
       ),

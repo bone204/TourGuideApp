@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,8 +7,8 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/contract_viewmodel.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/custom_combo_box.dart';
-import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -273,40 +272,102 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
     return Form(
       key: _formKey,
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(60.h),
-            child: AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              automaticallyImplyLeading: false,
-              flexibleSpace: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(60.h),
+          child: CustomAppBar(
+            title: AppLocalizations.of(context).translate("Vehicle Register"),
+            onBackPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.h),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(
-                    height: 40.h,
-                    child: Stack(
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: CustomIconButton(
-                            icon: Icons.chevron_left,
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(3, (index) {
+                            return Row(
+                              children: [
+                                Container(
+                                  width: 30.w,
+                                  height: 30.h,
+                                  decoration: BoxDecoration(
+                                    color: _currentStep >= index ? const Color(0xFF007BFF) : Colors.transparent,
+                                    border: Border.all(
+                                      color: _currentStep >= index ? const Color(0xFF007BFF) : Colors.grey,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      _stepCompleted[index] ? Icons.check : Icons.circle,
+                                      color: _currentStep >= index ? Colors.white : Colors.white,
+                                      size: 20.sp,
+                                    ),
+                                  ),
+                                ),
+                                if (index < 2)
+                                  Container(
+                                    width: 97.w,
+                                    height: 1.h,
+                                    color: _currentStep > index ? const Color(0xFF007BFF) : Colors.grey,
+                                  ),
+                              ],
+                            );
+                          }),
                         ),
-                        Center(
-                          child: Text(
-                            AppLocalizations.of(context).translate('Vehicle Register'),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20.sp,
+                        SizedBox(height: 8.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 80.w,
+                              child: Text(
+                                AppLocalizations.of(context).translate('Car Information'),
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.visible,
+                              ),
                             ),
-                          ),
+                            SizedBox(width: 42.w),
+                            SizedBox(
+                              width: 90.w,
+                              child: Text(
+                                AppLocalizations.of(context).translate("Documentation"),
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.visible,
+                              ),
+                            ),
+                            SizedBox(width: 42.w),
+                            SizedBox(
+                              width: 80.w,
+                              child: Text(
+                                AppLocalizations.of(context).translate("Rental Information"),
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.visible,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -314,155 +375,37 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 ],
               ),
             ),
-          ),
-          body: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 20.h),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(3, (index) {
-                              return Row(
-                                children: [
-                                  Container(
-                                    width: 30.w,
-                                    height: 30.h,
-                                    decoration: BoxDecoration(
-                                      color: _currentStep >= index ? const Color(0xFF007BFF) : Colors.transparent,
-                                      border: Border.all(
-                                        color: _currentStep >= index ? const Color(0xFF007BFF) : Colors.grey,
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: Icon(
-                                        _stepCompleted[index] ? Icons.check : Icons.circle,
-                                        color: _currentStep >= index ? Colors.white : Colors.white,
-                                        size: 20.sp,
-                                      ),
-                                    ),
-                                  ),
-                                  if (index < 2)
-                                    Container(
-                                      width: 97.w,
-                                      height: 1.h,
-                                      color: _currentStep > index ? const Color(0xFF007BFF) : Colors.grey,
-                                    ),
-                                ],
-                              );
-                            }),
-                          ),
-                          SizedBox(height: 8.h),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 80.w,
-                                child: Text(
-                                  AppLocalizations.of(context).translate('Car Information'),
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.visible,
-                                ),
-                              ),
-                              SizedBox(width: 42.w),
-                              SizedBox(
-                                width: 90.w,
-                                child: Text(
-                                  AppLocalizations.of(context).translate("Documentation"),
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.visible,
-                                ),
-                              ),
-                              SizedBox(width: 42.w),
-                              SizedBox(
-                                width: 80.w,
-                                child: Text(
-                                  AppLocalizations.of(context).translate("Rental Information"),
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.visible,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                children: List<Widget>.generate(
+                  3,
+                  (index) {
+                    if (index == 0) {
+                      return _buildStep1();
+                    } else if (index == 1) {
+                      return _buildStep2();
+                    } else if (index == 2) {
+                      return _buildStep3();
+                    }
+                    return Container();
+                  },
                 ),
               ),
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  children: List<Widget>.generate(
-                    3,
-                    (index) {
-                      if (index == 0) {
-                        return _buildStep1();
-                      } else if (index == 1) {
-                        return _buildStep2();
-                      } else if (index == 2) {
-                        return _buildStep3();
-                      }
-                      return Container();
-                    },
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (_currentStep > 0)
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: _previousStep,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: const Color(0xFF007BFF),
-                            side: const BorderSide(color: Color(0xFF007BFF)),
-                            minimumSize: Size(double.infinity, 50.h),
-                            padding: EdgeInsets.symmetric(vertical: 16.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                          ),
-                          child: Text(
-                            AppLocalizations.of(context).translate("Previous"),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.sp,
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (_currentStep > 0)
-                      SizedBox(width: 16.w),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (_currentStep > 0)
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: _currentStep == 2 ? _completeRegistration : _nextStep,
+                        onPressed: _previousStep,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF007BFF),
-                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF007BFF),
+                          side: const BorderSide(color: Color(0xFF007BFF)),
                           minimumSize: Size(double.infinity, 50.h),
                           padding: EdgeInsets.symmetric(vertical: 16.h),
                           shape: RoundedRectangleBorder(
@@ -470,7 +413,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                           ),
                         ),
                         child: Text(
-                          _currentStep == 2 ? AppLocalizations.of(context).translate("Confirm") : AppLocalizations.of(context).translate("Next"),
+                          AppLocalizations.of(context).translate("Previous"),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16.sp,
@@ -478,11 +421,33 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  if (_currentStep > 0)
+                    SizedBox(width: 16.w),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _currentStep == 2 ? _completeRegistration : _nextStep,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF007BFF),
+                        foregroundColor: Colors.white,
+                        minimumSize: Size(double.infinity, 50.h),
+                        padding: EdgeInsets.symmetric(vertical: 16.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                      child: Text(
+                        _currentStep == 2 ? AppLocalizations.of(context).translate("Confirm") : AppLocalizations.of(context).translate("Next"),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -500,7 +465,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               Text(
                 AppLocalizations.of(context).translate("License Plate"),
                 style: TextStyle(
-                  fontSize: 18.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -519,7 +484,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               Text(
                 AppLocalizations.of(context).translate("Vehicle Registration"),
                 style: TextStyle(
-                  fontSize: 18.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -542,7 +507,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                   Text(
                     AppLocalizations.of(context).translate("Vehicle Type"),
                     style: TextStyle(
-                      fontSize: 18.sp,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -618,7 +583,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               Text(
                 AppLocalizations.of(context).translate("Vehicle Brand"),
                 style: TextStyle(
-                  fontSize: 18.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -643,7 +608,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               Text(
                 AppLocalizations.of(context).translate("Vehicle Model"),
                 style: TextStyle(
-                  fontSize: 18.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -670,7 +635,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               Text(
                 AppLocalizations.of(context).translate("Vehicle Color"),
                 style: TextStyle(
-                  fontSize: 18.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -749,7 +714,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               Text(
                 AppLocalizations.of(context).translate("Price For 4 Hour"),
                 style: TextStyle(
-                  fontSize: 18.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -769,7 +734,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               Text(
                 AppLocalizations.of(context).translate("Price For 8 Hour"),
                 style: TextStyle(
-                  fontSize: 18.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -789,7 +754,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               Text(
                 AppLocalizations.of(context).translate("Price Per Day"),
                 style: TextStyle(
-                  fontSize: 18.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -809,7 +774,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
               Text(
                 AppLocalizations.of(context).translate("Requirements"),
                 style: TextStyle(
-                  fontSize: 18.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),

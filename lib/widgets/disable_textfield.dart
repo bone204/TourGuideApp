@@ -34,17 +34,17 @@ class DisabledTextField extends StatelessWidget {
         Text(
           labelText,
           style: TextStyle(
-            fontSize: 18.sp,
+            fontSize: 12.sp,
             fontWeight: FontWeight.bold,
           ),
         ),
         SizedBox(height: 8.h),
         Container(
           width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.w),
           decoration: BoxDecoration(
             color: const Color(0xFFF7F7F9),
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: BorderRadius.circular(8.r),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,7 +53,7 @@ class DisabledTextField extends StatelessWidget {
                 child: Text(
                   text,
                   style: TextStyle(
-                    fontSize: 16.sp,
+                    fontSize: 14.sp,
                     color: Colors.black,
                   ),
                 ),

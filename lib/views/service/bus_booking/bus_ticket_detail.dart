@@ -78,9 +78,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
 
   String additionalMessages = '';
 
-  bool _isCheckboxChecked = false; 
-
-  int _selectedOption = 1;
+  bool _isCheckboxChecked = false;
 
   BusStation? selectedDepartureBusStation; // Bến xe cho chiều đi
   BusStation? selectedReturnBusStation; // Bến xe cho chiều về

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/settings/edit_personal_information_screen.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/disable_textfield.dart';
 import '../../widgets/custom_icon_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -90,105 +91,58 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
         final userData = snapshot.data!.data() as Map<String, dynamic>;
         
         // Trả về UI với dữ liệu trực tiếp từ userData
-        return SafeArea(
-          child: Scaffold(
-            backgroundColor: Colors.white,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(60.h),
-              child: AppBar(
-                backgroundColor: Colors.white,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                surfaceTintColor: Colors.transparent,
-                automaticallyImplyLeading: false,
-                flexibleSpace: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      height: 40.h,
-                      child: Stack(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft, 
-                            child: CustomIconButton(
-                              icon: Icons.chevron_left,
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ),
-                          Center(
-                            child: Text(
-                              AppLocalizations.of(context).translate('Personal Information'),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20.sp,
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight, 
-                            child: CustomIconButton(
-                              icon: Icons.edit,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const EditPersonInfoScreen(),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: CustomAppBar(
+            title: AppLocalizations.of(context).translate("Personal Information"),
+            onBackPressed: () => Navigator.of(context).pop(),
+            actions: [
+              CustomIconButton(
+                icon: Icons.edit,
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const EditPersonInfoScreen())),
               ),
-            ),
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 28.h),
-                child: Column(
-                  children: [
-                    DisabledTextField(
-                      labelText: AppLocalizations.of(context).translate("Full Name"),
-                      text: userData['fullName'] ?? '',
-                    ),
-                    SizedBox(height: 16.h),
-                    DisabledTextField(
-                      labelText: AppLocalizations.of(context).translate("Gender"),
-                      text: _getDisplayValue(userData['gender'] ?? '', genderTranslations),
-                    ),
-                    SizedBox(height: 16.h),
-                    DisabledTextField(
-                      labelText: AppLocalizations.of(context).translate("Identification Number"),
-                      text: userData['citizenId'] ?? '',
-                    ),
-                    SizedBox(height: 16.h),
-                    DisabledTextField(
-                      labelText: AppLocalizations.of(context).translate("Phone Number"),
-                      text: _formatPhoneNumber(userData['phoneNumber'] ?? ''),
-                    ),
-                    SizedBox(height: 16.h),
-                    DisabledTextField(
-                      labelText: AppLocalizations.of(context).translate("Address"),
-                      text: userData['address'] ?? '',
-                    ),
-                    SizedBox(height: 16.h),
-                    DisabledTextField(
-                      labelText: AppLocalizations.of(context).translate("Nationality"),
-                      text: _getDisplayValue(userData['nationality'] ?? '', nationalityTranslations),
-                    ),
-                    SizedBox(height: 16.h),
-                    DisabledTextField(
-                      labelText: AppLocalizations.of(context).translate("Birthday"),
-                      text: userData['birthday'] ?? '',
-                    ),
-                  ],
-                ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 28.h),
+              child: Column(
+                children: [
+                  DisabledTextField(
+                    labelText: AppLocalizations.of(context).translate("Full Name"),
+                    text: userData['fullName'] ?? '',
+                  ),
+                  SizedBox(height: 16.h),
+                  DisabledTextField(
+                    labelText: AppLocalizations.of(context).translate("Gender"),
+                    text: _getDisplayValue(userData['gender'] ?? '', genderTranslations),
+                  ),
+                  SizedBox(height: 16.h),
+                  DisabledTextField(
+                    labelText: AppLocalizations.of(context).translate("Identification Number"),
+                    text: userData['citizenId'] ?? '',
+                  ),
+                  SizedBox(height: 16.h),
+                  DisabledTextField(
+                    labelText: AppLocalizations.of(context).translate("Phone Number"),
+                    text: _formatPhoneNumber(userData['phoneNumber'] ?? ''),
+                  ),
+                  SizedBox(height: 16.h),
+                  DisabledTextField(
+                    labelText: AppLocalizations.of(context).translate("Address"),
+                    text: userData['address'] ?? '',
+                  ),
+                  SizedBox(height: 16.h),
+                  DisabledTextField(
+                    labelText: AppLocalizations.of(context).translate("Nationality"),
+                    text: _getDisplayValue(userData['nationality'] ?? '', nationalityTranslations),
+                  ),
+                  SizedBox(height: 16.h),
+                  DisabledTextField(
+                    labelText: AppLocalizations.of(context).translate("Birthday"),
+                    text: userData['birthday'] ?? '',
+                  ),
+                ],
               ),
             ),
           ),

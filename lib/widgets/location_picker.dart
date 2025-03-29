@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mapbox_search/mapbox_search.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/widgets/custom_icon_button.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/custom_search_bar.dart';
 
 class LocationPicker extends StatefulWidget {
@@ -105,39 +105,9 @@ class _LocationPickerState extends State<LocationPicker> {
             backgroundColor: Colors.white,
             appBar: PreferredSize(
               preferredSize: Size.fromHeight(60.h),
-              child: AppBar(
-                backgroundColor: Colors.white,
-                elevation: 0,
-                automaticallyImplyLeading: false,
-                flexibleSpace: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      height: 40.h,
-                      child: Stack(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: CustomIconButton(
-                              icon: Icons.chevron_left,
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                          ),
-                          Center(
-                            child: Text(
-                              AppLocalizations.of(context).translate('Choose Location'),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20.sp,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              child: CustomAppBar(
+                title: AppLocalizations.of(context).translate('Choose Location'),
+                onBackPressed: () => Navigator.pop(context),
               ),
             ),
             body: Padding(
@@ -224,7 +194,7 @@ class _LocationPickerState extends State<LocationPicker> {
       children: [
         Text(
           widget.title ?? AppLocalizations.of(context).translate('Location'),
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8.h),
         GestureDetector(

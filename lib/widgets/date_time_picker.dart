@@ -69,7 +69,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
       children: [
         Text(
           AppLocalizations.of(context).translate(widget.title),
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8.h),
         GestureDetector(

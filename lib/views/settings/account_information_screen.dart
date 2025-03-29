@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/disable_textfield.dart';
 import '../../viewmodels/accountInfo_viewmodel.dart';
-import '../../widgets/custom_icon_button.dart';
 
 class AccountInfoScreen extends StatefulWidget {
   const AccountInfoScreen({super.key});
@@ -19,80 +19,43 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
     final accountInfoViewModel = Provider.of<AccountInfoViewModel>(context);
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Khởi tạo ScreenUtil
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h),
-          child: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            flexibleSpace: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40.h,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft, 
-                        child: CustomIconButton(
-                          icon: Icons.chevron_left,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          AppLocalizations.of(context).translate('Account Information'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(
+        title: AppLocalizations.of(context).translate('Account Information'),
+        onBackPressed: () => Navigator.of(context).pop(),
+      ),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 36.h), // Padding sử dụng ScreenUtil
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 70,
+                backgroundImage: NetworkImage(
+                  accountInfoViewModel.avatar,
                 ),
-              ],
-            ),
-          ),
-        ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 36.h), // Padding sử dụng ScreenUtil
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 70,
-                  backgroundImage: NetworkImage(
-                    accountInfoViewModel.avatar,
-                  ),
-                  onBackgroundImageError: (exception, stackTrace) {
-                    AssetImage('assets/img/bg_route_1.png');
-                  },
-                ),
-                SizedBox(height: 24.h),
-                Text(
-                  accountInfoViewModel.name,
-                  style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 40.h),
-                DisabledTextField(
-                  labelText: AppLocalizations.of(context).translate('Username'),
-                  text: accountInfoViewModel.name
-                ),
-                SizedBox(height: 16.h),
-                DisabledTextField(
-                  labelText: AppLocalizations.of(context).translate('Email'),
-                  text: accountInfoViewModel.email
-                ),
-              ],
-            ),
+                onBackgroundImageError: (exception, stackTrace) {
+                  AssetImage('assets/img/bg_route_1.png');
+                },
+              ),
+              SizedBox(height: 24.h),
+              Text(
+                accountInfoViewModel.name,
+                style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 40.h),
+              DisabledTextField(
+                labelText: AppLocalizations.of(context).translate('Username'),
+                text: accountInfoViewModel.name
+              ),
+              SizedBox(height: 16.h),
+              DisabledTextField(
+                labelText: AppLocalizations.of(context).translate('Email'),
+                text: accountInfoViewModel.email
+              ),
+            ],
           ),
         ),
       ),

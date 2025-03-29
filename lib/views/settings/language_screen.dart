@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/main.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/interactive_row_widget.dart';  // Import InteractiveRowWidget
-import '../../widgets/custom_icon_button.dart';  // Import CustomIconButton
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -80,69 +80,32 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
     return Stack(
       children: [
-        SafeArea(
-          child: Scaffold(
-            backgroundColor: Colors.white,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(60.h),
-              child: AppBar(
-                backgroundColor: Colors.white,
-                elevation: 0,
-                automaticallyImplyLeading: false,
-                flexibleSpace: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      height: 40.h,
-                      child: Stack(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft, 
-                            child: CustomIconButton(
-                              icon: Icons.chevron_left,
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ),
-                          Center(
-                            child: Text(
-                              AppLocalizations.of(context).translate('Select Language'),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20.sp,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+        Scaffold(
+          backgroundColor: Colors.white,
+          appBar: CustomAppBar(
+            title: AppLocalizations.of(context).translate('Language'),
+            onBackPressed: () => Navigator.of(context).pop(),
+          ),
+          body: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+            child: ListView(
+              children: [
+                InteractiveRowWidget(
+                  leadingIcon: Icons.language,
+                  title: AppLocalizations.of(context).translate('English'),
+                  trailingIcon: Icons.check,
+                  onTap: () => _confirmLanguageChange(const Locale('en')),
+                  isSelected: _selectedLocale?.languageCode == 'en',
                 ),
-              ),
-            ),
-            body: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-              child: ListView(
-                children: [
-                  InteractiveRowWidget(
-                    leadingIcon: Icons.language,
-                    title: AppLocalizations.of(context).translate('English'),
-                    trailingIcon: Icons.check,
-                    onTap: () => _confirmLanguageChange(const Locale('en')),
-                    isSelected: _selectedLocale?.languageCode == 'en',
-                  ),
-                  SizedBox(height: 10.h),
-                  InteractiveRowWidget(
-                    leadingIcon: Icons.language,
-                    title: AppLocalizations.of(context).translate('Vietnamese'),
-                    trailingIcon: Icons.check,
-                    onTap: () => _confirmLanguageChange(const Locale('vi')),
-                    isSelected: _selectedLocale?.languageCode == 'vi',
-                  ),
-                ],
-              ),
+                SizedBox(height: 10.h),
+                InteractiveRowWidget(
+                  leadingIcon: Icons.language,
+                  title: AppLocalizations.of(context).translate('Vietnamese'),
+                  trailingIcon: Icons.check,
+                  onTap: () => _confirmLanguageChange(const Locale('vi')),
+                  isSelected: _selectedLocale?.languageCode == 'vi',
+                ),
+              ],
             ),
           ),
         ),

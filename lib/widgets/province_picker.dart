@@ -185,12 +185,9 @@ class _ProvinceSearchScreenState extends State<_ProvinceSearchScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.h),
-        child: CustomAppBar(
-          title: AppLocalizations.of(context).translate('Choose region'),
-          onBackPressed: () => Navigator.of(context).pop(),
-        )
+      appBar: CustomAppBar(
+        title: AppLocalizations.of(context).translate('Choose region'),
+        onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: Column(
         children: [
@@ -288,7 +285,7 @@ class _ProvincePickerState extends State<ProvincePicker> {
       children: [
         Text(
           widget.title ?? AppLocalizations.of(context).translate('Administrative Region'),
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8.h),
         GestureDetector(
