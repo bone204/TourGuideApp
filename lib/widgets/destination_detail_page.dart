@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
@@ -7,6 +9,7 @@ import 'package:tourguideapp/widgets/custom_like_button.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/widgets/media_detail_view.dart';
+import 'package:tourguideapp/widgets/video_thumbnail.dart';
 
 class DestinationDetailPage extends StatefulWidget {
   final HomeCardData cardData;
@@ -230,7 +233,8 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                                     mainAxisSpacing: 8,
                                   ),
                                   itemCount: widget.destinationData.video.length,
-                                  itemBuilder: (context, index) => GestureDetector(
+                                  itemBuilder: (context, index) => VideoThumbnail(
+                                    videoUrl: widget.destinationData.video[index],
                                     onTap: () {
                                       Navigator.push(
                                         context,
@@ -242,19 +246,6 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                                         ),
                                       );
                                     },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(8.r),
-                                      ),
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.play_circle_outline,
-                                          size: 30.sp,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                    ),
                                   ),
                                 ),
                               ),
