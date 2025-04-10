@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
+import 'package:tourguideapp/views/user/profile_screen.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/home_navigator.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
@@ -309,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                 gradient: _isScrolled
                     ? const LinearGradient(
-                        colors: [Colors.white, Colors.white],
+                        colors: [AppColors.primaryColor, AppColors.primaryColor],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                       )
@@ -333,77 +334,99 @@ class _HomeScreenState extends State<HomeScreen> {
                     horizontal: 20.w,
                     vertical: 10.h,
                   ),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SearchScreen(
-                            initialHint: destinationsViewModel.destinations.isNotEmpty
-                                ? destinationsViewModel.destinations[_currentDestinationIndex].destinationName
-                                : AppLocalizations.of(context).translate('Search destinations...'),
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 8.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _isScrolled ? AppColors.lightGrey : Colors.white,
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.search,
-                            color: AppColors.grey,
-                            size: 20.sp,
-                          ),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: Container(
-                              alignment: Alignment.centerLeft,
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 500),
-                                transitionBuilder: (Widget child, Animation<double> animation) {
-                                  return Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: SlideTransition(
-                                      position: Tween<Offset>(
-                                        begin: const Offset(0, 1),
-                                        end: Offset.zero,
-                                      ).animate(animation),
-                                      child: FadeTransition(
-                                        opacity: animation,
-                                        child: child,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  destinationsViewModel.destinations.isNotEmpty
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () { 
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SearchScreen(
+                                  initialHint: destinationsViewModel.destinations.isNotEmpty
                                       ? destinationsViewModel.destinations[_currentDestinationIndex].destinationName
                                       : AppLocalizations.of(context).translate('Search destinations...'),
-                                  key: ValueKey<int>(_currentDestinationIndex),
-                                  style: TextStyle(
-                                    color: AppColors.primaryColor,
-                                    fontSize: 14.sp,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.start,
                                 ),
                               ),
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 8.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color:  Colors.white,
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.search,
+                                  color: AppColors.grey,
+                                  size: 20.sp,
+                                ),
+                                SizedBox(width: 8.w),
+                                Expanded(
+                                  child: Container(
+                                    alignment: Alignment.centerLeft,
+                                    child: AnimatedSwitcher(
+                                      duration: const Duration(milliseconds: 500),
+                                      transitionBuilder: (Widget child, Animation<double> animation) {
+                                        return Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: SlideTransition(
+                                            position: Tween<Offset>(
+                                              begin: const Offset(0, 1),
+                                              end: Offset.zero,
+                                            ).animate(animation),
+                                            child: FadeTransition(
+                                              opacity: animation,
+                                              child: child,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        destinationsViewModel.destinations.isNotEmpty
+                                            ? destinationsViewModel.destinations[_currentDestinationIndex].destinationName
+                                            : AppLocalizations.of(context).translate('Search destinations...'),
+                                        key: ValueKey<int>(_currentDestinationIndex),
+                                        style: TextStyle(
+                                          color: AppColors.primaryColor,
+                                          fontSize: 14.sp,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.start,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                      SizedBox(width: 16.w),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ProfileScreen(),
+                            ),
+                          );
+                        },
+                        child: Icon(
+                          Icons.person,
+                          color: AppColors.white,
+                          size: 28.sp,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

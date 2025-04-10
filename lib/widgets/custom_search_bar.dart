@@ -36,7 +36,7 @@ class CustomSearchBar extends StatelessWidget {
           hintText: AppLocalizations.of(context).translate(hintText),
           hintStyle: TextStyle(fontSize: 16.sp, color: AppColors.grey),
           labelStyle: TextStyle(fontSize: 16.sp, color: AppColors.black),
-          prefixIcon: Icon(Icons.search_sharp, size: 28.sp, color: AppColors.grey,),
+          prefixIcon: Icon(Icons.search_sharp, size: 28.sp, color: AppColors.grey),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16.r),
             borderSide: BorderSide.none,

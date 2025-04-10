@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tourguideapp/views/explore/explore.dart';
+import 'package:tourguideapp/views/my_vehicle/my_vehicle_screen.dart';
 import 'package:tourguideapp/views/service/service_screen.dart';
 import '../../widgets/bottombar.dart'; 
 import 'home_screen.dart'; 
-import '../user/profile_screen.dart'; 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/blocs/auth_bloc.dart';
 
@@ -17,6 +17,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
+  void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -28,22 +34,8 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     ExploreScreen(),
     const ServiceScreen(),
+    const MyVehicleScreen(),
   ];
-
-  void _onTabTapped(int index) {
-    if (index == 3) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const ProfileScreen(),
-        ),
-      );
-    } else {
-      setState(() {
-        _currentIndex = index;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +46,7 @@ class _MainScreenState extends State<MainScreen> {
         }
       },
       child: Scaffold(
-        body: _currentIndex != 3 ? _screens[_currentIndex] : Container(),
+        body: _screens[_currentIndex],
         bottomNavigationBar: NavigationExample(
           currentIndex: _currentIndex,
           onTap: _onTabTapped,

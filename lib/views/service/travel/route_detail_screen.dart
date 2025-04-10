@@ -221,7 +221,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                       Expanded(
                         flex: 2,
                         child: CustomElevatedButton(
-                          text: AppLocalizations.of(context).translate("Delete Day"),
+                          text: AppLocalizations.of(context).translate("Delete"),
                           backgroundColor: Colors.white,
                           foregroundColor: AppColors.primaryColor,
                           side: const BorderSide(

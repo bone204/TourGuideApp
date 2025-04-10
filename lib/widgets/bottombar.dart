@@ -8,7 +8,11 @@ class NavigationExample extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  const NavigationExample({super.key, required this.currentIndex, required this.onTap});
+  const NavigationExample({
+    super.key, 
+    required this.currentIndex,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -72,11 +76,11 @@ class NavigationExample extends StatelessWidget {
               icon: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.person,size: 24.sp),
+                  Icon(Icons.directions_car, size: 24.sp),
                   SizedBox(height: 4.h),
                 ],
               ),
-              label: AppLocalizations.of(context).translate('Profile'),
+              label: AppLocalizations.of(context).translate('My Vehicle'),
             ),
           ],
         ),
