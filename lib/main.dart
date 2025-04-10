@@ -38,14 +38,7 @@ class ImagesPath {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    await Firebase.initializeApp(); 
-  } catch (e) {
-    if (kDebugMode) {
-      print("Error initializing Firebase: $e");
-    }
-  }
-
+  await initializeFirebase();
   runApp(
     MultiBlocProvider(
       providers: [
@@ -88,9 +81,19 @@ void main() async {
   );
 }
 
+Future<void> initializeFirebase() async {
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    if (kDebugMode) {
+      print("Error initializing Firebase: $e");
+    }
+  }
+}
+
 class MyApp extends StatefulWidget {
   final bool showOnboarding;
-  const MyApp({Key? key, required this.showOnboarding}) : super(key: key);
+  const MyApp({super.key, required this.showOnboarding});
 
   @override
   MyAppState createState() => MyAppState();
@@ -103,62 +106,101 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   Locale _locale = const Locale('en');
+  late Future<void> _initFuture;
 
   @override
   void initState() {
     super.initState();
-    _loadSavedLanguage();
+    _initFuture = _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    await _loadSavedLanguage();
+    // Add any other initialization here
   }
 
   Future<void> _loadSavedLanguage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? languageCode = prefs.getString('languageCode');
-    if (languageCode != null) {
-      setState(() {
-        _locale = Locale(languageCode);
-      });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? languageCode = prefs.getString('languageCode');
+      if (languageCode != null && mounted) {
+        setState(() {
+          _locale = Locale(languageCode);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading language: $e');
     }
   }
 
   void setLocale(Locale locale) {
-    setState(() {
-      _locale = locale;
-    });
+    if (mounted) {
+      setState(() {
+        _locale = locale;
+      });
+      
+      // Save the language preference
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setString('languageCode', locale.languageCode);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: PersonInfoViewModel.navigatorKey,
-      title: 'Tour Guide App',
-      locale: _locale,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en', ''), 
-        Locale('vi', ''),
-      ],
-      localeResolutionCallback: (locale, supportedLocales) {
-        for (var supportedLocale in supportedLocales) {
-          if (supportedLocale.languageCode == locale?.languageCode) {
-            return supportedLocale;
-          }
+    return FutureBuilder<void>(
+      future: _initFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          );
         }
-        return supportedLocales.first;
+
+        return MaterialApp(
+          navigatorKey: PersonInfoViewModel.navigatorKey,
+          title: 'Tour Guide App',
+          locale: _locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en', ''),
+            Locale('vi', ''),
+          ],
+          localeResolutionCallback: (locale, supportedLocales) {
+            for (var supportedLocale in supportedLocales) {
+              if (supportedLocale.languageCode == locale?.languageCode) {
+                return supportedLocale;
+              }
+            }
+            return supportedLocales.first;
+          },
+          builder: (context, child) {
+            return MediaQuery(
+              // Prevent text scaling that could cause layout issues
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: child!,
+            );
+          },
+          home: const OnBoardingScreen(),
+          routes: {
+            '/login': (context) => LoginScreen(),
+            '/signup': (context) => SignupScreen(),
+            '/home': (context) => const MainScreen(),
+            '/settings': (context) => const SettingsScreen(),
+            '/travel': (context) => TravelScreen(),
+          },
+          debugShowCheckedModeBanner: false,
+        );
       },
-      home: const OnBoardingScreen(),
-      routes: {
-        '/login': (context) => LoginScreen(),
-        '/signup': (context) => SignupScreen(),
-        '/home': (context) => const MainScreen(),
-        '/settings': (context) => const SettingsScreen(),
-        '/travel': (context) => TravelScreen(),
-      },
-      debugShowCheckedModeBanner: false,
     );
   }
 }

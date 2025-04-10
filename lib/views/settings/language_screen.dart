@@ -25,22 +25,48 @@ class _LanguageScreenState extends State<LanguageScreen> {
   }
 
   Future<void> _onLocaleChange(Locale locale) async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
     });
 
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (mounted) {
-      setState(() {
-        _selectedLocale = locale;
-        _isLoading = false;
-      });
-      
+    try {
+      // Save language preference first
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('languageCode', locale.languageCode);
       
-      MyApp.setLocale(context, locale);
+      // Then update the app's locale
+      if (mounted) {
+        MyApp.setLocale(context, locale);
+        
+        // Force a rebuild of the entire app
+        await Future.delayed(const Duration(milliseconds: 100));
+        
+        if (mounted) {
+          setState(() {
+            _selectedLocale = locale;
+            _isLoading = false;
+          });
+          
+          // Navigate back to refresh the app
+          Navigator.of(context).pop();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error changing language: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
