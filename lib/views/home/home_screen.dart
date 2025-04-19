@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
+import 'package:tourguideapp/views/home/notifications_screen.dart';
 import 'package:tourguideapp/views/user/profile_screen.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/home_navigator.dart';
@@ -418,12 +419,28 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
+                              builder: (context) => const NotificationsScreen(),
+                            ),
+                          );
+                        },
+                        child: Icon(
+                          Icons.notifications_none_outlined,
+                          color: AppColors.white,
+                          size: 28.sp,
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
                               builder: (context) => const ProfileScreen(),
                             ),
                           );
                         },
                         child: Icon(
-                          Icons.person,
+                          Icons.person_outline_rounded,
                           color: AppColors.white,
                           size: 28.sp,
                         ),

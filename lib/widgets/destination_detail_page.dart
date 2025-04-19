@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/color/colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
@@ -10,6 +11,8 @@ import 'package:tourguideapp/widgets/home_card.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/widgets/media_detail_view.dart';
 import 'package:tourguideapp/widgets/video_thumbnail.dart';
+import 'package:tourguideapp/widgets/cached_image.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class DestinationDetailPage extends StatefulWidget {
   final HomeCardData cardData;
@@ -108,33 +111,38 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
 
                               // Header content
                               Padding(
-                                padding: EdgeInsets.fromLTRB(30.w, 20.h, 30.w, 20.h),
+                                padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 20.h),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       widget.cardData.placeName,
-                                      style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                                      style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
                                     ),
                                     SizedBox(height: 10.h),
                                     Row(
                                       children: [
-                                        Icon(Icons.location_on, color: Colors.grey[600]),
-                                        SizedBox(width: 6.w),
-                                        Text(widget.cardData.description, style: TextStyle(color: Colors.grey[600])),
+                                        Icon(Icons.location_on, color: AppColors.orange, size: 24.sp),
+                                        SizedBox(width: 4.w),
+                                        Text(widget.cardData.description, style: TextStyle(color: AppColors.grey, fontSize: 14.sp)),
                                       ],
                                     ),
                                     SizedBox(height: 10.h),
                                     Row(
                                       children: [
-                                        Text(widget.cardData.rating.toString(), style: TextStyle(color: Colors.grey[600], fontSize: 14.sp)),
+                                        Text(widget.cardData.rating.toString(), style: TextStyle(color: AppColors.grey, fontSize: 14.sp, fontWeight: FontWeight.bold)),
                                         SizedBox(width: 10.w),
                                         Row(
                                           children: List.generate(5, (index) {
-                                            return Icon(
-                                              index < widget.cardData.rating.round() ? Icons.star : Icons.star_border,
-                                              color: Colors.amber,
-                                              size: 12.sp,
+                                            return Row(
+                                              children: [
+                                                Icon(
+                                                  index < widget.cardData.rating.round() ? Icons.star : Icons.star_border,
+                                                  color: Colors.amber,
+                                                  size: 14.sp,
+                                                ),
+                                                SizedBox(width: 2.w),
+                                              ],
                                             );
                                           }),
                                         ),
@@ -189,46 +197,46 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                               // Photo tab
                               SingleChildScrollView(
                                 controller: scrollController,
-                                padding: EdgeInsets.fromLTRB(30.w, 20.h, 30.w, 100.h),
-                                child: GridView.builder(
+                                padding: EdgeInsets.fromLTRB(20.w, 0.h, 20.w, 100.h),
+                                child: MasonryGridView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: 8,
-                                    mainAxisSpacing: 8,
+                                  gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
                                   ),
+                                  mainAxisSpacing: 8,
+                                  crossAxisSpacing: 8,
                                   itemCount: widget.destinationData.photo.length,
-                                  itemBuilder: (context, index) => GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => MediaDetailView(
-                                            mediaUrl: widget.destinationData.photo[index],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      child: Image.network(
-                                        widget.destinationData.photo[index],
-                                        fit: BoxFit.cover,
+                                  itemBuilder: (context, index) {
+                                    return Hero(
+                                      tag: widget.destinationData.photo[index],
+                                      child: CachedImage(
+                                        imageUrl: widget.destinationData.photo[index],
+                                        borderRadius: 16,
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => MediaDetailView(
+                                                mediaUrl: widget.destinationData.photo[index],
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       ),
-                                    ),
-                                  ),
+                                    );
+                                  },
                                 ),
                               ),
                               // Video tab
                               SingleChildScrollView(
                                 controller: scrollController,
-                                padding: EdgeInsets.fromLTRB(30.w, 20.h, 30.w, 100.h),
+                                padding: EdgeInsets.fromLTRB(30.w, 0.h, 30.w, 100.h),
                                 child: GridView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
+                                    crossAxisCount: 2,
                                     crossAxisSpacing: 8,
                                     mainAxisSpacing: 8,
                                   ),

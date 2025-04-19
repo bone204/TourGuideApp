@@ -31,6 +31,7 @@ import 'package:tourguideapp/blocs/auth_bloc.dart';
 import 'package:tourguideapp/services/firebase_auth_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tourguideapp/services/notification_service.dart';
 
 class ImagesPath {
   static const String kOnboarding1 = 'assets/images/img_1.jpg';
@@ -39,6 +40,11 @@ class ImagesPath {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeFirebase();
+
+  // Khởi tạo NotificationService
+  NotificationService notificationService = NotificationService();
+  await notificationService.initialize();
+
   runApp(
     MultiBlocProvider(
       providers: [
