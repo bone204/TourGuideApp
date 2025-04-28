@@ -390,14 +390,14 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   Text(
                     AppLocalizations.of(context).translate("Requirements"),
                     style: TextStyle(
-                      fontSize: 18.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
                     " (*)",
                     style: TextStyle(
-                      fontSize: 18.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                       color: AppColors.orange,
                     ),
@@ -445,7 +445,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    '580.000 đ',
+                    '650.000 đ',
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
@@ -517,7 +517,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Trần Trung Thông",
+                        "Nguyễn Hữu Trường",
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.bold,
@@ -525,7 +525,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                         )
                       ),
                       Text(
-                        "0971 072 923",
+                        "00914259475",
                         style: TextStyle(
                           fontSize: 12.sp,
                           color: AppColors.grey
@@ -535,7 +535,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   ),
                   SizedBox(height: 6.h),
                   Text(
-                    "Bcons Sala, Phan Boi Chau Street, Di An City, Binh Duong Province",
+                    "8 DT743 Street, Di An City, Binh Duong Province",
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: AppColors.black,
@@ -561,7 +561,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Nguyễn Văn A",
+                        "Trần Trung Thông",
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.bold,
@@ -569,7 +569,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                         )
                       ),
                       Text(
-                        "0123 456 789",
+                        "0971 072 923",
                         style: TextStyle(
                           fontSize: 12.sp,
                           color: AppColors.grey
@@ -579,7 +579,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   ),
                   SizedBox(height: 6.h),
                   Text(
-                    "123 Nguyen Van B Street, District 1, Ho Chi Minh City",
+                    "875 Cach Mang Thang 8 Street, District 1, Ho Chi Minh City",
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: AppColors.black,

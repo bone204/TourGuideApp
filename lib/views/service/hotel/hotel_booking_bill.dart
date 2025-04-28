@@ -121,7 +121,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                   Text("Check-out Date:",
                       style:
                           TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                  Text("26/12/2024",
+                  Text("28/04/2024",
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
@@ -135,7 +135,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                   Text("Check-in Date:",
                       style:
                           TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                  Text("26/12/2024",
+                  Text("30/04/2024",
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,

@@ -311,7 +311,7 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
                       child: CustomIconButton(
                         icon: Icons.chevron_left,
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          Navigator.of(context).pushReplacementNamed('/home');
                         },
                       ),
                     ),

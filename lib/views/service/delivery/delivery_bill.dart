@@ -77,7 +77,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
             padding: EdgeInsets.only(bottom: 20.h, right: 20.w, left: 20.w),
             child: Column(children: [
               Image.network(
-                "https://dq5r178u4t83b.cloudfront.net/wp-content/uploads/sites/125/2021/08/11060441/deluxe_harbour_web.jpg",
+                "https://media.istockphoto.com/id/1396814518/vi/vec-to/h%C3%ACnh-%E1%BA%A3nh-s%E1%BA%AFp-t%E1%BB%9Bi-kh%C3%B4ng-c%C3%B3-%E1%BA%A3nh-kh%C3%B4ng-c%C3%B3-h%C3%ACnh-%E1%BA%A3nh-thu-nh%E1%BB%8F-c%C3%B3-s%E1%BA%B5n-h%C3%ACnh-minh-h%E1%BB%8Da-vector.jpg?s=612x612&w=0&k=20&c=MKvRDIIUmHTv2M9_Yls35-XhNeksFerTqqXmjR5vyf8=",
                 height: 256.h,
                 fit: BoxFit.contain,
               ),
@@ -93,7 +93,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                   Text("Customer:",
                       style:
                           TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                  Text('Trần Trung Thông',
+                  Text('Nguyễn Hữu Trường',
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
@@ -121,7 +121,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                   Text("Recipient:",
                       style:
                           TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                  Text('Nguyễn Hữu Trường',
+                  Text('Trần Trung Thông',
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
@@ -135,7 +135,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                   Text("Phone Number:",
                       style:
                           TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                  Text('0914259475',
+                  Text('0971072923',
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
@@ -170,7 +170,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                       SizedBox(width: 8.w),
                       Expanded(
                         child: Text(
-                          'Bcons Sala, Phan Boi Chau Street, Di An City, Binh Duong Province',
+                          '8 DT743 Street, Di An City, Binh Duong Province',
                           style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
@@ -200,7 +200,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                       SizedBox(width: 8.w),
                       Expanded(
                         child: Text(
-                          '75/57/13 Nguyen Luong Bang Street, Hoa Thang Commune, Buon Ma Thuot City, Dak Lak Province',
+                          '875 Cach Mang Thang 8 Street, District 1, Ho Chi Minh City',
                           style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,

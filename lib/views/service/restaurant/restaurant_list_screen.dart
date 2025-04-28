@@ -8,32 +8,32 @@ class RestaurantListScreen extends StatelessWidget {
   // Dữ liệu mẫu
   final List<RestaurantCardData> restaurants = [
     RestaurantCardData(
-      imageUrl: 'https://qul.imgix.net/ca169046-430e-4b8d-b218-3f0f73c446be/625936_sld.jpg',
-      restaurantName: 'Nhà hàng Biển Đông',
+      imageUrl: 'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
+      restaurantName: 'Nhà Hàng Ngon',
       rating: 4.5,
       pricePerPerson: 250000,
-      address: '208 Trần Phú, Lộc Thọ, Thành phố Nha Trang, Khánh Hòa',
+      address: '160 Pasteur, Bến Nghé, Quận 1, TP.HCM',
     ),
     RestaurantCardData(
-      imageUrl: 'https://qul.imgix.net/ca169046-430e-4b8d-b218-3f0f73c446be/625936_sld.jpg',
-      restaurantName: 'Quán Ngon Sài Gòn',
+      imageUrl: 'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
+      restaurantName: 'Quán Ăn Ngon Sài Gòn',
       rating: 4.0,
       pricePerPerson: 150000,
-      address: '208 Trần Phú, Lộc Thọ, Thành phố Nha Trang, Khánh Hòa',
+      address: '138 Nam Kỳ Khởi Nghĩa, Bến Thành, Quận 1, TP.HCM',
     ),
     RestaurantCardData(
-      imageUrl: 'https://qul.imgix.net/ca169046-430e-4b8d-b218-3f0f73c446be/625936_sld.jpg',
-      restaurantName: 'Nhà hàng Phố Cổ',
+      imageUrl: 'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
+      restaurantName: 'Nhà Hàng Phố Cổ',
       rating: 5.0,
       pricePerPerson: 350000,
-      address: '208 Trần Phú, Lộc Thọ, Thành phố Nha Trang, Khánh Hòa',
+      address: '76 Lê Lợi, Bến Nghé, Quận 1, TP.HCM',
     ),
     RestaurantCardData(
-      imageUrl: 'https://qul.imgix.net/ca169046-430e-4b8d-b218-3f0f73c446be/625936_sld.jpg',
+      imageUrl: 'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
       restaurantName: 'Quán Ẩm Thực Huế',
       rating: 4.8,
       pricePerPerson: 280000,
-      address: '208 Trần Phú, Lộc Thọ, Thành phố Nha Trang, Khánh Hòa',
+      address: '45 Nguyễn Du, Bến Nghé, Quận 1, TP.HCM',
     ),
   ];
 
