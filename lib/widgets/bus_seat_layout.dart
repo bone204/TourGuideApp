@@ -31,7 +31,7 @@ class BusSeatLayout extends StatelessWidget {
           ),
           child: Text(
             isUpper ? 'Tầng trên' : 'Tầng dưới',
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
         ),

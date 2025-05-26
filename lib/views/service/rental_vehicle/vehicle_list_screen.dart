@@ -67,7 +67,7 @@ class VehicleListScreen extends StatelessWidget {
                         AppLocalizations.of(context).translate('Vehicle List'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -88,7 +88,7 @@ class VehicleListScreen extends StatelessWidget {
               availableText,
               style: TextStyle(
                 fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),

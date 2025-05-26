@@ -52,7 +52,7 @@ class _BankingInformationScreennState extends State<BankingInformationScreen> {
               style: TextStyle(
                 color: AppColors.green,
                 fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -68,7 +68,7 @@ class _BankingInformationScreennState extends State<BankingInformationScreen> {
                 AppLocalizations.of(context).translate("Bank Name"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 8.h),
@@ -87,7 +87,7 @@ class _BankingInformationScreennState extends State<BankingInformationScreen> {
                 AppLocalizations.of(context).translate("Bank Account Number"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 8.h),
@@ -100,7 +100,7 @@ class _BankingInformationScreennState extends State<BankingInformationScreen> {
                 AppLocalizations.of(context).translate("Bank Account Name"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 8.h),

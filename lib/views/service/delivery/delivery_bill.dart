@@ -58,7 +58,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                         AppLocalizations.of(context).translate('Delivery Information'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -97,7 +97,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 18.h),
@@ -111,7 +111,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 18.h),
@@ -125,7 +125,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 18.h),
@@ -139,7 +139,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 16.h),
@@ -174,7 +174,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                           style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -204,7 +204,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                           style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -232,7 +232,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                         style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -253,7 +253,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                           style: TextStyle(
                               fontSize: 16.sp,
                               color: AppColors.black,
-                              fontWeight: FontWeight.bold))
+                              fontWeight: FontWeight.w700))
                     ],
                   ),
                   SizedBox(height: 18.h),
@@ -267,7 +267,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                           style: TextStyle(
                               fontSize: 16.sp,
                               color: AppColors.black,
-                              fontWeight: FontWeight.bold))
+                              fontWeight: FontWeight.w700))
                     ],
                   ),
                   SizedBox(height: 16.h),
@@ -283,13 +283,13 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                           style: TextStyle(
                               fontSize: 16.sp,
                               color: AppColors.black,
-                              fontWeight: FontWeight.bold)),
+                              fontWeight: FontWeight.w700)),
                       Text(
                           '650,000 ₫',
                           style: TextStyle(
                               fontSize: 16.sp,
                               color: AppColors.black,
-                              fontWeight: FontWeight.bold))
+                              fontWeight: FontWeight.w700))
                     ],
                   ),
                   SizedBox(height: 24.h),
@@ -340,7 +340,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                           Text(AppLocalizations.of(context).translate("Confirm"),
                               style: TextStyle(
                                 fontSize: 18.sp,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                               )),
                       ),
                   ],

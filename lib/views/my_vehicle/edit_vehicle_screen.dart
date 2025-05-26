@@ -144,7 +144,7 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
                         AppLocalizations.of(context).translate('Edit Vehicle'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -157,7 +157,7 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
                           AppLocalizations.of(context).translate('Save'),
                           style: TextStyle(
                             color: AppColors.green,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             fontSize: 16.sp,
                           ),
                         ),
@@ -179,7 +179,7 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
               AppLocalizations.of(context).translate("License Plate"),
               style: TextStyle(
                 fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
             SizedBox(height: 12.h),
@@ -193,7 +193,7 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
               AppLocalizations.of(context).translate("Vehicle Registration"),
               style: TextStyle(
                 fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
             SizedBox(height: 12.h),
@@ -231,7 +231,7 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
               AppLocalizations.of(context).translate("Price Per Hour"),
               style: TextStyle(
                 fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
             SizedBox(height: 12.h),
@@ -246,7 +246,7 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
               AppLocalizations.of(context).translate("Price Per Day"),
               style: TextStyle(
                 fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
             SizedBox(height: 12.h),
@@ -261,7 +261,7 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
               AppLocalizations.of(context).translate("Requirements"),
               style: TextStyle(
                 fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
             SizedBox(height: 12.h),

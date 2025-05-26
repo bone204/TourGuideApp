@@ -88,7 +88,7 @@ class HomeCard extends StatelessWidget {
                             data.placeName,
                             style: TextStyle(
                               fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                               color: const Color(0xFF000000),
                             ),
                             overflow: TextOverflow.ellipsis,

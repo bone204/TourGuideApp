@@ -84,7 +84,7 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
               AppLocalizations.of(context).translate("You haven't registered any vehicles yet."),
               style: TextStyle(
                 color: const Color(0xFF6C6C6C),
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 fontSize: 16.sp,
               ),
             ),
@@ -153,7 +153,7 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
                         children: [
                           Text(
                             AppLocalizations.of(context).translate("Vehicle Rental Register"),
-                            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: AppColors.black),
+                            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.black),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -187,7 +187,7 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
                             child: Center(
                               child: Text(
                                 AppLocalizations.of(context).translate("Pending Approval"),
-                                style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                                style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.w700),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -226,7 +226,7 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
               AppLocalizations.of(context).translate("You haven't added any cars yet."),
               style: TextStyle(
                 color: const Color(0xFF6C6C6C),
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 fontSize: 16.sp,
               ),
             ),
@@ -320,7 +320,7 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
                         AppLocalizations.of(context).translate('My Vehicle'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),

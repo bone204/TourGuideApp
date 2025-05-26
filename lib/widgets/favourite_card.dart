@@ -55,7 +55,7 @@ class FavouriteCard extends StatelessWidget {
                 data.placeName,
                 style: TextStyle(
                   fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   color: const Color(0xFF000000),
                 ),
                 maxLines: 1,

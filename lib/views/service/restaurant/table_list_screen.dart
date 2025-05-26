@@ -83,7 +83,7 @@ class _TableListScreenState extends State<TableListScreen> {
                         AppLocalizations.of(context).translate(widget.restaurantName),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),

@@ -91,7 +91,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                             widget.data.restaurantName,
                             style: TextStyle(
                               fontSize: 18.sp,
-                              fontWeight: FontWeight.bold
+                              fontWeight: FontWeight.w700
                             ),
                           ),
                         ),
@@ -162,11 +162,11 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                           indicatorColor: Colors.red,
                           labelStyle: TextStyle(
                             fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                           unselectedLabelStyle: TextStyle(
                             fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                           tabs: const [
                             Tab(text: 'About'),
@@ -304,7 +304,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
             style: TextStyle(
               fontSize: 14.sp,
               color: Colors.grey[800],
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

@@ -154,7 +154,7 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
                             .translate('Rental Information'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -200,7 +200,7 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
                     AppLocalizations.of(context).translate('Payment Completed'),
                     style: TextStyle(
                       fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
                   ),
@@ -268,7 +268,7 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   color: AppColors.black,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 8.h),
@@ -277,7 +277,7 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: AppColors.orange,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -356,7 +356,7 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
           style: TextStyle(
             fontSize: 16.sp,
             color: AppColors.black,
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            fontWeight: isBold ? FontWeight.w700 : FontWeight.normal,
           ),
         ),
         Text(
@@ -364,7 +364,7 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
           style: TextStyle(
             fontSize: 16.sp,
             color: AppColors.black,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ],

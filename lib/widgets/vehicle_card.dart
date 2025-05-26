@@ -78,7 +78,7 @@ class VehicleCard extends StatelessWidget {
                   data.model,
                   style: TextStyle(
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 SizedBox(height: 12.h),
@@ -184,7 +184,7 @@ class VehicleCard extends StatelessWidget {
                     style: TextStyle(
                         fontSize: 16.sp,
                         color: const Color(0xFFFF7029),
-                        fontWeight: FontWeight.bold),
+                        fontWeight: FontWeight.w700),
                   ),
                   SizedBox(height: 16.h),
                   Row(
@@ -274,7 +274,7 @@ class VehicleCard extends StatelessWidget {
                               AppLocalizations.of(context).translate("Rent"),
                               style: TextStyle(
                                 fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                               ),
                               overflow: TextOverflow.ellipsis,
                             )),

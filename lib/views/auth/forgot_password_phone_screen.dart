@@ -42,7 +42,7 @@ class _ForgotPasswordPhoneScreenState extends State<ForgotPasswordPhoneScreen> {
                     'Forgot Password',
                     style: TextStyle(
                       fontSize: 24.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: Colors.black,
                     ),
                   ),

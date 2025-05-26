@@ -118,7 +118,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
             children: [
               Text(
                 AppLocalizations.of(context).translate("Budget"),
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
               ),
               SizedBox(height: 28.h),
               BudgetSlider(
@@ -162,7 +162,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                           Text(
                             "Package",
                             style: TextStyle(
-                                fontSize: 12.sp, fontWeight: FontWeight.bold),
+                                fontSize: 12.sp, fontWeight: FontWeight.w700),
                           ),
                           SizedBox(height: 8.h),
                           CustomComboBox(

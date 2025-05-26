@@ -90,7 +90,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                             widget.data.hotelName,
                             style: TextStyle(
                               fontSize: 18.sp,
-                              fontWeight: FontWeight.bold
+                              fontWeight: FontWeight.w700
                             ),
                           ),
                         ),
@@ -161,11 +161,11 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                           indicatorColor: Colors.red,
                           labelStyle: TextStyle(
                             fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                           unselectedLabelStyle: TextStyle(
                             fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                           tabs: const [
                             Tab(text: 'About'),

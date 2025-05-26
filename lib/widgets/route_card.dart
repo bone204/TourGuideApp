@@ -71,7 +71,7 @@ class RouteCard extends StatelessWidget {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
@@ -104,7 +104,7 @@ class RouteCard extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 10.sp,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ],

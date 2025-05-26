@@ -35,7 +35,7 @@ class ForgotPasswordOTPScreen extends StatelessWidget {
               'Verification Code',
               style: TextStyle(
                 fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 color: Colors.black,
               ),
             ),
@@ -53,7 +53,7 @@ class ForgotPasswordOTPScreen extends StatelessWidget {
                   TextSpan(
                     text: phoneNumber,
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
@@ -80,7 +80,7 @@ class ForgotPasswordOTPScreen extends StatelessWidget {
               enableActiveFill: true,
               textStyle: TextStyle(
                 fontSize: 20.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
               onCompleted: (value) async {
                 final loginViewModel = context.read<LoginViewModel>();

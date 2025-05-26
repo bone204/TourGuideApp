@@ -72,7 +72,7 @@ class _TravelHistoryScreenState extends State<TravelHistoryScreen> {
                             AppLocalizations.of(context).translate('Travel History'),
                             style: TextStyle(
                               color: Colors.black,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                               fontSize: 20.sp,
                             ),
                           ),

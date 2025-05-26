@@ -356,7 +356,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
               AppLocalizations.of(context).translate("No destinations added yet."),
               style: TextStyle(
                 color: const Color(0xFF6C6C6C),
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 fontSize: 16.sp,
               ),
             ),
@@ -458,7 +458,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
           AppLocalizations.of(context).translate("No destinations added yet."),
           style: TextStyle(
             color: const Color(0xFF6C6C6C),
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
             fontSize: 16.sp,
           ),
         ),

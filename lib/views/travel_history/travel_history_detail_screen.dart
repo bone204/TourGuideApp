@@ -95,7 +95,7 @@ class _TravelHistoryDetailScreenState extends State<TravelHistoryDetailScreen> w
                                 "${AppLocalizations.of(context).translate("Rate")}:",
                                 style: TextStyle(
                                   fontSize: 16.sp,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w700,
                                   color: AppColors.black,
                                 ),
                               ),
@@ -150,7 +150,7 @@ class _TravelHistoryDetailScreenState extends State<TravelHistoryDetailScreen> w
                                   child: Text(
                                     AppLocalizations.of(context).translate("Cancel"),
                                     style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w700,
                                       fontSize: 16.sp,
                                     ),
                                   ),
@@ -172,7 +172,7 @@ class _TravelHistoryDetailScreenState extends State<TravelHistoryDetailScreen> w
                                   child: Text(
                                     AppLocalizations.of(context).translate("Give Review"),
                                     style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w700,
                                       fontSize: 16.sp,
                                     ),
                                   ),
@@ -209,12 +209,12 @@ class _TravelHistoryDetailScreenState extends State<TravelHistoryDetailScreen> w
                         unselectedLabelColor: const Color(0xFF7D848D),
                         labelStyle: TextStyle(
                           fontSize: 14.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           color: AppColors.black,
                         ),
                         unselectedLabelStyle: TextStyle(
                           fontSize: 14.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           color: AppColors.black,
                         ),
                         tabs: [

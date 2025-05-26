@@ -101,7 +101,7 @@ class _PasswordScreenScreenState extends State<PasswordScreen> {
                 AppLocalizations.of(context).translate("Old Password"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -115,7 +115,7 @@ class _PasswordScreenScreenState extends State<PasswordScreen> {
                 AppLocalizations.of(context).translate("New Password"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -128,7 +128,7 @@ class _PasswordScreenScreenState extends State<PasswordScreen> {
                 AppLocalizations.of(context).translate("Confirm New Password"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -159,7 +159,7 @@ class _PasswordScreenScreenState extends State<PasswordScreen> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
               ),

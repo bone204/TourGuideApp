@@ -66,7 +66,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                   AppLocalizations.of(context).translate('Verification Code'),
                   style: TextStyle(
                     fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     color: Colors.black,
                   ),
                 ),
@@ -84,7 +84,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                       TextSpan(
                         text: widget.phoneNumber,
                         style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -114,7 +114,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                   enableActiveFill: true,
                   textStyle: TextStyle(
                     fontSize: 20.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                   ),
                   onCompleted: (value) async {
                     // Thêm loading indicator khi đang verify

@@ -105,7 +105,7 @@ class TravelScreenContent extends StatelessWidget {
               AppLocalizations.of(context).translate("You haven't created any travel routes yet."),
               style: TextStyle(
                 color: const Color(0xFF6C6C6C),
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 fontSize: 16.sp,
               ),
             ),

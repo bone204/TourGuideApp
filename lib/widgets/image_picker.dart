@@ -87,7 +87,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
               widget.title,
               style: TextStyle(
                 fontSize: 12.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
             if (widget.isRequired)
@@ -95,7 +95,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                 " (*)",
                 style: TextStyle(
                   fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.orange,
                 ),
               ),

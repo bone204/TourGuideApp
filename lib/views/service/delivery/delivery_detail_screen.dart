@@ -166,7 +166,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                       'Delivery Brand',
                       style: TextStyle(
                         fontSize: 20.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     SizedBox(height: 16.h),
@@ -236,7 +236,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                       'Delivery Vehicles',
                       style: TextStyle(
                         fontSize: 20.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     SizedBox(height: 16.h),
@@ -308,7 +308,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                         AppLocalizations.of(context).translate('Delivery Detail'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -391,14 +391,14 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                     AppLocalizations.of(context).translate("Requirements"),
                     style: TextStyle(
                       fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   Text(
                     " (*)",
                     style: TextStyle(
                       fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: AppColors.orange,
                     ),
                   ),
@@ -439,7 +439,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                     'Total Price',
                     style: TextStyle(
                       fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: AppColors.black,
                     ),
                   ),
@@ -448,7 +448,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                     '650.000 đ',
                     style: TextStyle(
                       fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: AppColors.orange,
                     ),
                   ),
@@ -477,7 +477,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   style: TextStyle(
                     fontSize: 16.sp,
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -520,7 +520,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                         "Nguyễn Hữu Trường",
                         style: TextStyle(
                           fontSize: 14.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           color: AppColors.black
                         )
                       ),
@@ -564,7 +564,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                         "Trần Trung Thông",
                         style: TextStyle(
                           fontSize: 14.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           color: AppColors.black
                         )
                       ),

@@ -37,7 +37,7 @@ class CustomElevatedButton extends StatelessWidget {
         AppLocalizations.of(context).translate(text),
         style: TextStyle(
           fontSize: fontSize.sp,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );

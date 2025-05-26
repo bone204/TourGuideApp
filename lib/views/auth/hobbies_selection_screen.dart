@@ -91,7 +91,7 @@ class _HobbiesSelectionScreenState extends State<HobbiesSelectionScreen> {
                             AppLocalizations.of(context).translate('What fascinates you?'),
                             style: TextStyle(
                               fontSize: 28.sp,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
                           ),
@@ -152,7 +152,7 @@ class _HobbiesSelectionScreenState extends State<HobbiesSelectionScreen> {
                                                         textAlign: TextAlign.center,
                                                         style: TextStyle(
                                                           color: isSelected ? AppColors.white : AppColors.primaryColor,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight: FontWeight.w700,
                                                           fontSize: 16.sp,
                                                         ),
                                                       ),
@@ -252,7 +252,7 @@ class _HobbiesSelectionScreenState extends State<HobbiesSelectionScreen> {
                                 AppLocalizations.of(context).translate('Get Started'),
                                 style: TextStyle(
                                   fontSize: 18.sp,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),

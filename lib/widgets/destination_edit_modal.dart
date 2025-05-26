@@ -117,7 +117,7 @@ class _DestinationEditModalState extends State<DestinationEditModal> {
             widget.destinationName,
             style: TextStyle(
               fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
             ),
           ),
           SizedBox(height: 20.h),

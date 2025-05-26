@@ -45,7 +45,7 @@ class DeliveryInteractiveRow extends StatelessWidget {
                       title,
                       style: TextStyle(
                         fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.black,
                       ),
                     ),

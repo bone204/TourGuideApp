@@ -46,7 +46,7 @@ class _PrivacyPolicyScreenScreenState extends State<PrivacyPolicyScreen> {
                           AppLocalizations.of(context).translate('Privacy Policy'),
                           style: TextStyle(
                             color: Colors.black,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             fontSize: 20.sp,
                           ),
                         ),
@@ -69,7 +69,7 @@ class _PrivacyPolicyScreenScreenState extends State<PrivacyPolicyScreen> {
                   AppLocalizations.of(context).translate(''),
                   style: TextStyle(
                     color: Colors.black,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     fontSize: 18.sp, // Kích thước chữ sử dụng ScreenUtil
                   ),
                   textAlign: TextAlign.left,

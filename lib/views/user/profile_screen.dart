@@ -66,7 +66,7 @@ class ProfileScreen extends StatelessWidget {
                               AppLocalizations.of(context).translate('Profile'),
                               style: TextStyle(
                                 color: Colors.black,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                                 fontSize: 20.sp,
                               ),
                             ),
@@ -147,7 +147,7 @@ class ProfileScreen extends StatelessWidget {
                     SizedBox(height: 16.h),
                     Text(
                       profileViewModel.name,
-                      style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w700),
                     ),
                     SizedBox(height: 8.h),
                     Text(
@@ -227,7 +227,7 @@ class ProfileScreen extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700),
         ),
         SizedBox(height: 8.h),
         Text(
@@ -235,7 +235,7 @@ class ProfileScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: 16.sp,
             color: const Color(0xFFFF7029),
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ],

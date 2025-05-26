@@ -102,7 +102,7 @@ class RentalVehicleCard extends StatelessWidget {
                       vehicle.vehicleModel,
                       style: TextStyle(
                         fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                       ),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -261,7 +261,7 @@ class RentalVehicleCard extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: const Color(0xFFFF7029),
-                            fontWeight: FontWeight.bold),
+                            fontWeight: FontWeight.w700),
                       ),
                     ),
                     SizedBox(height: 12.h),

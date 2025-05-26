@@ -212,7 +212,7 @@ class _ProvinceSearchScreenState extends State<_ProvinceSearchScreen> {
                               ? option.province
                               : (option.district.isNotEmpty ? option.district : option.city),
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             fontSize: 16.sp,
                           ),
                         ),
@@ -285,7 +285,7 @@ class _ProvincePickerState extends State<ProvincePicker> {
       children: [
         Text(
           widget.title ?? AppLocalizations.of(context).translate('Administrative Region'),
-          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
         ),
         SizedBox(height: 8.h),
         GestureDetector(

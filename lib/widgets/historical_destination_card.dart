@@ -79,7 +79,7 @@ class HistoricalDestinationCard extends StatelessWidget {
                       destination.destinationName,
                       style: TextStyle(
                         fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         color: const Color(0xFF000000),
                       ),
                       maxLines: 2,

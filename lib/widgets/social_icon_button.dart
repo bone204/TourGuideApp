@@ -47,7 +47,7 @@ class SocialIconButton extends StatelessWidget {
               SizedBox(width: 8.w), 
               Text(
                 label,
-                style: TextStyle(color: Colors.black, fontSize: 16.sp, fontWeight: FontWeight.bold), // Style for the label
+                style: TextStyle(color: Colors.black, fontSize: 16.sp, fontWeight: FontWeight.w700), // Style for the label
               ),
             ],
           ),

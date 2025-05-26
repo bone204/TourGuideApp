@@ -56,7 +56,7 @@ class TableCard extends StatelessWidget {
               name,
               style: TextStyle(
                 fontSize: 20.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
             SizedBox(height: 10.h),
@@ -118,7 +118,7 @@ class TableCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),

@@ -54,7 +54,7 @@ class InteractiveRowWidget extends StatelessWidget {
                   title,
                   style: TextStyle(
                     fontSize: 14.sp, // Sử dụng ScreenUtil
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     color: textColor,
                   ),
                 ),

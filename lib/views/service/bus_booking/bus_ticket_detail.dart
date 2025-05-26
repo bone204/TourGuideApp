@@ -286,7 +286,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                               style: TextStyle(
                                 color: _currentStep >= index ? Colors.white : Colors.grey,
                                 fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -369,7 +369,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                         child: Text(
                           AppLocalizations.of(context).translate("Previous"),
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             fontSize: 16.sp,
                           ),
                         ),
@@ -394,7 +394,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                       child: Text(
                         _currentStep == 3 ? AppLocalizations.of(context).translate("Confirm") : AppLocalizations.of(context).translate("Next"),
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 16.sp,
                         ),
                       ),
@@ -539,14 +539,14 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
               Text(
                 'Tổng số vé: $totalSeats',
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   fontSize: 16.sp,
                 ),
               ),
               Text(
                 '${totalPrice.toStringAsFixed(0)} VND',
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   fontSize: 16.sp,
                   color: Colors.blue,
                 ),
@@ -633,7 +633,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: AppColors.orange,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -782,7 +782,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                 'ĐIỂM ĐÓN - $fromLoc',
                 style: TextStyle(
                   fontSize: 16.sp, 
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.primaryColor,
                 ),
               ),
@@ -843,7 +843,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                 'ĐIỂM TRẢ - $toLoc',
                 style: TextStyle(
                   fontSize: 16.sp, 
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.green,
                 ),
               ),
@@ -904,7 +904,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
           ),
           TextSpan(
             text: station?.name ?? getDefaultBusStation().name,
-            style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.bold, height: 1.5),
+            style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.w700, height: 1.5),
           ),
           TextSpan(
             text: isPickup 
@@ -940,7 +940,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
               'Xác nhận thông tin đặt vé',
               style: TextStyle(
                 fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
             SizedBox(height: 20.h),
@@ -996,7 +996,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                         '$totalSeats',
                         style: TextStyle(
                           fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -1009,14 +1009,14 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                         'Tổng tiền:',
                         style: TextStyle(
                           fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       Text(
                         '${totalPrice.toStringAsFixed(0)} VND',
                         style: TextStyle(
                           fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           color: Colors.blue,
                         ),
                       ),
@@ -1048,7 +1048,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
             title,
             style: TextStyle(
               fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
             ),
           ),
           SizedBox(height: 12.h),
@@ -1086,7 +1086,7 @@ Widget _buildTextField({required TextEditingController controller, required Stri
             label,
             style: TextStyle(
               fontSize: 12.sp,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
             ),
           ),
           SizedBox(width: 4.w),

@@ -35,8 +35,8 @@ class NavigationExample extends StatelessWidget {
           onTap: onTap,
           selectedItemColor: AppColors.primaryColor, 
           unselectedItemColor: AppColors.grey, 
-          selectedLabelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold), // Use ScreenUtil for font size
-          unselectedLabelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold), // Use ScreenUtil for font size
+          selectedLabelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700), // Use ScreenUtil for font size
+          unselectedLabelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700), // Use ScreenUtil for font size
           showUnselectedLabels: true,
           backgroundColor: Colors.white, 
           items: [

@@ -90,7 +90,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                     AppLocalizations.of(context).translate("Recipient's Full Name"),
                     style: TextStyle(
                       fontSize: 12.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   SizedBox(height: 8.h),
@@ -119,7 +119,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                     AppLocalizations.of(context).translate("Recipient's Phone Number"),
                     style: TextStyle(
                       fontSize: 12.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   SizedBox(height: 8.h),

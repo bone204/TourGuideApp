@@ -23,7 +23,7 @@ class InfoTextField extends StatelessWidget {
       children: [
         Text(
           AppLocalizations.of(context).translate(labelText),
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
         ),
         SizedBox(height: 12.h),
         Container(

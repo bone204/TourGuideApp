@@ -58,7 +58,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                         AppLocalizations.of(context).translate('Booking Information'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -97,7 +97,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 18.h),
@@ -111,7 +111,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 18.h),
@@ -125,7 +125,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 18.h),
@@ -139,7 +139,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 16.h),
@@ -158,7 +158,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 18.h),
@@ -172,7 +172,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 18.h),
@@ -186,7 +186,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 18.h),
@@ -200,7 +200,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 16.h),
@@ -216,13 +216,13 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold)),
+                          fontWeight: FontWeight.w700)),
                   Text(
                       '650,000 ₫',
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
-                          fontWeight: FontWeight.bold))
+                          fontWeight: FontWeight.w700))
                 ],
               ),
               SizedBox(height: 24.h),
@@ -273,7 +273,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                       Text(AppLocalizations.of(context).translate("Confirm"),
                           style: TextStyle(
                             fontSize: 18.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ))),
             ]),
           ),

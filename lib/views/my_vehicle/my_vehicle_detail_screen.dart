@@ -76,7 +76,7 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                         AppLocalizations.of(context).translate('Vehicle Detail'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -207,7 +207,7 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                 AppLocalizations.of(context).translate("Vehicle Registration Photo (Front)"),
                 style: TextStyle(
                   fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
+                fontWeight: FontWeight. w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -251,7 +251,7 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                 AppLocalizations.of(context).translate("Vehicle Registration Photo (Back)"),
                 style: TextStyle(
                   fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -323,7 +323,7 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                     AppLocalizations.of(context).translate("Requirements"),
                     style: TextStyle(
                       fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   SizedBox(height: 8.h),

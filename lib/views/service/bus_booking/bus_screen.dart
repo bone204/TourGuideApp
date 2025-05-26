@@ -145,7 +145,7 @@ class _BusScreenState extends State<BusScreen> {
                               children: [
                                 Text(
                                   AppLocalizations.of(context).translate("Return Date"),
-                                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
+                                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
                                 ),
                                 SizedBox(height: 8.h),
                                 InkWell(
@@ -188,7 +188,7 @@ class _BusScreenState extends State<BusScreen> {
                             children: [
                               Text(
                                 AppLocalizations.of(context).translate("Tickets"),
-                                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
+                                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
                               ),
                               SizedBox(height: 8.h),
                               CustomComboBox(

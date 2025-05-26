@@ -45,7 +45,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                     style: TextStyle(
                       color: AppColors.black,
                       fontSize: 24.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),

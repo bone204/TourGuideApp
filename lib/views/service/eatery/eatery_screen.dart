@@ -159,7 +159,7 @@ Opening hours: ${eatery.openTime} - ${eatery.closeTime}
                         AppLocalizations.of(context).translate("Find Eatery"),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),

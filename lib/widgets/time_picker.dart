@@ -50,7 +50,7 @@ class TimePicker extends StatelessWidget {
       children: [
         Text(
           "Time",
-          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
         ),
         SizedBox(height: 8.h),
         Column(
@@ -74,7 +74,7 @@ class TimePicker extends StatelessWidget {
                                 const TextStyle(color: Colors.black),
                             hourMinuteTextStyle: TextStyle(
                               fontSize: 40,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                               color: Colors.black.withOpacity(0.8),
                             ),
                           ),

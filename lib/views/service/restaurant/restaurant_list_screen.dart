@@ -70,7 +70,7 @@ class RestaurantListScreen extends StatelessWidget {
                         AppLocalizations.of(context).translate('Restaurant List'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),

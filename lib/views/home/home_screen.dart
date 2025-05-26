@@ -594,7 +594,7 @@ class SectionHeadline extends StatelessWidget {
               AppLocalizations.of(context).translate(title),
               style: TextStyle(
                 color: Colors.black,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 fontSize: 20.sp,
               ),
             ),
@@ -690,7 +690,7 @@ class ProvinceSection extends StatelessWidget {
             AppLocalizations.of(context).translate("Explore top spots by province"),
             style: TextStyle(
               fontSize: 20.sp,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
               color: Colors.black,
             ),
           ),
@@ -755,7 +755,7 @@ class InspirationSection extends StatelessWidget {
                   AppLocalizations.of(context).translate("More travel inspiration"),
                   style: TextStyle(
                     fontSize: 20.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     color: Colors.black,
                   ),
                 ),

@@ -415,7 +415,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                         child: Text(
                           AppLocalizations.of(context).translate("Previous"),
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             fontSize: 16.sp,
                           ),
                         ),
@@ -438,7 +438,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                       child: Text(
                         _currentStep == 2 ? AppLocalizations.of(context).translate("Confirm") : AppLocalizations.of(context).translate("Next"),
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 16.sp,
                         ),
                       ),
@@ -466,7 +466,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 AppLocalizations.of(context).translate("License Plate"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -485,7 +485,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 AppLocalizations.of(context).translate("Vehicle Registration"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -508,7 +508,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                     AppLocalizations.of(context).translate("Vehicle Type"),
                     style: TextStyle(
                       fontSize: 12.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   SizedBox(height: 12.h),
@@ -537,7 +537,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                                       ? AppColors.primaryColor
                                       : AppColors.black,
                                   fontSize: 13.sp,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
@@ -568,7 +568,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                                       ? AppColors.primaryColor
                                       : AppColors.black,
                                   fontSize: 13.sp,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
@@ -584,7 +584,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 AppLocalizations.of(context).translate("Vehicle Brand"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -609,7 +609,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 AppLocalizations.of(context).translate("Vehicle Model"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -636,7 +636,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 AppLocalizations.of(context).translate("Vehicle Color"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -715,7 +715,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 AppLocalizations.of(context).translate("Price For 4 Hour"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -735,7 +735,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 AppLocalizations.of(context).translate("Price For 8 Hour"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -755,7 +755,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 AppLocalizations.of(context).translate("Price Per Day"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -775,7 +775,7 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
                 AppLocalizations.of(context).translate("Requirements"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),

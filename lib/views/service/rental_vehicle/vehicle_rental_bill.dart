@@ -269,7 +269,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 _buildTimeRemaining(),
@@ -370,7 +370,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                                     style: TextStyle(
                                         fontSize: 12.sp,
                                         color: AppColors.black,
-                                        fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.w700),
                                   ),
                                   SizedBox(height: 4.h),
                                   Text(
@@ -378,7 +378,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                                     style: TextStyle(
                                         fontSize: 12.sp,
                                         color: AppColors.orange,
-                                        fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.w700),
                                   ),
                                   SizedBox(height: 4.h),
                                   Row(
@@ -425,7 +425,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
-                            fontWeight: FontWeight.bold))
+                            fontWeight: FontWeight.w700))
                   ],
                 ),
                 SizedBox(height: 18.h),
@@ -439,7 +439,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
-                            fontWeight: FontWeight.bold))
+                            fontWeight: FontWeight.w700))
                   ],
                 ),
                 SizedBox(height: 18.h),
@@ -453,7 +453,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
-                            fontWeight: FontWeight.bold))
+                            fontWeight: FontWeight.w700))
                   ],
                 ),
                 SizedBox(height: 18.h),
@@ -467,7 +467,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
-                            fontWeight: FontWeight.bold))
+                            fontWeight: FontWeight.w700))
                   ],
                 ),
                 SizedBox(height: 16.h),
@@ -486,7 +486,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
-                            fontWeight: FontWeight.bold))
+                            fontWeight: FontWeight.w700))
                   ],
                 ),
                 SizedBox(height: 18.h),
@@ -503,7 +503,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
-                            fontWeight: FontWeight.bold))
+                            fontWeight: FontWeight.w700))
                   ],
                 ),
                 SizedBox(height: 18.h),
@@ -518,7 +518,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
-                            fontWeight: FontWeight.bold))
+                            fontWeight: FontWeight.w700))
                   ],
                 ),
                 SizedBox(height: 16.h),
@@ -534,13 +534,13 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
-                            fontWeight: FontWeight.bold)),
+                            fontWeight: FontWeight.w700)),
                     Text(
                         "${AppLocalizations.of(context).formatPrice(totalAmount)} ₫",
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
-                            fontWeight: FontWeight.bold))
+                            fontWeight: FontWeight.w700))
                   ],
                 ),
                 SizedBox(height: 24.h),
@@ -621,7 +621,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                     'Xác nhận',
                     style: TextStyle(
                       fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
                   ),

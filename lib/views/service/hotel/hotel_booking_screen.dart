@@ -69,7 +69,7 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
           children: [
             Text(
               AppLocalizations.of(context).translate("Budget"),
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
             ),
             SizedBox(height: 28.h),
             BudgetSlider(
@@ -103,7 +103,7 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                     children: [
                       Text(
                         AppLocalizations.of(context).translate("Guests"),
-                        style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
                       ),
                       SizedBox(height: 8.h),
                       CustomComboBox(

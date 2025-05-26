@@ -36,7 +36,7 @@ class ServiceReviewScreen extends StatelessWidget {
                         "S500 Sedan",
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -69,7 +69,7 @@ class ServiceReviewScreen extends StatelessWidget {
                     "${AppLocalizations.of(context).translate("Rate")}:",
                     style: TextStyle(
                       fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: AppColors.black,
                     ),
                   ),
@@ -121,7 +121,7 @@ class ServiceReviewScreen extends StatelessWidget {
                       child: Text(
                         AppLocalizations.of(context).translate("Cancel"),
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 16.sp,
                         ),
                       ),
@@ -145,7 +145,7 @@ class ServiceReviewScreen extends StatelessWidget {
                       child: Text(
                         AppLocalizations.of(context).translate("Submit"),
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 16.sp,
                         ),
                       ),

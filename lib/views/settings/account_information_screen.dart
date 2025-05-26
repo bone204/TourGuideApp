@@ -43,7 +43,7 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
               SizedBox(height: 24.h),
               Text(
                 accountInfoViewModel.name,
-                style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w700),
               ),
               SizedBox(height: 40.h),
               DisabledTextField(

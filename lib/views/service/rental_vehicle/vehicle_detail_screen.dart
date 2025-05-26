@@ -68,7 +68,7 @@ class VehicleDetailScreen extends StatelessWidget {
                         model,
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -166,7 +166,7 @@ class VehicleDetailScreen extends StatelessWidget {
                               "${AppLocalizations.of(context).translate("Rate")}:",
                               style: TextStyle(
                                 fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                                 color: AppColors.black,
                               ),
                             ),
@@ -207,7 +207,7 @@ class VehicleDetailScreen extends StatelessWidget {
                           AppLocalizations.of(context).translate("Requirements"),
                           style: TextStyle(
                             fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         SizedBox(height: 12.h),
@@ -295,7 +295,7 @@ class DetailRow extends StatelessWidget {
           style: TextStyle(
             color: AppColors.black,
             fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,

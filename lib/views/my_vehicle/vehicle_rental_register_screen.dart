@@ -437,7 +437,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                         child: Text(
                           AppLocalizations.of(context).translate("Previous"),
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             fontSize: 16.sp,
                           ),
                         ),
@@ -460,7 +460,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                       child: Text(
                         _currentStep == 2 ? AppLocalizations.of(context).translate("Confirm") : AppLocalizations.of(context).translate("Next"),
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 16.sp,
                         ),
                       ),
@@ -794,7 +794,7 @@ Widget _buildTextField({required TextEditingController controller, required Stri
         label,
         style: TextStyle(
           fontSize: 12.sp,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
         ),
       ),
       SizedBox(height: 4.h),
@@ -819,7 +819,7 @@ Widget _buildDropdown({
         label,
         style: TextStyle(
           fontSize: 12.sp,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
         ),
       ),
       SizedBox(height: 4.h),

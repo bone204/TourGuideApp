@@ -68,7 +68,7 @@ class _DeliveryInformationScreenState extends State<DeliveryInformationScreen> {
                             .translate('Renter Information'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -215,7 +215,7 @@ class _DeliveryInformationScreenState extends State<DeliveryInformationScreen> {
                           'Gửi',
                           style: TextStyle(
                             fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             color: Colors.white,
                           ),
                         ),

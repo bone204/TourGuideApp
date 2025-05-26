@@ -115,7 +115,7 @@ class _ViewAllDestinationsScreenState extends State<ViewAllDestinationsScreen> {
                         AppLocalizations.of(context).translate(widget.sectionTitle),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),

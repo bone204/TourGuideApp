@@ -110,7 +110,7 @@ class _VehicleRentalDetailState extends State<VehicleRentalDetail> {
                         AppLocalizations.of(context).translate(widget.model),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -189,7 +189,7 @@ class _VehicleRentalDetailState extends State<VehicleRentalDetail> {
             SizedBox(height: 20.h),
             Text(
               AppLocalizations.of(context).translate("Specs"),
-              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
             ),
             SizedBox(height: 12.h),
             SingleChildScrollView(
@@ -357,7 +357,7 @@ class _VehicleRentalDetailState extends State<VehicleRentalDetail> {
                 child: Text(AppLocalizations.of(context).translate("Confirm"),
                     style: TextStyle(
                       fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ))),
           ],
         ),
@@ -386,7 +386,7 @@ class _VehicleRentalDetailState extends State<VehicleRentalDetail> {
         children: [
           Text(
             title,
-            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
           ),
           SizedBox(height: 4.h),
           SizedBox(

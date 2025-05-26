@@ -46,7 +46,7 @@ class _PolicyAndTermScreenScreenState extends State<PolicyAndTermScreen> {
                           AppLocalizations.of(context).translate('Policies & Terms'),
                           style: TextStyle(
                             color: Colors.black,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             fontSize: 20.sp,
                           ),
                         ),
@@ -69,7 +69,7 @@ class _PolicyAndTermScreenScreenState extends State<PolicyAndTermScreen> {
                   AppLocalizations.of(context).translate(''),
                   style: TextStyle(
                     color: Colors.black,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     fontSize: 18.sp, 
                   ),
                   textAlign: TextAlign.left,

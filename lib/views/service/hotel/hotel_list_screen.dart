@@ -84,7 +84,7 @@ class HotelListScreen extends StatelessWidget {
                         AppLocalizations.of(context).translate('Hotel List'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),

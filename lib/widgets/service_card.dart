@@ -48,7 +48,7 @@ class ServiceCard extends StatelessWidget {
                         style: TextStyle(
                           color: AppColors.black,
                           fontSize: 16.sp,
-                          fontWeight: FontWeight.bold
+                          fontWeight: FontWeight.w700
                         )
                       ),
                       SizedBox(height: 8.h),
@@ -65,7 +65,7 @@ class ServiceCard extends StatelessWidget {
                         style: TextStyle(
                           color: AppColors.orange,
                           fontSize: 16.sp,
-                          fontWeight: FontWeight.bold
+                          fontWeight: FontWeight.w700
                         )
                       ),
                       SizedBox(height: 16.h),
@@ -86,7 +86,7 @@ class ServiceCard extends StatelessWidget {
                               child: Text(
                                 AppLocalizations.of(context).translate("Previous"),
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w700,
                                   fontSize: 14.sp,
                                 ),
                               ),
@@ -114,7 +114,7 @@ class ServiceCard extends StatelessWidget {
                               child: Text(
                                 AppLocalizations.of(context).translate("Review"),
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w700,
                                   fontSize: 14.sp,
                                 ),
                               ),

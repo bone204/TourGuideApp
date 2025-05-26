@@ -62,7 +62,7 @@ class _RenterInformationScreenState extends State<RenterInformationScreen> {
                               .translate('Rental Requests'),
                           style: TextStyle(
                             color: Colors.black,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             fontSize: 20.sp,
                           ),
                         ),
@@ -147,7 +147,7 @@ class _RenterInformationScreenState extends State<RenterInformationScreen> {
                             '${request['startDate']} - ${request['endDate']}',
                             style: TextStyle(
                               fontSize: 16.sp,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                               color: AppColors.primaryColor,
                             ),
                           ),
@@ -302,7 +302,7 @@ class _RenterInformationScreenState extends State<RenterInformationScreen> {
         buttonText,
         style: TextStyle(
           fontSize: 14.sp,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );

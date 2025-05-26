@@ -46,7 +46,7 @@ class _BirthdayDatePickerState extends State<BirthdayDatePicker> {
           AppLocalizations.of(context).translate(widget.title),
           style: TextStyle(
             fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
             color: Colors.black87,
           ),
         ),

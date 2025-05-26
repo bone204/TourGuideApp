@@ -78,7 +78,7 @@ class _CategorySelectorState extends State<CategorySelector> {
                   style: TextStyle(
                     color: isSelected ? Colors.white : AppColors.primaryColor,
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),

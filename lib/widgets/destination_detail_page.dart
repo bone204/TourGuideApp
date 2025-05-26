@@ -117,7 +117,7 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                                   children: [
                                     Text(
                                       widget.cardData.placeName,
-                                      style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
+                                      style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w700),
                                     ),
                                     SizedBox(height: 10.h),
                                     Row(
@@ -130,7 +130,7 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                                     SizedBox(height: 10.h),
                                     Row(
                                       children: [
-                                        Text(widget.cardData.rating.toString(), style: TextStyle(color: AppColors.grey, fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                                        Text(widget.cardData.rating.toString(), style: TextStyle(color: AppColors.grey, fontSize: 14.sp, fontWeight: FontWeight.w700)),
                                         SizedBox(width: 10.w),
                                         Row(
                                           children: List.generate(5, (index) {
@@ -157,8 +157,8 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                                 labelColor: Colors.black,
                                 unselectedLabelColor: Colors.grey,
                                 indicatorColor: Colors.red,
-                                labelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
-                                unselectedLabelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                                labelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700),
+                                unselectedLabelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700),
                                 tabs: [
                                   Tab(text: AppLocalizations.of(context).translate('About')),
                                   Tab(text: AppLocalizations.of(context).translate('Review')),

@@ -144,7 +144,7 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                         AppLocalizations.of(context).translate('Favourites'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),

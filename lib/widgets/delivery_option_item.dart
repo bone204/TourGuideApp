@@ -67,7 +67,7 @@ class DeliveryOptionItem extends StatelessWidget {
                     option.name,
                     style: TextStyle(
                       fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   SizedBox(height: 4.h),

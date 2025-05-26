@@ -195,7 +195,7 @@ class BusTicket extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18.sp,
                       color: AppColors.orange,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                     ),
                   )
                 ],

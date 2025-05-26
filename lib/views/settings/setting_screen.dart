@@ -53,7 +53,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         AppLocalizations.of(context).translate('Settings'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -75,7 +75,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               AppLocalizations.of(context).translate('Account & Security'),
               style: TextStyle(
                 color: Colors.black,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 fontSize: 18.sp, // Kích thước chữ sử dụng ScreenUtil
               ),
               textAlign: TextAlign.left,
@@ -121,7 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               AppLocalizations.of(context).translate('Settings'),
               style: TextStyle(
                 color: Colors.black,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 fontSize: 18.sp, // Kích thước chữ sử dụng ScreenUtil
               ),
               textAlign: TextAlign.left,

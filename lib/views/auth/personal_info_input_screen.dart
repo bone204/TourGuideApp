@@ -134,7 +134,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   AppLocalizations.of(context).translate('Personal Information'),
                   style: TextStyle(
                     fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     color: Colors.black,
                   ),
                 ),
@@ -151,7 +151,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   AppLocalizations.of(context).translate('Full Name'),
                   style: TextStyle(
                     fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     color: Colors.black87,
                   ),
                 ),
@@ -165,7 +165,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   AppLocalizations.of(context).translate('Gender'),
                   style: TextStyle(
                     fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     color: Colors.black87,
                   ),
                 ),
@@ -195,7 +195,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   AppLocalizations.of(context).translate('Nationality'),
                   style: TextStyle(
                     fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     color: Colors.black87,
                   ),
                 ),

@@ -37,7 +37,7 @@ class SignupScreen extends StatelessWidget {
                     children: <Widget>[
                       Text(
                         AppLocalizations.of(context).translate('Sign up now'), 
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26.sp), 
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 26.sp), 
                       ),
                       SizedBox(height: 15.h), 
                       Text(
@@ -101,7 +101,7 @@ class SignupScreen extends StatelessWidget {
                               ),
                               child: Text(
                                 AppLocalizations.of(context).translate('Sign Up'), 
-                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16.sp), 
+                                style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 16.sp), 
                               ),
                             ),
                             SizedBox(height: 40.h), 
@@ -121,7 +121,7 @@ class SignupScreen extends StatelessWidget {
                                   },
                                   child: Text(
                                     AppLocalizations.of(context).translate('Sign in'), 
-                                    style: TextStyle(fontSize: 14.sp, color: const Color(0xFFFF7029), fontWeight: FontWeight.bold), 
+                                    style: TextStyle(fontSize: 14.sp, color: const Color(0xFFFF7029), fontWeight: FontWeight.w700), 
                                   ),
                                 ),
                               ],

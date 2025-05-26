@@ -141,7 +141,7 @@ class CustomTextButton extends StatelessWidget {
         style: TextStyle(
             color: color ?? const Color(0xFF007BFF),
             fontSize: fontSize ?? 14,
-            fontWeight: FontWeight.bold),
+            fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -233,7 +233,7 @@ class _PrimaryButtonState extends State<PrimaryButton>
           child: Text(
             widget.text,
             style: TextStyle(
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
               color: widget.color == null ? Colors.white : Colors.black,
               fontSize: widget.fontSize ?? 20,
             ),
@@ -289,7 +289,7 @@ class OnboardingCard extends StatelessWidget {
           child: Text(
             onboarding.title,
             style: const TextStyle(
-                fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+                fontSize: 20, fontWeight: FontWeight.w700, color: Colors.black),
             textAlign: TextAlign.center,
           ),
         ),

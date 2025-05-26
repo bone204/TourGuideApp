@@ -49,7 +49,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
               AppLocalizations.of(context).translate('Enter your phone number'),
               style: TextStyle(
                 fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 color: Colors.black,
               ),
             ),

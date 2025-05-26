@@ -78,7 +78,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
                         AppLocalizations.of(context).translate(widget.hotelName),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),

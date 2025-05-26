@@ -84,7 +84,7 @@ class RentOptionSelector extends StatelessWidget {
                       AppLocalizations.of(context).translate(title),
                       style: TextStyle(
                         fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         color: Colors.black,
                       ),
                     ),

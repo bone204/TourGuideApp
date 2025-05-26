@@ -73,7 +73,7 @@ class RestaurantCard extends StatelessWidget {
                 data.restaurantName,
                 style: TextStyle(
                   fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   color: Colors.black,
                 ),
                 maxLines: 1,
@@ -101,7 +101,7 @@ class RestaurantCard extends StatelessWidget {
                 style: TextStyle(
                   color: AppColors.orange,
                   fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],

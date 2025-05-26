@@ -84,7 +84,7 @@ class UseServiceCard extends StatelessWidget {
                         style: TextStyle(
                           color: AppColors.black,
                           fontSize: 14.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -121,7 +121,7 @@ class UseServiceCard extends StatelessWidget {
                             style: TextStyle(
                               color: AppColors.orange,
                               fontSize: 14.sp,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
@@ -145,7 +145,7 @@ class UseServiceCard extends StatelessWidget {
                           child: Text(
                             AppLocalizations.of(context).translate('Detail'),
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                               fontSize: 12.sp,
                             ),
                           ),

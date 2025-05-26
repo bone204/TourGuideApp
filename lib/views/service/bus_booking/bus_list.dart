@@ -170,7 +170,7 @@ class _BusListScreenState extends State<BusListScreen> with SingleTickerProvider
                               '$toLocation → $fromLocation',
                               style: TextStyle(
                                 fontSize: 18.sp,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             SizedBox(height: 16.h),

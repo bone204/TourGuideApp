@@ -143,7 +143,7 @@ class _LocationPickerState extends State<LocationPicker> {
                               suggestion.name,
                               style: TextStyle(
                                 fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             subtitle: Text(
@@ -194,7 +194,7 @@ class _LocationPickerState extends State<LocationPicker> {
       children: [
         Text(
           widget.title ?? AppLocalizations.of(context).translate('Location'),
-          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
         ),
         SizedBox(height: 8.h),
         GestureDetector(

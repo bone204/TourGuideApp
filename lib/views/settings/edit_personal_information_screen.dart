@@ -59,7 +59,7 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
               style: TextStyle(
                 color: AppColors.green,
                 fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -75,7 +75,7 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                 AppLocalizations.of(context).translate("Full Name"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -94,7 +94,7 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                           AppLocalizations.of(context).translate("Gender"),
                           style: TextStyle(
                             fontSize: 12.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         SizedBox(height: 8.h),
@@ -131,7 +131,7 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                           AppLocalizations.of(context).translate("Nationality"),
                           style: TextStyle(
                             fontSize: 12.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         SizedBox(height: 8.h),
@@ -166,7 +166,7 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                 AppLocalizations.of(context).translate("Identification Number"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 8.h),
@@ -181,7 +181,7 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
                 AppLocalizations.of(context).translate("Address"),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 8.h),
@@ -214,7 +214,7 @@ class _EditPersonInfoScreenState extends State<EditPersonInfoScreen> {
           AppLocalizations.of(context).translate('Phone Number'),
           style: TextStyle(
             fontSize: 12.sp,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
           ),
         ),
         SizedBox(height: 12.h),

@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: <Widget>[
                       Text(
                         AppLocalizations.of(context).translate('Sign in now'),
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26.sp),
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 26.sp),
                       ),
                       SizedBox(height: 16.h),
                       Text(
@@ -139,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               child: Text(
                                 AppLocalizations.of(context).translate('Sign In'),
-                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16.sp),
+                                style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 16.sp),
                               ),
                             ),
                             SizedBox(height: 40.h),
@@ -159,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                                   child: Text(
                                     AppLocalizations.of(context).translate('Sign up'),
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp, color: const Color(0xFFFF7029)),
+                                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp, color: const Color(0xFFFF7029)),
                                   ),
                                 ),
                               ],

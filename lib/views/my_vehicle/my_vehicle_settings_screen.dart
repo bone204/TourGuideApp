@@ -46,7 +46,7 @@ class MyVehicleSettingsScreen extends StatelessWidget {
                         AppLocalizations.of(context).translate('Vehicle Settings'),
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20.sp,
                         ),
                       ),
@@ -192,7 +192,7 @@ class MyVehicleSettingsScreen extends StatelessWidget {
                   AppLocalizations.of(context).translate('Delete Vehicle'),
                   style: TextStyle(
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                 ),

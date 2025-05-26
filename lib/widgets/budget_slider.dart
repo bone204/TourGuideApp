@@ -74,7 +74,7 @@ class _BudgetSliderState extends State<BudgetSlider> {
         textStyle: TextStyle(
           fontSize: 10.sp,
           color: AppColors.black,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
         ),
         boxStyle: FlutterSliderTooltipBox(
           decoration: BoxDecoration(
@@ -141,12 +141,12 @@ class _BudgetSliderState extends State<BudgetSlider> {
                           Text(label,
                               style: const TextStyle(
                                   color: AppColors.grey,
-                                  fontWeight: FontWeight.bold)),
+                                  fontWeight: FontWeight.w700)),
                         if (index % 2 != 0)
                           const Text(" ",
                               style: TextStyle(
                                   color: AppColors.grey,
-                                  fontWeight: FontWeight.bold)),
+                                  fontWeight: FontWeight.w700)),
                       ],
                     ),
                   ),
@@ -167,12 +167,12 @@ class _BudgetSliderState extends State<BudgetSlider> {
                           Text(label,
                               style: const TextStyle(
                                   color: AppColors.grey,
-                                  fontWeight: FontWeight.bold)),
+                                  fontWeight: FontWeight.w700)),
                         if (index % 2 != 0)
                           const Text(" ",
                               style: TextStyle(
                                   color: AppColors.grey,
-                                  fontWeight: FontWeight.bold)),
+                                  fontWeight: FontWeight.w700)),
                       ],
                     ),
                   ),

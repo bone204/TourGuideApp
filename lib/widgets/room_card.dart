@@ -62,7 +62,7 @@ class RoomCard extends StatelessWidget {
               name,
               style: TextStyle(
                 fontSize: 20.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
             SizedBox(height: 16.h),
@@ -134,7 +134,7 @@ class RoomCard extends StatelessWidget {
                       CurrencyFormatter.format(price),
                       style: TextStyle(
                         fontSize: 18.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.orange,
                       ),
                     ),
@@ -156,7 +156,7 @@ class RoomCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14.sp,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),

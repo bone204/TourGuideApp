@@ -35,7 +35,7 @@ class DisabledTextField extends StatelessWidget {
           labelText,
           style: TextStyle(
             fontSize: 12.sp,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
           ),
         ),
         SizedBox(height: 8.h),
