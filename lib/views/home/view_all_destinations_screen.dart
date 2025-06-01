@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
-import 'package:tourguideapp/widgets/custom_icon_button.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/custom_search_bar.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
@@ -88,55 +88,20 @@ class _ViewAllDestinationsScreenState extends State<ViewAllDestinationsScreen> {
       backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.h),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          surfaceTintColor: Colors.transparent,
-          automaticallyImplyLeading: false,
-          flexibleSpace: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                height: 40.h,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: CustomIconButton(
-                        icon: Icons.chevron_left,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        AppLocalizations.of(context).translate(widget.sectionTitle),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20.sp,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+        child: CustomAppBar(
+          title: widget.sectionTitle,
+          onBackPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
         children: [
-          SizedBox(height: 20.h),
           _buildSearchBar(context),
           Expanded(
             child: GridView.builder(
               padding: EdgeInsets.only(top: 10.h, right: 10.w, left: 10.w, bottom: 20.h),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 161.w / 190.h,
+                childAspectRatio: 161.w / 185.h,
                 mainAxisSpacing: 20.h,
                 crossAxisSpacing: 0,
               ),
@@ -146,7 +111,6 @@ class _ViewAllDestinationsScreenState extends State<ViewAllDestinationsScreen> {
                 final destination = destinationsViewModel.destinations.firstWhere(
                   (dest) => dest.destinationName == cardData.placeName,
                 );
-    
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
