@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/blocs/travel/travel_bloc.dart'; 
@@ -44,6 +45,8 @@ void main() async {
   // Khởi tạo NotificationService
   NotificationService notificationService = NotificationService();
   await notificationService.initialize();
+
+  await dotenv.load(fileName: ".env");
 
   runApp(
     MultiBlocProvider(

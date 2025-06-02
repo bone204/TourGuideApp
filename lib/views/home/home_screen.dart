@@ -561,8 +561,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<bool> _precacheImages(List<HomeCardData> cardDataList, BuildContext context) async {
     try {
+      final imagesToPrecache = cardDataList.take(3); // chỉ lấy 3 ảnh đầu
       await Future.wait(
-        cardDataList.map((card) => precacheImage(
+        imagesToPrecache.map((card) => precacheImage(
           NetworkImage(card.imageUrl),
           context,
         )),
