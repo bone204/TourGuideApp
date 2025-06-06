@@ -55,6 +55,25 @@ class ExploreScreenState extends State<ExploreScreen> {
     }
   }
 
+  Future<Map<String, double>> getPlaceDetails(String placeId) async {
+    String googleApiKey = dotenv.env['GOOGLE_API_KEY']!;
+    String detailsURL = 'https://maps.googleapis.com/maps/api/place/details/json';
+    String request = '$detailsURL?place_id=$placeId&fields=geometry&key=$googleApiKey';
+
+    var response = await http.get(Uri.parse(request));
+    
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      var location = data['result']['geometry']['location'];
+      return {
+        'lat': location['lat'],
+        'lng': location['lng'],
+      };
+    } else {
+      throw Exception('Failed to get place details');
+    }
+  }
+
   void onModify() {
     if(tokenForSession == null)
     {
@@ -88,6 +107,7 @@ class ExploreScreenState extends State<ExploreScreen> {
 
       // Lấy vị trí hiện tại
       Position position = await Geolocator.getCurrentPosition(
+        // ignore: deprecated_member_use
         desiredAccuracy: LocationAccuracy.high
       );
 
@@ -150,40 +170,130 @@ class ExploreScreenState extends State<ExploreScreen> {
                 },
               ),
               Positioned(
-                bottom: 20,
+                top: 50,
                 left: 0,
                 right: 0,
                 child: Container(
-                  height: 300, // hoặc MediaQuery.of(context).size.height * 0.4
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      TextField(
-                        controller: _searchController,
-                        decoration: const InputDecoration(
-                          hintText: 'Tìm kiếm địa điểm',
-                          border: InputBorder.none,
-                          prefixIcon: Icon(Icons.search),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.search, color: Colors.grey[600], size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                style: const TextStyle(fontSize: 16),
+                                decoration: InputDecoration(
+                                  hintText: 'Tìm kiếm địa điểm',
+                                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
+                              ),
+                            ),
+                            if (_searchController.text.isNotEmpty)
+                              IconButton(
+                                icon: Icon(Icons.clear, color: Colors.grey[600], size: 20),
+                                onPressed: () {
+                                  setState(() {
+                                    _searchController.clear();
+                                    listForPlace = [];
+                                  });
+                                },
+                              ),
+                          ],
                         ),
                       ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: listForPlace.length,
-                          itemBuilder: (context, index)
-                          {
-                            return ListTile(
-                              onTap: () 
-                              async {
-                                List<Location> locations = await locationFromAddress(listForPlace[index] ['description']);
-                                print(locations.last.latitude);
-                                print(locations.last.longitude);
-      
-                              },
-                              title: Text(listForPlace[index]['description']),
-                            );
-                          },
-                        )
-                      )
-                    ]
+                      if (listForPlace.isNotEmpty) ...[
+                        const Divider(height: 1),
+                        Container(
+                          constraints: const BoxConstraints(
+                            maxHeight: 200,
+                          ),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: listForPlace.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                dense: true,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                leading: Icon(Icons.location_on_outlined, color: Colors.grey[600], size: 20),
+                                onTap: () async {
+                                  try {
+                                    final placeId = listForPlace[index]['place_id'];
+                                    final location = await getPlaceDetails(placeId);
+                                    final lat = location['lat']!;
+                                    final lng = location['lng']!;
+                                    
+                                    setState(() {
+                                      _markers.removeWhere((marker) => marker.markerId.value != 'current_location');
+                                      _markers.add(
+                                        Marker(
+                                          markerId: MarkerId('selected_location_$index'),
+                                          position: LatLng(lat, lng),
+                                          infoWindow: InfoWindow(
+                                            title: listForPlace[index]['description'],
+                                            snippet: 'Địa điểm đã chọn',
+                                          ),
+                                        ),
+                                      );
+                                    });
+
+                                    if (_controller.isCompleted) {
+                                      final GoogleMapController controller = await _controller.future;
+                                      controller.animateCamera(
+                                        CameraUpdate.newCameraPosition(
+                                          CameraPosition(
+                                            target: LatLng(lat, lng),
+                                            zoom: 15,
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    setState(() {
+                                      listForPlace = [];
+                                      _searchController.clear();
+                                    });
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Không thể tìm thấy vị trí chính xác. Vui lòng thử lại.'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                },
+                                title: Text(
+                                  listForPlace[index]['description'],
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),
