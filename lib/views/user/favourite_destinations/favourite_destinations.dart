@@ -6,7 +6,7 @@ import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
 import 'package:tourguideapp/widgets/restaurant_card.dart';
-import '../../widgets/custom_icon_button.dart';
+import '../../../widgets/custom_icon_button.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/widgets/hotel_card.dart';

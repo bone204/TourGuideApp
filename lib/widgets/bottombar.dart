@@ -4,11 +4,11 @@ import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'custom_bottom_bar_clip.dart'; 
 import 'package:tourguideapp/localization/app_localizations.dart';
 
-class NavigationExample extends StatelessWidget {
+class CustomBottomBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  const NavigationExample({
+  const CustomBottomBar({
     super.key, 
     required this.currentIndex,
     required this.onTap,
@@ -92,6 +92,16 @@ class NavigationExample extends StatelessWidget {
                 ],
               ),
               label: AppLocalizations.of(context).translate('My Vehicle'),
+            ),
+            BottomNavigationBarItem(
+              icon: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.person, size: 24.sp),
+                  SizedBox(height: 4.h),
+                ],
+              ),
+              label: AppLocalizations.of(context).translate('Profile'),
             ),
           ],
         ),

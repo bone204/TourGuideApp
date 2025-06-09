@@ -5,7 +5,7 @@ import 'package:tourguideapp/core/constants/app_colors.dart'; // Import ScreenUt
 class InteractiveRowWidget extends StatelessWidget {
   final IconData leadingIcon;
   final String title;
-  final IconData trailingIcon;
+  final IconData ? trailingIcon;
   final VoidCallback onTap;
   final bool isSelected;
 
@@ -13,7 +13,7 @@ class InteractiveRowWidget extends StatelessWidget {
     super.key,
     required this.leadingIcon,
     required this.title,
-    required this.trailingIcon,
+    this.trailingIcon,
     required this.onTap,
     this.isSelected = false,
   });

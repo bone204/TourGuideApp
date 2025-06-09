@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/views/settings/edit_personal_information_screen.dart';
+import 'package:tourguideapp/views/user/settings/edit_personal_information_screen.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/disable_textfield.dart';
-import '../../widgets/custom_icon_button.dart';
+import '../../../widgets/custom_icon_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 

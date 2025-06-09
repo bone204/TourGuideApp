@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/views/travel_history/service_review_screen.dart';
+import 'package:tourguideapp/views/user/travel_history/service_review_screen.dart';
 
 class ServiceCard extends StatelessWidget {
   const ServiceCard({super.key});

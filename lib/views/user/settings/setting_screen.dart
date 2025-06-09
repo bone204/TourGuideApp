@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/views/settings/account_information_screen.dart';
-import 'package:tourguideapp/views/settings/password_screen.dart';
-import 'package:tourguideapp/views/settings/person_information_screen.dart';
-import 'package:tourguideapp/views/settings/policy_term_screen.dart';
-import 'package:tourguideapp/views/settings/privacy_policy_screen.dart';
+import 'package:tourguideapp/views/user/settings/account_information_screen.dart';
+import 'package:tourguideapp/views/user/settings/password_screen.dart';
+import 'package:tourguideapp/views/user/settings/person_information_screen.dart';
+import 'package:tourguideapp/views/user/settings/policy_term_screen.dart';
+import 'package:tourguideapp/views/user/settings/privacy_policy_screen.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/interactive_row_widget.dart';
 import 'language_screen.dart'; // Import màn hình lựa chọn ngôn ngữ
-import '../../widgets/custom_icon_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/blocs/auth_bloc.dart';
 
@@ -26,44 +26,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.h),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          flexibleSpace: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                height: 40.h,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft, 
-                      child: CustomIconButton(
-                        icon: Icons.chevron_left,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        AppLocalizations.of(context).translate('Settings'),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20.sp,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+      appBar: CustomAppBar(
+        title: AppLocalizations.of(context).translate('Settings'),
+        onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h), // Padding sử dụng ScreenUtil
@@ -88,7 +53,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PersonInfoScreen()),
+                  MaterialPageRoute(builder: (context) => const PersonInfoScreen()),
                 );
               },
             ),
@@ -100,7 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AccountInfoScreen()),
+                  MaterialPageRoute(builder: (context) => const AccountInfoScreen()),
                 );
               },
             ),
@@ -112,7 +77,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PasswordScreen()),
+                  MaterialPageRoute(builder: (context) => const PasswordScreen()),
                 );
               },
             ),
@@ -129,12 +94,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SizedBox(height: 16.h),
             InteractiveRowWidget(
               leadingIcon: Icons.language,
-              title: AppLocalizations.of(context).translate('language'),
+              title: AppLocalizations.of(context).translate('Language'),
               trailingIcon: Icons.chevron_right,
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LanguageScreen()),
+                  MaterialPageRoute(builder: (context) => const LanguageScreen()),
                 );
               },
             ),
@@ -146,7 +111,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PolicyAndTermScreen()),
+                  MaterialPageRoute(builder: (context) => const PolicyAndTermScreen()),
                 );
               },
             ),
@@ -158,7 +123,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PrivacyPolicyScreen()),
+                  MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()),
                 );
               },
             ),
@@ -166,7 +131,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             InteractiveRowWidget(
               leadingIcon: Icons.logout,
               title: AppLocalizations.of(context).translate('Sign Out'),
-              trailingIcon: Icons.chevron_right,
               onTap: () async {
                 bool shouldLogout = await showDialog<bool>(
                   context: context,

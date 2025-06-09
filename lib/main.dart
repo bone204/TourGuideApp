@@ -23,7 +23,7 @@ import 'localization/app_localizations.dart';
 import 'views/auth/login_screen.dart';
 import 'views/auth/signup_screen.dart';
 import 'views/home/main_screen.dart';
-import 'views/settings/setting_screen.dart';
+import 'views/user/settings/setting_screen.dart';
 import 'viewmodels/profile_viewmodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tourguideapp/viewmodels/bill_viewmodel.dart';

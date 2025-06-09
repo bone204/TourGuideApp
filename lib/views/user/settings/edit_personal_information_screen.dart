@@ -5,11 +5,11 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
-import '../../viewmodels/personInfo_viewmodel.dart';
-import '../../widgets/custom_text_field.dart';
-import '../../widgets/custom_combo_box.dart';
-import '../../widgets/custom_phone_field.dart';
-import '../../widgets/date_time_picker.dart';
+import '../../../viewmodels/personInfo_viewmodel.dart';
+import '../../../widgets/custom_text_field.dart';
+import '../../../widgets/custom_combo_box.dart';
+import '../../../widgets/custom_phone_field.dart';
+import '../../../widgets/date_time_picker.dart';
 
 class EditPersonInfoScreen extends StatefulWidget {
   const EditPersonInfoScreen({super.key});

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/historical_province_card_list.dart';
-import '../../widgets/custom_icon_button.dart';
+import '../../../widgets/custom_icon_button.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/province_view_model.dart';
 import 'package:tourguideapp/widgets/custom_search_bar.dart';

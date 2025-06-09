@@ -7,10 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
-import 'package:tourguideapp/viewmodels/profile_viewmodel.dart';
 import 'package:tourguideapp/views/admin/admin_screen.dart';
-import 'package:tourguideapp/views/home/notifications_screen.dart';
-import 'package:tourguideapp/views/user/profile_screen.dart';
+import 'package:tourguideapp/views/chat/chat.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/home_navigator.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
@@ -98,7 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final destinationsViewModel = Provider.of<DestinationsViewModel>(context);
     final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
-    final profileViewModel = Provider.of<ProfileViewModel>(context);
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -434,18 +431,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ProfileScreen(),
+                              builder: (context) => const Chat(),
                             ),
                           );
                         },
-                        child: CircleAvatar(
-                          radius: 16.r,
-                          backgroundImage: NetworkImage(
-                            profileViewModel.avatar,
-                          ),
-                          onBackgroundImageError: (exception, stackTrace) {
-                            const AssetImage('assets/img/bg_route_1.png');
-                          },
+                        child: Icon(
+                          Icons.chat_bubble_outline,
+                          color: AppColors.white,
+                          size: 28.sp,
                         ),
                       ),
                     ],

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:tourguideapp/localization/app_localizations.dart';
 // import 'package:tourguideapp/widgets/interactive_row_widget.dart';
-import '../../widgets/custom_icon_button.dart';
+import '../../../widgets/custom_icon_button.dart';
 
-class PrivacyPolicyScreen extends StatefulWidget {
-  const PrivacyPolicyScreen({super.key});
+class PolicyAndTermScreen extends StatefulWidget {
+  const PolicyAndTermScreen({super.key});
 
   @override
-  _PrivacyPolicyScreenScreenState createState() => _PrivacyPolicyScreenScreenState();
+  _PolicyAndTermScreenScreenState createState() => _PolicyAndTermScreenScreenState();
 }
 
-class _PrivacyPolicyScreenScreenState extends State<PrivacyPolicyScreen> {
+class _PolicyAndTermScreenScreenState extends State<PolicyAndTermScreen> {
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Khởi tạo ScreenUtil
@@ -43,7 +43,7 @@ class _PrivacyPolicyScreenScreenState extends State<PrivacyPolicyScreen> {
                       ),
                       Center(
                         child: Text(
-                          AppLocalizations.of(context).translate('Privacy Policy'),
+                          AppLocalizations.of(context).translate('Policies & Terms'),
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.w700,
@@ -70,7 +70,7 @@ class _PrivacyPolicyScreenScreenState extends State<PrivacyPolicyScreen> {
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w700,
-                    fontSize: 18.sp, // Kích thước chữ sử dụng ScreenUtil
+                    fontSize: 18.sp, 
                   ),
                   textAlign: TextAlign.left,
                 ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/models/province_model.dart';
-import 'package:tourguideapp/views/travel_history/travel_history_detail_screen.dart';
+import 'package:tourguideapp/views/user/travel_history/travel_history_detail_screen.dart';
 
 class HistoricalProvinceCard extends StatelessWidget {
   final Province province;

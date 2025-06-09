@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/models/destination_model.dart';
-import 'package:tourguideapp/views/travel_history/destination_review_screen.dart';
+import 'package:tourguideapp/views/user/travel_history/destination_review_screen.dart';
 
 class HistoricalDestinationCard extends StatelessWidget {
   final DestinationModel destination;
