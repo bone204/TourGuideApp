@@ -191,12 +191,12 @@ class ExploreScreenState extends State<ExploreScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
@@ -204,22 +204,29 @@ class ExploreScreenState extends State<ExploreScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.search, color: Colors.grey[600], size: 20),
-                            const SizedBox(width: 8),
+                            Icon(Icons.search, color: Colors.blue[700], size: 24),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: TextField(
                                 controller: _searchController,
-                                style: const TextStyle(fontSize: 16),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
                                 decoration: InputDecoration(
-                                  hintText: 'Tìm kiếm địa điểm',
-                                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
+                                  hintText: 'Tìm kiếm địa điểm...',
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                   border: InputBorder.none,
                                   contentPadding: const EdgeInsets.symmetric(vertical: 12),
                                 ),
@@ -239,68 +246,102 @@ class ExploreScreenState extends State<ExploreScreen> {
                         ),
                       ),
                       if (listForPlace.isNotEmpty) ...[
-                        const Divider(height: 1),
+                        Container(
+                          height: 1,
+                          color: Colors.grey[200],
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
                         Container(
                           constraints: const BoxConstraints(
-                            maxHeight: 200,
+                            maxHeight: 300,
+                          ),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(12),
+                              bottomRight: Radius.circular(12),
+                            ),
                           ),
                           child: ListView.builder(
                             shrinkWrap: true,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
                             itemCount: listForPlace.length,
                             itemBuilder: (context, index) {
-                              return ListTile(
-                                dense: true,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                                leading: Icon(Icons.location_on_outlined, color: Colors.grey[600], size: 20),
-                                onTap: () async {
-                                  try {
-                                    final placeId = listForPlace[index]['place_id'];
-                                    final location = await getPlaceDetails(placeId);
-                                    final lat = location['lat']!;
-                                    final lng = location['lng']!;
-                                    
-                                    setState(() {
-                                      _markers.removeWhere((marker) => marker.markerId.value != 'current_location');
-                                      _markers.add(
-                                        Marker(
-                                          markerId: MarkerId('selected_location_$index'),
-                                          position: LatLng(lat, lng),
-                                          infoWindow: InfoWindow(
-                                            title: listForPlace[index]['description'],
-                                            snippet: 'Địa điểm đã chọn',
+                              return Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[50],
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: Colors.grey[200]!,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: ListTile(
+                                  dense: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                  leading: Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue[50],
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Icon(Icons.location_on, color: Colors.blue[700], size: 22),
+                                  ),
+                                  title: Text(
+                                    listForPlace[index]['description'],
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  onTap: () async {
+                                    try {
+                                      final placeId = listForPlace[index]['place_id'];
+                                      final location = await getPlaceDetails(placeId);
+                                      final lat = location['lat']!;
+                                      final lng = location['lng']!;
+                                      
+                                      setState(() {
+                                        _markers.removeWhere((marker) => marker.markerId.value != 'current_location');
+                                        _markers.add(
+                                          Marker(
+                                            markerId: MarkerId('selected_location_$index'),
+                                            position: LatLng(lat, lng),
+                                            infoWindow: InfoWindow(
+                                              title: listForPlace[index]['description'],
+                                              snippet: 'Địa điểm đã chọn',
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    });
+                                        );
+                                      });
 
-                                    if (_controller.isCompleted) {
-                                      final GoogleMapController controller = await _controller.future;
-                                      controller.animateCamera(
-                                        CameraUpdate.newCameraPosition(
-                                          CameraPosition(
-                                            target: LatLng(lat, lng),
-                                            zoom: 15,
+                                      if (_controller.isCompleted) {
+                                        final GoogleMapController controller = await _controller.future;
+                                        controller.animateCamera(
+                                          CameraUpdate.newCameraPosition(
+                                            CameraPosition(
+                                              target: LatLng(lat, lng),
+                                              zoom: 15,
+                                            ),
                                           ),
+                                        );
+                                      }
+
+                                      setState(() {
+                                        listForPlace = [];
+                                        _searchController.clear();
+                                      });
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Không thể tìm thấy vị trí chính xác. Vui lòng thử lại.'),
+                                          backgroundColor: Colors.red,
                                         ),
                                       );
                                     }
-
-                                    setState(() {
-                                      listForPlace = [];
-                                      _searchController.clear();
-                                    });
-                                  } catch (e) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Không thể tìm thấy vị trí chính xác. Vui lòng thử lại.'),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                  }
-                                },
-                                title: Text(
-                                  listForPlace[index]['description'],
-                                  style: const TextStyle(fontSize: 14),
+                                  },
                                 ),
                               );
                             },

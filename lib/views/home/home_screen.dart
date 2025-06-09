@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       right: 0,
                       child: Container(
                         width: double.infinity,
-                        height: 232.h,
+                        height: 250.h,
                         decoration: const BoxDecoration(
                           borderRadius: BorderRadius.only(topLeft: Radius.zero, topRight: Radius.zero, bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
                           gradient: LinearGradient(
