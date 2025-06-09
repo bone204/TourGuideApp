@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourguideapp/views/service/travel/destination_bloc/desination_event.dart';
+import 'package:tourguideapp/views/service/travel/destination_bloc/destination_state.dart';
 import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart';
 import 'package:tourguideapp/views/service/travel/travel_bloc/travel_event.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
@@ -8,7 +10,7 @@ import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/custom_search_bar.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/views/service/travel/destination_detail_add_page.dart';
-import 'package:tourguideapp/blocs/destination/destination_bloc.dart';
+import 'package:tourguideapp/views/service/travel/destination_bloc/destination_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AddDestinationScreen extends StatelessWidget {

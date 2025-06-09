@@ -1,33 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tourguideapp/views/service/travel/destination_bloc/desination_event.dart';
+import 'package:tourguideapp/views/service/travel/destination_bloc/destination_state.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 
-// Events
-abstract class DestinationEvent {}
-
-class LoadDestinationsByProvince extends DestinationEvent {
-  final String province;
-  LoadDestinationsByProvince(this.province);
-}
-
-// States
-abstract class DestinationState {}
-
-class DestinationInitial extends DestinationState {}
-
-class DestinationLoading extends DestinationState {}
-
-class DestinationLoaded extends DestinationState {
-  final List<DestinationModel> destinations;
-  DestinationLoaded(this.destinations);
-}
-
-class DestinationError extends DestinationState {
-  final String message;
-  DestinationError(this.message);
-}
-
-// Bloc
 class DestinationBloc extends Bloc<DestinationEvent, DestinationState> {
   final FirebaseFirestore _firestore;
 
