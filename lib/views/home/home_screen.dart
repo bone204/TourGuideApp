@@ -397,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       },
                                       child: Text(
                                         destinationsViewModel.destinations.isNotEmpty
-                                            ? destinationsViewModel.destination[_currentDestinationIndex].destinationName
+                                            ? destinationsViewModel.destinations[_currentDestinationIndex].destinationName
                                             : AppLocalizations.of(context).translate('Search destinations...'),
                                         key: ValueKey<int>(_currentDestinationIndex),
                                         style: TextStyle(
