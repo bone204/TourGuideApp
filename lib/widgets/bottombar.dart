@@ -26,13 +26,24 @@ class NavigationExample extends StatelessWidget {
 
     return Container(
       height: 64.h,
-      color: Colors.white, 
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            // ignore: deprecated_member_use
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
       child: ClipPath(
         clipper: CustomBottomBarClipper(),
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed, 
           currentIndex: currentIndex,
           onTap: onTap,
+          elevation: 8,
           selectedItemColor: AppColors.primaryColor, 
           unselectedItemColor: AppColors.grey, 
           selectedLabelStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700), // Use ScreenUtil for font size
