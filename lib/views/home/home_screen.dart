@@ -104,25 +104,12 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppColors.white,
       body: Stack(
         children: [
-          // Main content
           SingleChildScrollView(
             controller: _scrollController,
             child: Column(
               children: [
                 Stack(
                   children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        width: double.infinity,
-                        height: 310.h,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
                     Positioned(
                       top: 0,
                       left: 0,
@@ -145,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SafeArea(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(20.w, 70.h, 20.w, 10.h),
+                        padding: EdgeInsets.fromLTRB(20.w, 80.h, 20.w, 10.h),
                         child: Column(
                           children: [
                             Container(
@@ -161,70 +148,85 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ],
                               ),
-                              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
-                              child: SizedBox(
-                                height: 180.h,
-                                child: PageView(
-                                  controller: _pageController,
-                                  onPageChanged: (index) {
-                                    setState(() {
-                                    });
-                                  },
-                                  children: [
-                                    // Page 1: Services
-                                    GridView.count(
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      crossAxisCount: 3,
-                                      mainAxisSpacing: 2.h,
-                                      crossAxisSpacing: 2.w,
-                                      childAspectRatio: 1.2,
-                                      children: const [
-                                        HomeNavigator(
-                                          image: 'assets/img/car_home.png', 
-                                          text: "Car Rental"
+                              padding: EdgeInsets.fromLTRB(4.w, 16.h, 4.w, 8.h),
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 76.h,
+                                    child: PageView(
+                                      controller: _pageController,
+                                      onPageChanged: (index) {
+                                        setState(() {
+                                        });
+                                      },
+                                      padEnds: false,
+                                      children: [
+                                        GridView.count(
+                                          physics: const NeverScrollableScrollPhysics(),
+                                          crossAxisCount: 4,
+                                          children: const [
+                                            HomeNavigator(
+                                              image: 'assets/img/car_home.png', 
+                                              text: "Car Rental"
+                                            ),
+                                            HomeNavigator(
+                                              image: 'assets/img/motorbike_home.png', 
+                                              text: "Motorbike Rental"
+                                            ),
+                                            HomeNavigator(
+                                              image: 'assets/img/travel_home.png', 
+                                              text: "Travel"
+                                            ),
+                                            HomeNavigator(
+                                              image: 'assets/img/restaurant_home.png', 
+                                              text: "Find Restaurant"
+                                            ),
+                                          ],
                                         ),
-                                        HomeNavigator(
-                                          image: 'assets/img/motorbike_home.png', 
-                                          text: "Motorbike Rental"
-                                        ),
-                                        HomeNavigator(
-                                          image: 'assets/img/travel_home.png', 
-                                          text: "Travel"
-                                        ),
-                                        HomeNavigator(
-                                          image: 'assets/img/restaurant_home.png', 
-                                          text: "Find Restaurant"
-                                        ),
-                                        HomeNavigator(
-                                          image: 'assets/img/hotel_home.png', 
-                                          text: "Find Hotel"
-                                        ),
-                                        HomeNavigator(
-                                          image: 'assets/img/delivery_home.png', 
-                                          text: "Fast Delivery"
-                                        ),
-                                      ],
-                                    ),
-                                    // Page 2: More
-                                    GridView.count(
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      crossAxisCount: 3,
-                                      mainAxisSpacing: 4.h,
-                                      crossAxisSpacing: 4.w,
-                                      childAspectRatio: 1.2,
-                                      children: const [
-                                        HomeNavigator(
-                                          image: 'assets/img/eatery_home.png', 
-                                          text: "Find Eatery"
-                                        ),
-                                        HomeNavigator(
-                                          image: 'assets/img/bus_home.png', 
-                                          text: "Bus Booking"
+                                        GridView.count(
+                                          physics: const NeverScrollableScrollPhysics(),
+                                          crossAxisCount: 4,
+                                          children: const [
+                                            HomeNavigator(
+                                              image: 'assets/img/hotel_home.png', 
+                                              text: "Find Hotel"
+                                            ),
+                                            HomeNavigator(
+                                              image: 'assets/img/delivery_home.png', 
+                                              text: "Fast Delivery"
+                                            ),
+                                            HomeNavigator(
+                                              image: 'assets/img/eatery_home.png', 
+                                              text: "Find Eatery"
+                                            ),
+                                            HomeNavigator(
+                                              image: 'assets/img/bus_home.png', 
+                                              text: "Bus Booking"
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: List.generate(2, (index) {
+                                      return Container(
+                                        width: 8.w,
+                                        height: 8.h,
+                                        margin: EdgeInsets.symmetric(horizontal: 4.w),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: _pageController.hasClients && 
+                                                 _pageController.page?.round() == index
+                                              ? AppColors.primaryColor
+                                              : Colors.grey.withOpacity(0.3),
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                ],
                               ),
                             ),
                           ]
@@ -312,17 +314,11 @@ class _HomeScreenState extends State<HomeScreen> {
             left: 0,
             right: 0,
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 0),
               decoration: BoxDecoration(
-                gradient: _isScrolled
-                    ? const LinearGradient(
-                        colors: [AppColors.primaryColor, AppColors.primaryColor],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      )
-                    : const LinearGradient(
-                        colors: [Colors.transparent, Colors.transparent],
-                      ),
+                color: _isScrolled
+                    ? AppColors.primaryColor
+                    : Colors.transparent,
                 boxShadow: _isScrolled
                     ? [
                         BoxShadow(
@@ -338,7 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 20.w,
-                    vertical: 10.h,
+                    vertical: 20.h,
                   ),
                   child: Row(
                     children: [
@@ -649,13 +645,13 @@ class ProvinceSection extends StatelessWidget {
   final Function(HomeCardData) onCardTap;
 
   const ProvinceSection({
-    Key? key,
+    super.key,
     required this.selectedProvince,
     required this.provinces,
     required this.onProvinceSelected,
     required this.cardDataList,
     required this.onCardTap,
-  }) : super(key: key);
+  });
 
   Future<bool> _precacheImages(List<HomeCardData> cardDataList, BuildContext context) async {
     try {
@@ -742,10 +738,10 @@ class InspirationSection extends StatelessWidget {
   final Function(HomeCardData) onCardTap;
 
   const InspirationSection({
-    Key? key,
+    super.key,
     required this.cardDataList,
     required this.onCardTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

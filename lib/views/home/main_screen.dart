@@ -32,7 +32,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    ExploreScreen(),
+    const ExploreScreen(),
     const ServiceScreen(),
     const MyVehicleScreen(),
   ];

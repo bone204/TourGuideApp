@@ -19,13 +19,13 @@ class NavigationExample extends StatelessWidget {
     // Initialize ScreenUtil
     ScreenUtil.init(
       context,
-      designSize: const Size(375, 812), // Define your design size
+      designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
     );
 
     return Container(
-      height: 64.h, // Use ScreenUtil for height
+      height: 64.h,
       color: Colors.white, 
       child: ClipPath(
         clipper: CustomBottomBarClipper(),
