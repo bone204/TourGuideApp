@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
-import 'package:tourguideapp/color/colors.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'custom_bottom_bar_clip.dart'; 
 import 'package:tourguideapp/localization/app_localizations.dart';
 

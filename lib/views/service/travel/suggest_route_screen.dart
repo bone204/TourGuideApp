@@ -5,7 +5,7 @@ import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/widgets/range_date_time_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart';
 
 class SuggestRouteScreen extends StatefulWidget{
   final String provinceName;

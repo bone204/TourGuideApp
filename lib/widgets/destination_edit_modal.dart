@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/color/colors.dart';
-import 'package:tourguideapp/utils/time_slot_manager.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
+import 'package:tourguideapp/core/utils/time_slot_manager.dart';
 
 class DestinationEditModal extends StatefulWidget {
   final String destinationName;

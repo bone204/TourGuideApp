@@ -7,7 +7,7 @@ import 'package:tourguideapp/widgets/budget_slider.dart';
 import 'package:tourguideapp/widgets/date_time_picker.dart';
 import 'package:tourguideapp/widgets/location_picker.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
-import 'package:tourguideapp/color/colors.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
 
 class RestaurantBookingScreen extends StatefulWidget {
   @override

@@ -1,12 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tourguideapp/blocs/travel/travel_event.dart';
-import 'package:tourguideapp/blocs/travel/travel_state.dart';
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_event.dart';
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_state.dart';
 import 'package:tourguideapp/models/travel_route_model.dart';
 import 'package:tourguideapp/models/user_model.dart';
 import 'package:tourguideapp/models/destination_model.dart';
-import 'package:tourguideapp/utils/time_slot_manager.dart';
+import 'package:tourguideapp/core/utils/time_slot_manager.dart';
 
 class TravelBloc extends Bloc<TravelEvent, TravelState> {
   final FirebaseFirestore _firestore;

@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tourguideapp/services/firebase_auth_services.dart';
+import 'package:tourguideapp/core/services/firebase_auth_services.dart';
 import 'package:tourguideapp/models/user_model.dart';
 import 'package:tourguideapp/blocs/auth_bloc.dart';
 

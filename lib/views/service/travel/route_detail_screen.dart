@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/blocs/travel/travel_event.dart';
-import 'package:tourguideapp/blocs/travel/travel_state.dart';
-import 'package:tourguideapp/color/colors.dart';
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_event.dart';
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_state.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/service/travel/add_destination_screen.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
-import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/widgets/destination_route_card.dart';
-import 'package:tourguideapp/utils/time_slot_manager.dart';
+import 'package:tourguideapp/core/utils/time_slot_manager.dart';
 import 'package:tourguideapp/widgets/destination_edit_modal.dart';
 
 class RouteDetailScreen extends StatefulWidget {

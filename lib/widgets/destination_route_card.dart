@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/color/colors.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
 
 class DestinationRouteCard extends StatelessWidget {
   final String name;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tourguideapp/color/colors.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/views/favourite_destinations/favourite_destinations.dart';
 import 'package:tourguideapp/views/settings/setting_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

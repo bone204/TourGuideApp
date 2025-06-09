@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/blocs/bus_booking/bus_booking_bloc.dart';
-import 'package:tourguideapp/blocs/bus_booking/bus_booking_event.dart';
-import 'package:tourguideapp/blocs/bus_booking/bus_booking_state.dart';
-import 'package:tourguideapp/color/colors.dart';
+import 'package:tourguideapp/views/service/bus_booking/bus_booking_bloc.dart/bus_booking_bloc.dart';
+import 'package:tourguideapp/views/service/bus_booking/bus_booking_bloc.dart/bus_booking_event.dart';
+import 'package:tourguideapp/views/service/bus_booking/bus_booking_bloc.dart/bus_booking_state.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/service/bus_booking/bus_list.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';

@@ -8,7 +8,6 @@ import 'dart:async';
 
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
-import 'package:geocoding/geocoding.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -23,35 +22,40 @@ class ExploreScreenState extends State<ExploreScreen> {
   String tokenForSession = '37465';
   List<dynamic> listForPlace = [];
 
-  var uuid = Uuid();
+  var uuid = const Uuid();
 
   String url = '';
-  Set<Marker> _markers = {};
+  final Set<Marker> _markers = {};
   Position? _currentPosition;
   bool _isLoading = true;
+  Timer? _debounceTimer;
   
 
   void makeSuggestion(String input) async {
+    if (!mounted) return;
+    
     String googleApiKey = dotenv.env['GOOGLE_API_KEY']!;
     String groundURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
     String request = '$groundURL?input=$input&key=$googleApiKey&sessiontoken=$tokenForSession';
 
-    var responseResult = await http.get(Uri.parse(request));
-    
-    var Resultdata = responseResult.body.toString();
+    try {
+      var responseResult = await http.get(Uri.parse(request));
+      
+      if (!mounted) return;
 
-    print('Result Data');
-    print(Resultdata);
-
-    if(responseResult.statusCode == 200) {
-      setState(() {
-        listForPlace = jsonDecode(responseResult.body.toString()) ['predictions'];
-      });
-    }
-    else {
-      throw Exception(
-        'Showing data failed, Try Again'
-      );
+      if (responseResult.statusCode == 200) {
+        setState(() {
+          listForPlace = jsonDecode(responseResult.body.toString())['predictions'];
+        });
+      } else {
+        throw Exception('Showing data failed, Try Again');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          listForPlace = [];
+        });
+      }
     }
   }
 
@@ -75,23 +79,29 @@ class ExploreScreenState extends State<ExploreScreen> {
   }
 
   void onModify() {
-    if(tokenForSession == null)
-    {
-      setState(() {
-        tokenForSession = uuid.v4();
-      });
-    }
-
-    makeSuggestion(_searchController.text);
+    _debounceTimer?.cancel();
+    
+    // Tạo timer mới
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        makeSuggestion(_searchController.text);
+      }
+    });
   }
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
-    _searchController.addListener(() {
-      onModify();
-    });
+    _searchController.addListener(onModify);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(onModify);
+    _searchController.dispose();
+    _debounceTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -111,20 +121,22 @@ class ExploreScreenState extends State<ExploreScreen> {
         desiredAccuracy: LocationAccuracy.high
       );
 
-      setState(() {
-        _currentPosition = position;
-        _markers.add(
-          Marker(
-            markerId: const MarkerId('current_location'),
-            position: LatLng(position.latitude, position.longitude),
-            infoWindow: const InfoWindow(
-              title: 'Vị trí của bạn',
-              snippet: 'Bạn đang ở đây',
+      if (mounted) {
+        setState(() {
+          _currentPosition = position;
+          _markers.add(
+            Marker(
+              markerId: const MarkerId('current_location'),
+              position: LatLng(position.latitude, position.longitude),
+              infoWindow: const InfoWindow(
+                title: 'Vị trí của bạn',
+                snippet: 'Bạn đang ở đây',
+              ),
             ),
-          ),
-        );
-        _isLoading = false;
-      });
+          );
+          _isLoading = false;
+        });
+      }
 
       // Di chuyển camera đến vị trí hiện tại
       if (_controller.isCompleted) {
@@ -139,10 +151,12 @@ class ExploreScreenState extends State<ExploreScreen> {
         );
       }
     } catch (e) {
-      debugPrint('Lỗi khi lấy vị trí: $e');
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        debugPrint('Lỗi khi lấy vị trí: $e');
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

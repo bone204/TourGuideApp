@@ -8,7 +8,7 @@ import 'package:tourguideapp/viewmodels/login_viewmodel.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/social_icon_button.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/services/firebase_auth_services.dart';
+import 'package:tourguideapp/core/services/firebase_auth_services.dart';
 import 'signup_screen.dart';
 import 'forgot_password_phone_screen.dart';
 import 'package:tourguideapp/blocs/auth_bloc.dart';

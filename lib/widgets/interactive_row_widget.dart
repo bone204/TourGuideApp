@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/color/colors.dart'; // Import ScreenUtil
+import 'package:tourguideapp/core/constants/app_colors.dart'; // Import ScreenUtil
 
 class InteractiveRowWidget extends StatelessWidget {
   final IconData leadingIcon;

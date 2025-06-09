@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:tourguideapp/blocs/travel/travel_bloc.dart'; 
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart'; 
 import 'package:tourguideapp/viewmodels/accountInfo_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/contract_viewmodel.dart';
@@ -29,10 +29,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tourguideapp/viewmodels/bill_viewmodel.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/blocs/auth_bloc.dart';
-import 'package:tourguideapp/services/firebase_auth_services.dart';
+import 'package:tourguideapp/core/services/firebase_auth_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tourguideapp/services/notification_service.dart';
+import 'package:tourguideapp/core/services/notification_service.dart';
 
 class ImagesPath {
   static const String kOnboarding1 = 'assets/images/img_1.jpg';

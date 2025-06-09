@@ -4,10 +4,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tourguideapp/color/colors.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/profile_viewmodel.dart';
+import 'package:tourguideapp/views/admin/admin_screen.dart';
 import 'package:tourguideapp/views/home/notifications_screen.dart';
 import 'package:tourguideapp/views/user/profile_screen.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
@@ -421,7 +422,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const NotificationsScreen(),
+                              builder: (context) => const AdminScreen(),
                             ),
                           );
                         },

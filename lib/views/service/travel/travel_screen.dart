@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/blocs/travel/travel_event.dart';
-import 'package:tourguideapp/blocs/travel/travel_state.dart';
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_event.dart';
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_state.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/service/travel/province_list_screen.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart';
 import 'package:tourguideapp/models/travel_route_model.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/widgets/route_card.dart';

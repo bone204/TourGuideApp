@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tourguideapp/blocs/travel/travel_bloc.dart';
-import 'package:tourguideapp/blocs/travel/travel_event.dart';
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart';
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_event.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/custom_search_bar.dart';

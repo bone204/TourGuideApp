@@ -5,7 +5,7 @@ import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/bus_ticket.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/date_time_picker.dart';
-import 'package:tourguideapp/color/colors.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
 
 class BusListScreen extends StatefulWidget {
   final DateTime departureDate;
