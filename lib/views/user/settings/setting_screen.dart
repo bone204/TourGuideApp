@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/user/settings/account_information_screen.dart';
+import 'package:tourguideapp/views/user/settings/contact_screen.dart';
 import 'package:tourguideapp/views/user/settings/password_screen.dart';
 import 'package:tourguideapp/views/user/settings/person_information_screen.dart';
-import 'package:tourguideapp/views/user/settings/policy_term_screen.dart';
+import 'package:tourguideapp/views/user/settings/term_condition_screen.dart';
 import 'package:tourguideapp/views/user/settings/privacy_policy_screen.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/interactive_row_widget.dart';
@@ -106,12 +107,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SizedBox(height: 16.h),
             InteractiveRowWidget(
               leadingIcon: Icons.book,
-              title: AppLocalizations.of(context).translate('Policies & Terms'),
+              title: AppLocalizations.of(context).translate('Terms & Conditions'),
               trailingIcon: Icons.chevron_right,
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PolicyAndTermScreen()),
+                  MaterialPageRoute(builder: (context) => const TermConditionScreen()),
                 );
               },
             ),
@@ -124,6 +125,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const PrivacyPolicyScreen()),
+                );
+              },
+            ),
+            SizedBox(height: 16.h), 
+            InteractiveRowWidget(
+              leadingIcon: Icons.phone,
+              title: AppLocalizations.of(context).translate('Contact Us'),
+              trailingIcon: Icons.chevron_right,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ContactScreen()),
                 );
               },
             ),

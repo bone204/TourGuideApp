@@ -4,14 +4,14 @@ import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 
-class PrivacyPolicyScreen extends StatefulWidget {
-  const PrivacyPolicyScreen({super.key});
+class ContactScreen extends StatefulWidget {
+  const ContactScreen({super.key});
 
   @override
-  _PrivacyPolicyScreenState createState() => _PrivacyPolicyScreenState();
+  _ContactScreenState createState() => _ContactScreenState();
 }
 
-class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
+class _ContactScreenState extends State<ContactScreen> {
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
@@ -19,7 +19,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: AppLocalizations.of(context).translate("Privacy Policy"),
+        title: AppLocalizations.of(context).translate("Contact Us"),
         onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: SingleChildScrollView(
@@ -41,7 +41,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
               Align(
                 alignment: Alignment.center,
                 child: Text(
-                  AppLocalizations.of(context).translate('TRAVELINE PRIVACY POLICY'),
+                  AppLocalizations.of(context).translate('Mobile application to support tourists in Vietnam'),
                   style: TextStyle(
                     color: AppColors.black,
                     fontWeight: FontWeight.w700,
@@ -51,29 +51,17 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 ),
               ),
               SizedBox(height: 16.h),
-              Align(
-                alignment: Alignment.center,
-                child: Text(
-                  AppLocalizations.of(context).translate('Last modified on 05/09/2025'),
-                  style: TextStyle(
-                    color: AppColors.grey,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 14.sp, 
-                  ),
-                ),
-              ),
-              SizedBox(height: 16.h),
               Text(
-                AppLocalizations.of(context).translate('1. Term 1'),
+                AppLocalizations.of(context).translate('Version: 1.0.0'),
                 style: TextStyle(
-                  color: AppColors.black,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18.sp, 
+                  color: AppColors.grey,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14.sp, 
                 ),
               ),
               SizedBox(height: 8.h),
               Text(
-                AppLocalizations.of(context).translate('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Viverra condimentum eget purus in. Consectetur eget id morbi amet amet, in. Ipsum viverra pretium tellus neque. Ullamcorper suspendisse aenean leo pharetra in sit semper et. Amet quam placerat sem.'),
+                AppLocalizations.of(context).translate('Last updated 05/29/2025'),
                 style: TextStyle(
                   color: AppColors.grey,
                   fontWeight: FontWeight.w400,
@@ -82,7 +70,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
               ),
               SizedBox(height: 16.h),
               Text(
-                AppLocalizations.of(context).translate('2. Term 2'),
+                '1. ${AppLocalizations.of(context).translate('Contact Us')}',
                 style: TextStyle(
                   color: AppColors.black,
                   fontWeight: FontWeight.w700,
@@ -91,7 +79,16 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
               ),
               SizedBox(height: 8.h),
               Text(
-                AppLocalizations.of(context).translate('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Viverra condimentum eget purus in. Consectetur eget id morbi amet amet, in. Ipsum viverra pretium tellus neque. Ullamcorper suspendisse aenean leo pharetra in sit semper et. Amet quam placerat sem.'),
+                AppLocalizations.of(context).translate('Hotline: 0971072923'),
+                style: TextStyle(
+                  color: AppColors.grey,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14.sp, 
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                AppLocalizations.of(context).translate('Supporter name: Tran Trung Thong'),
                 style: TextStyle(
                   color: AppColors.grey,
                   fontWeight: FontWeight.w400,
@@ -100,7 +97,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
               ),
               SizedBox(height: 16.h),
               Text(
-                AppLocalizations.of(context).translate('3. Term 3'),
+                '2. ${AppLocalizations.of(context).translate('Other information')}',
                 style: TextStyle(
                   color: AppColors.black,
                   fontWeight: FontWeight.w700,
@@ -108,32 +105,28 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 ),
               ),
               SizedBox(height: 8.h),
-              Text(
-                AppLocalizations.of(context).translate('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Viverra condimentum eget purus in. Consectetur eget id morbi amet amet, in. Ipsum viverra pretium tellus neque. Ullamcorper suspendisse aenean leo pharetra in sit semper et. Amet quam placerat sem.'),
-                style: TextStyle(
-                  color: AppColors.grey,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14.sp, 
+              RichText(
+                text: TextSpan(
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: AppLocalizations.of(context).translate('Check out our support center '),
+                      style: TextStyle(
+                        color: AppColors.grey,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14.sp, 
+                      ),
+                    ),
+                    TextSpan(
+                      text: AppLocalizations.of(context).translate('here'),
+                      style: TextStyle(
+                        color: AppColors.primaryColor,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14.sp, 
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: 16.h),
-              Text(
-                AppLocalizations.of(context).translate('4. Term 4'),
-                style: TextStyle(
-                  color: AppColors.black,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18.sp, 
-                ),
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                AppLocalizations.of(context).translate('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Viverra condimentum eget purus in. Consectetur eget id morbi amet amet, in. Ipsum viverra pretium tellus neque. Ullamcorper suspendisse aenean leo pharetra in sit semper et. Amet quam placerat sem.'),
-                style: TextStyle(
-                  color: AppColors.grey,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14.sp, 
-                ),
-              ),
+              )
             ],
           ),
         ),

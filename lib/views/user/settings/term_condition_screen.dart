@@ -4,14 +4,14 @@ import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 
-class PrivacyPolicyScreen extends StatefulWidget {
-  const PrivacyPolicyScreen({super.key});
+class TermConditionScreen extends StatefulWidget {
+  const TermConditionScreen({super.key});
 
   @override
-  _PrivacyPolicyScreenState createState() => _PrivacyPolicyScreenState();
+  _TermConditionScreenState createState() => _TermConditionScreenState();
 }
 
-class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
+class _TermConditionScreenState extends State<TermConditionScreen> {
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
@@ -19,7 +19,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: AppLocalizations.of(context).translate("Privacy Policy"),
+        title: AppLocalizations.of(context).translate("Terms & Conditions"),
         onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: SingleChildScrollView(
@@ -41,7 +41,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
               Align(
                 alignment: Alignment.center,
                 child: Text(
-                  AppLocalizations.of(context).translate('TRAVELINE PRIVACY POLICY'),
+                  AppLocalizations.of(context).translate('TERMS AND CONDITIONS OF USE'),
                   style: TextStyle(
                     color: AppColors.black,
                     fontWeight: FontWeight.w700,
