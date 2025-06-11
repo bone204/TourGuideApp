@@ -76,40 +76,87 @@ class ProfileScreen extends StatelessWidget {
                               color: Colors.white,
                               boxShadow: [
                                 BoxShadow(
-                                  // ignore: deprecated_member_use
-                                  color: const Color(0xFF000000).withOpacity(0.25),
-                                  blurRadius: 4.r,
-                                  offset: const Offset(0, 2),
+                                  color: const Color(0xFF000000).withOpacity(0.15),
+                                  blurRadius: 8.r,
+                                  offset: const Offset(0, 4),
                                 ),
                               ],
                             ),
-                            child: Row(
+                            child: Column(
                               children: [
-                                CircleAvatar(
-                                  radius: 60,
-                                  backgroundImage: NetworkImage(
-                                    profileViewModel.avatar,
-                                  ),
-                                  onBackgroundImageError: (exception, stackTrace) {
-                                    // Fallback nếu load ảnh thất bại
-                                    const AssetImage('assets/img/bg_route_1.png');
-                                  },
-                                ),
-                                SizedBox(width: 20.w),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                Row(
                                   children: [
-                                    Text(
-                                      profileViewModel.name,
-                                      style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w700),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: AppColors.primaryColor.withOpacity(0.2),
+                                          width: 3,
+                                        ),
+                                      ),
+                                      child: CircleAvatar(
+                                        radius: 50.r,
+                                        backgroundImage: NetworkImage(
+                                          profileViewModel.avatar,
+                                        ),
+                                        onBackgroundImageError: (exception, stackTrace) {
+                                          const AssetImage('assets/img/bg_route_1.png');
+                                        },
+                                      ),
                                     ),
-                                    SizedBox(height: 8.h),
-                                    Text(
-                                      profileViewModel.email,
-                                      style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+                                    SizedBox(width: 20.w),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            profileViewModel.name,
+                                            style: TextStyle(
+                                              fontSize: 24.sp, 
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          SizedBox(height: 4.h),
+                                          Text(
+                                            profileViewModel.email,
+                                            style: TextStyle(
+                                              fontSize: 14.sp, 
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                          SizedBox(height: 12.h),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primaryColor.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(20.r),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.calendar_today,
+                                                  size: 14.sp,
+                                                  color: AppColors.primaryColor,
+                                                ),
+                                                SizedBox(width: 4.w),
+                                                Text(
+                                                  '${AppLocalizations.of(context).translate('Member since')} ${profileViewModel.dayParticipation} ${AppLocalizations.of(context).translate('days')}',
+                                                  style: TextStyle(
+                                                    fontSize: 12.sp,
+                                                    color: AppColors.primaryColor,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
-                                )
+                                ),
                               ],
                             ),
                           ),
@@ -195,59 +242,66 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildStatsRow(BuildContext context) {
     final profileViewModel = Provider.of<ProfileViewModel>(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _buildStatsColumn(
-          context, 
-          AppLocalizations.of(context).translate('Travel Points'), 
-          profileViewModel.travelPoint.toString()
-        ),
-        _buildStatsColumn(
-          context, 
-          AppLocalizations.of(context).translate('Travel Trips'), 
-          profileViewModel.travelTrip.toString()
-        ),
-        _buildStatsColumn(
-          context, 
-          AppLocalizations.of(context).translate('Reviews'), 
-          profileViewModel.feedbackTimes.toString()
-        ),
-      ],
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildStatsColumn(
+            context, 
+            AppLocalizations.of(context).translate('Travel Points'), 
+            profileViewModel.travelPoint.toString(),
+            Icons.star,
+          ),
+          _buildStatsColumn(
+            context, 
+            AppLocalizations.of(context).translate('Travel Trips'), 
+            profileViewModel.travelTrip.toString(),
+            Icons.flight_takeoff,
+          ),
+          _buildStatsColumn(
+            context, 
+            AppLocalizations.of(context).translate('Reviews'), 
+            profileViewModel.feedbackTimes.toString(),
+            Icons.rate_review,
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildStatsColumn(BuildContext context, String title, String value) {
+  Widget _buildStatsColumn(BuildContext context, String title, String value, IconData icon) {
     return Container(
       width: 104.w,
-      height: 100.h,
-      padding: EdgeInsets.symmetric(vertical: 16.h),
+      height: 120.h,
+      padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.r), 
-        color: AppColors.primaryColor,
+        borderRadius: BorderRadius.circular(8.r),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryColor,
+            Color(0xFF0056b3),
+          ],
+        ),
         boxShadow: [
           BoxShadow(
-            // ignore: deprecated_member_use
-            color: const Color(0xFF000000).withOpacity(0.25),
-            blurRadius: 4.r,
-            offset: const Offset(0, 2),
+            color: const Color(0xFF000000).withOpacity(0.15),
+            blurRadius: 8.r,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            alignment: Alignment.topCenter,
-            width: 90.w,
-            child: Text(
-              title,
-              style: TextStyle(fontSize: 13.sp, color: AppColors.white,fontWeight: FontWeight.w700),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
+          Icon(
+            icon,
+            color: AppColors.yellow,
+            size: 24.sp,
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 8.h),
           Text(
             value,
             style: TextStyle(
@@ -256,8 +310,21 @@ class ProfileScreen extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
+          SizedBox(height: 4.h),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
   }
+
 }

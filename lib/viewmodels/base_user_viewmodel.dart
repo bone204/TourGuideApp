@@ -14,6 +14,9 @@ class BaseUserViewModel extends ChangeNotifier {
   int _travelTrip = 0;
   int _feedbackTimes = 0;
   int _dayParticipation = 0;
+  String? _phoneNumber;
+  String? _address;
+  String? _gender;
 
   String get name => _name;
   String get email => _email;
@@ -23,6 +26,9 @@ class BaseUserViewModel extends ChangeNotifier {
   int get travelTrip => _travelTrip;
   int get feedbackTimes => _feedbackTimes;
   int get dayParticipation => _dayParticipation;
+  String? get phoneNumber => _phoneNumber;
+  String? get address => _address;
+  String? get gender => _gender;
 
   BaseUserViewModel() {
     _initUserDataStream();
@@ -31,7 +37,6 @@ class BaseUserViewModel extends ChangeNotifier {
   void _initUserDataStream() {
     _auth.authStateChanges().listen((user) {
       if (user != null) {
-        // Sử dụng stream thay vì Future
         _firestore
             .collection('USER')
             .doc(user.uid)
@@ -47,6 +52,9 @@ class BaseUserViewModel extends ChangeNotifier {
             _travelTrip = data['travelTrip'] ?? 0;
             _feedbackTimes = data['feedbackTimes'] ?? 0;
             _dayParticipation = data['dayParticipation'] ?? 0;
+            _phoneNumber = data['phoneNumber'];
+            _address = data['address'];
+            _gender = data['gender'];
             notifyListeners();
           } else {
             _clearUserData();
@@ -67,6 +75,9 @@ class BaseUserViewModel extends ChangeNotifier {
     _travelTrip = 0;
     _feedbackTimes = 0;
     _dayParticipation = 0;
+    _phoneNumber = null;
+    _address = null;
+    _gender = null;
     notifyListeners();
   }
 
