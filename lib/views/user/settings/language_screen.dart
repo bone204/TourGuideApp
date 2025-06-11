@@ -137,6 +137,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
         ),
         if (_isLoading)
           Container(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.5),
             child: Center(
               child: Container(

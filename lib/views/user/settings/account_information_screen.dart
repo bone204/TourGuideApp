@@ -7,6 +7,7 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/disable_textfield.dart';
 import '../../../viewmodels/accountInfo_viewmodel.dart';
+import '../../../widgets/custom_icon_button.dart';
 
 class AccountInfoScreen extends StatefulWidget {
   const AccountInfoScreen({super.key});
@@ -26,6 +27,73 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
       appBar: CustomAppBar(
         title: AppLocalizations.of(context).translate('Account Information'),
         onBackPressed: () => Navigator.of(context).pop(),
+        actions: [
+          CustomIconButton(
+            icon: Icons.edit,
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  String newName = accountInfoViewModel.name;
+                  return AlertDialog(
+                    title: Text(AppLocalizations.of(context).translate('Edit Account Information')),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context).translate('Username'),
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        TextField(
+                          controller: TextEditingController(text: newName),
+                          onChanged: (value) => newName = value,
+                          decoration: InputDecoration(
+                            hintText: AppLocalizations.of(context).translate('Username'),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          AppLocalizations.of(context).translate('Cancel'),
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (newName.isNotEmpty) {
+                            accountInfoViewModel.updateName(newName);
+                            Navigator.pop(context);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          AppLocalizations.of(context).translate('Save'),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 36.h), // Padding sử dụng ScreenUtil

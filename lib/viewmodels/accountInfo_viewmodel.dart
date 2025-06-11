@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -38,6 +37,23 @@ class AccountInfoViewModel extends BaseUserViewModel {
       await loadUserData();
     } catch (e) {
       print('Error changing profile image: $e');
+    }
+  }
+
+  Future<void> updateName(String newName) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return;
+
+      // Update Firestore
+      await _firestore.collection('USER').doc(user.uid).update({
+        'name': newName,
+      });
+
+      // Update local state
+      await loadUserData();
+    } catch (e) {
+      print('Error updating name: $e');
     }
   }
 }
