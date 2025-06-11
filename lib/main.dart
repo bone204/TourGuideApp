@@ -42,7 +42,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeFirebase();
 
-  // Khởi tạo NotificationService
   NotificationService notificationService = NotificationService();
   await notificationService.initialize();
 
@@ -125,7 +124,6 @@ class MyAppState extends State<MyApp> {
 
   Future<void> _initializeApp() async {
     await _loadSavedLanguage();
-    // Add any other initialization here
   }
 
   Future<void> _loadSavedLanguage() async {
@@ -194,7 +192,6 @@ class MyAppState extends State<MyApp> {
           },
           builder: (context, child) {
             return MediaQuery(
-              // Prevent text scaling that could cause layout issues
               data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
               child: child!,
             );

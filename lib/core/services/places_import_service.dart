@@ -13,26 +13,57 @@ class PlacesImportService {
     required FirebaseFirestore firestore,
   }) : _firestore = firestore;
 
-  // Tọa độ các thành phố lớn ở Việt Nam
-  final List<Map<String, dynamic>> vietnamCities = [
+  // Danh sách các tỉnh/thành phố chính thức của Việt Nam
+  final List<Map<String, dynamic>> vietnamProvinces = [
     {'name': 'Hà Nội', 'lat': 21.0285, 'lng': 105.8542},
     {'name': 'Hồ Chí Minh', 'lat': 10.7757, 'lng': 106.7004},
     {'name': 'Đà Nẵng', 'lat': 16.0544, 'lng': 108.2022},
     {'name': 'Hải Phòng', 'lat': 20.8449, 'lng': 106.6880},
     {'name': 'Cần Thơ', 'lat': 10.0452, 'lng': 105.7469},
-    {'name': 'Huế', 'lat': 16.4619, 'lng': 107.5909},
-    {'name': 'Nha Trang', 'lat': 12.2388, 'lng': 109.1967},
-    {'name': 'Đà Lạt', 'lat': 11.9404, 'lng': 108.4587},
+    {'name': 'Thừa Thiên Huế', 'lat': 16.4619, 'lng': 107.5909},
+    {'name': 'Khánh Hòa', 'lat': 12.2388, 'lng': 109.1967},
+    {'name': 'Lâm Đồng', 'lat': 11.9404, 'lng': 108.4587},
+    {'name': 'Quảng Ninh', 'lat': 21.0064, 'lng': 107.2925},
+    {'name': 'Bình Định', 'lat': 13.7754, 'lng': 109.2237},
+    {'name': 'Quảng Nam', 'lat': 15.8801, 'lng': 108.3380},
+    {'name': 'Bình Thuận', 'lat': 10.9289, 'lng': 108.1021},
+    {'name': 'Ninh Thuận', 'lat': 11.5647, 'lng': 108.9886},
+    {'name': 'Phú Yên', 'lat': 13.1056, 'lng': 109.2924},
+    {'name': 'Bình Dương', 'lat': 11.3254, 'lng': 106.4770},
+    {'name': 'Đồng Nai', 'lat': 10.9574, 'lng': 106.8426},
+    {'name': 'Bà Rịa - Vũng Tàu', 'lat': 10.4114, 'lng': 107.1362},
+    {'name': 'Long An', 'lat': 10.5333, 'lng': 106.4131},
+    {'name': 'Tiền Giang', 'lat': 10.3600, 'lng': 106.3600},
+    {'name': 'Bến Tre', 'lat': 10.2333, 'lng': 106.3833},
+    {'name': 'Vĩnh Long', 'lat': 10.2500, 'lng': 105.9667},
+    {'name': 'Đồng Tháp', 'lat': 10.3333, 'lng': 105.6333},
+    {'name': 'An Giang', 'lat': 10.3833, 'lng': 105.4333},
+    {'name': 'Kiên Giang', 'lat': 10.0167, 'lng': 105.0833},
+    {'name': 'Cà Mau', 'lat': 9.1833, 'lng': 105.1500},
+    {'name': 'Bạc Liêu', 'lat': 9.2833, 'lng': 105.7167},
+    {'name': 'Sóc Trăng', 'lat': 9.6000, 'lng': 105.9667},
+    {'name': 'Trà Vinh', 'lat': 9.9333, 'lng': 106.3333},
+    {'name': 'Hậu Giang', 'lat': 9.7833, 'lng': 105.4667},
+    {'name': 'Bình Phước', 'lat': 11.7500, 'lng': 106.6000},
+    {'name': 'Tây Ninh', 'lat': 11.3667, 'lng': 106.1167},
+    {'name': 'Bình Phước', 'lat': 11.7500, 'lng': 106.6000},
+    {'name': 'Bình Thuận', 'lat': 10.9289, 'lng': 108.1021},
+    {'name': 'Ninh Thuận', 'lat': 11.5647, 'lng': 108.9886},
+    {'name': 'Kon Tum', 'lat': 14.3500, 'lng': 108.0000},
+    {'name': 'Gia Lai', 'lat': 13.9833, 'lng': 108.0000},
+    {'name': 'Đắk Lắk', 'lat': 12.6667, 'lng': 108.0500},
+    {'name': 'Đắk Nông', 'lat': 12.0000, 'lng': 107.6833},
+    {'name': 'Lâm Đồng', 'lat': 11.9404, 'lng': 108.4587},
   ];
 
   Future<void> importPlacesToFirebase() async {
-    for (var city in vietnamCities) {
-      await _importPlacesForCity(
-        city['name'],
-        city['lat'],
-        city['lng'],
-      );
-    }
+    // Chỉ lấy tỉnh/thành phố đầu tiên để test
+    final testProvince = vietnamProvinces.first;
+    await _importPlacesForCity(
+      testProvince['name'],
+      testProvince['lat'],
+      testProvince['lng'],
+    );
   }
 
   Future<void> _importPlacesForCity(
@@ -49,20 +80,36 @@ class PlacesImportService {
         type: 'tourist_attraction',
       );
 
+      // // Giới hạn chỉ lấy 5 địa điểm đầu tiên
+      // final limitedPlaces = places.take(5).toList();
+
       for (var place in places) {
         try {
-          // Lấy thông tin chi tiết của địa điểm
-          final details = await _getPlaceDetails(place['place_id']);
-          if (details != null) {
-            // Chuyển đổi dữ liệu sang DestinationModel
-            final destination = _convertToDestinationModel(details, cityName);
-            
-            // Lưu vào Firebase
-            await _saveToFirebase(destination);
+          // Kiểm tra xem địa điểm đã tồn tại chưa
+          final existingPlace = await _firestore
+              .collection('DESTINATION')
+              .where('destinationName', isEqualTo: place['name'])
+              .where('province', isEqualTo: cityName)
+              .get();
+
+          // Nếu địa điểm chưa tồn tại, tiến hành import
+          if (existingPlace.docs.isEmpty) {
+            // Lấy thông tin chi tiết của địa điểm
+            final details = await _getPlaceDetails(place['place_id']);
+            if (details != null) {
+              // Chuyển đổi dữ liệu sang DestinationModel
+              final destination = _convertToDestinationModel(details, cityName);
+              
+              // Lưu vào Firebase
+              await _saveToFirebase(destination);
+              print('Đã import địa điểm: ${destination.destinationName}');
+            }
+          } else {
+            print('Địa điểm đã tồn tại: ${place['name']}');
           }
         } catch (e) {
           print('Error processing place ${place['place_id']}: $e');
-          continue; // Tiếp tục với địa điểm tiếp theo nếu có lỗi
+          continue; 
         }
       }
     } catch (e) {
@@ -170,19 +217,51 @@ class PlacesImportService {
     }
   }
 
+  String _getPhotoUrl(String photoReference, {int maxWidth = 800}) {
+    // Đảm bảo photoReference không rỗng
+    if (photoReference.isEmpty) {
+      return '';
+    }
+    
+    // Tạo URL đầy đủ cho ảnh
+    final photoUrl = '$_baseUrl/photo?maxwidth=$maxWidth&photo_reference=$photoReference&key=$apiKey';
+    return photoUrl;
+  }
+
   DestinationModel _convertToDestinationModel(
     Map<String, dynamic> placeDetails,
-    String cityName,
+    String provinceName,
   ) {
     // Lấy địa chỉ và tách thành các phần
     final addressParts = (placeDetails['formatted_address'] as String?)?.split(',') ?? [];
-    final province = addressParts.length > 1 ? addressParts[addressParts.length - 2].trim() : cityName;
-    final district = addressParts.length > 2 ? addressParts[addressParts.length - 3].trim() : '';
-    final specificAddress = addressParts.length > 3 ? addressParts[0].trim() : '';
+    
+    // Xác định quận/huyện
+    String district = '';
+    for (var part in addressParts) {
+      part = part.trim();
+      // Loại bỏ các số và ký tự đặc biệt không cần thiết
+      part = part.replaceAll(RegExp(r'\d+'), '').trim();
+      if (part.contains('District') || part.contains('Quận') || part.contains('Huyện')) {
+        district = part;
+        break;
+      }
+    }
 
-    // Lấy danh sách ảnh
+    // Xác định địa chỉ cụ thể
+    String specificAddress = '';
+    if (addressParts.isNotEmpty) {
+      specificAddress = addressParts[0].trim();
+      // Loại bỏ các số và ký tự đặc biệt không cần thiết từ địa chỉ cụ thể
+      specificAddress = specificAddress.replaceAll(RegExp(r'\d+'), '').trim();
+    }
+
+    // Lấy danh sách ảnh và xử lý URL
     final photos = (placeDetails['photos'] as List<dynamic>?)
-        ?.map((photo) => _getPhotoUrl(photo['photo_reference'] as String))
+        ?.map((photo) {
+          final photoRef = photo['photo_reference'] as String?;
+          return photoRef != null ? _getPhotoUrl(photoRef) : '';
+        })
+        .where((url) => url.isNotEmpty) // Chỉ lấy các URL hợp lệ
         .toList() ?? [];
 
     // Tạo mô tả từ reviews
@@ -200,25 +279,26 @@ class PlacesImportService {
     final lat = location?['lat'] as double? ?? 0.0;
     final lng = location?['lng'] as double? ?? 0.0;
 
+    // Chuẩn hóa tên tỉnh/thành phố
+    String normalizedProvince = provinceName;
+    // Loại bỏ các số và ký tự đặc biệt không cần thiết
+    normalizedProvince = normalizedProvince.replaceAll(RegExp(r'\d+'), '').trim();
+
     return DestinationModel(
-      destinationId: '', // ID sẽ được tạo khi lưu vào Firestore
+      destinationId: '',
       destinationName: placeDetails['name'] as String? ?? '',
       latitude: lat,
       longitude: lng,
-      province: province,
+      province: normalizedProvince,
       district: district,
       specificAddress: specificAddress,
       descriptionEng: description,
-      descriptionViet: description, // Có thể thêm dịch sau
+      descriptionViet: description,
       photo: photos,
-      video: [], // Places API không cung cấp video
+      video: [],
       createdDate: DateTime.now().toString(),
-      favouriteTimes: (placeDetails['user_ratings_total'] as num?)?.toInt() ?? 0,
-      categories: List<String>.from(placeDetails['types'] ?? []),
+      favouriteTimes: 0,
+      categories: []
     );
-  }
-
-  String _getPhotoUrl(String photoReference, {int maxWidth = 800}) {
-    return '$_baseUrl/photo?maxwidth=$maxWidth&photo_reference=$photoReference&key=$apiKey';
   }
 } 

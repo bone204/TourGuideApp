@@ -32,7 +32,7 @@ class _AdminScreenState extends State<AdminScreen> {
       );
 
       // Đếm tổng số địa điểm sẽ import
-      for (var city in service.vietnamCities) {
+      for (var city in service.vietnamProvinces) {
         final places = await service.searchNearbyPlaces(
           latitude: city['lat'] as double,
           longitude: city['lng'] as double,
