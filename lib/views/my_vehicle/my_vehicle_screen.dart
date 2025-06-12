@@ -7,6 +7,7 @@ import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:tourguideapp/views/my_vehicle/banking_information_screen.dart';
 import 'package:tourguideapp/views/my_vehicle/vehicle_register_screen.dart';
 import 'package:tourguideapp/views/my_vehicle/vehicle_rental_register_screen.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/custom_icon_button.dart';
@@ -293,59 +294,17 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
     ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true); // Khởi tạo ScreenUtil
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.h),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          flexibleSpace: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                height: 40.h,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft, 
-                      child: CustomIconButton(
-                        icon: Icons.chevron_left,
-                        onPressed: () {
-                          Navigator.of(context).pushReplacementNamed('/home');
-                        },
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        AppLocalizations.of(context).translate('My Vehicle'),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20.sp,
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight, 
-                      child: CustomIconButton(
-                        icon: Icons.info_rounded,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const BankingInformationScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+      appBar: CustomAppBar(
+          title: AppLocalizations.of(context).translate("Chat Screen"),
+          actions: [
+            CustomIconButton(
+              icon: Icons.info_rounded,
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const BankingInformationScreen()));
+              },
+            ),
+          ],
         ),
-      ),
       body: _buildBody(),
     );
   }
