@@ -420,7 +420,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         },
                         child: Icon(
-                          Icons.notifications_none_outlined,
+                          Icons.notifications_none,
                           color: AppColors.white,
                           size: 28.sp,
                         ),
@@ -435,10 +435,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           );
                         },
-                        child: Icon(
-                          Icons.chat_bubble_outline,
-                          color: AppColors.white,
-                          size: 28.sp,
+                        child: Image.asset(
+                          'assets/img/ic_ai_chat.png',
+                          width: 28.w,
+                          height: 28.h,
                         ),
                       ),
                     ],
