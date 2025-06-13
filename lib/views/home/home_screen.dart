@@ -739,33 +739,30 @@ class InspirationSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context).translate("More travel inspiration"),
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppLocalizations.of(context).translate("More travel inspiration"),
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
                 ),
-                SizedBox(height: 5.h),
-                Text(
-                  AppLocalizations.of(context).translate("Extra highlights just for you"),
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.grey,
-                  ),
+              ),
+              SizedBox(height: 5.h),
+              Text(
+                AppLocalizations.of(context).translate("Extra highlights just for you"),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.grey,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           SizedBox(height: 16.h),
           cardDataList.isEmpty
@@ -808,7 +805,7 @@ class InspirationSection extends StatelessWidget {
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 161.w / 190.h,
-        mainAxisSpacing: 20.h,
+        mainAxisSpacing: 10.h,
         crossAxisSpacing: 10.w,
       ),
       itemCount: cardDataList.length,
