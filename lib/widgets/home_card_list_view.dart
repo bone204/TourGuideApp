@@ -15,7 +15,7 @@ class HomeCardListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 400.h,
+      height: 420.h,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: cardDataList.length,

@@ -45,126 +45,119 @@ class HomeCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 14.w),
-          child: Column(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16.r),
-                child: Image.network(
-                  data.imageUrl,
-                  height: 285.h,
-                  width: 240.w,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 285.h,
-                      width: 240.w,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                      child: Icon(
-                        Icons.error_outline,
-                        color: Colors.grey[400],
-                        size: 40.sp,
-                      ),
-                    );
-                  },
-                ),
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16.r),
+                topRight: Radius.circular(16.r),
               ),
-              SizedBox(height: 14.h),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 190.w,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            data.placeName,
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF000000),
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
+              child: Image.network(
+                data.imageUrl,
+                height: 285.h,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 285.h,
+                    width: 240.w,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: Icon(
+                      Icons.error_outline,
+                      color: Colors.grey[400],
+                      size: 40.sp,
+                    ),
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 14.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    data.placeName,
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF000000),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                  SizedBox(height: 8.h),
+                  Row(
+                    children: [
+                      Image.asset(
+                        'assets/img/ic_location.png',
+                        width: 16.w,
+                        height: 16.h,
+                      ),
+                      SizedBox(width: 4.w),
+                      Expanded(
+                        child: Text(
+                          data.description,
+                          style: TextStyle(
+                            color: const Color(0xFF7D848D),
+                            fontSize: 16.sp,
                           ),
-                          SizedBox(height: 8.h),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.location_on_outlined,
-                                color: const Color(0xFF7D848D),
-                                size: 15.sp,
-                              ),
-                              SizedBox(width: 2.w),
-                              Expanded(
-                                child: Text(
-                                  data.description,
-                                  style: TextStyle(
-                                    color: const Color(0xFF7D848D),
-                                    fontSize: 15.sp,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          )
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                  Row(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Icon(
+                            Icons.star,
+                            color: AppColors.yellow,
+                            size: 16.sp,
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            data.rating.toString(),
+                            style: TextStyle(
+                              color: AppColors.black,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Icon(
-                              Icons.star,
-                              color: AppColors.yellow,
-                              size: 12.sp,
+                      SizedBox(width: 12.w),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Icon(
+                            Icons.favorite,
+                            color: AppColors.red,
+                            size: 16.sp,
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            data.favouriteTimes.toString(),
+                            style: TextStyle(
+                              color: AppColors.black,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w500,
                             ),
-                            SizedBox(width: 2.w),
-                            Text(
-                              data.rating.toString(),
-                              style: TextStyle(
-                                color: const Color(0xFF000000),
-                                fontSize: 15.sp,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Icon(
-                              Icons.favorite,
-                              color: AppColors.primaryColor,
-                              size: 12.sp,
-                            ),
-                            SizedBox(width: 2.w),
-                            Text(
-                              data.favouriteTimes.toString(),
-                              style: TextStyle(
-                                color: const Color(0xFF000000),
-                                fontSize: 15.sp,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

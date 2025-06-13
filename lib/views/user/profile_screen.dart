@@ -243,7 +243,6 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildStatsRow(BuildContext context) {
     final profileViewModel = Provider.of<ProfileViewModel>(context);
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -273,7 +272,7 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildStatsColumn(BuildContext context, String title, String value, IconData icon) {
     return Container(
       width: 104.w,
-      height: 120.h,
+      height: 130.h,
       padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.r),

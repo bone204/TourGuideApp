@@ -41,16 +41,48 @@ class CachedImage extends StatelessWidget {
               height: height,
             ),
           ),
-          errorWidget: (context, url, error) => Container(
-            color: Colors.grey[200],
-            child: Center(
-              child: Icon(
-                Icons.error_outline,
-                color: Colors.grey[400],
-                size: 24.sp,
+          errorWidget: (context, url, error) {
+            // Check if the error is related to Firebase Storage payment issues
+            if (error.toString().contains('402') || 
+                error.toString().contains('Payment Required')) {
+              return Container(
+                color: Colors.grey[200],
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: Colors.grey[400],
+                        size: 24.sp,
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        'Image temporarily unavailable',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12.sp,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+            
+            // Default error widget for other types of errors
+            return Container(
+              color: Colors.grey[200],
+              child: Center(
+                child: Icon(
+                  Icons.error_outline,
+                  color: Colors.grey[400],
+                  size: 24.sp,
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
