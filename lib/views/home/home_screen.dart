@@ -18,7 +18,7 @@ import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 import 'package:tourguideapp/views/home/view_all_destinations_screen.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
-import 'package:tourguideapp/views/search/search_screen.dart';
+import 'package:tourguideapp/views/home/search_screen.dart';
 import 'package:tourguideapp/widgets/shimmer_cards.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -234,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 // Popular Destinations
                 Padding(
-                  padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 32.h),
+                  padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 32.h),
                   child: buildSectionHeadline(
                     context, 
                     "Popular", 

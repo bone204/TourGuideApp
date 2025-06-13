@@ -86,7 +86,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildSearchBar() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: AppColors.lightGrey,
         borderRadius: BorderRadius.circular(12.r),
@@ -158,11 +158,11 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             Expanded(
               child: GridView.builder(
-                padding: EdgeInsets.fromLTRB(10.w, 0.h, 10.w, 20.h),
+                padding: EdgeInsets.fromLTRB(20.w, 0.h, 20.w, 20.h),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   childAspectRatio: 161.w / 190.h,
-                  mainAxisSpacing: 20.h,
+                  mainAxisSpacing: 10.h,
                   crossAxisSpacing: 10.w,
                 ),
                 itemCount: _searchResults.length,
