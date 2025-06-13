@@ -37,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentDestinationIndex = 0;
   Timer? _destinationTimer;
   final PageController _pageController = PageController();
+  int _currentPageIndex = 0;
 
   @override
   void initState() {
@@ -154,6 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       controller: _pageController,
                                       onPageChanged: (index) {
                                         setState(() {
+                                          _currentPageIndex = index;
                                         });
                                       },
                                       padEnds: false,
@@ -215,8 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         margin: EdgeInsets.symmetric(horizontal: 4.w),
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: _pageController.hasClients && 
-                                                 _pageController.page?.round() == index
+                                          color: _currentPageIndex == index
                                               ? AppColors.primaryColor
                                               : Colors.grey.withOpacity(0.3),
                                         ),
