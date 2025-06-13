@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SafeArea(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(20.w, 80.h, 20.w, 20.h),
+                        padding: EdgeInsets.fromLTRB(20.w, 60.h, 20.w, 10.h),
                         child: Column(
                           children: [
                             Container(
@@ -235,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 // Popular Destinations
                 Padding(
-                  padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 32.h),
+                  padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 32.h),
                   child: buildSectionHeadline(
                     context, 
                     "Popular", 
@@ -332,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 20.w,
-                    vertical: 20.h,
+                    vertical: 10.h,
                   ),
                   child: Row(
                     children: [

@@ -158,7 +158,6 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
       ),
       body: Column(
         children: [
-          SizedBox(height: 20.h),
           _buildSearchBar(),
           Expanded(
             child: Consumer<FavouriteDestinationsViewModel>(
@@ -173,12 +172,12 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                 }
                 
                 return GridView.builder(
-                  padding: EdgeInsets.only(top: 10.h, right: 10.w, left: 10.w, bottom: 20.h),
+                  padding: EdgeInsets.only(top: 10.h, right: 20.w, left: 20.w, bottom: 20.h),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 161.w / 190.h,
-                    mainAxisSpacing: 20.h,
-                    crossAxisSpacing: 0,
+                    mainAxisSpacing: 10.h,
+                    crossAxisSpacing: 10.w,
                   ),
                   itemCount: _filteredItems.length,
                   itemBuilder: (context, index) {
