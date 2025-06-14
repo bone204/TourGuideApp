@@ -4,7 +4,8 @@ import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/widgets/bank_option_selector.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-
+//import 'package:tourguideapp/services/momo_payment_service.dart';
+//import 'package:uuid/uuid.dart';
 
 class DeliveryBill extends StatefulWidget {
   const DeliveryBill({super.key});
@@ -15,7 +16,9 @@ class DeliveryBill extends StatefulWidget {
 
 class _DeliveryBillScreenState extends State<DeliveryBill> {
   String? selectedBank;
-  
+  //final _momoService = MomoPaymentService();
+  //final _uuid = Uuid();
+
   final List<Map<String, String>> bankOptions = [
     {'id': 'visa', 'image': 'assets/img/Logo_Visa.png'},
     {'id': 'mastercard', 'image': 'assets/img/Logo_Mastercard.png'},
@@ -24,6 +27,51 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
     {'id': 'zalopay', 'image': 'assets/img/Logo_Zalopay.png'},
     {'id': 'shopee', 'image': 'assets/img/Logo_Shopee.png'},
   ];
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _initializeMomo();
+  // }
+
+  // Future<void> _initializeMomo() async {
+  //   await _momoService.initializeMomo();
+  // }
+
+  // Future<void> _handleMomoPayment() async {
+  //   if (selectedBank != 'momo') return;
+
+  //   final orderId = _uuid.v4();
+  //   final amount = '650000';
+
+  //   await _momoService.requestPayment(
+  //     amount: amount,
+  //     orderId: orderId,
+  //     orderLabel: 'Thanh toán đơn giao hàng',
+  //     orderInfo: 'Thanh toán đơn giao hàng - $orderId',
+  //     customerName: 'Nguyễn Hữu Trường',
+  //     customerEmail: 'customer@example.com',
+  //     customerPhone: '0914259475',
+  //     context: context,
+  //     onSuccess: (String message) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Thanh toán thành công: $message'),
+  //           backgroundColor: Colors.green,
+  //         ),
+  //       );
+  //       Navigator.of(context).pop();
+  //     },
+  //     onError: (String error) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Lỗi thanh toán: $error'),
+  //           backgroundColor: Colors.red,
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +103,8 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                     ),
                     Center(
                       child: Text(
-                        AppLocalizations.of(context).translate('Delivery Information'),
+                        AppLocalizations.of(context)
+                            .translate('Delivery Information'),
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w700,
@@ -247,8 +296,8 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text("Delivery Vehicle:",
-                          style:
-                              TextStyle(fontSize: 16.sp, color: AppColors.black)),
+                          style: TextStyle(
+                              fontSize: 16.sp, color: AppColors.black)),
                       Text("Motorbike",
                           style: TextStyle(
                               fontSize: 16.sp,
@@ -261,8 +310,8 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text("Delivery Brand:",
-                          style:
-                              TextStyle(fontSize: 16.sp, color: AppColors.black)),
+                          style: TextStyle(
+                              fontSize: 16.sp, color: AppColors.black)),
                       Text("J&T Express",
                           style: TextStyle(
                               fontSize: 16.sp,
@@ -284,8 +333,7 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                               fontSize: 16.sp,
                               color: AppColors.black,
                               fontWeight: FontWeight.w700)),
-                      Text(
-                          '650,000 ₫',
+                      Text('650,000 ₫',
                           style: TextStyle(
                               fontSize: 16.sp,
                               color: AppColors.black,
@@ -328,27 +376,30 @@ class _DeliveryBillScreenState extends State<DeliveryBill> {
                   ),
                   SizedBox(height: 24.h),
                   ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF007BFF),
-                        foregroundColor: Colors.white,
-                        minimumSize: Size(double.infinity, 50.h),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.r)),
-                      ),
-                      child:
-                          Text(AppLocalizations.of(context).translate("Confirm"),
-                              style: TextStyle(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.w700,
-                              )),
-                      ),
-                  ],
-                ),
-              ],
+                    onPressed: () {
+                      // if (selectedBank == 'momo') {
+                      //   _handleMomoPayment();
+                      // }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF007BFF),
+                      foregroundColor: Colors.white,
+                      minimumSize: Size(double.infinity, 50.h),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r)),
+                    ),
+                    child:
+                        Text(AppLocalizations.of(context).translate("Confirm"),
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w700,
+                            )),
+                  ),
+                ],
               ),
-            ),
+            ]),
           ),
+        ),
       ),
     );
   }

@@ -102,7 +102,6 @@ class _EateryScreenState extends State<EateryScreen> {
       destinationName: eatery.eateryName,
       province: eatery.province,
       specificAddress: eatery.address,
-      district: '',
       photo: eatery.photo,
       video: [],
       createdDate: DateTime.now().toString(),

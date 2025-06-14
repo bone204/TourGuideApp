@@ -6,7 +6,6 @@ class DestinationModel {
   final double latitude;
   final double longitude;
   final String province;
-  final String district;
   final String specificAddress;
   final String descriptionEng;
   final String descriptionViet;
@@ -22,7 +21,6 @@ class DestinationModel {
     required this.latitude,
     required this.longitude,
     required this.province,
-    required this.district,
     required this.specificAddress,
     required this.descriptionEng,
     required this.descriptionViet,
@@ -53,7 +51,6 @@ class DestinationModel {
           ? double.tryParse(map['longitude']) ?? 0.0
           : (map['longitude'] ?? 0.0).toDouble(),
       province: map['province'] ?? '',
-      district: map['district'] ?? '',
       specificAddress: map['specificAddress'] ?? '',
       descriptionEng: map['descriptionEng'] ?? '',
       descriptionViet: map['descriptionViet'] ?? '',
@@ -72,7 +69,6 @@ class DestinationModel {
       'latitude': latitude,
       'longitude': longitude,
       'province': province,
-      'district': district,
       'specificAddress': specificAddress,
       'descriptionEng': descriptionEng,
       'descriptionViet': descriptionViet,
@@ -106,7 +102,6 @@ class DestinationModel {
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       province: province ?? this.province,
-      district: district ?? this.district,
       specificAddress: specificAddress ?? this.specificAddress,
       descriptionEng: descriptionEng ?? this.descriptionEng,
       descriptionViet: descriptionViet ?? this.descriptionViet,
