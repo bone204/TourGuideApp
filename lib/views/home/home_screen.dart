@@ -18,7 +18,7 @@ import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 import 'package:tourguideapp/views/home/view_all_destinations_screen.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
-import 'package:tourguideapp/views/search/search_screen.dart';
+import 'package:tourguideapp/views/home/search_screen.dart';
 import 'package:tourguideapp/widgets/shimmer_cards.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -37,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentDestinationIndex = 0;
   Timer? _destinationTimer;
   final PageController _pageController = PageController();
+  int _currentPageIndex = 0;
 
   @override
   void initState() {
@@ -129,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SafeArea(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(20.w, 80.h, 20.w, 20.h),
+                        padding: EdgeInsets.fromLTRB(20.w, 60.h, 20.w, 10.h),
                         child: Column(
                           children: [
                             Container(
@@ -154,6 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       controller: _pageController,
                                       onPageChanged: (index) {
                                         setState(() {
+                                          _currentPageIndex = index;
                                         });
                                       },
                                       padEnds: false,
@@ -215,8 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         margin: EdgeInsets.symmetric(horizontal: 4.w),
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: _pageController.hasClients && 
-                                                 _pageController.page?.round() == index
+                                          color: _currentPageIndex == index
                                               ? AppColors.primaryColor
                                               : Colors.grey.withOpacity(0.3),
                                         ),
@@ -331,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 20.w,
-                    vertical: 20.h,
+                    vertical: 10.h,
                   ),
                   child: Row(
                     children: [
@@ -739,33 +740,30 @@ class InspirationSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context).translate("More travel inspiration"),
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppLocalizations.of(context).translate("More travel inspiration"),
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
                 ),
-                SizedBox(height: 5.h),
-                Text(
-                  AppLocalizations.of(context).translate("Extra highlights just for you"),
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.grey,
-                  ),
+              ),
+              SizedBox(height: 5.h),
+              Text(
+                AppLocalizations.of(context).translate("Extra highlights just for you"),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.grey,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           SizedBox(height: 16.h),
           cardDataList.isEmpty
@@ -808,7 +806,7 @@ class InspirationSection extends StatelessWidget {
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 161.w / 190.h,
-        mainAxisSpacing: 20.h,
+        mainAxisSpacing: 10.h,
         crossAxisSpacing: 10.w,
       ),
       itemCount: cardDataList.length,

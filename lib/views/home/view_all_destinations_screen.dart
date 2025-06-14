@@ -86,24 +86,21 @@ class _ViewAllDestinationsScreenState extends State<ViewAllDestinationsScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.h),
-        child: CustomAppBar(
-          title: widget.sectionTitle,
-          onBackPressed: () => Navigator.pop(context),
-        ),
+      appBar: CustomAppBar(
+        title: widget.sectionTitle,
+        onBackPressed: () => Navigator.pop(context),
       ),
       body: Column(
         children: [
           _buildSearchBar(context),
           Expanded(
             child: GridView.builder(
-              padding: EdgeInsets.only(top: 10.h, right: 10.w, left: 10.w, bottom: 20.h),
+              padding: EdgeInsets.only(top: 10.h, right: 20.w, left: 20.w, bottom: 20.h),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 161.w / 185.h,
-                mainAxisSpacing: 20.h,
-                crossAxisSpacing: 0,
+                childAspectRatio: 161.w / 190.h,
+                mainAxisSpacing: 10.h,
+                crossAxisSpacing: 10.w,
               ),
               itemCount: _filteredList.length,
               itemBuilder: (context, index) {

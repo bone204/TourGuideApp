@@ -122,7 +122,11 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                                     SizedBox(height: 10.h),
                                     Row(
                                       children: [
-                                        Icon(Icons.location_on, color: AppColors.orange, size: 24.sp),
+                                        Image.asset(
+                                          'assets/img/ic_location.png',
+                                          height: 24.w,
+                                          width: 24.w,
+                                        ),
                                         SizedBox(width: 4.w),
                                         Text(widget.cardData.description, style: TextStyle(color: AppColors.grey, fontSize: 14.sp)),
                                       ],
@@ -197,7 +201,7 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                               // Photo tab
                               SingleChildScrollView(
                                 controller: scrollController,
-                                padding: EdgeInsets.fromLTRB(20.w, 0.h, 20.w, 100.h),
+                                padding: EdgeInsets.fromLTRB(10.w, 0.h, 10.w, 100.h),
                                 child: MasonryGridView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
