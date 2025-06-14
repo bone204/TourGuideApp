@@ -161,15 +161,6 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
             Expanded(
-<<<<<<< HEAD:lib/views/search/search_screen.dart
-              child: _searchResults.isEmpty
-                  ? Center(
-                      child: Text(
-                        'Không tìm thấy kết quả',
-                        style: TextStyle(
-                          color: AppColors.grey,
-                          fontSize: 16.sp,
-=======
               child: GridView.builder(
                 padding: EdgeInsets.fromLTRB(20.w, 0.h, 20.w, 20.h),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -198,55 +189,19 @@ class _SearchScreenState extends State<SearchScreen> {
                               favouriteViewModel.toggleFavourite(destination);
                             },
                           ),
->>>>>>> 27652e312e5717f706396a6679d1260fcbe711d7:lib/views/home/search_screen.dart
                         ),
+                      );
+                    },
+                    child: FavouriteCard(
+                      data: FavouriteCardData(
+                        placeName: cardData.placeName,
+                        imageUrl: cardData.imageUrl,
+                        description: cardData.description,
                       ),
-                    )
-                  : GridView.builder(
-                      padding: EdgeInsets.fromLTRB(10.w, 0.h, 10.w, 20.h),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 161.w / 190.h,
-                        mainAxisSpacing: 20.h,
-                        crossAxisSpacing: 10.w,
-                      ),
-                      itemCount: _searchResults.length,
-                      itemBuilder: (context, index) {
-                        final cardData = _searchResults[index];
-                        return GestureDetector(
-                          onTap: () {
-                            final destination =
-                                destinationsViewModel.destinations.firstWhere(
-                              (dest) =>
-                                  dest.destinationName == cardData.placeName,
-                            );
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DestinationDetailPage(
-                                  cardData: cardData,
-                                  destinationData: destination,
-                                  isFavourite: favouriteViewModel
-                                      .isFavourite(destination),
-                                  onFavouriteToggle: (isFavourite) {
-                                    favouriteViewModel
-                                        .toggleFavourite(destination);
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                          child: FavouriteCard(
-                            data: FavouriteCardData(
-                              placeName: cardData.placeName,
-                              imageUrl: cardData.imageUrl,
-                              description: cardData.description,
-                            ),
-                          ),
-                        );
-                      },
                     ),
+                  );
+                },
+              ),
             ),
           ],
         ),
