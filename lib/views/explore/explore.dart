@@ -35,22 +35,31 @@ class ExploreScreenState extends State<ExploreScreen> {
     if (!mounted) return;
     
     String googleApiKey = dotenv.env['GOOGLE_API_KEY']!;
+    debugPrint('API Key: $googleApiKey');
+    
     String groundURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
     String request = '$groundURL?input=$input&key=$googleApiKey&sessiontoken=$tokenForSession';
+    debugPrint('Request URL: $request');
 
     try {
       var responseResult = await http.get(Uri.parse(request));
+      debugPrint('Response status code: ${responseResult.statusCode}');
+      debugPrint('Response body: ${responseResult.body}');
       
       if (!mounted) return;
 
       if (responseResult.statusCode == 200) {
+        var responseData = jsonDecode(responseResult.body.toString());
+        debugPrint('Predictions: ${responseData['predictions']}');
         setState(() {
-          listForPlace = jsonDecode(responseResult.body.toString())['predictions'];
+          listForPlace = responseData['predictions'];
         });
       } else {
+        debugPrint('Error response: ${responseResult.body}');
         throw Exception('Showing data failed, Try Again');
       }
     } catch (e) {
+      debugPrint('Exception occurred: $e');
       if (mounted) {
         setState(() {
           listForPlace = [];
@@ -64,16 +73,22 @@ class ExploreScreenState extends State<ExploreScreen> {
     String detailsURL = 'https://maps.googleapis.com/maps/api/place/details/json';
     String request = '$detailsURL?place_id=$placeId&fields=geometry&key=$googleApiKey';
 
+    debugPrint('Đang gửi request lấy chi tiết địa điểm: $request');
+    
     var response = await http.get(Uri.parse(request));
+    debugPrint('Response status code: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
     
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       var location = data['result']['geometry']['location'];
+      debugPrint('Đã lấy được tọa độ: lat=${location['lat']}, lng=${location['lng']}');
       return {
         'lat': location['lat'],
         'lng': location['lng'],
       };
     } else {
+      debugPrint('Lỗi khi lấy chi tiết địa điểm: ${response.body}');
       throw Exception('Failed to get place details');
     }
   }
