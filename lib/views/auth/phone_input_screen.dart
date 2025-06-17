@@ -5,6 +5,7 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:tourguideapp/viewmodels/signup_viewmodel.dart';
 import 'package:tourguideapp/views/auth/otp_verification_screen.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 
 class PhoneInputScreen extends StatefulWidget {
   final String email;
@@ -31,13 +32,9 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+      appBar: CustomAppBar(
+        title: "",
+        onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.w),

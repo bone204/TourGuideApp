@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,10 +7,21 @@ import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/core/services/id_card_service.dart';
-import 'package:tourguideapp/views/user/settings/id_card_confirmation_screen.dart';
+import 'package:tourguideapp/views/auth/id_card_confirmation_screen.dart';
 
 class CaptureIdCardScreen extends StatefulWidget {
-  const CaptureIdCardScreen({super.key});
+  final String email;
+  final String password;
+  final String username;
+  final String phoneNumber;
+
+  const CaptureIdCardScreen({
+    super.key,
+    required this.email,
+    required this.password,
+    required this.username,
+    required this.phoneNumber,
+  });
 
   @override
   _CaptureIdCardScreenState createState() => _CaptureIdCardScreenState();
@@ -179,22 +188,18 @@ class _CaptureIdCardScreenState extends State<CaptureIdCardScreen> with WidgetsB
       
       if (!mounted) return;
 
-      final confirmedData = await Navigator.of(context).push<Map<String, dynamic>>(
+      Navigator.push(
+        context,
         MaterialPageRoute(
-          builder: (context) => IdCardConfirmationScreen(idCardData: result),
+          builder: (context) => IdCardConfirmationScreen(
+            idCardData: result,
+            email: widget.email,
+            password: widget.password,
+            username: widget.username,
+            phoneNumber: widget.phoneNumber,
+          ),
         ),
       );
-
-      if (confirmedData != null) {
-        await _idCardService.saveIdCardInfo(confirmedData);
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-      } else {
-        if (mounted) {
-          await _initializeCamera();
-        }
-      }
     } catch (e) {
       print('Lỗi chụp ảnh: $e');
       if (mounted) {
@@ -366,7 +371,7 @@ class _CaptureIdCardScreenState extends State<CaptureIdCardScreen> with WidgetsB
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Icon(Icons.camera, color: AppColors.white,),
+                          : const Icon(Icons.camera, color: AppColors.white),
                     ),
                 ],
               ),

@@ -5,6 +5,7 @@ import 'package:tourguideapp/viewmodels/signup_viewmodel.dart';
 import 'package:tourguideapp/views/auth/personal_info_input_screen.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 
 class OTPVerificationScreen extends StatefulWidget {
   final String email;
@@ -46,13 +47,9 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+      appBar: CustomAppBar(
+        title: "",
+        onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: Stack(
         children: [
