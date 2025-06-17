@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/viewmodels/personInfo_viewmodel.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/disable_textfield.dart';
-import 'package:tourguideapp/services/user_service.dart';
 
 class IdCardConfirmationScreen extends StatefulWidget {
   final Map<String, dynamic> idCardData;
@@ -28,7 +28,7 @@ class _IdCardConfirmationScreenState extends State<IdCardConfirmationScreen> {
     });
 
     try {
-      final userService = UserService();
+      final userService = PersonInfoViewModel();
       await userService.updateUserFromIdCard(widget.idCardData);
       
       if (!mounted) return;

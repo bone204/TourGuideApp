@@ -7,7 +7,7 @@ import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/services/id_card_service.dart';
+import 'package:tourguideapp/core/services/id_card_service.dart';
 import 'package:tourguideapp/views/user/settings/id_card_confirmation_screen.dart';
 
 class CaptureIdCardScreen extends StatefulWidget {

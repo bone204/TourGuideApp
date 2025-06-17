@@ -60,8 +60,8 @@ class PersonInfoViewModel extends ChangeNotifier {
 
   // Thêm các Map để chuyển đổi giữa tiếng Anh và tiếng Việt
   final Map<String, String> genderTranslations = {
-    'Nam': 'Male',
-    'Nữ': 'Female',
+    'NAM': 'MALE',
+    'NỮ': 'FEMALE',
     'Khác': 'Other',
   };
 
@@ -74,14 +74,12 @@ class PersonInfoViewModel extends ChangeNotifier {
     'Hàn Quốc': 'Korean',
   };
 
-  // Thêm GlobalKey để truy cập BuildContext
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  // Hàm chuyển đổi từ tiếng Anh sang tiếng Việt cho gender
   String _getVietnameseGender(String? englishValue) {
     return genderTranslations.entries
         .firstWhere((entry) => entry.value == englishValue,
-            orElse: () => const MapEntry('Nam', 'Male'))
+            orElse: () => const MapEntry('NAM', 'MALE'))
         .key;
   }
 
@@ -166,7 +164,7 @@ class PersonInfoViewModel extends ChangeNotifier {
         
         // Lấy giá trị từ state thay vì từ controller
         String genderValue = isEnglish 
-            ? _getVietnameseGender(genderTranslations[gender] ?? '')  // Chuyển từ tiếng Việt sang Anh rồi lại về Việt
+            ? _getVietnameseGender(genderTranslations[gender] ?? '')  
             : gender ?? '';
             
         String nationalityValue = isEnglish
@@ -196,6 +194,31 @@ class PersonInfoViewModel extends ChangeNotifier {
           print('Lỗi khi cập nhật thông tin người dùng: $e');
         }
       }
+    }
+  }
+
+  Future<void> updateUserFromIdCard(Map<String, dynamic> idCardData) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw Exception('Không tìm thấy người dùng đang đăng nhập');
+      }
+
+      // Map dữ liệu từ CMND/CCCD sang các trường trong user
+      final Map<String, dynamic> updateData = {
+        'fullName': idCardData['name'],
+        'citizenId': idCardData['id'],
+        'birthday': idCardData['dob'],
+        'gender': idCardData['sex'],
+        'address': idCardData['address'],
+        'nationality': idCardData['nationality'],
+      };
+
+      // Cập nhật thông tin lên Firebase
+      await _firestore.collection('USER').doc(user.uid).update(updateData);
+    } catch (e) {
+      print('Lỗi cập nhật thông tin người dùng: $e');
+      throw Exception('Không thể cập nhật thông tin người dùng');
     }
   }
 

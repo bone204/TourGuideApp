@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/core/constants/app_colors.dart';
 
 class DisabledTextField extends StatelessWidget {
   final String labelText;
@@ -14,18 +13,6 @@ class DisabledTextField extends StatelessWidget {
     this.trailing,
   }) : super(key: key);
 
-  Widget _getIcon(String text) {
-    if (text.trim().isEmpty) {
-      return const Icon(
-        Icons.warning_amber,
-        color: AppColors.orange,
-      );
-    }
-    return const Icon(
-      Icons.check_sharp,
-      color: AppColors.green,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
