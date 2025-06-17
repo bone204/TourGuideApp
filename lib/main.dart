@@ -19,6 +19,7 @@ import 'package:tourguideapp/viewmodels/bank_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/signup_viewmodel.dart';
 import 'package:tourguideapp/views/on_boarding/on_boarding_screen.dart';
 import 'package:tourguideapp/views/service/travel/travel_screen.dart';
+import 'package:tourguideapp/views/user/settings/person_information_screen.dart';
 import 'localization/app_localizations.dart';
 import 'views/auth/login_screen.dart';
 import 'views/auth/signup_screen.dart';
@@ -203,6 +204,7 @@ class MyAppState extends State<MyApp> {
             '/home': (context) => const MainScreen(),
             '/settings': (context) => const SettingsScreen(),
             '/travel': (context) => TravelScreen(),
+            '/personal-info': (context) => PersonInfoScreen()
           },
           debugShowCheckedModeBanner: false,
         );

@@ -130,7 +130,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PersonalInfoScreen(
+                            builder: (context) => PersonalInfoInputScreen(
                               email: widget.email,
                               password: widget.password,
                               username: widget.username,

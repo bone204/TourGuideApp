@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/user/settings/edit_personal_information_screen.dart';
+import 'package:tourguideapp/views/user/settings/capture_id_card_screen.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/disable_textfield.dart';
 import '../../../widgets/custom_icon_button.dart';
@@ -121,6 +122,24 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
                   DisabledTextField(
                     labelText: AppLocalizations.of(context).translate("Identification Number"),
                     text: userData['citizenId'] ?? '',
+                    trailing: userData['citizenId'] == null || userData['citizenId'].toString().isEmpty
+                        ? TextButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const CaptureIdCardScreen(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              AppLocalizations.of(context).translate("Capture ID Card"),
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                          )
+                        : null,
                   ),
                   SizedBox(height: 16.h),
                   DisabledTextField(

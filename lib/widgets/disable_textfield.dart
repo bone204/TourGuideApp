@@ -5,11 +5,13 @@ import 'package:tourguideapp/core/constants/app_colors.dart';
 class DisabledTextField extends StatelessWidget {
   final String labelText;
   final String text;
+  final Widget? trailing;
 
   const DisabledTextField({
     Key? key,
     required this.labelText,
     required this.text,
+    this.trailing,
   }) : super(key: key);
 
   Widget _getIcon(String text) {
@@ -34,31 +36,30 @@ class DisabledTextField extends StatelessWidget {
         Text(
           labelText,
           style: TextStyle(
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w700,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[600],
           ),
         ),
         SizedBox(height: 8.h),
         Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.w),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
           decoration: BoxDecoration(
-            color: const Color(0xFFF7F7F9),
+            color: Colors.grey[100],
             borderRadius: BorderRadius.circular(8.r),
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: Text(
                   text,
                   style: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.black,
+                    fontSize: 16.sp,
+                    color: Colors.black87,
                   ),
                 ),
               ),
-              _getIcon(text),
+              if (trailing != null) trailing!,
             ],
           ),
         ),

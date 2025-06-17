@@ -7,13 +7,13 @@ import 'package:intl/intl.dart';
 import 'package:tourguideapp/views/auth/hobbies_selection_screen.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 
-class PersonalInfoScreen extends StatefulWidget {
+class PersonalInfoInputScreen extends StatefulWidget {
   final String email;
   final String password;
   final String username;
   final String phoneNumber;
 
-  const PersonalInfoScreen({
+  const PersonalInfoInputScreen({
     Key? key,
     required this.email,
     required this.password,
@@ -22,10 +22,10 @@ class PersonalInfoScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<PersonalInfoScreen> createState() => _PersonalInfoScreenState();
+  State<PersonalInfoInputScreen> createState() => _PersonalInfoInputScreenState();
 }
 
-class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
+class _PersonalInfoInputScreenState extends State<PersonalInfoInputScreen> {
   final TextEditingController _fullNameController = TextEditingController();
   String? _selectedGender;
   String? _selectedNationality;
