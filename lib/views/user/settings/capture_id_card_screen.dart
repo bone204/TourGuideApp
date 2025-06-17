@@ -28,7 +28,7 @@ class _CaptureIdCardScreenState extends State<CaptureIdCardScreen> with WidgetsB
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _checkPermissionsAndInitialize();
+    _initializeCamera();
   }
 
   @override
@@ -52,35 +52,32 @@ class _CaptureIdCardScreenState extends State<CaptureIdCardScreen> with WidgetsB
 
   Future<void> _disposeCamera() async {
     if (_controller != null) {
-      await _controller!.dispose();
-      _controller = null;
-    }
-    if (mounted) {
-      setState(() {
-        _isCameraInitialized = false;
-      });
-    }
-  }
-
-  Future<void> _checkPermissionsAndInitialize() async {
-    final status = await Permission.camera.request();
-    if (status.isGranted) {
-      await _initializeCamera();
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context).translate("Camera permission is required")),
-            backgroundColor: Colors.red,
-          ),
-        );
-        Navigator.of(context).pop();
+      try {
+        await _controller!.dispose();
+      } catch (e) {
+        print('Lỗi dispose camera: $e');
       }
+      _controller = null;
+      _isCameraInitialized = false;
     }
   }
 
   Future<void> _initializeCamera() async {
     try {
+      final status = await Permission.camera.request();
+      if (!status.isGranted) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context).translate("Camera permission is required")),
+              backgroundColor: Colors.red,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
+        return;
+      }
+
       cameras = await availableCameras();
       if (cameras.isEmpty) {
         throw Exception('Không tìm thấy camera');
@@ -118,9 +115,11 @@ class _CaptureIdCardScreenState extends State<CaptureIdCardScreen> with WidgetsB
         await _controller!.setDescription(backCamera);
       }
 
-      setState(() {
-        _isCameraInitialized = true;
-      });
+      if (mounted) {
+        setState(() {
+          _isCameraInitialized = true;
+        });
+      }
     } catch (e) {
       print('Lỗi khởi tạo camera: $e');
       if (mounted) {
@@ -136,9 +135,7 @@ class _CaptureIdCardScreenState extends State<CaptureIdCardScreen> with WidgetsB
             ),
           ),
         );
-        setState(() {
-          _isCameraInitialized = false;
-        });
+        _isCameraInitialized = false;
       }
     }
   }
@@ -152,13 +149,13 @@ class _CaptureIdCardScreenState extends State<CaptureIdCardScreen> with WidgetsB
       _isProcessing = true;
     });
 
+    CameraController? tempController = _controller;
+    _controller = null;
+
     try {
       if (!mounted) return;
 
-      // Tắt camera trước khi chụp
-      await _controller!.pausePreview();
-      
-      final XFile image = await _controller!.takePicture();
+      final XFile image = await tempController!.takePicture();
       
       if (!mounted) return;
 
@@ -172,8 +169,8 @@ class _CaptureIdCardScreenState extends State<CaptureIdCardScreen> with WidgetsB
         throw Exception('Kích thước ảnh vượt quá 5MB');
       }
 
-      // Dispose camera sau khi chụp xong
-      await _disposeCamera();
+      await tempController.dispose();
+      _isCameraInitialized = false;
 
       if (!mounted) return;
 
@@ -203,7 +200,7 @@ class _CaptureIdCardScreenState extends State<CaptureIdCardScreen> with WidgetsB
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Có lỗi xảy ra: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.red, 
           ),
         );
         await _initializeCamera();

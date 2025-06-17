@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/viewmodels/personInfo_viewmodel.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
@@ -68,7 +69,7 @@ class _IdCardConfirmationScreenState extends State<IdCardConfirmationScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: AppLocalizations.of(context).translate("Confirm ID Card Information"),
+        title: AppLocalizations.of(context).translate("Confirm Information"),
         onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: SingleChildScrollView(
@@ -77,14 +78,6 @@ class _IdCardConfirmationScreenState extends State<IdCardConfirmationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                AppLocalizations.of(context).translate("Please verify the information below"),
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(height: 20.h),
               DisabledTextField(
                 labelText: AppLocalizations.of(context).translate("Full Name"),
                 text: widget.idCardData['name'] ?? '',
@@ -122,12 +115,15 @@ class _IdCardConfirmationScreenState extends State<IdCardConfirmationScreen> {
                       onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: 16.h),
-                        side: BorderSide(color: Theme.of(context).primaryColor),
+                        side: const BorderSide(color: AppColors.primaryColor),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
                       ),
                       child: Text(
                         AppLocalizations.of(context).translate("Cancel"),
                         style: TextStyle(
-                          color: Theme.of(context).primaryColor,
+                          color: AppColors.primaryColor,
                           fontSize: 16.sp,
                         ),
                       ),
@@ -138,8 +134,11 @@ class _IdCardConfirmationScreenState extends State<IdCardConfirmationScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleConfirm,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
+                        backgroundColor: AppColors.primaryColor,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
                       ),
                       child: _isLoading
                           ? SizedBox(

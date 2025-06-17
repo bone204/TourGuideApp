@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/views/user/settings/edit_personal_information_screen.dart';
 import 'package:tourguideapp/views/user/settings/capture_id_card_screen.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/disable_textfield.dart';
@@ -87,11 +86,9 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
         if (!snapshot.hasData || !snapshot.data!.exists) {
           return const Center(child: Text('Không tìm thấy thông tin người dùng'));
         }
-
-        // Lấy dữ liệu từ snapshot
         final userData = snapshot.data!.data() as Map<String, dynamic>;
         
-        // Trả về UI với dữ liệu trực tiếp từ userData
+
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: CustomAppBar(
@@ -100,13 +97,19 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
             actions: [
               CustomIconButton(
                 icon: Icons.edit,
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const EditPersonInfoScreen())),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const CaptureIdCardScreen(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
           body: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 28.h),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
               child: Column(
                 children: [
                   DisabledTextField(
