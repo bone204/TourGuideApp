@@ -39,25 +39,6 @@ class MomoPayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final momoPay = MomoVn();
-    
-    // Đăng ký lắng nghe sự kiện từ MoMo
-    momoPay.on(MomoVn.EVENT_PAYMENT_SUCCESS, (PaymentResponse response) {
-      debugPrint('MoMo Payment Success: Phone: ${response.phoneNumber}, Token: ${response.token}, Extra: ${response.extra}');
-      // Xử lý kết quả thành công
-      if (context.mounted) {
-        _showResultDialog(context, response, true);
-      }
-    });
-
-    momoPay.on(MomoVn.EVENT_PAYMENT_ERROR, (PaymentResponse response) {
-      debugPrint('MoMo Payment Error: Status: ${response.status}, Message: ${response.message}, Extra: ${response.extra}');
-      // Xử lý kết quả thất bại
-      if (context.mounted) {
-        _showResultDialog(context, response, false);
-      }
-    });
-    
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primaryColor,
@@ -66,8 +47,7 @@ class MomoPayButton extends StatelessWidget {
       ),
       onPressed: () async {
         try {
-          // Gửi options lên server
-          await MomoService.sendOptions(
+          await MomoService.processPayment(
             merchantName: merchantName,
             appScheme: appScheme,
             merchantCode: merchantCode,
@@ -82,27 +62,17 @@ class MomoPayButton extends StatelessWidget {
             partner: partner,
             extra: extra,
             isTestMode: isTestMode,
+            onSuccess: (response) {
+              if (context.mounted) {
+                _showResultDialog(context, response, true);
+              }
+            },
+            onError: (response) {
+              if (context.mounted) {
+                _showResultDialog(context, response, false);
+              }
+            },
           );
-
-          // Mở cổng thanh toán MoMo
-          final options = MomoPaymentInfo(
-            merchantName: merchantName,
-            appScheme: appScheme,
-            merchantCode: merchantCode,
-            partnerCode: partnerCode,
-            amount: amount,
-            orderId: orderId,
-            orderLabel: orderLabel,
-            merchantNameLabel: merchantNameLabel,
-            fee: fee,
-            description: description,
-            username: username,
-            partner: partner,
-            extra: extra,
-            isTestMode: isTestMode
-          );
-          
-          momoPay.open(options);
         } catch (e) {
           debugPrint(e.toString());
           if (context.mounted) {
@@ -291,7 +261,7 @@ class MomoPayButton extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: AppColors.red,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
