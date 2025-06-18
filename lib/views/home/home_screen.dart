@@ -9,6 +9,7 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/views/admin/admin_screen.dart';
 import 'package:tourguideapp/views/chat/chat.dart';
+import 'package:tourguideapp/views/momo_payment/momo_screen.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/home_navigator.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
@@ -433,6 +434,22 @@ class _HomeScreenState extends State<HomeScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => const Chat(),
+                            ),
+                          );
+                        },
+                        child: Image.asset(
+                          'assets/img/ic_ai_chat.png',
+                          width: 28.w,
+                          height: 28.h,
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MomoScreen(),
                             ),
                           );
                         },
