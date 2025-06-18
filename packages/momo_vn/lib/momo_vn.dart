@@ -67,10 +67,6 @@ class MomoVn {
   static PaymentResponse _validateOptions(MomoPaymentInfo options) {
     bool error = false;
     String mes = '';
-    if (options.merchantCode == null) {
-      mes = 'merchantcode is required. Please check if key is present in options.';
-      error = true;
-    }
     if (options.merchantName.isEmpty) {
       mes = 'merchantcode is required. Please check if key is present in options.';
       error = true;
