@@ -449,15 +449,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => MomoScreen(),
+                              builder: (context) => const MomoScreen(),
                             ),
                           );
                         },
-                        child: Image.asset(
-                          'assets/img/ic_ai_chat.png',
-                          width: 28.w,
-                          height: 28.h,
-                        ),
+                        child: Icon(Icons.payment, size: 28.sp, color: AppColors.white)
                       ),
                     ],
                   ),

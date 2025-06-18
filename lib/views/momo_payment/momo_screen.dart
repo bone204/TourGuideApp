@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
+import 'package:tourguideapp/widgets/zalo_pay_button.dart';
 import '../../widgets/momo_pay_button.dart';
 
 class MomoScreen extends StatelessWidget {
@@ -25,20 +26,19 @@ class MomoScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: CustomAppBar(
-        title: "Thanh toán Momo",
+        title: "Thanh toán",
         onBackPressed: () => Navigator.pop(context),
       ),
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.pink, Colors.white],
+          image: DecorationImage(
+            image: NetworkImage("https://images.steamusercontent.com/ugc/947327626495107891/03AC098D1A4EBCE4735A7B5B534110D4731F665B/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false"),
+            fit: BoxFit.cover,
           ),
         ),
         child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               const SizedBox(height: 20),
               Container(
@@ -80,6 +80,8 @@ class MomoScreen extends StatelessWidget {
                       partner: paymentInfo['partner'] as String,
                       extra: paymentInfo['extra'] as String,
                     ),
+                    const SizedBox(height: 12),
+                    const ZaloPayButton(),
                   ],
                 ),
               ),
