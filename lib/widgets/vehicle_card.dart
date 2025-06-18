@@ -11,7 +11,7 @@ class VehicleCardData {
   final String model;
   final String seats;
   final String vehicleId;
-  final String vehicleRegisterId;
+  final String licensePlate;
   final DateTime startDate;
   final DateTime endDate;
   final double price;
@@ -28,7 +28,7 @@ class VehicleCardData {
     required this.model,
     required this.seats,
     required this.vehicleId,
-    required this.vehicleRegisterId,
+    required this.licensePlate,
     required this.startDate,
     required this.endDate,
     required this.price,
@@ -255,7 +255,7 @@ class VehicleCard extends StatelessWidget {
                                     pickupLocation: data.pickupLocation,
                                     price: data.price,
                                     vehicleId: data.vehicleId,
-                                    vehicleRegisterId: data.vehicleRegisterId,
+                                    licensePlates: [data.licensePlate],
                                     hour4Price: data.hour4Price,
                                     hour8Price: data.hour8Price,
                                     dayPrice: data.dayPrice,

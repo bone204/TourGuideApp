@@ -19,7 +19,7 @@ class VehicleRentalDetail extends StatefulWidget {
   final String pickupLocation;
   final double price;
   final String vehicleId;
-  final String vehicleRegisterId;
+  final List<String> licensePlates;
   final double hour4Price;
   final double hour8Price;
   final double dayPrice;
@@ -34,7 +34,7 @@ class VehicleRentalDetail extends StatefulWidget {
     required this.pickupLocation,
     required this.price,
     required this.vehicleId,
-    required this.vehicleRegisterId,
+    required this.licensePlates,
     required this.hour4Price,
     required this.hour8Price,
     required this.dayPrice,
@@ -310,7 +310,7 @@ class _VehicleRentalDetailState extends State<VehicleRentalDetail> {
                                     listen: false)
                                 .createInitialBill(
                           userId: userId,
-                          vehicleRegisterId: widget.vehicleRegisterId,
+                          licensePlates: widget.licensePlates,
                           startDate: widget.startDate,
                           endDate: widget.endDate,
                           rentOption: widget.rentOption,
@@ -326,7 +326,7 @@ class _VehicleRentalDetailState extends State<VehicleRentalDetail> {
                                 billId: billId,
                                 model: widget.model,
                                 vehicleId: widget.vehicleId,
-                                vehicleRegisterId: widget.vehicleRegisterId,
+                                licensePlates: widget.licensePlates,
                                 startDate: widget.startDate,
                                 endDate: widget.endDate,
                                 rentOption: widget.rentOption,

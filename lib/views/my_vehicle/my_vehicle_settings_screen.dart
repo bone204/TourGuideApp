@@ -128,7 +128,7 @@ class MyVehicleSettingsScreen extends StatelessWidget {
 
                                 if (confirm == true) {
                                   await viewModel.updateVehicleStatus(
-                                      vehicle.vehicleRegisterId, newStatus);
+                                      vehicle.licensePlate, newStatus);
                                   if (context.mounted) {
                                     Navigator.of(context).pop();
                                   }
@@ -173,7 +173,7 @@ class MyVehicleSettingsScreen extends StatelessWidget {
                         if (confirm == true) {
                           final viewModel =
                               Provider.of<RentalVehicleViewModel>(context, listen: false);
-                          await viewModel.deleteVehicle(vehicle.vehicleRegisterId);
+                          await viewModel.deleteVehicle(vehicle.licensePlate);
                           if (context.mounted) {
                             Navigator.of(context).pop();
                           }

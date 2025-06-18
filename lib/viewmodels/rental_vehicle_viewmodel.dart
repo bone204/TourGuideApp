@@ -9,6 +9,7 @@ import 'package:tourguideapp/models/bill_model.dart';
 import 'package:tourguideapp/models/rental_vehicle_model.dart';
 import 'package:intl/intl.dart';
 import 'package:tourguideapp/models/feedback_model.dart';
+import 'package:tourguideapp/models/vehicle_information_model.dart';
 
 class RentalVehicleViewModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -49,7 +50,6 @@ class RentalVehicleViewModel extends ChangeNotifier {
         return displayType;
     }
   }
-
 
   // Chỉ giữ lại translations cho màu sắc
   final Map<String, String> _colorTranslations = {
@@ -386,29 +386,24 @@ class RentalVehicleViewModel extends ChangeNotifier {
           : _convertStatusToFirestore(vehicleData['status'], locale);
 
       final newRentalVehicle = RentalVehicleModel(
-        vehicleRegisterId: vehicleRegisterId,
         userId: _currentUserId!,
         licensePlate: vehicleData['licensePlate'] ?? '',
         vehicleRegistration: vehicleData['vehicleRegistration'] ?? '',
-        vehicleType: queryType,
-        maxSeats: seatingCapacity,
-        vehicleBrand: vehicleData['vehicleBrand'],
-        vehicleModel: vehicleData['vehicleModel'],
-        vehicleColor: queryColor, // Lưu màu tiếng Việt
-        vehicleRegistrationFrontPhoto: frontPhotoUrl,
-        vehicleRegistrationBackPhoto: backPhotoUrl,
+        vehicleTypeId: queryType,
+        //vehicleColor: queryColor, // Lưu màu tiếng Việt
+        vehicleRegistrationFront: frontPhotoUrl,
+        vehicleRegistrationBack: backPhotoUrl,
         hour4Price: (vehicleData['hour4Price'] ?? 0).toDouble(),
         hour8Price: (vehicleData['hour8Price'] ?? 0).toDouble(),
         dayPrice: (vehicleData['dayPrice'] ?? 0).toDouble(),
         requirements: List<String>.from(vehicleData['requirements'] ?? []),
         contractId: vehicleData['contractId'] ?? '',
         status: firestoreStatus,
-        vehicleId: vehicleId,
       );
 
       await _firestore
           .collection('RENTAL_VEHICLE')
-          .doc(newRentalVehicle.vehicleRegisterId)
+          .doc(newRentalVehicle.licensePlate)
           .set(newRentalVehicle.toMap());
     } catch (e) {
       if (kDebugMode) {
@@ -529,7 +524,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
     double maxBudget,
     DateTime startDate,
     DateTime endDate,
-    String pickupProvince,
+    Map<String, String> locationDetails,
   ) {
     // Convert category sang tiếng Việt để query
     String queryType = _convertVehicleTypeToFirestore(category, 'vi');
@@ -541,7 +536,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
       print('Budget Range: $minBudget - $maxBudget VND');
       print('Start Date: $startDate');
       print('End Date: $endDate');
-      print('Pickup Location: $pickupProvince');
+      print('Pickup Location: $locationDetails');
       print('===============================\n');
     }
 
@@ -563,7 +558,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
         RentalVehicleModel vehicle = RentalVehicleModel.fromMap(doc.data());
 
         if (kDebugMode) {
-          print('\n--- Checking Vehicle: ${vehicle.vehicleRegisterId} ---');
+          print('\n--- Checking Vehicle: ${vehicle.licensePlate} ---');
         }
 
         // Kiểm tra giá thuê
@@ -581,11 +576,11 @@ class RentalVehicleViewModel extends ChangeNotifier {
 
         // Kiểm tra địa điểm
         bool isLocationMatch =
-            await _checkLocationMatch(vehicle.contractId, pickupProvince);
+            await _checkLocationMatch(vehicle.contractId, locationDetails);
         if (kDebugMode) {
           print('Location match: $isLocationMatch');
           print('Contract ID: ${vehicle.contractId}');
-          print('Pickup Province: $pickupProvince');
+          print('Pickup Location: $locationDetails');
         }
         if (!isLocationMatch) {
           if (kDebugMode) {
@@ -596,7 +591,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
 
         // Kiểm tra thời gian có sẵn
         bool isTimeAvailable = await _checkTimeAvailability(
-            vehicle.vehicleRegisterId, startDate, endDate, rentOption);
+            vehicle.licensePlate, startDate, endDate, rentOption);
         if (kDebugMode) {
           print('Time availability: $isTimeAvailable');
           print(
@@ -628,7 +623,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
   }
 
   Future<bool> _checkLocationMatch(
-      String contractId, String fullAddress) async {
+      String contractId, Map<String, String> locationDetails) async {
     try {
       final contractDoc =
           await _firestore.collection('CONTRACT').doc(contractId).get();
@@ -639,62 +634,25 @@ class RentalVehicleViewModel extends ChangeNotifier {
       String? businessCity = contractData['businessCity'] as String?;
       String? businessDistrict = contractData['businessDistrict'] as String?;
 
-      // Chuyển đổi sang chữ thường để so sánh không phân biệt hoa thường
-      String normalizedAddress = fullAddress.toLowerCase();
-
-      if (kDebugMode) {
-        print('\n=== LOCATION MATCHING ===');
-        print('Checking address: $normalizedAddress');
-        print('Business Province: $businessProvince');
-        print('Business City: $businessCity');
-        print('Business District: $businessDistrict');
-      }
-
-      // Kiểm tra từng phần của địa chỉ
-      if (businessProvince != null && businessProvince.isNotEmpty) {
-        if (normalizedAddress.contains(businessProvince.toLowerCase())) {
-          if (kDebugMode) {
-            print('Match found with Province: $businessProvince');
-          }
+      // So sánh từng trường
+      if (locationDetails['province'] != null && businessProvince != null) {
+        if (locationDetails['province']!.toLowerCase() ==
+            businessProvince.toLowerCase()) {
           return true;
         }
       }
-
-      if (businessCity != null && businessCity.isNotEmpty) {
-        // Bỏ qua "TP. " ở đầu chuỗi nếu có
-        String normalizedCity = businessCity.toLowerCase();
-        if (normalizedCity.startsWith("tp.")) {
-          normalizedCity = normalizedCity.substring(3).trim();
-        } else if (normalizedCity.startsWith("tp")) {
-          normalizedCity = normalizedCity.substring(2).trim();
-        }
-
-        if (kDebugMode) {
-          print('Normalized City: $normalizedCity');
-        }
-
-        if (normalizedAddress.contains(normalizedCity)) {
-          if (kDebugMode) {
-            print('Match found with City: $businessCity -> $normalizedCity');
-          }
+      if (locationDetails['city'] != null && businessCity != null) {
+        if (locationDetails['city']!.toLowerCase() ==
+            businessCity.toLowerCase()) {
           return true;
         }
       }
-
-      if (businessDistrict != null && businessDistrict.isNotEmpty) {
-        if (normalizedAddress.contains(businessDistrict.toLowerCase())) {
-          if (kDebugMode) {
-            print('Match found with District: $businessDistrict');
-          }
+      if (locationDetails['district'] != null && businessDistrict != null) {
+        if (locationDetails['district']!.toLowerCase() ==
+            businessDistrict.toLowerCase()) {
           return true;
         }
       }
-
-      if (kDebugMode) {
-        print('No location match found');
-        print('========================\n');
-      }
-
       return false;
     } catch (e) {
       if (kDebugMode) {
@@ -728,14 +686,15 @@ class RentalVehicleViewModel extends ChangeNotifier {
       // Kiểm tra xem có trùng lịch với bill nào không
       for (var doc in billSnapshot.docs) {
         final billData = doc.data();
-        
+
         // Chuyển đổi string date sang DateTime
         final DateFormat formatter = DateFormat('dd/MM/yyyy HH:mm');
         final billStartDate = formatter.parse(billData['startDate']);
         final billEndDate = formatter.parse(billData['endDate']);
 
         if (kDebugMode) {
-          print('Bill period: ${billStartDate.toString()} - ${billEndDate.toString()}');
+          print(
+              'Bill period: ${billStartDate.toString()} - ${billEndDate.toString()}');
         }
 
         // Nếu có bất kỳ sự chồng chéo nào về thời gian
@@ -967,7 +926,7 @@ class RentalVehicleViewModel extends ChangeNotifier {
 
   Future<String> createInitialBill({
     required String userId,
-    required String vehicleRegisterId,
+    required List<String> licensePlates,
     required DateTime startDate,
     required DateTime endDate,
     required String rentOption,
@@ -987,9 +946,11 @@ class RentalVehicleViewModel extends ChangeNotifier {
         voucherId: '',
         travelPointsUsed: 0,
         paymentMethod: '',
-        accountPayment: '',
-        vehicleRegisterId: vehicleRegisterId,
         status: 'Chờ thanh toán',
+        licensePlates: licensePlates,
+        citizenFrontPhoto: '',
+        citizenBackPhoto: '',
+        verifiedSefilePhoto: '',
       );
 
       await _firestore.collection('BILL').doc(billId).set(bill.toMap());
@@ -1283,5 +1244,18 @@ class RentalVehicleViewModel extends ChangeNotifier {
         .snapshots()
         .map((snapshot) =>
             snapshot.docs.map((doc) => BillModel.fromMap(doc.data())).toList());
+  }
+
+  Future<VehicleInformationModel> getVehicleInformation(
+      String vehicleTypeId) async {
+    final doc = await _firestore
+        .collection('VEHICLE_INFORMATION')
+        .doc(vehicleTypeId)
+        .get();
+    if (doc.exists) {
+      return VehicleInformationModel.fromMap(doc.data()!);
+    } else {
+      throw Exception('Không tìm thấy thông tin loại xe');
+    }
   }
 }

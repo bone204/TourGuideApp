@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 class RentalBillDetailScreen extends StatefulWidget {
   final String model;
   final String vehicleId;
-  final String vehicleRegisterId;
+  final List<String> licensePlates;
   final String startDate;
   final String endDate;
   final String rentOption;
@@ -22,7 +22,7 @@ class RentalBillDetailScreen extends StatefulWidget {
     super.key,
     required this.model,
     required this.vehicleId,
-    required this.vehicleRegisterId,
+    required this.licensePlates,
     required this.startDate,
     required this.endDate,
     required this.rentOption,
@@ -66,7 +66,7 @@ class _RentalBillDetailScreenState extends State<RentalBillDetailScreen> {
       // Lấy thông tin chủ xe
       final vehicleDoc = await firestore
           .collection('RENTAL_VEHICLE')
-          .doc(widget.vehicleRegisterId)
+          .doc(widget.licensePlates[0])
           .get();
 
       if (vehicleDoc.exists) {

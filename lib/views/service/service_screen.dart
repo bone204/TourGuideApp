@@ -7,6 +7,7 @@ import 'package:tourguideapp/views/service/rental_vehicle/rental_bill_detail_scr
 import '../../widgets/use_service_card.dart';
 import '../../viewmodels/bill_viewmodel.dart';
 import '../../viewmodels/rental_vehicle_viewmodel.dart';
+import '../../models/vehicle_information_model.dart';
 
 class ServiceScreen extends StatefulWidget {
   const ServiceScreen({super.key});
@@ -63,49 +64,61 @@ class _ServiceScreenState extends State<ServiceScreen> {
                             final bill = bills[index];
                             return FutureBuilder(
                               future: billViewModel
-                                  .getVehicleDetails(bill.vehicleRegisterId),
+                                  .getVehicleDetails(bill.licensePlates[0]),
                               builder: (context, snapshot) {
                                 if (!snapshot.hasData) {
                                   return const SizedBox.shrink();
                                 }
-
                                 final vehicle = snapshot.data!;
-                                return FutureBuilder<String>(
+                                return FutureBuilder<VehicleInformationModel>(
                                   future: context
                                       .read<RentalVehicleViewModel>()
-                                      .getVehiclePhoto(vehicle.vehicleId),
-                                  builder: (context, photoSnapshot) {
-                                    final imageUrl = photoSnapshot.data ??
-                                        'assets/img/icon-cx3.png';
-
-                                    return UseServiceCard(
-                                      vehicleName:
-                                          '${vehicle.vehicleBrand} ${vehicle.vehicleModel}',
-                                      dateRange:
-                                          '${bill.startDate} - ${bill.endDate}',
-                                      price: bill.total,
-                                      imageUrl: imageUrl,
-                                      onDetailPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                RentalBillDetailScreen(
-                                              model:
-                                                  '${vehicle.vehicleBrand} ${vehicle.vehicleModel}',
-                                              vehicleId: vehicle.vehicleId,
-                                              vehicleRegisterId:
-                                                  bill.vehicleRegisterId,
-                                              startDate: bill.startDate,
-                                              endDate: bill.endDate,
-                                              rentOption: bill.rentalType,
-                                              price: bill.total,
-                                            ),
-                                          ),
+                                      .getVehicleInformation(
+                                          vehicle.vehicleTypeId),
+                                  builder: (context, vehicleInfoSnapshot) {
+                                    if (!vehicleInfoSnapshot.hasData) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    final vehicleInfo =
+                                        vehicleInfoSnapshot.data!;
+                                    return FutureBuilder<String>(
+                                      future: context
+                                          .read<RentalVehicleViewModel>()
+                                          .getVehiclePhoto(
+                                              vehicle.vehicleTypeId),
+                                      builder: (context, photoSnapshot) {
+                                        final imageUrl = photoSnapshot.data ??
+                                            'assets/img/icon-cx3.png';
+                                        return UseServiceCard(
+                                          vehicleName:
+                                              '${vehicleInfo.brand} ${vehicleInfo.model}',
+                                          dateRange:
+                                              '${bill.startDate} - ${bill.endDate}',
+                                          price: bill.total,
+                                          imageUrl: imageUrl,
+                                          onDetailPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    RentalBillDetailScreen(
+                                                  model:
+                                                      '${vehicleInfo.brand} ${vehicleInfo.model}',
+                                                  vehicleId:
+                                                      vehicle.vehicleTypeId,
+                                                  licensePlates: bill.licensePlates,
+                                                  startDate: bill.startDate,
+                                                  endDate: bill.endDate,
+                                                  rentOption: bill.rentalType,
+                                                  price: bill.total,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          onCancelPressed: () {
+                                            // Xử lý khi nhấn nút Cancel
+                                          },
                                         );
-                                      },
-                                      onCancelPressed: () {
-                                        // Xử lý khi nhấn nút Cancel
                                       },
                                     );
                                   },

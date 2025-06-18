@@ -81,11 +81,6 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
   void onLocationSelected(String location, Map<String, String> details) {
     setState(() {
       selectedLocation = location;
-      selectedProvince = [
-        details['province'],
-        details['city'],
-        details['district']
-      ].where((s) => s != null && s.isNotEmpty).join(", ");
       locationDetails = details;
     });
   }
@@ -105,9 +100,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: AppLocalizations.of(context).translate(
-            selectedCategory == 'Car'
-                ? 'Car Rental'
-                : 'Motorbike Rental'),
+            selectedCategory == 'Car' ? 'Car Rental' : 'Motorbike Rental'),
         onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: SingleChildScrollView(
@@ -273,7 +266,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
                         rentOption: selectedRentOption,
                         minBudget: minBudget,
                         maxBudget: maxBudget,
-                        pickupProvince: selectedLocation,
+                        locationDetails: locationDetails,
                       ),
                     ),
                   );

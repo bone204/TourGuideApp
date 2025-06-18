@@ -52,8 +52,8 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
     _actualPricePerDayController.text = widget.vehicle.dayPrice.toInt().toString();
     
     _requirementsController.text = widget.vehicle.requirements.join('\n');
-    _frontPhotoUrl = widget.vehicle.vehicleRegistrationFrontPhoto;
-    _backPhotoUrl = widget.vehicle.vehicleRegistrationBackPhoto;
+    _frontPhotoUrl = widget.vehicle.vehicleRegistrationFront;
+    _backPhotoUrl = widget.vehicle.vehicleRegistrationBack;
   }
 
   Future<void> _saveChanges() async {
@@ -76,7 +76,7 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
         await viewModel.deleteOldPhoto(_frontPhotoUrl);
         frontPhotoUrl = await viewModel.uploadVehiclePhoto(
           _newFrontPhoto!,
-          widget.vehicle.vehicleRegisterId,
+          widget.vehicle.licensePlate,
           'registration_front'
         );
       }
@@ -85,13 +85,13 @@ class _EditVehicleScreenState extends State<EditVehicleScreen> {
         await viewModel.deleteOldPhoto(_backPhotoUrl);
         backPhotoUrl = await viewModel.uploadVehiclePhoto(
           _newBackPhoto!,
-          widget.vehicle.vehicleRegisterId,
+          widget.vehicle.licensePlate,
           'registration_back'
         );
       }
 
       await viewModel.updateVehicleDetails(
-        widget.vehicle.vehicleRegisterId,
+        widget.vehicle.licensePlate,
         {
           'licensePlate': _licensePlateController.text,
           'vehicleRegistration': _vehicleRegistrationController.text,

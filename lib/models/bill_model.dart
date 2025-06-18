@@ -8,15 +8,11 @@ class BillModel {
   final String voucherId;
   final int travelPointsUsed;
   final String paymentMethod;
-  final String accountPayment;
-  final String vehicleRegisterId;
   final String status;
-  final String? deliveryAddress;
-  final String? deliveryTime;
-  final String? deliveryNote;
+  final List<String> licensePlates;
   final String? citizenFrontPhoto;
   final String? citizenBackPhoto;
-  final String? citizenHandoverPhoto;
+  final String? verifiedSefilePhoto;
 
   BillModel({
     required this.billId,
@@ -28,15 +24,11 @@ class BillModel {
     required this.voucherId,
     required this.travelPointsUsed,
     required this.paymentMethod,
-    required this.accountPayment,
-    required this.vehicleRegisterId,
     required this.status,
-    this.deliveryAddress,
-    this.deliveryTime,
-    this.deliveryNote,
+    required this.licensePlates,
     this.citizenFrontPhoto,
     this.citizenBackPhoto,
-    this.citizenHandoverPhoto,
+    this.verifiedSefilePhoto,
   });
 
   Map<String, dynamic> toMap() {
@@ -50,15 +42,11 @@ class BillModel {
       'voucherId': voucherId,
       'travelPointsUsed': travelPointsUsed,
       'paymentMethod': paymentMethod,
-      'accountPayment': accountPayment,
-      'vehicleRegisterId': vehicleRegisterId,
       'status': status,
-      'deliveryAddress': deliveryAddress,
-      'deliveryTime': deliveryTime,
-      'deliveryNote': deliveryNote,
+      'licensePlates': licensePlates,
       'citizenFrontPhoto': citizenFrontPhoto,
       'citizenBackPhoto': citizenBackPhoto,
-      'citizenHandoverPhoto': citizenHandoverPhoto,
+      'verifiedSefilePhoto': verifiedSefilePhoto,
     };
   }
 
@@ -73,15 +61,11 @@ class BillModel {
       voucherId: map['voucherId'] ?? '',
       travelPointsUsed: map['travelPointsUsed'] ?? 0,
       paymentMethod: map['paymentMethod'] ?? '',
-      accountPayment: map['accountPayment'] ?? '',
-      vehicleRegisterId: map['vehicleRegisterId'] ?? '',
       status: map['status'] ?? 'Chờ thanh toán',
-      deliveryAddress: map['deliveryAddress'],
-      deliveryTime: map['deliveryTime'],
-      deliveryNote: map['deliveryNote'],
+      licensePlates: List<String>.from(map['licensePlates'] ?? []),
       citizenFrontPhoto: map['citizenFrontPhoto'],
       citizenBackPhoto: map['citizenBackPhoto'],
-      citizenHandoverPhoto: map['citizenHandoverPhoto'],
+      verifiedSefilePhoto: map['verifiedSefilePhoto'],
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/core/constants/app_colors.dart'; 
+import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/my_vehicle/edit_vehicle_screen.dart';
 import '../../widgets/custom_icon_button.dart';
@@ -9,10 +9,13 @@ import '../../models/rental_vehicle_model.dart';
 import '../../widgets/disable_textfield.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import '../../viewmodels/rental_vehicle_viewmodel.dart';
+import '../../models/vehicle_information_model.dart';
 
 class MyVehicleDetailScreen extends StatefulWidget {
   final RentalVehicleModel vehicle;
-  
+
   const MyVehicleDetailScreen({
     super.key,
     required this.vehicle,
@@ -33,7 +36,7 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
     // Khởi tạo stream để lắng nghe thay đổi
     vehicleStream = FirebaseFirestore.instance
         .collection('RENTAL_VEHICLE')
-        .doc(widget.vehicle.vehicleRegisterId)
+        .doc(widget.vehicle.licensePlate)
         .snapshots()
         .map((snapshot) => RentalVehicleModel.fromMap(snapshot.data()!));
   }
@@ -42,11 +45,12 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
   Widget build(BuildContext context) {
     categories = [
       AppLocalizations.of(context).translate('Information'),
-      AppLocalizations.of(context).translate('Documentation'), 
+      AppLocalizations.of(context).translate('Documentation'),
       AppLocalizations.of(context).translate('Rental Info')
     ];
 
-    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
+    ScreenUtil.init(context,
+        designSize: const Size(375, 812), minTextAdapt: true);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -63,7 +67,7 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                 child: Stack(
                   children: [
                     Align(
-                      alignment: Alignment.centerLeft, 
+                      alignment: Alignment.centerLeft,
                       child: CustomIconButton(
                         icon: Icons.chevron_left,
                         onPressed: () {
@@ -73,7 +77,8 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                     ),
                     Center(
                       child: Text(
-                        AppLocalizations.of(context).translate('Vehicle Detail'),
+                        AppLocalizations.of(context)
+                            .translate('Vehicle Detail'),
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w700,
@@ -111,7 +116,7 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-    
+
           final updatedVehicle = snapshot.data!;
           return Column(
             children: [
@@ -119,12 +124,17 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
                 child: CategorySelector(
                   categories: categories,
-                  selectedCategory: AppLocalizations.of(context).translate(selectedCategory),
+                  selectedCategory:
+                      AppLocalizations.of(context).translate(selectedCategory),
                   onCategorySelected: (category) {
                     setState(() {
-                      if (category == AppLocalizations.of(context).translate('Information')) {
+                      if (category ==
+                          AppLocalizations.of(context)
+                              .translate('Information')) {
                         selectedCategory = 'Information';
-                      } else if (category == AppLocalizations.of(context).translate('Documentation')) {
+                      } else if (category ==
+                          AppLocalizations.of(context)
+                              .translate('Documentation')) {
                         selectedCategory = 'Documentation';
                       } else {
                         selectedCategory = 'Rental Info';
@@ -148,54 +158,68 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
 
     switch (selectedCategory) {
       case 'Information':
-        return SingleChildScrollView(
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            children: [
-              DisabledTextField(
-                labelText: AppLocalizations.of(context).translate("License Plate"),
-                text: vehicle.licensePlate,
-              ),
-              SizedBox(height: 16.h),
-              DisabledTextField(
-                labelText: AppLocalizations.of(context).translate("Vehicle Registration"),
-                text: vehicle.vehicleRegistration,
-              ),
-              SizedBox(height: 16.h),
-              Row(
+        return FutureBuilder<VehicleInformationModel>(
+          future: Provider.of<RentalVehicleViewModel>(context, listen: false)
+              .getVehicleInformation(vehicle.vehicleTypeId),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const SizedBox.shrink();
+            }
+            final vehicleInfo = snapshot.data!;
+            return SingleChildScrollView(
+              padding: EdgeInsets.all(16.w),
+              child: Column(
                 children: [
-                  Expanded(
-                    child: DisabledTextField(
-                      labelText: AppLocalizations.of(context).translate("Vehicle Type"),
-                      text: vehicle.vehicleType,
-                    ),
+                  DisabledTextField(
+                    labelText:
+                        AppLocalizations.of(context).translate("License Plate"),
+                    text: vehicle.licensePlate,
                   ),
-                  SizedBox(width: 16.w),
-                  Expanded(
-                    child: DisabledTextField(
-                      labelText: AppLocalizations.of(context).translate("Max Seats"),
-                      text: vehicle.maxSeats.toString(),
-                    ),
+                  SizedBox(height: 16.h),
+                  DisabledTextField(
+                    labelText: AppLocalizations.of(context)
+                        .translate("Vehicle Registration"),
+                    text: vehicle.vehicleRegistration,
+                  ),
+                  SizedBox(height: 16.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DisabledTextField(
+                          labelText: AppLocalizations.of(context)
+                              .translate("Vehicle Type"),
+                          text: vehicle.vehicleTypeId,
+                        ),
+                      ),
+                      SizedBox(width: 16.w),
+                      Expanded(
+                        child: DisabledTextField(
+                          labelText: AppLocalizations.of(context)
+                              .translate("Max Seats"),
+                          text: vehicleInfo.seatingCapacity.toString(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
+                  DisabledTextField(
+                    labelText: AppLocalizations.of(context).translate("Brand"),
+                    text: vehicleInfo.brand,
+                  ),
+                  SizedBox(height: 16.h),
+                  DisabledTextField(
+                    labelText: AppLocalizations.of(context).translate("Model"),
+                    text: vehicleInfo.model,
+                  ),
+                  SizedBox(height: 16.h),
+                  DisabledTextField(
+                    labelText: AppLocalizations.of(context).translate("Color"),
+                    text: vehicleInfo.color,
                   ),
                 ],
               ),
-              SizedBox(height: 16.h),
-              DisabledTextField(
-                labelText: AppLocalizations.of(context).translate("Brand"),
-                text: vehicle.vehicleBrand,
-              ),
-              SizedBox(height: 16.h),
-              DisabledTextField(
-                labelText: AppLocalizations.of(context).translate("Model"),
-                text: vehicle.vehicleModel,
-              ),
-              SizedBox(height: 16.h),
-              DisabledTextField(
-                labelText: AppLocalizations.of(context).translate("Color"),
-                text: vehicle.vehicleColor,
-              ),
-            ],
-          ),
+            );
+          },
         );
       case 'Documentation':
         return SingleChildScrollView(
@@ -204,10 +228,11 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppLocalizations.of(context).translate("Vehicle Registration Photo (Front)"),
+                AppLocalizations.of(context)
+                    .translate("Vehicle Registration Photo (Front)"),
                 style: TextStyle(
                   fontSize: 18.sp,
-                fontWeight: FontWeight. w700,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -221,15 +246,15 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16.r),
                   child: Image.network(
-                    vehicle.vehicleRegistrationFrontPhoto,
+                    vehicle.vehicleRegistrationFront,
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
                       return Center(
                         child: CircularProgressIndicator(
                           value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded / 
-                                loadingProgress.expectedTotalBytes!
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
                               : null,
                         ),
                       );
@@ -248,7 +273,8 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
               ),
               SizedBox(height: 24.h),
               Text(
-                AppLocalizations.of(context).translate("Vehicle Registration Photo (Back)"),
+                AppLocalizations.of(context)
+                    .translate("Vehicle Registration Photo (Back)"),
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w700,
@@ -265,15 +291,15 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16.r),
                   child: Image.network(
-                    vehicle.vehicleRegistrationBackPhoto,
+                    vehicle.vehicleRegistrationBack,
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
                       return Center(
                         child: CircularProgressIndicator(
                           value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded / 
-                                loadingProgress.expectedTotalBytes!
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
                               : null,
                         ),
                       );
@@ -302,14 +328,16 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                 children: [
                   Expanded(
                     child: DisabledTextField(
-                      labelText: AppLocalizations.of(context).translate("Price For 4 Hour"),
+                      labelText: AppLocalizations.of(context)
+                          .translate("Price For 4 Hour"),
                       text: '${numberFormat.format(vehicle.hour4Price)} ₫',
                     ),
                   ),
                   SizedBox(width: 16.w),
                   Expanded(
                     child: DisabledTextField(
-                      labelText: AppLocalizations.of(context).translate("Price Per Day"),
+                      labelText: AppLocalizations.of(context)
+                          .translate("Price Per Day"),
                       text: '${numberFormat.format(vehicle.dayPrice)} ₫',
                     ),
                   ),
@@ -329,7 +357,8 @@ class _MyVehicleDetailState extends State<MyVehicleDetailScreen> {
                   SizedBox(height: 8.h),
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF7F7F9),
                       borderRadius: BorderRadius.circular(16.r),

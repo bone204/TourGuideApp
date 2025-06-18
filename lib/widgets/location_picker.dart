@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mapbox_search/mapbox_search.dart';
@@ -5,6 +6,8 @@ import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/custom_search_bar.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LocationPicker extends StatefulWidget {
   final Function(String, Map<String, String>) onLocationSelected;
@@ -25,78 +28,35 @@ class _LocationPickerState extends State<LocationPicker> {
   String selectedName = "";
   List<Suggestion> _searchResults = [];
   final TextEditingController _searchController = TextEditingController();
-  
-  final searchAPI = SearchBoxAPI(
-    apiKey: 'pk.eyJ1IjoidGhvbmd0dWxlbjEzNCIsImEiOiJjbTNwOTd4dWEwY2l1MnJxMWt0dnRla2pqIn0.9o3fO8SYcsRxRYH0-Qtfhg',
-    limit: 10,
-    country: 'VN',
-    language: 'vi',
-    types: [
-      PlaceType.poi,
-      PlaceType.address, 
-      PlaceType.place,
-      PlaceType.district,
-      PlaceType.locality,
-      PlaceType.postcode,
-    ],
-  );
 
-  Future<void> _searchPlaces(String value, StateSetter setModalState) async {
-    if (value.length > 1) {
-      try {
-        final response = await searchAPI.getSuggestions(value);
-        response.fold(
-          (success) {
-            setModalState(() {
-              _searchResults = success.suggestions;
-            });
-          },
-          (failure) {
-            print('Search error: ${failure.message}');
-            setModalState(() {
-              _searchResults.clear();
-            });
-          },
-        );
-      } catch (e) {
-        print('Search error: $e');
-        setModalState(() {
-          _searchResults.clear();
-        });
-      }
-    } else {
-      setModalState(() {
-        _searchResults.clear();
-      });
+  Future<List<Map<String, dynamic>>> _searchPlaces(String input) async {
+    final apiKey = dotenv.env['GOOGLE_API_KEY']!;
+    final url =
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&language=vi&components=country:VN&key=$apiKey';
+    final response = await http.get(Uri.parse(url));
+    final data = jsonDecode(response.body);
+    if (data['status'] == 'OK') {
+      return List<Map<String, dynamic>>.from(data['predictions']);
     }
+    return [];
   }
 
-  Future<Map<String, String>> _getPlaceDetails(String mapboxId) async {
-    try {
-      final response = await searchAPI.getPlace(mapboxId);
-      
-      return response.fold(
-        (success) {
-          final feature = success.features.first;
-          
-          return {
-            'address': feature.properties.address ?? '',
-            'latitude': feature.geometry.coordinates.lat.toString(),
-            'longitude': feature.geometry.coordinates.long.toString(),
-          };
-        },
-        (failure) => {},
-      );
-    } catch (e) {
-      print('Error getting place details: $e');
-      return {};
+  Future<Map<String, dynamic>> _getPlaceDetails(String placeId) async {
+    final apiKey = dotenv.env['GOOGLE_API_KEY']!;
+    final url =
+        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&language=vi&key=$apiKey';
+    final response = await http.get(Uri.parse(url));
+    final data = jsonDecode(response.body);
+    if (data['status'] == 'OK') {
+      return data['result'];
     }
+    return {};
   }
 
   void _showSearchScreen() {
     _searchResults.clear();
     _searchController.text = selectedName;
-    
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -106,7 +66,8 @@ class _LocationPickerState extends State<LocationPicker> {
             appBar: PreferredSize(
               preferredSize: Size.fromHeight(60.h),
               child: CustomAppBar(
-                title: AppLocalizations.of(context).translate('Choose Location'),
+                title:
+                    AppLocalizations.of(context).translate('Choose Location'),
                 onBackPressed: () => Navigator.pop(context),
               ),
             ),
@@ -118,7 +79,7 @@ class _LocationPickerState extends State<LocationPicker> {
                     controller: _searchController,
                     hintText: 'Search',
                     onChanged: (value) async {
-                      _searchPlaces(value, setModalState);
+                      _searchPlaces(value);
                     },
                     margin: EdgeInsets.symmetric(horizontal: 20.w),
                   ),
@@ -132,13 +93,12 @@ class _LocationPickerState extends State<LocationPicker> {
                           final suggestion = _searchResults[index];
                           return ListTile(
                             leading: Icon(
-                              suggestion.featureType == 'poi' 
-                                  ? Icons.place
-                                  : suggestion.featureType == 'address'
-                                      ? Icons.home
-                                      : Icons.location_city,
-                              color: AppColors.primaryColor
-                            ),
+                                suggestion.featureType == 'poi'
+                                    ? Icons.place
+                                    : suggestion.featureType == 'address'
+                                        ? Icons.home
+                                        : Icons.location_city,
+                                color: AppColors.primaryColor),
                             title: Text(
                               suggestion.name,
                               style: TextStyle(
@@ -156,14 +116,16 @@ class _LocationPickerState extends State<LocationPicker> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             onTap: () async {
-                              final details = await _getPlaceDetails(suggestion.mapboxId);
+                              final details =
+                                  await _getPlaceDetails(suggestion.mapboxId);
                               setState(() {
-                                selectedLocation = _formatAddress(suggestion.fullAddress ?? '');
+                                selectedLocation = _formatAddress(
+                                    suggestion.fullAddress ?? '');
                                 selectedName = suggestion.name;
                               });
                               widget.onLocationSelected(
                                 _formatAddress(suggestion.fullAddress ?? ''),
-                                details,
+                                extractLocationDetails(details),
                               );
                               Navigator.pop(context);
                             },
@@ -211,12 +173,15 @@ class _LocationPickerState extends State<LocationPicker> {
                 SizedBox(width: 12.w),
                 Expanded(
                   child: Text(
-                    selectedLocation.isEmpty 
-                        ? AppLocalizations.of(context).translate('Select location')
+                    selectedLocation.isEmpty
+                        ? AppLocalizations.of(context)
+                            .translate('Select location')
                         : selectedLocation,
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: selectedLocation.isEmpty ? AppColors.grey : AppColors.black,
+                      color: selectedLocation.isEmpty
+                          ? AppColors.grey
+                          : AppColors.black,
                     ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -247,4 +212,31 @@ class LocationOption {
     this.city = '',
     this.district = '',
   });
+}
+
+Map<String, String> extractLocationDetails(Map<String, dynamic> placeDetails) {
+  String province = '';
+  String city = '';
+  String district = '';
+  if (placeDetails['address_components'] != null) {
+    for (var comp in placeDetails['address_components']) {
+      if (comp['types'].contains('administrative_area_level_1')) {
+        province = comp['long_name'];
+      }
+      if (comp['types'].contains('administrative_area_level_2')) {
+        city = comp['long_name'];
+      }
+      if (comp['types'].contains('administrative_area_level_3')) {
+        district = comp['long_name'];
+      }
+    }
+  }
+  return {
+    'province': province,
+    'city': city,
+    'district': district,
+    'address': placeDetails['formatted_address'] ?? '',
+    'lat': placeDetails['geometry']['location']['lat'].toString(),
+    'lng': placeDetails['geometry']['location']['lng'].toString(),
+  };
 }

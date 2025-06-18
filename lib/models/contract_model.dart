@@ -11,7 +11,6 @@ class ContractModel {
   final String citizenBackPhoto;
   final String contractTerm;
   final String contractStatus;
-  final String businessLocation;
   final String businessCity;
   final String businessDistrict;
   ContractModel({
@@ -27,7 +26,6 @@ class ContractModel {
     required this.citizenBackPhoto,
     required this.contractTerm,
     required this.contractStatus,
-    required this.businessLocation,
     required this.businessCity,
     required this.businessDistrict,
   });
@@ -45,7 +43,6 @@ class ContractModel {
       'citizenBackPhoto': citizenBackPhoto,
       'contractTerm': contractTerm,
       'contractStatus': contractStatus,
-      'businessLocation': businessLocation,
       'businessCity': businessCity,
       'businessDistrict': businessDistrict,
     };
@@ -64,7 +61,6 @@ class ContractModel {
       citizenBackPhoto: map['citizenBackPhoto'] ?? '',
       contractTerm: map['contractTerm'] ?? '',
       contractStatus: map['contractStatus'] ?? '',
-      businessLocation: map['businessLocation'] ?? '',
       businessCity: map['businessCity'] ?? '',
       businessDistrict: map['businessDistrict'] ?? '',
     );

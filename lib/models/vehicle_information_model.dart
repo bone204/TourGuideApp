@@ -1,5 +1,5 @@
 class VehicleInformationModel {
-  final String vehicleId;
+  final String vehicleTypeId;
   final String type;
   final String brand;
   final String model;
@@ -11,7 +11,7 @@ class VehicleInformationModel {
   final String transmission;
 
   VehicleInformationModel({
-    required this.vehicleId,
+    required this.vehicleTypeId,
     required this.type,
     required this.brand,
     required this.model,
@@ -25,7 +25,7 @@ class VehicleInformationModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'vehicleId': vehicleId,
+      'vehicleId': vehicleTypeId,
       'type': type,
       'brand': brand,
       'model': model,
@@ -40,7 +40,7 @@ class VehicleInformationModel {
 
   factory VehicleInformationModel.fromMap(Map<String, dynamic> map) {
     return VehicleInformationModel(
-      vehicleId: map['vehicleId'] ?? '',
+      vehicleTypeId: map['vehicleTypeId'] ?? '',
       type: map['type'] ?? '',
       brand: map['brand'] ?? '',
       model: map['model'] ?? '',

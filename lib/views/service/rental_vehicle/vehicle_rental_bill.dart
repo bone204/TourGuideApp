@@ -15,7 +15,7 @@ class VehicleRentalBill extends StatefulWidget {
   final String billId;
   final String model;
   final String vehicleId;
-  final String vehicleRegisterId;
+  final List<String> licensePlates;
   final DateTime startDate;
   final DateTime endDate;
   final String rentOption;
@@ -27,7 +27,7 @@ class VehicleRentalBill extends StatefulWidget {
     required this.billId,
     required this.model,
     required this.vehicleId,
-    required this.vehicleRegisterId,
+    required this.licensePlates,
     required this.startDate,
     required this.endDate,
     required this.rentOption,
@@ -93,12 +93,12 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
         }
 
         if (kDebugMode) {
-          print('Fetching vehicle info for ID: ${widget.vehicleRegisterId}');
+          print('Fetching vehicle info for ID: ${widget.licensePlates}');
         }
 
         final vehicleDoc = await FirebaseFirestore.instance
             .collection('RENTAL_VEHICLE')
-            .doc(widget.vehicleRegisterId)
+            .doc(widget.licensePlates[0])
             .get();
 
         if (vehicleDoc.exists) {
