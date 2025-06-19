@@ -40,6 +40,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final PageController _pageController = PageController();
   int _currentPageIndex = 0;
 
+  // Thêm biến cho vị trí floating button
+  double _fabRight = 20;
+  double _fabBottom = 40;
+  double? _initX, _initY;
+
   @override
   void initState() {
     super.initState();
@@ -433,22 +438,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const Chat(),
-                            ),
-                          );
-                        },
-                        child: Image.asset(
-                          'assets/img/ic_ai_chat.png',
-                          width: 28.w,
-                          height: 28.h,
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
                               builder: (context) => const MomoScreen(),
                             ),
                           );
@@ -458,6 +447,40 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
+              ),
+            ),
+          ),
+          // Floating draggable button
+          Positioned(
+            right: _fabRight,
+            bottom: _fabBottom,
+            child: GestureDetector(
+              onPanStart: (details) {
+                _initX = details.globalPosition.dx;
+                _initY = details.globalPosition.dy;
+              },
+              onPanUpdate: (details) {
+                setState(() {
+                  _fabRight -= details.delta.dx;
+                  _fabBottom -= details.delta.dy;
+                  // Giới hạn không cho button ra ngoài màn hình
+                  if (_fabRight < 0) _fabRight = 0;
+                  if (_fabBottom < 0) _fabBottom = 0;
+                });
+              },
+              child: FloatingActionButton(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                mini: false,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Chat(),
+                    ),
+                  );
+                },
+                child: SizedBox(width: 300.w, height: 300.h, child: Image.asset('assets/img/floating.gif')),
               ),
             ),
           ),
