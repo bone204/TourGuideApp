@@ -127,7 +127,7 @@
     "Gender": "Gender",
     "Address": "Address",
     "Nationality": "Nationality",
-    "Birthday": "Birthday",
+    "Date Of Birth": "Date Of Birth",
     "Review": "Review",
     "Find Destination": "Find Destination",
 
@@ -400,6 +400,18 @@
     "Delete Day": "Delete Day",
     "Bus Booking": "Bus Booking",
     "From": "From",
-    "To": "To"
+    "To": "To",
+    "Please scan your ID card to continue": "Please scan your ID card to continue",
+    "Scan your ID card to automatically fill in your information": "Scan your ID card to automatically fill in your information",
+    "Scan ID Card": "Scan ID Card",
+    "Capture ID Card": "Capture ID Card",
+    "Capture Requirements": "Capture Requirements",
+    "• Ensure all 4 corners are visible": "• Ensure all 4 corners are visible",
+    "• Keep the card flat and well-lit": "• Keep the card flat and well-lit",
+    "• Make sure all text is clear and readable": "• Make sure all text is clear and readable",
+    "• Avoid shadows and glare": "• Avoid shadows and glare",
+    "Place your ID card within the frame": "Place your ID card within the frame",
+    "Confirm Information": "Confirm Information",
+    "CCCD Number": "CCCD Number"
 }
   

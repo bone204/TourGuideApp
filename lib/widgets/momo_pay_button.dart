@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:momo_vn/momo_vn.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';

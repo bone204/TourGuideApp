@@ -90,80 +90,82 @@ class _PasswordScreenScreenState extends State<PasswordScreen> {
         onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h), // Padding sử dụng ScreenUtil
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(height: 20.h),
-              Text(
-                AppLocalizations.of(context).translate("Old Password"),
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              SizedBox(height: 12.h),
-              CustomPasswordField(
-                controller: _oldPasswordController,
-                hintText: AppLocalizations.of(context).translate('Old Password'),
-              ),
-              
-              SizedBox(height: 16.h),
-              Text(
-                AppLocalizations.of(context).translate("New Password"),
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              SizedBox(height: 12.h),
-              CustomPasswordField(
-                controller: _newPasswordController,
-                hintText: AppLocalizations.of(context).translate('New Password'),
-              ),
-              SizedBox(height: 16.h),
-              Text(
-                AppLocalizations.of(context).translate("Confirm New Password"),
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              SizedBox(height: 12.h),
-              CustomPasswordField(
-                controller: _confirmPasswordController,
-                hintText: AppLocalizations.of(context).translate('Confirm New Password'),
-                validator: (value) {
-                  if (value != _newPasswordController.text) {
-                    return AppLocalizations.of(context).translate('Passwords do not match');
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 32.h),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _changePassword,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  padding: EdgeInsets.symmetric(vertical: 16.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h), 
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(height: 20.h),
+                Text(
+                  AppLocalizations.of(context).translate("Old Password"),
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(
-                        AppLocalizations.of(context).translate('Change Password'),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
+                SizedBox(height: 12.h),
+                CustomPasswordField(
+                  controller: _oldPasswordController,
+                  hintText: AppLocalizations.of(context).translate('Old Password'),
+                ),
+                
+                SizedBox(height: 16.h),
+                Text(
+                  AppLocalizations.of(context).translate("New Password"),
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                CustomPasswordField(
+                  controller: _newPasswordController,
+                  hintText: AppLocalizations.of(context).translate('New Password'),
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  AppLocalizations.of(context).translate("Confirm New Password"),
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                CustomPasswordField(
+                  controller: _confirmPasswordController,
+                  hintText: AppLocalizations.of(context).translate('Confirm New Password'),
+                  validator: (value) {
+                    if (value != _newPasswordController.text) {
+                      return AppLocalizations.of(context).translate('Passwords do not match');
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 32.h),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _changePassword,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    padding: EdgeInsets.symmetric(vertical: 16.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                          AppLocalizations.of(context).translate('Change Password'),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
