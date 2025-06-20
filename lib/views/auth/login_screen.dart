@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
           body: Stack(
             children: [
               AbsorbPointer(
-                absorbing: loginViewModel.isLoading, // Ngăn thao tác khi đang loading
+                absorbing: loginViewModel.isLoading, 
                 child: SingleChildScrollView(
                   padding: EdgeInsets.fromLTRB(20.w, 140.h, 20.w, 0),
                   child: Column(
@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => ForgotPasswordPhoneScreen(),
+                                      builder: (context) => const ForgotPasswordPhoneScreen(),
                                     ),
                                   );
                                 },

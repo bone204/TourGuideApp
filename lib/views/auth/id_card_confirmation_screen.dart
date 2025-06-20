@@ -95,7 +95,7 @@ class _IdCardConfirmationScreenState extends State<IdCardConfirmationScreen> {
               ),
               SizedBox(height: 16.h),
               DisabledTextField(
-                labelText: AppLocalizations.of(context).translate("ID Number"),
+                labelText: AppLocalizations.of(context).translate("CCCD Number"),
                 text: widget.idCardData['id'] ?? '',
               ),
               SizedBox(height: 16.h),

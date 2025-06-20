@@ -93,3 +93,8 @@ dependencies {
     implementation 'com.mapbox.maps:android:11.8.0'
 }
 
+repositories {
+    mavenCentral()
+    google()
+}
+

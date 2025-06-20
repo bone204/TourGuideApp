@@ -126,7 +126,7 @@
     "Gender": "Giới tính",
     "Address": "Địa Chỉ",
     "Nationality": "Quốc tịch",
-    "Birthday": "Ngày sinh",
+    "Date Of Birth": "Ngày sinh",
     "Review": "Đánh Giá",
     "Find Destination": "Tìm Địa Điểm",
 
@@ -405,6 +405,18 @@
     "Delete Day": "Xóa Ngày",
     "Bus Booking": "Đặt Vé Xe",
     "From": "Từ",
-    "To": "Đến"
+    "To": "Đến",
+    "Please scan your ID card to continue": "Quét CCCD để tiếp tục",
+    "Scan your ID card to automatically fill in your information": "Quét CCCD để xác nhận thông tin cá nhân",
+    "Scan ID Card": "Quét CCCD",
+    "Capture ID Card": "Chụp CCCD",
+    "Capture Requirements": "Yêu cầu khi chụp",
+    "• Ensure all 4 corners are visible": "• Đảm bảo thấy được 4 góc của CCCD",
+    "• Keep the card flat and well-lit": "• Đặt thẻ trên bề mặt phẳng và đủ ánh sáng",
+    "• Make sure all text is clear and readable": "• Đảm bảo chữ trên thẻ rõ ràng và có thể đọc",
+    "• Avoid shadows and glare": "• Tránh bóng đổ và ánh sáng chói",
+    "Place your ID card within the frame": "Đặt mặt trước CCCD vào khung hình",
+    "Confirm Information": "Xác Nhận Thông Tin",
+    "CCCD Number": "Số CCCD"
 }
   

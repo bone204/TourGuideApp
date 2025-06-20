@@ -161,7 +161,7 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
                   ),
                   SizedBox(height: 16.h),
                   DisabledTextField(
-                    labelText: AppLocalizations.of(context).translate("Birthday"),
+                    labelText: AppLocalizations.of(context).translate("Date Of Birth"),
                     text: userData['birthday'] ?? '',
                   ),
                 ],

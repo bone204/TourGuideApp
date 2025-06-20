@@ -1,18 +1,16 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
 
 
 class AppAssets {
   static String kOnboarding1 = 'assets/img/onboarding_1.png';
   static String kOnboarding2 = 'assets/img/onboarding_2.png';
   static String kOnboarding3 = 'assets/img/onboarding_3.png';
-}
-
-class AppColors {
-  static const Color kPrimary = Color(0xFF007BFF);
-  static const Color kSecondary = Color(0xFF1D2445);
-  static const Color kWhite = Color(0xFFFFFFFF);
 }
 
 class OnBoardingScreen extends StatefulWidget {
@@ -32,14 +30,15 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context, designSize: const Size(375, 812));
     return Scaffold(
-      backgroundColor: AppColors.kWhite,
+      backgroundColor: AppColors.white,
       extendBodyBehindAppBar: true,
       appBar: _currentIndex > 0
           ? AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              leadingWidth: 70,
+              leadingWidth: 80.w,
               leading: Padding(
                 padding: const EdgeInsets.all(7),
                 child: CustomIconButton(
@@ -49,7 +48,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                       curve: Curves.ease,
                     );
                   },
-                  icon: '',
+                  icon: "",
                 ),
               ),
             )
@@ -62,12 +61,12 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             children: [
               const WaveCard(),
               Positioned(
-                top: 100,
+                top: 110.h,
                 child: Image.asset(onboardingList[_currentIndex].image),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           Expanded(
             child: PageView.builder(
               controller: _pageController,
@@ -88,9 +87,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             controller: _pageController,
             dotsLength: onboardingList.length,
           ),
-          const SizedBox(height: 30),
+          SizedBox(height: 20.h),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 30.w),
             child: PrimaryButton(
               onTap: () {
                 if (_currentIndex == (onboardingList.length - 1)) {
@@ -112,7 +111,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               onPressed: _navigateToLogin, 
               text: 'Skip',
             ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
         ],
       ),
     );
@@ -139,8 +138,8 @@ class CustomTextButton extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-            color: color ?? const Color(0xFF007BFF),
-            fontSize: fontSize ?? 14,
+            color: AppColors.primaryColor,
+            fontSize: 14.sp,
             fontWeight: FontWeight.w700),
       ),
     );
@@ -194,8 +193,7 @@ class _PrimaryButtonState extends State<PrimaryButton>
 
   @override
   Widget build(BuildContext context) {
-    bool isDarkMode(BuildContext context) =>
-        Theme.of(context).brightness == Brightness.dark;
+
 
     return GestureDetector(
       onTap: () {
@@ -213,12 +211,11 @@ class _PrimaryButtonState extends State<PrimaryButton>
           ),
         ),
         child: Container(
-          height: widget.height ?? 60,
+          height: 50.h,
           alignment: Alignment.center,
           width: widget.width ?? double.maxFinite,
           decoration: BoxDecoration(
-            color: widget.color ??
-                (isDarkMode(context) ? Colors.black : const Color(0xFF007BFF)),
+            color: AppColors.primaryColor,
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFF007BFF).withOpacity(0.2),
@@ -227,7 +224,7 @@ class _PrimaryButtonState extends State<PrimaryButton>
               )
             ],
             borderRadius: BorderRadius.circular(
-              widget.borderRadius ?? 10,
+              8.r,
             ),
           ),
           child: Text(
@@ -235,7 +232,7 @@ class _PrimaryButtonState extends State<PrimaryButton>
             style: TextStyle(
               fontWeight: FontWeight.w700,
               color: widget.color == null ? Colors.white : Colors.black,
-              fontSize: widget.fontSize ?? 20,
+              fontSize: 16.sp,
             ),
           ),
         ),
@@ -264,10 +261,10 @@ class CustomIndicator extends StatelessWidget {
       count: dotsLength,
       onDotClicked: (index) {},
       effect: SlideEffect(
-        dotColor: AppColors.kSecondary.withOpacity(0.3),
-        activeDotColor: AppColors.kSecondary,
-        dotHeight: height ?? 8,
-        dotWidth: width ?? 8,
+        dotColor: AppColors.black.withOpacity(0.3),
+        activeDotColor: AppColors.primaryColor,
+        dotHeight: 10.sp,
+        dotWidth: 10.sp,
       ),
     );
   }
@@ -288,19 +285,24 @@ class OnboardingCard extends StatelessWidget {
           duration: const Duration(milliseconds: 500),
           child: Text(
             onboarding.title,
-            style: const TextStyle(
-                fontSize: 20, fontWeight: FontWeight.w700, color: Colors.black),
+            style: TextStyle(
+                fontSize: 20.sp, fontWeight: FontWeight.w700, color: AppColors.black),
             textAlign: TextAlign.center,
           ),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10.h),
         FadeInUp(
           duration: const Duration(milliseconds: 500),
-          child: Text(
-            onboarding.description,
-            style: const TextStyle(
-                fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black),
-            textAlign: TextAlign.center,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 30.w),
+            child: SizedBox(
+              child: Text(
+                onboarding.description,
+                style: TextStyle(
+                    fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.black),
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
         ),
       ],
@@ -321,22 +323,22 @@ class Onboarding {
 
 List<Onboarding> onboardingList = [
   Onboarding(
-    title: 'Anyone can share and sell skills',
+    title: 'Explore Vietnam Your Way', 
     image: AppAssets.kOnboarding1,
     description:
-        'Teaching online shouldn’t be complicated and expensive. Learn Eden makes it free and easy.',
+        "Discover Vietnam's stunning destinations, book hotels, and reserve tables at top restaurants",
   ),
   Onboarding(
-    title: 'Run your business anywhere',
+    title: 'Discover the Best of Vietnam',
     image: AppAssets.kOnboarding2,
     description:
-        'Learn Eden helps you find students, drive sales, and manage your day-to-day.',
+        'From breathtaking landscapes to vibrant cities, our app guides you through Vietnam’s must-visit spots',
   ),
   Onboarding(
     image: AppAssets.kOnboarding3,
-    title: 'Discover new learning opportunities',
+    title: 'Your Gateway to Vietnam',
     description:
-        'Expand your knowledge and explore a wide range of subjects on Learn Eden.',
+        'Plan your perfect trip through Vietnam with curated destination recommendations',
   ),
 ];
 
@@ -350,10 +352,10 @@ class WaveCard extends StatelessWidget {
     return Container(
       height: height ?? 350,
       width: double.infinity,
-      color: color ?? AppColors.kPrimary.withOpacity(0.15),
+      color: color ?? AppColors.primaryColor.withOpacity(0.3),
       child: CustomPaint(
         painter: WavePainter(
-          color: AppColors.kWhite,
+          color: AppColors.white,
         ),
       ),
     );
@@ -374,19 +376,19 @@ class WavePainter extends CustomPainter {
     path.moveTo(size.width, size.height);
     path.lineTo(
       size.width,
-      size.height * 0.75,
+      size.height * 0.75.h,
     );
     path.quadraticBezierTo(
-      size.width * 0.85,
-      size.height * 0.625,
-      size.width * 0.5,
-      size.height * 0.75,
+      size.width * 0.85.w,
+      size.height * 0.625.h,
+      size.width * 0.5.w,
+      size.height * 0.75.h,
     );
     path.quadraticBezierTo(
-      size.width * 0.25,
-      size.height * 0.875,
+      size.width * 0.25.w,
+      size.height * 0.875.h,
       0,
-      size.height * 0.75,
+      size.height * 0.75.h,
     );
     path.lineTo(0, size.height);
     path.close();
@@ -459,15 +461,15 @@ class _CustomIconButtonState extends State<CustomIconButton>
           ),
         ),
         child: Container(
-            height: widget.size ?? 40,
+            height: 40.h,
             alignment: Alignment.center,
-            width: widget.size ?? 40,
+            width: 40.w,
             padding: const EdgeInsets.all(5),
             decoration: const BoxDecoration(
-              color: AppColors.kWhite,
+              color: AppColors.white,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.arrow_back)),
+            child: const Icon(Icons.chevron_left)),
       ),
     );
   }

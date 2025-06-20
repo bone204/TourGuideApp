@@ -9,6 +9,7 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/views/admin/admin_screen.dart';
 import 'package:tourguideapp/views/chat/chat.dart';
+import 'package:tourguideapp/views/momo_payment/momo_screen.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/home_navigator.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
@@ -38,6 +39,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Timer? _destinationTimer;
   final PageController _pageController = PageController();
   int _currentPageIndex = 0;
+
+  // Thêm biến cho vị trí floating button
+  double _fabRight = 20;
+  double _fabBottom = 40;
+  double? _initX, _initY;
 
   @override
   void initState() {
@@ -432,19 +438,49 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const Chat(),
+                              builder: (context) => const MomoScreen(),
                             ),
                           );
                         },
-                        child: Image.asset(
-                          'assets/img/ic_ai_chat.png',
-                          width: 28.w,
-                          height: 28.h,
-                        ),
+                        child: Icon(Icons.payment, size: 28.sp, color: AppColors.white)
                       ),
                     ],
                   ),
                 ),
+              ),
+            ),
+          ),
+          // Floating draggable button
+          Positioned(
+            right: _fabRight,
+            bottom: _fabBottom,
+            child: GestureDetector(
+              onPanStart: (details) {
+                _initX = details.globalPosition.dx;
+                _initY = details.globalPosition.dy;
+              },
+              onPanUpdate: (details) {
+                setState(() {
+                  _fabRight -= details.delta.dx;
+                  _fabBottom -= details.delta.dy;
+                  // Giới hạn không cho button ra ngoài màn hình
+                  if (_fabRight < 0) _fabRight = 0;
+                  if (_fabBottom < 0) _fabBottom = 0;
+                });
+              },
+              child: FloatingActionButton(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                mini: false,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Chat(),
+                    ),
+                  );
+                },
+                child: SizedBox(width: 300.w, height: 300.h, child: Image.asset('assets/img/floating.gif')),
               ),
             ),
           ),
