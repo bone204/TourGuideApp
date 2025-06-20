@@ -6,13 +6,14 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/range_date_time_picker.dart';
 import 'package:tourguideapp/widgets/person_picker.dart';
 import 'package:tourguideapp/widgets/room_card.dart';
+import 'package:tourguideapp/models/cooperation_model.dart';
 
 class RoomListScreen extends StatefulWidget {
-  final String hotelName;
-  
+  final CooperationModel hotel;
+
   const RoomListScreen({
-    super.key, 
-    required this.hotelName,
+    super.key,
+    required this.hotel,
   });
 
   @override
@@ -75,7 +76,8 @@ class _RoomListScreenState extends State<RoomListScreen> {
                     ),
                     Center(
                       child: Text(
-                        AppLocalizations.of(context).translate(widget.hotelName),
+                        AppLocalizations.of(context)
+                            .translate(widget.hotel.name),
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w700,
@@ -124,7 +126,8 @@ class _RoomListScreenState extends State<RoomListScreen> {
                   maxPerson: 2,
                   roomsLeft: 1,
                   price: 650000,
-                  imageUrl: 'https://dq5r178u4t83b.cloudfront.net/wp-content/uploads/sites/125/2021/08/11060441/deluxe_harbour_web.jpg',
+                  imageUrl:
+                      'https://dq5r178u4t83b.cloudfront.net/wp-content/uploads/sites/125/2021/08/11060441/deluxe_harbour_web.jpg',
                   onChoose: () {
                     Navigator.push(
                       context,
@@ -141,4 +144,4 @@ class _RoomListScreenState extends State<RoomListScreen> {
       ),
     );
   }
-} 
+}

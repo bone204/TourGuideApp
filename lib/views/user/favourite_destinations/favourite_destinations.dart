@@ -5,13 +5,13 @@ import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
-import 'package:tourguideapp/widgets/restaurant_card.dart';
+//import 'package:tourguideapp/widgets/restaurant_card.dart';
 import '../../../widgets/custom_icon_button.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
-import 'package:tourguideapp/widgets/hotel_card.dart';
-import 'package:tourguideapp/views/service/hotel/hotel_detail_screen.dart';
-import 'package:tourguideapp/views/service/restaurant/restaurant_detail_screen.dart';
+//import 'package:tourguideapp/widgets/hotel_card.dart';
+//import 'package:tourguideapp/views/service/hotel/hotel_detail_screen.dart';
+//import 'package:tourguideapp/views/service/restaurant/restaurant_detail_screen.dart';
 import 'package:tourguideapp/widgets/custom_search_bar.dart';
 
 class FavouriteDestinationsScreen extends StatefulWidget {
@@ -31,7 +31,8 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
       'à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ|Â|À|Á|Ạ|Ả|Ã|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ằ|Ắ|Ặ|Ẳ|Ẵ': 'a',
       'è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ|È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ': 'e',
       'ì|í|ị|ỉ|ĩ|Ì|Í|Ị|Ỉ|Ĩ': 'i',
-      'ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ|Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ': 'o',
+      'ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ|Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ':
+          'o',
       'ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ|Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ': 'u',
       'ỳ|ý|ỵ|ỷ|ỹ|Ỳ|Ý|Ỵ|Ỷ|Ỹ': 'y',
       'đ|Đ': 'd'
@@ -44,8 +45,9 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
   }
 
   void _updateFilteredList(String query) {
-    final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context, listen: false);
-    
+    final favouriteViewModel =
+        Provider.of<FavouriteDestinationsViewModel>(context, listen: false);
+
     setState(() {
       if (query.isEmpty) {
         _filteredItems = [
@@ -55,41 +57,59 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
         ];
       } else {
         final normalizedQuery = _normalizeString(query);
-        final queryWords = normalizedQuery.split(' ').where((word) => word.isNotEmpty).toList();
+        final queryWords = normalizedQuery
+            .split(' ')
+            .where((word) => word.isNotEmpty)
+            .toList();
 
         // Lọc destinations
-        final filteredDestinations = favouriteViewModel.favouriteDestinations.where((dest) {
+        final filteredDestinations =
+            favouriteViewModel.favouriteDestinations.where((dest) {
           final normalizedName = _normalizeString(dest.destinationName);
           final normalizedProvince = _normalizeString(dest.province);
-          
+
           return queryWords.every((word) {
-            return normalizedName.split(' ').any((nameWord) => nameWord.startsWith(word)) ||
-                   normalizedProvince.split(' ').any((provinceWord) => provinceWord.startsWith(word));
+            return normalizedName
+                    .split(' ')
+                    .any((nameWord) => nameWord.startsWith(word)) ||
+                normalizedProvince
+                    .split(' ')
+                    .any((provinceWord) => provinceWord.startsWith(word));
           });
         }).toList();
-        
+
         // Lọc hotels
-        final filteredHotels = favouriteViewModel.favouriteHotels.where((hotel) {
-          final normalizedName = _normalizeString(hotel.hotelName);
+        final filteredHotels =
+            favouriteViewModel.favouriteHotels.where((hotel) {
+          final normalizedName = _normalizeString(hotel.name);
           final normalizedAddress = _normalizeString(hotel.address);
-          
+
           return queryWords.every((word) {
-            return normalizedName.split(' ').any((nameWord) => nameWord.startsWith(word)) ||
-                   normalizedAddress.split(' ').any((addressWord) => addressWord.startsWith(word));
+            return normalizedName
+                    .split(' ')
+                    .any((nameWord) => nameWord.startsWith(word)) ||
+                normalizedAddress
+                    .split(' ')
+                    .any((addressWord) => addressWord.startsWith(word));
           });
         }).toList();
-        
+
         // Lọc restaurants
-        final filteredRestaurants = favouriteViewModel.favouriteRestaurants.where((rest) {
-          final normalizedName = _normalizeString(rest.restaurantName);
+        final filteredRestaurants =
+            favouriteViewModel.favouriteRestaurants.where((rest) {
+          final normalizedName = _normalizeString(rest.name);
           final normalizedAddress = _normalizeString(rest.address);
-          
+
           return queryWords.every((word) {
-            return normalizedName.split(' ').any((nameWord) => nameWord.startsWith(word)) ||
-                   normalizedAddress.split(' ').any((addressWord) => addressWord.startsWith(word));
+            return normalizedName
+                    .split(' ')
+                    .any((nameWord) => nameWord.startsWith(word)) ||
+                normalizedAddress
+                    .split(' ')
+                    .any((addressWord) => addressWord.startsWith(word));
           });
         }).toList();
-        
+
         _filteredItems = [
           ...filteredDestinations,
           ...filteredHotels,
@@ -170,9 +190,10 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                     ...favouriteViewModel.favouriteRestaurants,
                   ];
                 }
-                
+
                 return GridView.builder(
-                  padding: EdgeInsets.only(top: 10.h, right: 20.w, left: 20.w, bottom: 20.h),
+                  padding: EdgeInsets.only(
+                      top: 10.h, right: 20.w, left: 20.w, bottom: 20.h),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 161.w / 190.h,
@@ -182,7 +203,7 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                   itemCount: _filteredItems.length,
                   itemBuilder: (context, index) {
                     final item = _filteredItems[index];
-                    
+
                     if (item is DestinationModel) {
                       final homeCardData = HomeCardData(
                         placeName: item.destinationName,
@@ -191,7 +212,7 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                         rating: 4.5,
                         favouriteTimes: item.favouriteTimes,
                       );
-    
+
                       return GestureDetector(
                         onTap: () async {
                           await Navigator.push(
@@ -202,10 +223,10 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                                 destinationData: item,
                                 isFavourite: true,
                                 onFavouriteToggle: (isFavourite) {
-                                  final viewModel = Provider.of<FavouriteDestinationsViewModel>(
-                                    context, 
-                                    listen: false
-                                  );
+                                  final viewModel = Provider.of<
+                                          FavouriteDestinationsViewModel>(
+                                      context,
+                                      listen: false);
                                   viewModel.toggleFavourite(item);
                                   // Cập nhật lại danh sách đã lọc
                                   _updateFilteredList(_searchController.text);
@@ -219,48 +240,52 @@ class _FavouriteDestinationsState extends State<FavouriteDestinationsScreen> {
                         child: FavouriteCard(
                           data: FavouriteCardData(
                             placeName: item.destinationName,
-                            imageUrl: item.photo.isNotEmpty ? item.photo[0] : '',
+                            imageUrl:
+                                item.photo.isNotEmpty ? item.photo[0] : '',
                             description: item.province,
                           ),
                         ),
                       );
-                    } else if (item is HotelCardData) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HotelDetailScreen(data: item),
-                            ),
-                          );
-                        },
-                        child: FavouriteCard(
-                          data: FavouriteCardData(
-                            placeName: item.hotelName,
-                            imageUrl: item.imageUrl,
-                            description: item.address,
-                          ),
-                        ),
-                      );
-                    } else if (item is RestaurantCardData) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RestaurantDetailScreen(data: item),
-                            ),
-                          );
-                        },
-                        child: FavouriteCard(
-                          data: FavouriteCardData(
-                            placeName: item.restaurantName,
-                            imageUrl: item.imageUrl,
-                            description: item.address,
-                          ),
-                        ),
-                      );
-                    }
+                    } 
+                    // else if (item is HotelCardData) {
+                    //   return GestureDetector(
+                    //     onTap: () {
+                    //       Navigator.push(
+                    //         context,
+                    //         MaterialPageRoute(
+                    //           builder: (context) =>
+                    //               HotelDetailScreen(data: item),
+                    //         ),
+                    //       );
+                    //     },
+                    //     child: FavouriteCard(
+                    //       data: FavouriteCardData(
+                    //         placeName: item.hotelName,
+                    //         imageUrl: item.imageUrl,
+                    //         description: item.address,
+                    //       ),
+                    //     ),
+                    //   );
+                    // } else if (item is RestaurantCardData) {
+                    //   return GestureDetector(
+                    //     onTap: () {
+                    //       Navigator.push(
+                    //         context,
+                    //         MaterialPageRoute(
+                    //           builder: (context) =>
+                    //               RestaurantDetailScreen(data: item),
+                    //         ),
+                    //       );
+                    //     },
+                    //     child: FavouriteCard(
+                    //       data: FavouriteCardData(
+                    //         placeName: item.restaurantName,
+                    //         imageUrl: item.imageUrl,
+                    //         description: item.address,
+                    //       ),
+                    //     ),
+                    //   );
+                    // }
                     return const SizedBox.shrink();
                   },
                 );

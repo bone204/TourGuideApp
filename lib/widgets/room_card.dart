@@ -108,13 +108,15 @@ class RoomCard extends StatelessWidget {
                       children: [
                         Icon(Icons.wifi, size: 16.w, color: AppColors.grey),
                         SizedBox(width: 8.w),
-                        Icon(Icons.smoke_free, size: 16.w, color: AppColors.grey),
+                        Icon(Icons.smoke_free,
+                            size: 16.w, color: AppColors.grey),
                       ],
                     ),
                     SizedBox(height: 12.h),
                     Row(
                       children: [
-                        Icon(Icons.room_preferences, size: 16.w, color: AppColors.grey),
+                        Icon(Icons.room_preferences,
+                            size: 16.w, color: AppColors.grey),
                         SizedBox(width: 4.w),
                         Text(
                           '$roomsLeft room(s) left',
@@ -185,4 +187,4 @@ class RoomCard extends StatelessWidget {
       ],
     );
   }
-} 
+}

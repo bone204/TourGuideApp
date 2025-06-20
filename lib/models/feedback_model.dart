@@ -1,34 +1,62 @@
 class FeedbackModel {
-  final String billId;
-  final int rating;
+  final String feedbackId;
+  final String? travelRouteId;
+  final String? destinationId;
+  final String? licensePlate;
+  final String? cooperationId;
+  final String? userId;
+  final String date;
+  final int star;
   final String comment;
-  final String createdAt;
+  final List<String>? photo;
+  final List<String>? video;
   final String status;
 
   FeedbackModel({
-    required this.billId,
-    required this.rating,
+    required this.feedbackId,
+    this.travelRouteId,
+    this.destinationId,
+    this.licensePlate,
+    this.cooperationId,
+    this.userId,
+    required this.date,
+    required this.star,
     required this.comment,
-    required this.createdAt,
+    this.photo,
+    this.video,
     required this.status,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'billId': billId,
-      'rating': rating,
+      'feedbackId': feedbackId,
+      'travelRouteId': travelRouteId,
+      'destinationId': destinationId,
+      'licensePlate': licensePlate,
+      'cooperationId': cooperationId,
+      'userId': userId,
+      'date': date,
+      'star': star,
       'comment': comment,
-      'createdAt': createdAt,
+      'photo': photo,
+      'video': video,
       'status': status,
     };
   }
 
   factory FeedbackModel.fromMap(Map<String, dynamic> map) {
     return FeedbackModel(
-      billId: map['billId'] ?? '',
-      rating: map['rating'] ?? 0,
+      feedbackId: map['feedbackId'] ?? '',
+      travelRouteId: map['travelRouteId'] as String?,
+      destinationId: map['destinationId'] as String?,
+      licensePlate: map['licensePlate'] as String?,
+      cooperationId: map['cooperationId'] as String?,
+      userId: map['userId'] as String?,
+      date: map['date'] ?? '',
+      star: map['star'] ?? 0,
       comment: map['comment'] ?? '',
-      createdAt: map['createdAt'] ?? '',
+      photo: map['photo'] as List<String>?,
+      video: map['video'] as List<String>?,
       status: map['status'] ?? '',
     );
   }

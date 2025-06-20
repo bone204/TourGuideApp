@@ -3,37 +3,123 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/restaurant_card.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/models/cooperation_model.dart';
+//import 'package:tourguideapp/views/service/restaurant/restaurant_detail_screen.dart';
 
 class RestaurantListScreen extends StatelessWidget {
   // Dữ liệu mẫu
-  final List<RestaurantCardData> restaurants = [
-    RestaurantCardData(
-      imageUrl: 'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
-      restaurantName: 'Nhà Hàng Ngon',
-      rating: 4.5,
-      pricePerPerson: 250000,
+  final List<CooperationModel> restaurants = [
+    CooperationModel(
+      cooperationId: '1',
+      name: 'Nhà Hàng Ngon',
+      type: 'restaurant',
+      numberOfObjects: 0,
+      numberOfObjectTypes: 0,
+      latitude: 0,
+      longitude: 0,
+      bossName: '',
+      bossPhone: '',
+      bossEmail: '',
       address: '160 Pasteur, Bến Nghé, Quận 1, TP.HCM',
+      district: '',
+      city: '',
+      province: '',
+      photo:
+          'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
+      extension: '',
+      introduction: '',
+      contractDate: '',
+      contractTerm: '',
+      bankAccountNumber: '',
+      bankAccountName: '',
+      bankName: '',
+      bookingTimes: 0,
+      revenue: 0,
+      averageRating: 4.5,
     ),
-    RestaurantCardData(
-      imageUrl: 'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
-      restaurantName: 'Quán Ăn Ngon Sài Gòn',
-      rating: 4.0,
-      pricePerPerson: 150000,
+    CooperationModel(
+      cooperationId: '2',
+      name: 'Quán Ăn Ngon Sài Gòn',
+      type: 'restaurant',
+      numberOfObjects: 0,
+      numberOfObjectTypes: 0,
+      latitude: 0,
+      longitude: 0,
+      bossName: '',
+      bossPhone: '',
+      bossEmail: '',
       address: '138 Nam Kỳ Khởi Nghĩa, Bến Thành, Quận 1, TP.HCM',
+      district: '',
+      city: '',
+      province: '',
+      photo:
+          'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
+      extension: '',
+      introduction: '',
+      contractDate: '',
+      contractTerm: '',
+      bankAccountNumber: '',
+      bankAccountName: '',
+      bankName: '',
+      bookingTimes: 0,
+      revenue: 0,
+      averageRating: 4.0,
     ),
-    RestaurantCardData(
-      imageUrl: 'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
-      restaurantName: 'Nhà Hàng Phố Cổ',
-      rating: 5.0,
-      pricePerPerson: 350000,
+    CooperationModel(
+      cooperationId: '3',
+      name: 'Nhà Hàng Phố Cổ',
+      type: 'restaurant',
+      numberOfObjects: 0,
+      numberOfObjectTypes: 0,
+      latitude: 0,
+      longitude: 0,
+      bossName: '',
+      bossPhone: '',
+      bossEmail: '',
       address: '76 Lê Lợi, Bến Nghé, Quận 1, TP.HCM',
+      district: '',
+      city: '',
+      province: '',
+      photo:
+          'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
+      extension: '',
+      introduction: '',
+      contractDate: '',
+      contractTerm: '',
+      bankAccountNumber: '',
+      bankAccountName: '',
+      bankName: '',
+      bookingTimes: 0,
+      revenue: 0,
+      averageRating: 5.0,
     ),
-    RestaurantCardData(
-      imageUrl: 'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
-      restaurantName: 'Quán Ẩm Thực Huế',
-      rating: 4.8,
-      pricePerPerson: 280000,
+    CooperationModel(
+      cooperationId: '4',
+      name: 'Quán Ẩm Thực Huế',
+      type: 'restaurant',
+      numberOfObjects: 0,
+      numberOfObjectTypes: 0,
+      latitude: 0,
+      longitude: 0,
+      bossName: '',
+      bossPhone: '',
+      bossEmail: '',
       address: '45 Nguyễn Du, Bến Nghé, Quận 1, TP.HCM',
+      district: '',
+      city: '',
+      province: '',
+      photo:
+          'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
+      extension: '',
+      introduction: '',
+      contractDate: '',
+      contractTerm: '',
+      bankAccountNumber: '',
+      bankAccountName: '',
+      bankName: '',
+      bookingTimes: 0,
+      revenue: 0,
+      averageRating: 4.8,
     ),
   ];
 
@@ -67,7 +153,8 @@ class RestaurantListScreen extends StatelessWidget {
                     ),
                     Center(
                       child: Text(
-                        AppLocalizations.of(context).translate('Restaurant List'),
+                        AppLocalizations.of(context)
+                            .translate('Restaurant List'),
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w700,
@@ -93,10 +180,29 @@ class RestaurantListScreen extends StatelessWidget {
           ),
           itemCount: restaurants.length,
           itemBuilder: (context, index) {
-            return RestaurantCard(data: restaurants[index]);
+            // Giả lập giá bàn rẻ nhất cho từng nhà hàng
+            int? minTablePrice;
+            switch (index) {
+              case 0:
+                minTablePrice = 250000;
+                break;
+              case 1:
+                minTablePrice = 150000;
+                break;
+              case 2:
+                minTablePrice = 350000;
+                break;
+              case 3:
+                minTablePrice = 280000;
+                break;
+              default:
+                minTablePrice = null;
+            }
+            return RestaurantCard(
+                restaurant: restaurants[index], minTablePrice: minTablePrice);
           },
         ),
       ),
     );
   }
-} 
+}

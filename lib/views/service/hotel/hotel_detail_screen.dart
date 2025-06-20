@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/views/service/hotel/room_list_screen.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
-import 'package:tourguideapp/widgets/hotel_card.dart';
+//import 'package:tourguideapp/widgets/hotel_card.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/custom_like_button.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
-import 'package:tourguideapp/models/hotel_model.dart';
+import 'package:tourguideapp/models/cooperation_model.dart';
 
 class HotelDetailScreen extends StatefulWidget {
-  final HotelCardData data;
+  final CooperationModel hotel;
 
   const HotelDetailScreen({
-    required this.data,
+    required this.hotel,
     Key? key,
   }) : super(key: key);
 
@@ -22,25 +22,19 @@ class HotelDetailScreen extends StatefulWidget {
 }
 
 class _HotelDetailScreenState extends State<HotelDetailScreen> {
-  late HotelModel hotel;
+  late CooperationModel hotel;
 
   @override
   void initState() {
     super.initState();
-    hotel = HotelModel(
-      hotelId: widget.data.hotelName,
-      hotelName: widget.data.hotelName,
-      imageUrl: widget.data.imageUrl,
-      rating: widget.data.rating,
-      pricePerDay: widget.data.pricePerDay,
-      address: widget.data.address,
-    );
+    hotel = widget.hotel;
   }
 
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
-    final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
+    final favouriteViewModel =
+        Provider.of<FavouriteDestinationsViewModel>(context);
     final isVietnamese = Localizations.localeOf(context).languageCode == 'vi';
 
     return Scaffold(
@@ -55,7 +49,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
               height: 400.h,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(widget.data.imageUrl),
+                  image: NetworkImage(hotel.photo),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -87,11 +81,9 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                         Padding(
                           padding: EdgeInsets.fromLTRB(30.w, 30.h, 30.w, 0),
                           child: Text(
-                            widget.data.hotelName,
+                            hotel.name,
                             style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w700
-                            ),
+                                fontSize: 18.sp, fontWeight: FontWeight.w700),
                           ),
                         ),
                         SizedBox(height: 10.h),
@@ -109,7 +101,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                               SizedBox(width: 6.w),
                               Expanded(
                                 child: Text(
-                                  widget.data.address,
+                                  hotel.address,
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontSize: 14.sp,
@@ -129,19 +121,17 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                           child: Row(
                             children: [
                               Text(
-                                widget.data.rating.toString(),
+                                hotel.averageRating.toString(),
                                 style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14.sp
-                                ),
+                                    color: Colors.grey[600], fontSize: 14.sp),
                               ),
                               SizedBox(width: 10.w),
                               Row(
                                 children: List.generate(5, (index) {
                                   return Icon(
-                                    index < widget.data.rating.floor()
+                                    index < hotel.averageRating.floor()
                                         ? Icons.star
-                                        : (index < widget.data.rating 
+                                        : (index < hotel.averageRating
                                             ? Icons.star_half
                                             : Icons.star_border),
                                     color: Colors.amber,
@@ -188,16 +178,17 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                                   child: Text(
                                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
                                     style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontSize: 14.sp
-                                    ),
+                                        color: Colors.grey[700],
+                                        fontSize: 14.sp),
                                   ),
                                 ),
                                 // Review
-                                const Center(child: Text("Reviews coming soon")),
+                                const Center(
+                                    child: Text("Reviews coming soon")),
                                 // Photos
                                 GridView.builder(
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 3,
                                     crossAxisSpacing: 8,
                                     mainAxisSpacing: 8,
@@ -207,7 +198,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                                     return ClipRRect(
                                       borderRadius: BorderRadius.circular(8.r),
                                       child: Image.network(
-                                        widget.data.imageUrl,
+                                        hotel.photo,
                                         fit: BoxFit.cover,
                                       ),
                                     );
@@ -264,9 +255,9 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                 text: isVietnamese ? "Đặt Ngay" : "Book Now",
                 onPressed: () {
                   Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context) => RoomListScreen(hotelName: widget.data.hotelName))
-                  );
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RoomListScreen(hotel: hotel)));
                 },
               ),
             ),

@@ -6,13 +6,14 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/date_and_time_picker.dart';
 import 'package:tourguideapp/widgets/person_picker.dart';
 import 'package:tourguideapp/widgets/table_card.dart';
+import 'package:tourguideapp/models/cooperation_model.dart';
 
 class TableListScreen extends StatefulWidget {
-  final String restaurantName;
-  
+  final CooperationModel restaurant;
+
   const TableListScreen({
-    super.key, 
-    required this.restaurantName,
+    super.key,
+    required this.restaurant,
   });
 
   @override
@@ -80,7 +81,8 @@ class _TableListScreenState extends State<TableListScreen> {
                     ),
                     Center(
                       child: Text(
-                        AppLocalizations.of(context).translate(widget.restaurantName),
+                        AppLocalizations.of(context)
+                            .translate(widget.restaurant.name),
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w700,
@@ -128,12 +130,14 @@ class _TableListScreenState extends State<TableListScreen> {
                   location: 'Window Side',
                   tablesLeft: 2,
                   price: 450000,
-                  imageUrl: "https://www.mydomaine.com/thmb/9vOxtjXGcq8Ajsu4G5yF7PXHepw=/2000x0/filters:no_upscale():strip_icc()/dining-room-table-decor-ideas-21-mindy-gayer-marigold-project-6a8c8379f8c94eb785747e3305803588.jpg",
+                  imageUrl:
+                      "https://www.mydomaine.com/thmb/9vOxtjXGcq8Ajsu4G5yF7PXHepw=/2000x0/filters:no_upscale():strip_icc()/dining-room-table-decor-ideas-21-mindy-gayer-marigold-project-6a8c8379f8c94eb785747e3305803588.jpg",
                   onChoose: () {
-                     Navigator.push(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const RestaurantBookingBillScreen(),
+                        builder: (context) =>
+                            const RestaurantBookingBillScreen(),
                       ),
                     );
                   },
@@ -145,4 +149,4 @@ class _TableListScreenState extends State<TableListScreen> {
       ),
     );
   }
-} 
+}

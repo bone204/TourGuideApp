@@ -88,7 +88,8 @@ class TableCard extends StatelessWidget {
                     SizedBox(height: 12.h),
                     Row(
                       children: [
-                        Icon(Icons.table_bar, size: 16.w, color: AppColors.grey),
+                        Icon(Icons.table_bar,
+                            size: 16.w, color: AppColors.grey),
                         SizedBox(width: 4.w),
                         Text(
                           '$tablesLeft table(s) left',
@@ -129,5 +130,4 @@ class TableCard extends StatelessWidget {
       ),
     );
   }
-
-} 
+}

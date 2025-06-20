@@ -6,15 +6,15 @@ import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/custom_like_button.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
-import 'package:tourguideapp/models/restaurant_model.dart';
-import 'package:tourguideapp/widgets/restaurant_card.dart';
+import 'package:tourguideapp/models/cooperation_model.dart';
+//import 'package:tourguideapp/widgets/restaurant_card.dart';
 import 'package:intl/intl.dart';
 
 class RestaurantDetailScreen extends StatefulWidget {
-  final RestaurantCardData data;
+  final CooperationModel restaurant;
 
   const RestaurantDetailScreen({
-    required this.data,
+    required this.restaurant,
     Key? key,
   }) : super(key: key);
 
@@ -23,25 +23,19 @@ class RestaurantDetailScreen extends StatefulWidget {
 }
 
 class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
-  late RestaurantModel restaurant;
+  late CooperationModel restaurant;
   final currencyFormat = NumberFormat('#,###', 'vi_VN');
 
   @override
   void initState() {
     super.initState();
-    restaurant = RestaurantModel(
-      restaurantId: widget.data.restaurantName,
-      restaurantName: widget.data.restaurantName,
-      imageUrl: widget.data.imageUrl,
-      rating: widget.data.rating,
-      pricePerPerson: widget.data.pricePerPerson,
-      address: widget.data.address,
-    );
+    restaurant = widget.restaurant;
   }
 
   @override
   Widget build(BuildContext context) {
-    final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
+    final favouriteViewModel =
+        Provider.of<FavouriteDestinationsViewModel>(context);
     final isVietnamese = Localizations.localeOf(context).languageCode == 'vi';
 
     return Scaffold(
@@ -56,7 +50,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
               height: 400.h,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(widget.data.imageUrl),
+                  image: NetworkImage(restaurant.photo),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -88,11 +82,9 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                         Padding(
                           padding: EdgeInsets.fromLTRB(30.w, 30.h, 30.w, 0),
                           child: Text(
-                            widget.data.restaurantName,
+                            restaurant.name,
                             style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w700
-                            ),
+                                fontSize: 18.sp, fontWeight: FontWeight.w700),
                           ),
                         ),
                         SizedBox(height: 10.h),
@@ -110,7 +102,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                               SizedBox(width: 6.w),
                               Expanded(
                                 child: Text(
-                                  widget.data.address,
+                                  restaurant.address,
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontSize: 14.sp,
@@ -130,19 +122,17 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                           child: Row(
                             children: [
                               Text(
-                                widget.data.rating.toString(),
+                                restaurant.averageRating.toString(),
                                 style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14.sp
-                                ),
+                                    color: Colors.grey[600], fontSize: 14.sp),
                               ),
                               SizedBox(width: 10.w),
                               Row(
                                 children: List.generate(5, (index) {
                                   return Icon(
-                                    index < widget.data.rating.floor()
+                                    index < restaurant.averageRating.floor()
                                         ? Icons.star
-                                        : (index < widget.data.rating 
+                                        : (index < restaurant.averageRating
                                             ? Icons.star_half
                                             : Icons.star_border),
                                     color: Colors.amber,
@@ -189,9 +179,8 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                   child: Text(
                                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
                                     style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontSize: 14.sp
-                                    ),
+                                        color: Colors.grey[700],
+                                        fontSize: 14.sp),
                                   ),
                                 ),
                                 // Menu
@@ -207,7 +196,8 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                 ),
                                 // Photos
                                 GridView.builder(
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 3,
                                     crossAxisSpacing: 8,
                                     mainAxisSpacing: 8,
@@ -217,14 +207,15 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                     return ClipRRect(
                                       borderRadius: BorderRadius.circular(8.r),
                                       child: Image.network(
-                                        widget.data.imageUrl,
+                                        restaurant.photo,
                                         fit: BoxFit.cover,
                                       ),
                                     );
                                   },
                                 ),
                                 // Reviews
-                                const Center(child: Text("Reviews coming soon")),
+                                const Center(
+                                    child: Text("Reviews coming soon")),
                               ],
                             ),
                           ),
@@ -253,7 +244,8 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   CustomLikeButton(
-                    isLiked: favouriteViewModel.isRestaurantFavourite(restaurant),
+                    isLiked:
+                        favouriteViewModel.isRestaurantFavourite(restaurant),
                     onLikeChanged: (value) {
                       favouriteViewModel.toggleFavouriteRestaurant(restaurant);
                     },
@@ -274,9 +266,10 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                 text: isVietnamese ? "Đặt Bàn" : "Book Table",
                 onPressed: () {
                   Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context) => TableListScreen(restaurantName: widget.data.restaurantName))
-                  );
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              TableListScreen(restaurant: restaurant)));
                 },
               ),
             ),
@@ -311,4 +304,4 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
       ),
     );
   }
-} 
+}

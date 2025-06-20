@@ -1196,10 +1196,17 @@ class RentalVehicleViewModel extends ChangeNotifier {
   Future<void> submitFeedback(String billId, int rating, String comment) async {
     try {
       final feedback = FeedbackModel(
-        billId: billId,
-        rating: rating,
+        feedbackId: billId,
+        travelRouteId: null,
+        destinationId: null,
+        licensePlate: null,
+        cooperationId: null,
+        userId: _currentUserId ?? '',
+        date: DateTime.now().toString(),
+        star: rating,
         comment: comment,
-        createdAt: DateTime.now().toString(),
+        photo: null,
+        video: null,
         status: 'Chờ duyệt',
       );
 

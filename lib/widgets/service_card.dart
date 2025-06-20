@@ -43,31 +43,21 @@ class ServiceCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "S500 Sedan",
-                        style: TextStyle(
-                          color: AppColors.black,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700
-                        )
-                      ),
+                      Text("S500 Sedan",
+                          style: TextStyle(
+                              color: AppColors.black,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700)),
                       SizedBox(height: 8.h),
-                      Text(
-                        "26/11/2024 - 27/11/2024",
-                        style: TextStyle(
-                          color: AppColors.grey,
-                          fontSize: 12.sp
-                        )
-                      ),
+                      Text("26/11/2024 - 27/11/2024",
+                          style: TextStyle(
+                              color: AppColors.grey, fontSize: 12.sp)),
                       SizedBox(height: 8.h),
-                      Text(
-                        "1,000,000 ₫ / day",
-                        style: TextStyle(
-                          color: AppColors.orange,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700
-                        )
-                      ),
+                      Text("1,000,000 ₫ / day",
+                          style: TextStyle(
+                              color: AppColors.orange,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700)),
                       SizedBox(height: 16.h),
                       Row(
                         children: [
@@ -77,14 +67,16 @@ class ServiceCard extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 foregroundColor: const Color(0xFF007BFF),
-                                side: const BorderSide(color: Color(0xFF007BFF)),
+                                side:
+                                    const BorderSide(color: Color(0xFF007BFF)),
                                 padding: EdgeInsets.symmetric(vertical: 12.h),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8.r),
                                 ),
                               ),
                               child: Text(
-                                AppLocalizations.of(context).translate("Previous"),
+                                AppLocalizations.of(context)
+                                    .translate("Previous"),
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14.sp,
@@ -99,7 +91,10 @@ class ServiceCard extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const ServiceReviewScreen(),
+                                    builder: (context) =>
+                                        const ServiceReviewScreen(
+                                      licensePlate: "S500 Sedan",
+                                    ),
                                   ),
                                 );
                               },
@@ -112,7 +107,8 @@ class ServiceCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                AppLocalizations.of(context).translate("Review"),
+                                AppLocalizations.of(context)
+                                    .translate("Review"),
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14.sp,
@@ -132,4 +128,4 @@ class ServiceCard extends StatelessWidget {
       ),
     );
   }
-} 
+}

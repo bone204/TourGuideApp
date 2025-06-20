@@ -1,41 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/core/constants/app_colors.dart';
+//import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:intl/intl.dart';
 import 'package:tourguideapp/views/service/hotel/hotel_detail_screen.dart';
-
-class HotelCardData {
-  final String imageUrl;
-  final String hotelName;
-  final double rating;
-  final double pricePerDay;
-  final String address;
-
-  HotelCardData({
-    required this.imageUrl,
-    required this.hotelName,
-    required this.rating,
-    required this.pricePerDay,
-    required this.address,
-  });
-}
+import 'package:tourguideapp/models/cooperation_model.dart';
 
 class HotelCard extends StatelessWidget {
-  final HotelCardData data;
+  final CooperationModel hotel;
+  final int? minRoomPrice;
   final currencyFormat = NumberFormat('#,###', 'vi_VN');
 
-  HotelCard({required this.data, super.key});
+  HotelCard({Key? key, required this.hotel, this.minRoomPrice})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final isVietnamese = Localizations.localeOf(context).languageCode == 'vi';
-    
+    //final isVietnamese = Localizations.localeOf(context).languageCode == 'vi';
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HotelDetailScreen(data: data),
+            builder: (context) => HotelDetailScreen(hotel: hotel),
           ),
         );
       },
@@ -60,17 +47,17 @@ class HotelCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  data.imageUrl,
-                  height: 100.h,
+                  hotel.photo,
+                  height: 120,
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
               ),
               SizedBox(height: 8.h),
               Text(
-                data.hotelName,
+                hotel.name,
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
@@ -79,14 +66,29 @@ class HotelCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: 4.h),
+              Text(
+                hotel.address,
+                style: TextStyle(color: Colors.grey, fontSize: 13.sp),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                minRoomPrice != null
+                    ? 'Từ ${currencyFormat.format(minRoomPrice)} ₫/đêm'
+                    : 'Giá: Xem chi tiết',
+                style:
+                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 4.h),
               Row(
                 children: [
-                    ...List.generate(5, (index) {
+                  ...List.generate(5, (index) {
                     return Icon(
-                      index < data.rating.floor()
+                      index < hotel.averageRating.floor()
                           ? Icons.star
-                          : (index < data.rating 
+                          : (index < hotel.averageRating
                               ? Icons.star_half
                               : Icons.star_border),
                       color: Colors.amber,
@@ -94,15 +96,6 @@ class HotelCard extends StatelessWidget {
                     );
                   }),
                 ],
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                '${currencyFormat.format(data.pricePerDay)} ₫ / ${isVietnamese ? 'ngày' : 'day'}',
-                style: TextStyle(
-                  color: AppColors.orange,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                ),
               ),
             ],
           ),

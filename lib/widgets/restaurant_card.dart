@@ -1,41 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/core/constants/app_colors.dart';
+//import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:intl/intl.dart';
 import 'package:tourguideapp/views/service/restaurant/restaurant_detail_screen.dart';
-
-class RestaurantCardData {
-  final String imageUrl;
-  final String restaurantName;
-  final double rating;
-  final double pricePerPerson;
-  final String address;
-
-  RestaurantCardData({
-    required this.imageUrl,
-    required this.restaurantName,
-    required this.rating,
-    required this.pricePerPerson,
-    required this.address,
-  });
-}
+import 'package:tourguideapp/models/cooperation_model.dart';
 
 class RestaurantCard extends StatelessWidget {
-  final RestaurantCardData data;
+  final CooperationModel restaurant;
+  final int? minTablePrice;
   final currencyFormat = NumberFormat('#,###', 'vi_VN');
 
-  RestaurantCard({required this.data, super.key});
+  RestaurantCard({Key? key, required this.restaurant, this.minTablePrice})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final isVietnamese = Localizations.localeOf(context).languageCode == 'vi';
-    
+    //final isVietnamese = Localizations.localeOf(context).languageCode == 'vi';
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => RestaurantDetailScreen(data: data),
+            builder: (context) =>
+                RestaurantDetailScreen(restaurant: restaurant),
           ),
         );
       },
@@ -60,17 +48,17 @@ class RestaurantCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  data.imageUrl,
-                  height: 100.h,
+                  restaurant.photo,
+                  height: 120,
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
               ),
               SizedBox(height: 8.h),
               Text(
-                data.restaurantName,
+                restaurant.name,
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
@@ -79,14 +67,35 @@ class RestaurantCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: 4.h),
+              Text(
+                restaurant.address,
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 13.sp,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                minTablePrice != null
+                    ? 'Từ ${currencyFormat.format(minTablePrice)} ₫/bàn'
+                    : 'Giá: Xem chi tiết',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.sp,
+                ),
+              ),
+              SizedBox(height: 4.h),
               Row(
                 children: [
                   ...List.generate(5, (index) {
                     return Icon(
-                      index < data.rating.floor()
+                      index < restaurant.averageRating.floor()
                           ? Icons.star
-                          : (index < data.rating 
+                          : (index < restaurant.averageRating
                               ? Icons.star_half
                               : Icons.star_border),
                       color: Colors.amber,
@@ -95,19 +104,10 @@ class RestaurantCard extends StatelessWidget {
                   }),
                 ],
               ),
-              SizedBox(height: 12.h),
-              Text(
-                '${currencyFormat.format(data.pricePerPerson)} ₫ / ${isVietnamese ? 'người' : 'person'}',
-                style: TextStyle(
-                  color: AppColors.orange,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
             ],
           ),
         ),
       ),
     );
   }
-} 
+}
