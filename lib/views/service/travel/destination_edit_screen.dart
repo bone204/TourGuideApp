@@ -5,6 +5,7 @@ import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/core/utils/time_slot_manager.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
+import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/views/service/travel/image_viewer_screen.dart';
 import 'dart:io';
 
@@ -107,9 +108,11 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
           if (_compareTimeOfDay(picked, startTime) <= 0) {
             // Hiển thị thông báo lỗi
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Thời gian kết thúc phải lớn hơn thời gian bắt đầu'),
-                backgroundColor: Colors.red,
+              SnackBar(
+                content: const Text('Thời gian kết thúc phải lớn hơn thời gian bắt đầu'),
+                backgroundColor: Colors.red.shade400,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
               ),
             );
             return;
@@ -146,7 +149,12 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
+        SnackBar(
+          content: Text('Lỗi khi chọn ảnh: $e'),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        ),
       );
     }
   }
@@ -167,7 +175,12 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error taking photo: $e')),
+        SnackBar(
+          content: Text('Lỗi khi chụp ảnh: $e'),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        ),
       );
     }
   }
@@ -186,7 +199,12 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking video: $e')),
+        SnackBar(
+          content: Text('Lỗi khi chọn video: $e'),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        ),
       );
     }
   }
@@ -205,7 +223,12 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error recording video: $e')),
+        SnackBar(
+          content: Text('Lỗi khi quay video: $e'),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        ),
       );
     }
   }
@@ -254,26 +277,41 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: CustomAppBar(
         onBackPressed: () => Navigator.pop(context),
         title: widget.destinationName,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
+          CustomIconButton(
+            icon: Icons.delete,
             onPressed: () async {
               final shouldDelete = await showDialog<bool>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Xác nhận xóa'),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+                  title: Row(
+                    children: [
+                      Icon(Icons.warning, color: Colors.red.shade600),
+                      SizedBox(width: 8.w),
+                      const Text('Xác nhận xóa'),
+                    ],
+                  ),
                   content: const Text('Bạn có chắc chắn muốn xóa địa điểm này không?'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Hủy'),
+                      child: Text(
+                        'Hủy',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
                     ),
-                    TextButton(
+                    ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade600,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                      ),
                       child: const Text('Xóa'),
                     ),
                   ],
@@ -288,284 +326,377 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Time Section
-            _buildSectionHeader(
-              AppLocalizations.of(context).translate("Time"),
-              Icons.access_time,
-            ),
-            SizedBox(height: 12.h),
-            
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Thời gian bắt đầu',
-                        style: TextStyle(fontSize: 14.sp),
-                      ),
-                      SizedBox(height: 8.h),
-                      InkWell(
-                        onTap: () => _selectTime(context, true),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12.w,
-                            vertical: 8.h,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Text(
-                            _formatTimeOfDay(startTime),
-                            style: TextStyle(fontSize: 16.sp),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 20.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Thời gian kết thúc',
-                        style: TextStyle(fontSize: 14.sp),
-                      ),
-                      SizedBox(height: 8.h),
-                      InkWell(
-                        onTap: () => _selectTime(context, false),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12.w,
-                            vertical: 8.h,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Text(
-                            _formatTimeOfDay(endTime),
-                            style: TextStyle(fontSize: 16.sp),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            
-            SizedBox(height: 24.h),
-            
-            // Images Section
-            _buildSectionHeader(
-              AppLocalizations.of(context).translate("Images"),
-              Icons.photo_library,
-            ),
-            SizedBox(height: 8.h),
-            
-            // Image Grid
-            if (_images.isNotEmpty)
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 8.w,
-                  mainAxisSpacing: 8.h,
-                ),
-                itemCount: _images.length,
-                itemBuilder: (context, index) {
-                  return Stack(
-                    children: [
-                      GestureDetector(
-                        onTap: () => _viewImage(index),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.r),
-                          child: Image.file(
-                            File(_images[index]),
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 4,
-                        right: 4,
-                        child: GestureDetector(
-                          onTap: () => _removeImage(index),
-                          child: Container(
-                            padding: EdgeInsets.all(4.w),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.close,
-                              size: 12.sp,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            
-            // Add Image Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _pickImage,
-                    icon: const Icon(Icons.photo_library),
-                    label: Text(AppLocalizations.of(context).translate("Gallery")),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _takePhoto,
-                    icon: const Icon(Icons.camera_alt),
-                    label: Text(AppLocalizations.of(context).translate("Camera")),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            
-            SizedBox(height: 24.h),
-            
-            // Videos Section
-            _buildSectionHeader(
-              AppLocalizations.of(context).translate("Videos"),
-              Icons.videocam,
-            ),
-            SizedBox(height: 8.h),
-            
-            // Video List
-            if (_videos.isNotEmpty)
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _videos.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: EdgeInsets.only(bottom: 8.h),
-                    padding: EdgeInsets.all(8.w),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Row(
+      body: GestureDetector(
+        onTap: () {
+          // Dismiss keyboard when tapping outside
+          FocusScope.of(context).unfocus();
+        },
+        child: Container(
+          color: AppColors.white,
+          child: Column(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsetsGeometry.symmetric(horizontal: 10.w, vertical: 10.h),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.videocam, color: AppColors.primaryColor),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: Text(
-                            'Video ${index + 1}',
-                            style: TextStyle(fontSize: 14.sp),
+                        // Time Section
+                        _buildSectionCard(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildSectionHeader(
+                                AppLocalizations.of(context).translate("Time"),
+                                Icons.access_time,
+                              ),
+                              SizedBox(height: 20.h),
+                              
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildTimeSelector(
+                                      'Thời gian bắt đầu',
+                                      _formatTimeOfDay(startTime),
+                                      () => _selectTime(context, true),
+                                      Colors.blue.shade50,
+                                      Colors.blue.shade600,
+                                    ),
+                                  ),
+                                  SizedBox(width: 16.w),
+                                  Expanded(
+                                    child: _buildTimeSelector(
+                                      'Thời gian kết thúc',
+                                      _formatTimeOfDay(endTime),
+                                      () => _selectTime(context, false),
+                                      Colors.green.shade50,
+                                      Colors.green.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                        IconButton(
-                          onPressed: () => _removeVideo(index),
-                          icon: const Icon(Icons.delete, color: Colors.red),
+                        
+                        SizedBox(height: 20.h),
+                        
+                        // Images Section
+                        _buildSectionCard(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildSectionHeader(
+                                AppLocalizations.of(context).translate("Images"),
+                                Icons.photo_library,
+                              ),
+                              SizedBox(height: 16.h),
+                              
+                              // Image Grid
+                              if (_images.isNotEmpty)
+                                GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    crossAxisSpacing: 12.w,
+                                    mainAxisSpacing: 12.h,
+                                  ),
+                                  itemCount: _images.length,
+                                  itemBuilder: (context, index) {
+                                    return _buildImageItem(index);
+                                  },
+                                ),
+                              
+                              SizedBox(height: 16.h),
+                              
+                              // Add Image Buttons
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildActionButton(
+                                      onPressed: _pickImage,
+                                      icon: Icons.photo_library,
+                                      label: AppLocalizations.of(context).translate("Gallery"),
+                                      color: Colors.purple.shade600,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12.w),
+                                  Expanded(
+                                    child: _buildActionButton(
+                                      onPressed: _takePhoto,
+                                      icon: Icons.camera_alt,
+                                      label: AppLocalizations.of(context).translate("Camera"),
+                                      color: Colors.orange.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
+                        
+                        SizedBox(height: 20.h),
+                        
+                        // Videos Section
+                        _buildSectionCard(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildSectionHeader(
+                                AppLocalizations.of(context).translate("Videos"),
+                                Icons.videocam,
+                              ),
+                              SizedBox(height: 16.h),
+                              
+                              // Video List
+                              if (_videos.isNotEmpty)
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: _videos.length,
+                                  itemBuilder: (context, index) {
+                                    return _buildVideoItem(index);
+                                  },
+                                ),
+                              
+                              SizedBox(height: 16.h),
+                              
+                              // Add Video Buttons
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildActionButton(
+                                      onPressed: _pickVideo,
+                                      icon: Icons.video_library,
+                                      label: AppLocalizations.of(context).translate("Gallery"),
+                                      color: Colors.indigo.shade600,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12.w),
+                                  Expanded(
+                                    child: _buildActionButton(
+                                      onPressed: _recordVideo,
+                                      icon: Icons.videocam,
+                                      label: AppLocalizations.of(context).translate("Record"),
+                                      color: Colors.red.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        SizedBox(height: 20.h),
+                        
+                        // Notes Section
+                        _buildSectionCard(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildSectionHeader(
+                                AppLocalizations.of(context).translate("Notes"),
+                                Icons.note,
+                              ),
+                              SizedBox(height: 16.h),
+                              
+                              TextField(
+                                controller: _notesController,
+                                maxLines: 5,
+                                style: TextStyle(fontSize: 14.sp),
+                                decoration: InputDecoration(
+                                  hintText: AppLocalizations.of(context).translate("Add your notes here..."),
+                                  hintStyle: TextStyle(color: Colors.grey.shade500),
+                                  filled: true,
+                                  fillColor: Colors.grey.shade50,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    borderSide: BorderSide(color: Colors.grey.shade300),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    borderSide: BorderSide(color: Colors.grey.shade300),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        SizedBox(height: 32.h),
                       ],
                     ),
-                  );
-                },
-              ),
-            
-            // Add Video Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _pickVideo,
-                    icon: const Icon(Icons.video_library),
-                    label: Text(AppLocalizations.of(context).translate("Gallery")),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      foregroundColor: Colors.white,
-                    ),
                   ),
                 ),
-                SizedBox(width: 8.w),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _recordVideo,
-                    icon: const Icon(Icons.videocam),
-                    label: Text(AppLocalizations.of(context).translate("Record")),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      foregroundColor: Colors.white,
+              ),
+              // Save Button - Luôn hiển thị ở cuối
+              Container(
+                padding: EdgeInsets.all(20.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 8,
+                      offset: const Offset(0, -2),
                     ),
+                  ],
+                ),
+                child: _buildSaveButton(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 4.r,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(8.w),
+          decoration: BoxDecoration(
+            color: AppColors.primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Icon(
+            icon,
+            color: AppColors.primaryColor,
+            size: 20.sp,
+          ),
+        ),
+        SizedBox(width: 12.w),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey.shade800,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimeSelector(String label, String time, VoidCallback onTap, Color bgColor, Color textColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade700,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12.r),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(color: textColor.withOpacity(0.3)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.access_time, color: textColor, size: 18.sp),
+                SizedBox(width: 8.w),
+                Text(
+                  time,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
                   ),
                 ),
               ],
             ),
-            
-            SizedBox(height: 24.h),
-            
-            // Notes Section
-            _buildSectionHeader(
-              AppLocalizations.of(context).translate("Notes"),
-              Icons.note,
-            ),
-            SizedBox(height: 8.h),
-            
-            TextField(
-              controller: _notesController,
-              maxLines: 5,
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context).translate("Add your notes here..."),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: BorderSide(color: AppColors.primaryColor),
-                ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImageItem(int index) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.r),
+        child: Stack(
+          children: [
+            GestureDetector(
+              onTap: () => _viewImage(index),
+              child: Image.file(
+                File(_images[index]),
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
               ),
             ),
-            
-            SizedBox(height: 24.h),
-            
-            // Save Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saveAllChanges,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 16.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.r),
+            Positioned(
+              top: 6,
+              right: 6,
+              child: GestureDetector(
+                onTap: () => _removeImage(index),
+                child: Container(
+                  padding: EdgeInsets.all(4.w),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade600,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
                   ),
-                ),
-                child: Text(
-                  'Lưu tất cả',
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
+                  child: Icon(
+                    Icons.close,
+                    size: 12.sp,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -575,20 +706,110 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, color: AppColors.primaryColor, size: 20.sp),
-        SizedBox(width: 8.w),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w700,
-            color: AppColors.primaryColor,
+  Widget _buildVideoItem(int index) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 12.h),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(8.w),
+            decoration: BoxDecoration(
+              color: Colors.red.shade100,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Icon(Icons.videocam, color: Colors.red.shade600, size: 20.sp),
           ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              'Video ${index + 1}',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey.shade800,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: () => _removeVideo(index),
+            icon: Icon(Icons.delete, color: Colors.red.shade600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required VoidCallback onPressed,
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 18.sp),
+      label: Text(
+        label,
+        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(vertical: 12.h),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        elevation: 2,
+      ),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return Container(
+      width: double.infinity,
+      height: 56.h,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.r),
+        gradient: LinearGradient(
+          colors: [AppColors.primaryColor, AppColors.primaryColor.withOpacity(0.8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-      ],
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryColor.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: _saveAllChanges,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.save, size: 20.sp),
+            SizedBox(width: 8.w),
+            Text(
+              'Lưu tất cả',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 } 

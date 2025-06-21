@@ -300,11 +300,13 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       print('Loading route destinations for routeId: ${event.routeId}');
       print('Current day: $_currentDay');
       
-      final List<TravelRouteModel> currentRoutes = (state is TravelLoaded) 
-          ? (state as TravelLoaded).routes 
-          : (state is RouteDetailState) 
-              ? (state as RouteDetailState).routes 
-              : <TravelRouteModel>[];
+      // Lấy routes hiện tại từ state
+      List<TravelRouteModel> currentRoutes = [];
+      if (state is TravelLoaded) {
+        currentRoutes = (state as TravelLoaded).routes;
+      } else if (state is RouteDetailState) {
+        currentRoutes = (state as RouteDetailState).routes;
+      }
 
       emit(RouteDetailLoading(currentRoutes));
 
@@ -312,12 +314,14 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       final doc = await docRef.get();
       
       if (!doc.exists) {
+        print('Route not found: ${event.routeId}');
         emit(TravelError("Route not found"));
         return;
       }
 
       final data = doc.data();
       if (data == null) {
+        print('Route data is null for: ${event.routeId}');
         emit(TravelError("Route data is null"));
         return;
       }
@@ -332,6 +336,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       print('Current day destinations: $currentDayDestinations');
       
       if (currentDayDestinations.isEmpty) {
+        print('No destinations found for day: $_currentDay');
         emit(RouteDetailLoaded(currentRoutes, [], timeSlots: {}, destinationDetails: {}));
         return;
       }
@@ -341,6 +346,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         entry['destinationId'] as String
       ).toList();
       
+      print('Loading destinations with IDs: $destinationIds');
       final destinations = await _loadDestinationsFromIds(destinationIds);
       print('Loaded ${destinations.length} destinations');
       
@@ -352,6 +358,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
           final startTime = entry['startTime'] ?? '08:00';
           final endTime = entry['endTime'] ?? '09:00';
           
+          print('Creating time slot for $uniqueId: $startTime - $endTime');
           return MapEntry(
             uniqueId,
             TimeSlotManager.formatTimeRange(startTime, endTime)
@@ -370,6 +377,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       );
       
       print('Destination details: $destinationDetails');
+      print('Time slots: $timeSlots');
       
       emit(RouteDetailLoaded(
         currentRoutes, 
@@ -467,20 +475,37 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
   Future<List<DestinationModel>> _loadDestinationsFromIds(List<String> ids) async {
     if (ids.isEmpty) return [];
 
-    final futures = ids.map((id) => 
-      _firestore.collection('DESTINATION').doc(id).get()
-    );
-    
-    final snapshots = await Future.wait(futures);
-    final destinations = snapshots
-        .where((doc) => doc.exists)
-        .map((doc) {
-          final destination = DestinationModel.fromMap(doc.data()!);
-          return destination;
-        })
-        .toList();
-    
-    return destinations;
+    try {
+      print('Loading destinations from IDs: $ids');
+      
+      // Sử dụng batch để load hiệu quả hơn
+      final futures = ids.map((id) => 
+        _firestore.collection('DESTINATION').doc(id).get()
+      );
+      
+      final snapshots = await Future.wait(futures);
+      final destinations = snapshots
+          .where((doc) => doc.exists)
+          .map((doc) {
+            try {
+              final destination = DestinationModel.fromMap(doc.data()!);
+              print('Loaded destination: ${destination.destinationName}');
+              return destination;
+            } catch (e) {
+              print('Error parsing destination ${doc.id}: $e');
+              return null;
+            }
+          })
+          .where((dest) => dest != null)
+          .cast<DestinationModel>()
+          .toList();
+      
+      print('Successfully loaded ${destinations.length} destinations');
+      return destinations;
+    } catch (e) {
+      print('Error in _loadDestinationsFromIds: $e');
+      return [];
+    }
   }
 
   bool hasTemporaryData() {
@@ -502,40 +527,72 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
   }
 
   void setCurrentDay(String day) {
+    print('Setting current day from $_currentDay to $day');
     _currentDay = day;
-    add(LoadTemporaryDestinations(day));
+    
+    // Kiểm tra xem có route hiện tại không
+    if (_currentRoute != null) {
+      print('Current route exists, loading route destinations');
+      add(LoadRouteDestinations(_currentRoute!.travelRouteId));
+    } else {
+      print('No current route, loading temporary destinations');
+      add(LoadTemporaryDestinations(day));
+    }
   }
 
   Future<void> _onLoadTemporaryDestinations(LoadTemporaryDestinations event, Emitter<TravelState> emit) async {
-    final currentDayDestinations = _tempDestinationsByDay[event.day] ?? [];
-    
-    // Load tất cả destinations, kể cả trùng lặp
-    final destinationIds = currentDayDestinations.map((entry) => 
-      entry['destinationId'] as String
-    ).toList();
-        
-    final destinations = await _loadDestinationsFromIds(destinationIds);
-    
-    final timeSlots = Map<String, String>.fromEntries(
-      currentDayDestinations.map((entry) => 
-        MapEntry(
-          entry['uniqueId'] as String, // Sử dụng uniqueId thay vì destinationId
-          TimeSlotManager.formatTimeRange(
-            entry['startTime'] as String,
-            entry['endTime'] as String
-          )
+    try {
+      print('Loading temporary destinations for day: ${event.day}');
+      print('Current temp destinations: $_tempDestinationsByDay');
+      
+      final currentDayDestinations = _tempDestinationsByDay[event.day] ?? [];
+      print('Found ${currentDayDestinations.length} destinations for day ${event.day}');
+      
+      if (currentDayDestinations.isEmpty) {
+        print('No temporary destinations found for day: ${event.day}');
+        emit(RouteDetailLoaded(<TravelRouteModel>[], [], timeSlots: {}, destinationDetails: {}));
+        return;
+      }
+      
+      // Load tất cả destinations, kể cả trùng lặp
+      final destinationIds = currentDayDestinations.map((entry) => 
+        entry['destinationId'] as String
+      ).toList();
+      
+      print('Loading destinations with IDs: $destinationIds');
+      final destinations = await _loadDestinationsFromIds(destinationIds);
+      print('Loaded ${destinations.length} destinations');
+      
+      final timeSlots = Map<String, String>.fromEntries(
+        currentDayDestinations.map((entry) {
+          final uniqueId = entry['uniqueId'] as String;
+          final startTime = entry['startTime'] as String;
+          final endTime = entry['endTime'] as String;
+          
+          print('Creating time slot for $uniqueId: $startTime - $endTime');
+          return MapEntry(
+            uniqueId,
+            TimeSlotManager.formatTimeRange(startTime, endTime)
+          );
+        })
+      );
+      
+      // Tạo map destination details
+      final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
+        currentDayDestinations.map((entry) => 
+          MapEntry(entry['uniqueId'] as String, Map<String, dynamic>.from(entry))
         )
-      )
-    );
-    
-    // Tạo map destination details
-    final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
-      currentDayDestinations.map((entry) => 
-        MapEntry(entry['uniqueId'] as String, Map<String, dynamic>.from(entry))
-      )
-    );
-    
-    emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
+      );
+      
+      print('Temporary destinations loaded successfully');
+      print('Time slots: $timeSlots');
+      print('Destination details: $destinationDetails');
+      
+      emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
+    } catch (e) {
+      print('Error loading temporary destinations: $e');
+      emit(TravelError(e.toString()));
+    }
   }
 
   Future<void> _onUpdateDestinationTime(
@@ -764,10 +821,6 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     Emitter<TravelState> emit,
   ) async {
     try {
-      print('Updating destination details for uniqueId: ${event.uniqueId}');
-      print('Notes to update: ${event.notes}');
-      print('Images to update: ${event.images}');
-      print('Videos to update: ${event.videos}');
       
       List<Map<String, dynamic>> destinations;
       
@@ -776,7 +829,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.routeId);
         final doc = await docRef.get();
         if (!doc.exists) {
-          emit(TravelError("Route not found"));
+          emit(const TravelError("Route not found"));
           return;
         }
         
@@ -872,4 +925,75 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
 
   // Getter để truy cập current route từ bên ngoài
   TravelRouteModel? get currentRoute => _currentRoute;
+
+  // Method để debug state hiện tại
+  void debugCurrentState() {
+    print('=== DEBUG CURRENT STATE ===');
+    print('Current state type: ${state.runtimeType}');
+    print('Current day: $_currentDay');
+    print('Current route: ${_currentRoute?.routeName ?? 'null'}');
+    print('Temp destinations: $_tempDestinationsByDay');
+    
+    if (state is RouteDetailState) {
+      final routeState = state as RouteDetailState;
+      print('Routes count: ${routeState.routes.length}');
+      print('Destinations count: ${routeState.destinations.length}');
+      print('Time slots count: ${routeState.timeSlots?.length ?? 0}');
+      print('Destination details count: ${routeState.destinationDetails?.length ?? 0}');
+    }
+    print('=== END DEBUG ===');
+  }
+
+  // Method để reset state khi cần
+  void resetState() {
+    _currentRoute = null;
+    _tempDestinationsByDay = {};
+    _cachedDestinations = null;
+    _currentDay = 'Day 1';
+  }
+
+  // Method để kiểm tra xem có dữ liệu không
+  bool hasData() {
+    if (state is RouteDetailState) {
+      final routeState = state as RouteDetailState;
+      return routeState.destinations.isNotEmpty;
+    }
+    return false;
+  }
+
+  // Method để force reload dữ liệu
+  void forceReload() {
+    print('Force reloading data...');
+    debugCurrentState();
+    
+    if (_currentRoute != null) {
+      print('Force reloading route destinations');
+      add(LoadRouteDestinations(_currentRoute!.travelRouteId));
+    } else {
+      print('Force reloading temporary destinations');
+      add(LoadTemporaryDestinations(_currentDay));
+    }
+  }
+
+  // Method để kiểm tra và sửa lỗi dữ liệu
+  void validateAndFixData() {
+    print('Validating and fixing data...');
+    
+    if (_currentRoute != null) {
+      final destinationsByDay = _currentRoute!.destinationsByDay;
+      print('Route destinations by day: $destinationsByDay');
+      
+      // Kiểm tra xem ngày hiện tại có tồn tại không
+      if (!destinationsByDay.containsKey(_currentDay)) {
+        print('Current day $_currentDay not found in route, creating empty list');
+        destinationsByDay[_currentDay] = [];
+      }
+    }
+    
+    // Kiểm tra temp destinations
+    if (!_tempDestinationsByDay.containsKey(_currentDay)) {
+      print('Current day $_currentDay not found in temp destinations, creating empty list');
+      _tempDestinationsByDay[_currentDay] = [];
+    }
+  }
 } 
