@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
 
-
 class HomeCardData {
   final String imageUrl;
   final String placeName;
   final String description;
   final double rating;
   final int favouriteTimes;
+  final int userRatingsTotal;
 
   HomeCardData({
     required this.imageUrl,
@@ -16,6 +16,7 @@ class HomeCardData {
     required this.description,
     required this.rating,
     required this.favouriteTimes,
+    this.userRatingsTotal = 0,
   });
 }
 
@@ -24,7 +25,6 @@ class HomeCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const HomeCard({required this.data, required this.onTap, super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -123,13 +123,26 @@ class HomeCard extends StatelessWidget {
                           ),
                           SizedBox(width: 4.w),
                           Text(
-                            data.rating.toString(),
+                            data.rating > 0
+                                ? data.rating.toStringAsFixed(1)
+                                : 'N/A',
                             style: TextStyle(
                               color: AppColors.black,
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
+                          if (data.userRatingsTotal > 0) ...[
+                            SizedBox(width: 4.w),
+                            Text(
+                              '(${data.userRatingsTotal})',
+                              style: TextStyle(
+                                color: AppColors.grey,
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                       SizedBox(width: 12.w),

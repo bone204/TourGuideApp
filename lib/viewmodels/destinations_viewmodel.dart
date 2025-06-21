@@ -31,10 +31,8 @@ class DestinationsViewModel extends ChangeNotifier {
     try {
       await _destinationSubscription?.cancel();
 
-      _destinationSubscription = _firestore
-          .collection('DESTINATION')
-          .snapshots()
-          .listen(
+      _destinationSubscription =
+          _firestore.collection('DESTINATION').snapshots().listen(
         (snapshot) {
           _destinations = snapshot.docs
               .map((doc) => DestinationModel.fromMap(doc.data()))
@@ -56,21 +54,20 @@ class DestinationsViewModel extends ChangeNotifier {
     }
   }
 
-  List<HomeCardData> get horizontalCardsData => _destinations.map((destination) {
-    return HomeCardData(
-      imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
-      placeName: destination.destinationName,
-      description: destination.province,
-      rating: 4.5,
-      favouriteTimes: destination.favouriteTimes,
-    );
-  }).toList();
+  List<HomeCardData> get horizontalCardsData =>
+      _destinations.map((destination) {
+        return HomeCardData(
+          imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
+          placeName: destination.destinationName,
+          description: destination.province,
+          rating: destination.rating,
+          favouriteTimes: destination.favouriteTimes,
+          userRatingsTotal: destination.userRatingsTotal,
+        );
+      }).toList();
 
   List<String> get uniqueProvinces {
-    return destinations
-        .map((dest) => dest.province)
-        .toSet()
-        .toList();
+    return destinations.map((dest) => dest.province).toSet().toList();
   }
 
   List<HomeCardData> getDestinationsByProvince(String province) {
@@ -80,8 +77,9 @@ class DestinationsViewModel extends ChangeNotifier {
               imageUrl: dest.photo.isNotEmpty ? dest.photo[0] : '',
               placeName: dest.destinationName,
               description: dest.province,
-              rating: 4.5,
+              rating: dest.rating,
               favouriteTimes: dest.favouriteTimes,
+              userRatingsTotal: dest.userRatingsTotal,
             ))
         .toList();
   }
@@ -96,4 +94,4 @@ class DestinationsViewModel extends ChangeNotifier {
     _error = '';
     await fetchDestinations();
   }
-} 
+}

@@ -125,7 +125,7 @@ class FeedbackViewModel extends ChangeNotifier {
       final videoUrls = await _uploadFiles(_videos, 'feedback_videos');
 
       // Tạo document trong Firestore
-      final docRef = FirebaseFirestore.instance.collection('feedbacks').doc();
+      final docRef = FirebaseFirestore.instance.collection('FEEDBACKS').doc();
 
       final feedbackData = {
         'feedbackId': docRef.id,

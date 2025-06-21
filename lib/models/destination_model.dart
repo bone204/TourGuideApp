@@ -14,6 +14,8 @@ class DestinationModel {
   final String createdDate;
   final int favouriteTimes;
   final List<String> categories;
+  final double rating;
+  final int userRatingsTotal;
 
   DestinationModel({
     required this.destinationId,
@@ -29,6 +31,8 @@ class DestinationModel {
     required this.createdDate,
     this.favouriteTimes = 0,
     required this.categories,
+    this.rating = 0.0,
+    this.userRatingsTotal = 0,
   });
 
   factory DestinationModel.fromMap(Map<String, dynamic> map) {
@@ -59,6 +63,8 @@ class DestinationModel {
       createdDate: convertTimestampToString(map['createdDate']),
       favouriteTimes: map['favouriteTimes']?.toInt() ?? 0,
       categories: List<String>.from(map['categories'] ?? []),
+      rating: (map['rating'] ?? 0.0).toDouble(),
+      userRatingsTotal: map['userRatingsTotal']?.toInt() ?? 0,
     );
   }
 
@@ -77,6 +83,8 @@ class DestinationModel {
       'createdDate': createdDate,
       'favouriteTimes': favouriteTimes,
       'categories': categories,
+      'rating': rating,
+      'userRatingsTotal': userRatingsTotal,
     };
   }
 
@@ -95,6 +103,8 @@ class DestinationModel {
     String? createdDate,
     int? favourite,
     List<String>? categories,
+    double? rating,
+    int? userRatingsTotal,
   }) {
     return DestinationModel(
       destinationId: destinationId ?? this.destinationId,
@@ -110,6 +120,8 @@ class DestinationModel {
       createdDate: createdDate ?? this.createdDate,
       favouriteTimes: favourite ?? this.favouriteTimes,
       categories: categories ?? this.categories,
+      rating: rating ?? this.rating,
+      userRatingsTotal: userRatingsTotal ?? this.userRatingsTotal,
     );
   }
 
@@ -122,6 +134,8 @@ class DestinationModel {
       'province': province,
       'photo': photo,
       'favouriteTimes': favouriteTimes,
+      'rating': rating,
+      'userRatingsTotal': userRatingsTotal,
       // Add other fields as needed
     };
   }
