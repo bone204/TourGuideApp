@@ -45,10 +45,23 @@ class _HomeScreenState extends State<HomeScreen> {
   double _fabBottom = 40;
   double? _initX, _initY;
 
+  // Thêm biến phân trang
+  int _visiblePopular = 10;
+  int _visibleProvince = 10;
+  int _visibleInspiration = 10;
+  static const int _itemsPerPage = 10;
+  final ScrollController _popularScrollController = ScrollController();
+  final ScrollController _provinceScrollController = ScrollController();
+  bool _isLoadingPopular = false;
+  bool _isLoadingProvince = false;
+  bool _isLoadingInspiration = false;
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _popularScrollController.addListener(_onPopularScroll);
+    _provinceScrollController.addListener(_onProvinceScroll);
   }
 
   @override
@@ -87,6 +100,50 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() => _isScrolled = false);
       }
     }
+    // Logic mới: khi kéo tới đáy trang thì load thêm cho Inspiration
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    final total = Provider.of<DestinationsViewModel>(context, listen: false).horizontalCardsData.length;
+    if (currentScroll >= maxScroll - 100 && !_isLoadingInspiration && _visibleInspiration < total) {
+      setState(() { _isLoadingInspiration = true; });
+      Future.delayed(const Duration(milliseconds: 800)).then((_) {
+        if (mounted) {
+          setState(() {
+            _visibleInspiration = (_visibleInspiration + _itemsPerPage).clamp(0, total);
+            _isLoadingInspiration = false;
+          });
+        }
+      });
+    }
+  }
+
+  void _onPopularScroll() async {
+    if (_popularScrollController.position.pixels >= _popularScrollController.position.maxScrollExtent - 100 && !_isLoadingPopular) {
+      final total = Provider.of<DestinationsViewModel>(context, listen: false).horizontalCardsData.length;
+      if (_visiblePopular < total) {
+        setState(() { _isLoadingPopular = true; });
+        await Future.delayed(const Duration(milliseconds: 800));
+        setState(() {
+          _visiblePopular = (_visiblePopular + _itemsPerPage).clamp(0, total);
+          _isLoadingPopular = false;
+        });
+      }
+    }
+  }
+  void _onProvinceScroll() async {
+    final total = _selectedProvince == AppLocalizations.of(context).translate('All')
+        ? Provider.of<DestinationsViewModel>(context, listen: false).horizontalCardsData.length
+        : Provider.of<DestinationsViewModel>(context, listen: false).getDestinationsByProvince(_selectedProvince).length;
+    if (_provinceScrollController.position.pixels >= _provinceScrollController.position.maxScrollExtent - 100 && !_isLoadingProvince) {
+      if (_visibleProvince < total) {
+        setState(() { _isLoadingProvince = true; });
+        await Future.delayed(const Duration(milliseconds: 800));
+        setState(() {
+          _visibleProvince = (_visibleProvince + _itemsPerPage).clamp(0, total);
+          _isLoadingProvince = false;
+        });
+      }
+    }
   }
 
   @override
@@ -94,6 +151,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollController.dispose();
     _destinationTimer?.cancel();
     _pageController.dispose();
+    _popularScrollController.dispose();
+    _provinceScrollController.dispose();
     super.dispose();
   }
 
@@ -103,6 +162,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final destinationsViewModel = Provider.of<DestinationsViewModel>(context);
     final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
+
+    // Lấy danh sách phân trang cho từng section
+    List<HomeCardData> popularList = destinationsViewModel.horizontalCardsData;
+    List<HomeCardData> pagedPopularList = popularList.take(_visiblePopular).toList();
+
+    List<HomeCardData> provinceList = _selectedProvince == AppLocalizations.of(context).translate('All')
+        ? destinationsViewModel.horizontalCardsData
+        : destinationsViewModel.getDestinationsByProvince(_selectedProvince);
+    List<HomeCardData> pagedProvinceList = provinceList.take(_visibleProvince).toList();
+
+    List<HomeCardData> inspirationList = destinationsViewModel.horizontalCardsData;
+    List<HomeCardData> pagedInspirationList = inspirationList.take(_visibleInspiration).toList();
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -246,7 +317,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     context, 
                     "Popular", 
                     "The best destination for you", 
-                    destinationsViewModel.horizontalCardsData
+                    pagedPopularList,
+                    scrollController: _popularScrollController,
+                    isLoading: _isLoadingPopular,
+                    hasMore: _visiblePopular < popularList.length,
                   ),
                 ),
                 // Province Section
@@ -259,11 +333,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   onProvinceSelected: (province) {
                     setState(() {
                       _selectedProvince = province;
+                      _visibleProvince = _itemsPerPage; // reset khi đổi tỉnh
                     });
                   },
-                  cardDataList: _selectedProvince == AppLocalizations.of(context).translate('All')
-                      ? destinationsViewModel.horizontalCardsData
-                      : destinationsViewModel.getDestinationsByProvince(_selectedProvince),
+                  cardDataList: pagedProvinceList,
                   onCardTap: (cardData) {
                     final destination = destinationsViewModel.destinations.firstWhere(
                       (dest) => dest.destinationName == cardData.placeName,
@@ -283,11 +356,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
+                  scrollController: _provinceScrollController,
+                  isLoading: _isLoadingProvince,
+                  hasMore: _visibleProvince < provinceList.length,
                 ),
                 SizedBox(height: 32.h),
                 // Inspiration Section
                 InspirationSection(
-                  cardDataList: destinationsViewModel.horizontalCardsData,
+                  cardDataList: pagedInspirationList,
                   onCardTap: (cardData) {
                     final destination = destinationsViewModel.destinations.firstWhere(
                       (dest) => dest.destinationName == cardData.placeName,
@@ -307,8 +383,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
+                  isLoading: _isLoadingInspiration,
+                  hasMore: _visibleInspiration < inspirationList.length,
                 ),
-                SizedBox(height: 10.h),
               ],
             ),
           ),
@@ -489,7 +566,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget buildSectionHeadline(BuildContext context, String title, String subtitle, List<HomeCardData> cardDataList) {
+  Widget buildSectionHeadline(BuildContext context, String title, String subtitle, List<HomeCardData> cardDataList, {ScrollController? scrollController, bool isLoading = false, bool hasMore = false}) {
     final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
     final destinationsViewModel = Provider.of<DestinationsViewModel>(context);
 
@@ -563,6 +640,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
                     },
+                    scrollController: scrollController,
+                    isLoading: isLoading,
+                    hasMore: hasMore,
                   );
                 },
               ),
@@ -673,6 +753,9 @@ class ProvinceSection extends StatelessWidget {
   final Function(String) onProvinceSelected;
   final List<HomeCardData> cardDataList;
   final Function(HomeCardData) onCardTap;
+  final ScrollController scrollController;
+  final bool isLoading;
+  final bool hasMore;
 
   const ProvinceSection({
     super.key,
@@ -681,6 +764,9 @@ class ProvinceSection extends StatelessWidget {
     required this.onProvinceSelected,
     required this.cardDataList,
     required this.onCardTap,
+    required this.scrollController,
+    required this.isLoading,
+    required this.hasMore,
   });
 
   Future<bool> _precacheImages(List<HomeCardData> cardDataList, BuildContext context) async {
@@ -754,6 +840,9 @@ class ProvinceSection extends StatelessWidget {
                     return HomeCardListView(
                       cardDataList: cardDataList,
                       onCardTap: onCardTap,
+                      scrollController: scrollController,
+                      isLoading: isLoading,
+                      hasMore: hasMore,
                     );
                   },
                 ),
@@ -766,11 +855,15 @@ class ProvinceSection extends StatelessWidget {
 class InspirationSection extends StatelessWidget {
   final List<HomeCardData> cardDataList;
   final Function(HomeCardData) onCardTap;
+  final bool isLoading;
+  final bool hasMore;
 
   const InspirationSection({
     super.key,
     required this.cardDataList,
     required this.onCardTap,
+    required this.isLoading,
+    required this.hasMore,
   });
 
   @override

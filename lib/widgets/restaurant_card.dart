@@ -84,7 +84,7 @@ class RestaurantCard extends StatelessWidget {
                     : 'Giá: Xem chi tiết',
                 style: TextStyle(
                   color: Colors.red,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w900,
                   fontSize: 14.sp,
                 ),
               ),

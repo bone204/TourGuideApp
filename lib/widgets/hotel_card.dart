@@ -79,7 +79,7 @@ class HotelCard extends StatelessWidget {
                     ? 'Từ ${currencyFormat.format(minRoomPrice)} ₫/đêm'
                     : 'Giá: Xem chi tiết',
                 style:
-                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                    TextStyle(color: Colors.red, fontWeight: FontWeight.w900),
               ),
               SizedBox(height: 4.h),
               Row(
