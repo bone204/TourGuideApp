@@ -46,12 +46,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                       ),
                     Center(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20.sp,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: 220.w),
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 20.sp,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
@@ -83,12 +88,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            title,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 20.sp,
+                          ConstrainedBox(
+                            constraints: BoxConstraints(maxWidth: 220.w),
+                            child: Text(
+                              title,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20.sp,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Text(

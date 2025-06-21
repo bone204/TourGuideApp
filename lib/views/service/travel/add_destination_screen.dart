@@ -16,11 +16,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class AddDestinationScreen extends StatelessWidget {
   final String provinceName;
   final String? existingRouteId;
+  final int maxDestinations;
 
   const AddDestinationScreen({
     Key? key,
     required this.provinceName,
     this.existingRouteId,
+    this.maxDestinations = 20,
   }) : super(key: key);
 
   @override
@@ -28,10 +30,11 @@ class AddDestinationScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => DestinationBloc(
         firestore: FirebaseFirestore.instance,
-      )..add(LoadDestinationsByProvince(provinceName)),
+      )..add(LoadDestinationsByProvinceWithLimit(provinceName, maxDestinations)),
       child: AddDestinationScreenContent(
         provinceName: provinceName,
         existingRouteId: existingRouteId,
+        maxDestinations: maxDestinations,
       ),
     );
   }
@@ -40,11 +43,13 @@ class AddDestinationScreen extends StatelessWidget {
 class AddDestinationScreenContent extends StatefulWidget {
   final String provinceName;
   final String? existingRouteId;
+  final int maxDestinations;
 
   const AddDestinationScreenContent({
     Key? key,
     required this.provinceName,
     this.existingRouteId,
+    required this.maxDestinations,
   }) : super(key: key);
 
   @override
@@ -53,6 +58,35 @@ class AddDestinationScreenContent extends StatefulWidget {
 
 class _AddDestinationScreenContentState extends State<AddDestinationScreenContent> {
   String _searchQuery = '';
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      // Load thêm khi scroll đến gần cuối (còn 200px)
+      final state = context.read<DestinationBloc>().state;
+      if (state is DestinationLoaded && state.hasMore && !state.isLoadingMore) {
+        context.read<DestinationBloc>().add(
+          LoadMoreDestinations(
+            widget.provinceName,
+            widget.maxDestinations,
+            lastDocument: state.lastDocument,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +112,7 @@ class _AddDestinationScreenContentState extends State<AddDestinationScreenConten
           Expanded(
             child: BlocBuilder<DestinationBloc, DestinationState>(
               builder: (context, state) {
-                if (state is DestinationLoading) {
+                if (state is DestinationLoading && state is! DestinationLoaded) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
@@ -91,68 +125,130 @@ class _AddDestinationScreenContentState extends State<AddDestinationScreenConten
 
                   if (filteredDestinations.isEmpty) {
                     return Center(
-                      child: Text(
-                        _searchQuery.isEmpty
-                            ? 'No destinations available'
-                            : 'No results found',
-                        style: TextStyle(fontSize: 16.sp),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64.sp,
+                            color: Colors.grey[400],
+                          ),
+                          SizedBox(height: 16.h),
+                          Text(
+                            _searchQuery.isEmpty
+                                ? AppLocalizations.of(context).translate('No destinations available')
+                                : AppLocalizations.of(context).translate('No results found'),
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          if (_searchQuery.isNotEmpty) ...[
+                            SizedBox(height: 8.h),
+                            Text(
+                              AppLocalizations.of(context).translate('Try different keywords'),
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     );
                   }
 
-                  return GridView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 161.w / 185.h,
-                      mainAxisSpacing: 20.h,
-                    ),
-                    itemCount: filteredDestinations.length,
-                    itemBuilder: (context, index) {
-                      final destination = filteredDestinations[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => BlocProvider.value(
-                                value: context.read<TravelBloc>(),
-                                child: DestinationDetailAddPage(
-                                  destination: destination,
-                                  onAddPressed: () {
-                                    final bloc = context.read<TravelBloc>();
-                                    bloc.add(
-                                      AddDestinationToRoute(
-                                        destination,
-                                        existingRouteId: widget.existingRouteId,
-                                      ),
-                                    );
-                                    
-                                    // Pop cả 2 màn hình và reload destinations
-                                    Navigator.of(context).pop(); // Pop DestinationDetailAddPage
-                                    Navigator.of(context).pop(); // Pop AddDestinationScreen
-                                    
-                                    // Reload destinations sau khi thêm
-                                    if (widget.existingRouteId != null) {
-                                      bloc.add(LoadRouteDestinations(widget.existingRouteId!));
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                        child: FavouriteCard(
-                          data: FavouriteCardData(
-                            imageUrl: destination.photo.isNotEmpty
-                                ? destination.photo[0]
-                                : 'assets/img/default_destination.png',
-                            placeName: destination.destinationName,
-                            description: destination.province,
-                          ),
-                        ),
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      context.read<DestinationBloc>().add(
+                        RefreshDestinations(widget.provinceName, limit: widget.maxDestinations),
                       );
                     },
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: GridView.builder(
+                            controller: _scrollController,
+                            padding: EdgeInsets.only(left: 20.w, top: 10.h, right: 20.w, bottom: 20.h),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 161.w / 190.h,
+                              mainAxisSpacing: 10.h,
+                              crossAxisSpacing: 10.w,
+                            ),
+                            itemCount: filteredDestinations.length,
+                            itemBuilder: (context, index) {
+                              final destination = filteredDestinations[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => BlocProvider.value(
+                                        value: context.read<TravelBloc>(),
+                                        child: DestinationDetailAddPage(
+                                          destination: destination,
+                                          onAddPressed: () {
+                                            final bloc = context.read<TravelBloc>();
+                                            bloc.add(
+                                              AddDestinationToRoute(
+                                                destination,
+                                                existingRouteId: widget.existingRouteId,
+                                              ),
+                                            );
+                                            
+                                            // Pop cả 2 màn hình và reload destinations
+                                            Navigator.of(context).pop(); // Pop DestinationDetailAddPage
+                                            Navigator.of(context).pop(); // Pop AddDestinationScreen
+                                            
+                                            // Reload destinations sau khi thêm
+                                            if (widget.existingRouteId != null) {
+                                              bloc.add(LoadRouteDestinations(widget.existingRouteId!));
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: FavouriteCard(
+                                  data: FavouriteCardData(
+                                    imageUrl: destination.photo.isNotEmpty
+                                        ? destination.photo[0]
+                                        : 'assets/img/default_destination.png',
+                                    placeName: destination.destinationName,
+                                    description: destination.province,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        // Hiển thị loading indicator khi đang load thêm
+                        if (state.isLoadingMore)
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.h),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 20.w,
+                                  height: 20.h,
+                                  child: CircularProgressIndicator(strokeWidth: 2.w),
+                                ),
+                                SizedBox(width: 12.w),
+                                Text(
+                                  AppLocalizations.of(context).translate('Loading more...'),
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
                   );
                 }
 
@@ -161,13 +257,28 @@ class _AddDestinationScreenContentState extends State<AddDestinationScreenConten
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(state.message),
-                        ElevatedButton(
+                        Icon(
+                          Icons.error_outline,
+                          size: 64.sp,
+                          color: Colors.red[300],
+                        ),
+                        SizedBox(height: 16.h),
+                        Text(
+                          state.message,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: Colors.grey[600],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 16.h),
+                        ElevatedButton.icon(
                           onPressed: () {
                             context.read<DestinationBloc>()
-                              .add(LoadDestinationsByProvince(widget.provinceName));
+                              .add(LoadDestinationsByProvinceWithLimit(widget.provinceName, widget.maxDestinations));
                           },
-                          child: const Text('Try Again'),
+                          icon: const Icon(Icons.refresh),
+                          label: Text(AppLocalizations.of(context).translate('Try Again')),
                         ),
                       ],
                     ),

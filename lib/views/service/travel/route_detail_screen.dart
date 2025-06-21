@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/views/service/travel/travel_bloc/travel_event.dart';
@@ -12,7 +14,8 @@ import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/widgets/destination_route_card.dart';
 import 'package:tourguideapp/core/utils/time_slot_manager.dart';
-import 'package:tourguideapp/widgets/destination_edit_modal.dart';
+import 'package:tourguideapp/views/service/travel/destination_edit_screen.dart';
+import 'package:tourguideapp/widgets/custom_icon_button.dart';
 
 class RouteDetailScreen extends StatefulWidget {
   final String routeName;
@@ -63,38 +66,79 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
     }
   }
 
-  Widget _buildBottomBar(BuildContext context) {
-    if (widget.existingRouteId != null) {
-      return const SizedBox.shrink();
-    }
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 4,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: CustomElevatedButton(
-          text: 'Create Route',
-          onPressed: () {
-            context.read<TravelBloc>().add(
-              CreateTravelRoute(
-                routeName: widget.routeName,
-                province: widget.provinceName,
-                numberOfDays: widget.numberOfDays,
+  void _onDeleteDay(String dayToDelete) async {
+    if (categories.length > 1) {
+      final bool? shouldDelete = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(AppLocalizations.of(context).translate("Delete Day")),
+          content: Text(AppLocalizations.of(context).translate(
+            "Are you sure you want to delete this day? All destinations in this day will be deleted.",
+          )),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(AppLocalizations.of(context).translate("Cancel"),
+                style: const TextStyle(color: AppColors.primaryColor),
               ),
-            );
-          },
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(AppLocalizations.of(context).translate("Delete"),
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
         ),
-      ),
-    );
+      );
+
+      if (shouldDelete == true) {
+        final currentIndex = categories.indexOf(dayToDelete);
+
+        setState(() {
+          categories.removeAt(currentIndex);
+          for (int i = 0; i < categories.length; i++) {
+            categories[i] = 'Day ${i + 1}';
+          }
+          if (selectedCategory == dayToDelete) {
+            selectedCategory = categories[(currentIndex > 0) ? currentIndex - 1 : 0];
+          }
+        });
+
+        if (widget.existingRouteId != null) {
+          // Cập nhật số ngày và xóa dữ liệu của ngày bị xóa trong database
+          context.read<TravelBloc>().add(
+            UpdateTravelRoute(
+              travelRouteId: widget.existingRouteId!,
+              numberOfDays: categories.length,
+              dayToDelete: dayToDelete,
+            ),
+          );
+
+          // Load lại destinations cho ngày mới được chọn
+          context.read<TravelBloc>().setCurrentDay(selectedCategory);
+          context.read<TravelBloc>().add(
+            LoadRouteDestinations(widget.existingRouteId!),
+          );
+        } else {
+          // Xóa dữ liệu tạm thời của ngày bị xóa
+          context.read<TravelBloc>().deleteTemporaryDay(dayToDelete);
+          
+          // Cập nhật lại tên các ngày trong dữ liệu tạm thời
+          final bloc = context.read<TravelBloc>();
+          for (int i = 0; i < categories.length; i++) {
+            final oldDay = 'Day ${i + 2}';
+            final newDay = 'Day ${i + 1}';
+            if (bloc.hasDestinationsForDay(oldDay)) {
+              bloc.moveTemporaryDestinations(oldDay, newDay);
+            }
+          }
+          
+          // Cập nhật ngày hiện tại và load lại destinations
+          context.read<TravelBloc>().setCurrentDay(selectedCategory);
+        }
+      }
+    }
   }
 
   @override
@@ -114,9 +158,27 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
           title: widget.routeName,
           actions: widget.existingRouteId != null
               ? [
-                  PopupMenuButton<int>(
-                    onSelected: (value) {
-                      if (value == 1) {
+                  CustomIconButton(
+                    icon: Icons.delete,
+                    onPressed: () async {
+                      final shouldDelete = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Xác nhận'),
+                          content: const Text('Bạn có chắc chắn muốn xóa route này không?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Hủy'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Xóa'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (shouldDelete == true) {
                         context.read<TravelBloc>().add(
                           DeleteTravelRoute(widget.existingRouteId!)
                         );
@@ -126,15 +188,41 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                         );
                       }
                     },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 1,
-                        child: Text('Delete Route'),
-                      ),
-                    ],
                   ),
                 ]
-              : null,
+              : [
+                  CustomIconButton(
+                    icon: Icons.check,
+                    onPressed: () async {
+                      final shouldCreate = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Xác nhận'),
+                          content: const Text('Bạn có chắc chắn muốn tạo route này không?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Hủy'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Tạo'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (shouldCreate == true) {
+                        context.read<TravelBloc>().add(
+                          CreateTravelRoute(
+                            routeName: widget.routeName,
+                            province: widget.provinceName,
+                            numberOfDays: widget.numberOfDays,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
           onBackPressed: () async {
             if (widget.existingRouteId == null && context.read<TravelBloc>().hasTemporaryData()) {
               final bool shouldPop = await showDialog(
@@ -188,6 +276,8 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                       onCategorySelected: onCategorySelected,
                       showAddButton: true,
                       existingRouteId: widget.existingRouteId,
+                      allowDelete: true,
+                      onCategoryDelete: _onDeleteDay,
                     ),
                   ),
                   SizedBox(height: 20.h),
@@ -210,6 +300,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                                   child: AddDestinationScreen(
                                     provinceName: widget.provinceName,
                                     existingRouteId: widget.existingRouteId,
+                                    maxDestinations: 20,
                                   ),
                                 ),
                               ),
@@ -217,121 +308,14 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                           },
                         ),
                       ),
-                      SizedBox(width: 16.w),
-                      Expanded(
-                        flex: 2,
-                        child: CustomElevatedButton(
-                          text: AppLocalizations.of(context).translate("Delete"),
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppColors.primaryColor,
-                          side: const BorderSide(
-                            color: AppColors.primaryColor,
-                            width: 1.5,
-                          ),
-                          onPressed: () async {
-                            if (categories.length > 1) {
-                              // Hiển thị hộp thoại xác nhận
-                              final bool? shouldDelete = await showDialog<bool>(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: Text(
-                                    AppLocalizations.of(context).translate("Delete Day"),
-                                  ),
-                                  content: Text(
-                                    AppLocalizations.of(context).translate(
-                                      "Are you sure you want to delete this day? All destinations in this day will be deleted.",
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(false),
-                                      child: Text(
-                                        AppLocalizations.of(context).translate("Cancel"),
-                                        style: const TextStyle(
-                                          color: AppColors.primaryColor,
-                                        ),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(true),
-                                      child: Text(
-                                        AppLocalizations.of(context).translate("Delete"),
-                                        style: const TextStyle(
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-
-                              // Chỉ xóa nếu người dùng xác nhận
-                              if (shouldDelete == true) {
-                                final currentIndex = categories.indexOf(selectedCategory);
-                                final dayToDelete = selectedCategory;
-                                
-                                setState(() {
-                                  // Xóa ngày hiện tại
-                                  categories.removeAt(currentIndex);
-                                  
-                                  // Cập nhật lại tên các ngày sau khi xóa
-                                  for (int i = 0; i < categories.length; i++) {
-                                    categories[i] = 'Day ${i + 1}';
-                                  }
-                                  
-                                  // Chọn ngày mới sau khi xóa
-                                  if (currentIndex > 0) {
-                                    selectedCategory = categories[currentIndex - 1];
-                                  } else {
-                                    selectedCategory = categories[0];
-                                  }
-                                });
-
-                                if (widget.existingRouteId != null) {
-                                  // Cập nhật số ngày và xóa dữ liệu của ngày bị xóa trong database
-                                  context.read<TravelBloc>().add(
-                                    UpdateTravelRoute(
-                                      travelRouteId: widget.existingRouteId!,
-                                      numberOfDays: categories.length,
-                                      dayToDelete: dayToDelete,
-                                    ),
-                                  );
-
-                                  // Load lại destinations cho ngày mới được chọn
-                                  context.read<TravelBloc>().setCurrentDay(selectedCategory);
-                                  context.read<TravelBloc>().add(
-                                    LoadRouteDestinations(widget.existingRouteId!),
-                                  );
-                                } else {
-                                  // Xóa dữ liệu tạm thời của ngày bị xóa
-                                  context.read<TravelBloc>().deleteTemporaryDay(dayToDelete);
-                                  
-                                  // Cập nhật lại tên các ngày trong dữ liệu tạm thời
-                                  final bloc = context.read<TravelBloc>();
-                                  for (int i = 0; i < categories.length; i++) {
-                                    final oldDay = 'Day ${i + 2}';
-                                    final newDay = 'Day ${i + 1}';
-                                    if (bloc.hasDestinationsForDay(oldDay)) {
-                                      bloc.moveTemporaryDestinations(oldDay, newDay);
-                                    }
-                                  }
-                                  
-                                  // Cập nhật ngày hiện tại và load lại destinations
-                                  context.read<TravelBloc>().setCurrentDay(selectedCategory);
-                                }
-                              }
-                            }
-                          },
-                        ),
-                      ),
                     ],
                   ),
+                  SizedBox(height: 10.h),
                 ],
               ),
             );
           },
         ),
-        bottomNavigationBar: _buildBottomBar(context),
       ),
     );
   }
@@ -402,34 +386,66 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                   : 'assets/images/default.jpg',
               timeRange: timeRange,
               onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => DestinationEditModal(
-                    destinationName: destination.destinationName,
-                    currentStartTime: startTime,
-                    currentEndTime: endTime,
-                    onUpdateTime: (newStartTime, newEndTime) {
-                      context.read<TravelBloc>().add(
-                        UpdateDestinationTime(
-                          uniqueId: uniqueId,
-                          startTime: newStartTime,
-                          endTime: newEndTime,
-                          routeId: widget.existingRouteId,
-                          currentDay: selectedCategory,
-                        ),
-                      );
-                    },
-                    onDelete: () {
-                      context.read<TravelBloc>().add(
-                        DeleteDestinationFromRoute(
-                          uniqueId: uniqueId,
-                          routeId: widget.existingRouteId,
-                          currentDay: selectedCategory,
-                        ),
-                      );
-                    },
+                // Lấy thông tin chi tiết của destination từ current route
+                List<String> images = [];
+                List<String> videos = [];
+                String notes = '';
+                
+                if (widget.existingRouteId != null) {
+                  // Lấy thông tin chi tiết từ state
+                  if (state.destinationDetails != null) {
+                    final destinationData = state.destinationDetails![uniqueId];
+                    if (destinationData != null) {
+                      images = List<String>.from(destinationData['images'] ?? []);
+                      videos = List<String>.from(destinationData['videos'] ?? []);
+                      notes = destinationData['notes']?.toString() ?? '';
+                    }
+                  }
+                }
+                
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DestinationEditScreen(
+                      destinationName: destination.destinationName,
+                      currentStartTime: startTime,
+                      currentEndTime: endTime,
+                      currentImages: images,
+                      currentVideos: videos,
+                      currentNotes: notes,
+                      onUpdateTime: (newStartTime, newEndTime) {
+                        context.read<TravelBloc>().add(
+                          UpdateDestinationTime(
+                            uniqueId: uniqueId,
+                            startTime: newStartTime,
+                            endTime: newEndTime,
+                            routeId: widget.existingRouteId,
+                            currentDay: selectedCategory,
+                          ),
+                        );
+                      },
+                      onUpdateDetails: (newImages, newVideos, newNotes) {
+                        context.read<TravelBloc>().add(
+                          UpdateDestinationDetails(
+                            uniqueId: uniqueId,
+                            routeId: widget.existingRouteId,
+                            currentDay: selectedCategory,
+                            images: newImages,
+                            videos: newVideos,
+                            notes: newNotes,
+                          ),
+                        );
+                      },
+                      onDelete: () {
+                        context.read<TravelBloc>().add(
+                          DeleteDestinationFromRoute(
+                            uniqueId: uniqueId,
+                            routeId: widget.existingRouteId,
+                            currentDay: selectedCategory,
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 );
               },
