@@ -8,6 +8,11 @@ class RoomModel {
   final double price;
   final int numberOfRooms;
   final String photo;
+  final String description;
+  final String roomType;
+  final bool isAvailable;
+  final List<String> amenities;
+  final String priceType; // per night, per hour, etc.
 
   RoomModel({
     required this.roomId,
@@ -19,6 +24,11 @@ class RoomModel {
     required this.price,
     required this.numberOfRooms,
     required this.photo,
+    required this.description,
+    required this.roomType,
+    required this.isAvailable,
+    required this.amenities,
+    required this.priceType,
   });
 
   factory RoomModel.fromMap(Map<String, dynamic> map) {
@@ -32,6 +42,11 @@ class RoomModel {
       price: (map['price'] ?? 0.0).toDouble(),
       numberOfRooms: map['numberOfRooms'] ?? 0,
       photo: map['photo'] ?? '',
+      description: map['description'] ?? '',
+      roomType: map['roomType'] ?? '',
+      isAvailable: map['isAvailable'] ?? true,
+      amenities: List<String>.from(map['amenities'] ?? []),
+      priceType: map['priceType'] ?? 'per night',
     );
   }
 
@@ -46,6 +61,45 @@ class RoomModel {
       'price': price,
       'numberOfRooms': numberOfRooms,
       'photo': photo,
+      'description': description,
+      'roomType': roomType,
+      'isAvailable': isAvailable,
+      'amenities': amenities,
+      'priceType': priceType,
     };
+  }
+
+  RoomModel copyWith({
+    String? roomId,
+    String? hotelId,
+    String? roomName,
+    int? numberOfBeds,
+    int? maxPeople,
+    double? area,
+    double? price,
+    int? numberOfRooms,
+    String? photo,
+    String? description,
+    String? roomType,
+    bool? isAvailable,
+    List<String>? amenities,
+    String? priceType,
+  }) {
+    return RoomModel(
+      roomId: roomId ?? this.roomId,
+      hotelId: hotelId ?? this.hotelId,
+      roomName: roomName ?? this.roomName,
+      numberOfBeds: numberOfBeds ?? this.numberOfBeds,
+      maxPeople: maxPeople ?? this.maxPeople,
+      area: area ?? this.area,
+      price: price ?? this.price,
+      numberOfRooms: numberOfRooms ?? this.numberOfRooms,
+      photo: photo ?? this.photo,
+      description: description ?? this.description,
+      roomType: roomType ?? this.roomType,
+      isAvailable: isAvailable ?? this.isAvailable,
+      amenities: amenities ?? this.amenities,
+      priceType: priceType ?? this.priceType,
+    );
   }
 }

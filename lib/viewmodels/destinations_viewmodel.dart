@@ -54,24 +54,28 @@ class DestinationsViewModel extends ChangeNotifier {
     }
   }
 
-  List<HomeCardData> get horizontalCardsData =>
-      _destinations.map((destination) {
-        return HomeCardData(
-          imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
-          placeName: destination.destinationName,
-          description: destination.province,
-          rating: destination.rating,
-          favouriteTimes: destination.favouriteTimes,
-          userRatingsTotal: destination.userRatingsTotal,
-        );
-      }).toList();
+  List<HomeCardData> get horizontalCardsData {
+    final list = _destinations.map((destination) {
+      return HomeCardData(
+        imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : '',
+        placeName: destination.destinationName,
+        description: destination.province,
+        rating: destination.rating,
+        favouriteTimes: destination.favouriteTimes,
+        userRatingsTotal: destination.userRatingsTotal,
+      );
+    }).toList();
+
+    list.sort((a, b) => b.userRatingsTotal.compareTo(a.userRatingsTotal));
+    return list;
+  }
 
   List<String> get uniqueProvinces {
     return destinations.map((dest) => dest.province).toSet().toList();
   }
 
   List<HomeCardData> getDestinationsByProvince(String province) {
-    return destinations
+    final list = destinations
         .where((dest) => dest.province == province)
         .map((dest) => HomeCardData(
               imageUrl: dest.photo.isNotEmpty ? dest.photo[0] : '',
@@ -82,6 +86,9 @@ class DestinationsViewModel extends ChangeNotifier {
               userRatingsTotal: dest.userRatingsTotal,
             ))
         .toList();
+
+    list.sort((a, b) => b.userRatingsTotal.compareTo(a.userRatingsTotal));
+    return list;
   }
 
   @override
