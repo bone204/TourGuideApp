@@ -7,7 +7,7 @@ class TravelRouteModel {
   final String province;
   final DateTime createdDate;
   final int numberOfDays;
-  final Map<String, List<Map<String, String?>>> destinationsByDay;
+  final Map<String, List<Map<String, dynamic>>> destinationsByDay;
 
   TravelRouteModel({
     required this.travelRouteId,
@@ -32,31 +32,47 @@ class TravelRouteModel {
   }
 
   factory TravelRouteModel.fromMap(Map<String, dynamic> map) {
+    print('Parsing TravelRouteModel from map: $map');
+    
     final rawDestinationsByDay = map['destinationsByDay'] as Map<String, dynamic>? ?? {};
+    print('Raw destinationsByDay: $rawDestinationsByDay');
+    
     final destinationsByDay = rawDestinationsByDay.map((key, value) {
+      print('Processing day: $key, value: $value');
       return MapEntry(
         key,
         (value as List<dynamic>).map((e) {
+          print('Processing destination: $e');
           if (e is Map<String, dynamic>) {
-            return {
+            final result = <String, dynamic>{
               'destinationId': e['destinationId']?.toString() ?? '',
               'uniqueId': e['uniqueId']?.toString() ?? '',
               'startTime': e['startTime']?.toString() ?? '08:00',
               'endTime': e['endTime']?.toString() ?? '09:00',
+              'images': (e['images'] as List<dynamic>?)?.cast<String>() ?? [],
+              'videos': (e['videos'] as List<dynamic>?)?.cast<String>() ?? [],
+              'notes': e['notes']?.toString() ?? '',
             };
+            print('Parsed destination: $result');
+            return result;
           } else {
-            return {
+            final result = <String, dynamic>{
               'destinationId': e.toString(),
               'uniqueId': '${e.toString()}_${DateTime.now().millisecondsSinceEpoch}',
               'startTime': '08:00',
               'endTime': '09:00',
+              'images': <String>[],
+              'videos': <String>[],
+              'notes': '',
             };
+            print('Parsed simple destination: $result');
+            return result;
           }
         }).toList(),
       );
     });
 
-    return TravelRouteModel(
+    final result = TravelRouteModel(
       travelRouteId: map['travelRouteId']?.toString() ?? '',
       userId: map['userId']?.toString() ?? '',
       routeName: map['routeName']?.toString() ?? '',
@@ -65,5 +81,8 @@ class TravelRouteModel {
       numberOfDays: map['numberOfDays']?.toInt() ?? 1,
       destinationsByDay: destinationsByDay,
     );
+    
+    print('Final TravelRouteModel: ${result.routeName}, destinationsByDay: ${result.destinationsByDay}');
+    return result;
   }
 }

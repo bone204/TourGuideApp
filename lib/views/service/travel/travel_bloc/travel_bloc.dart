@@ -6,12 +6,13 @@ import 'package:tourguideapp/views/service/travel/travel_bloc/travel_state.dart'
 import 'package:tourguideapp/models/travel_route_model.dart';
 import 'package:tourguideapp/models/user_model.dart';
 import 'package:tourguideapp/models/destination_model.dart';
+import 'package:tourguideapp/models/route_destination_model.dart';
 import 'package:tourguideapp/core/utils/time_slot_manager.dart';
 
 class TravelBloc extends Bloc<TravelEvent, TravelState> {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
-  Map<String, List<Map<String, String?>>> _tempDestinationsByDay = {};
+  Map<String, List<Map<String, dynamic>>> _tempDestinationsByDay = {};
   List<DestinationModel>? _cachedDestinations;
   TravelRouteModel? _currentRoute;
   String _currentDay = 'Day 1';
@@ -32,6 +33,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     on<LoadRouteDestinations>(_onLoadRouteDestinations);
     on<LoadTemporaryDestinations>(_onLoadTemporaryDestinations);
     on<UpdateDestinationTime>(_onUpdateDestinationTime);
+    on<UpdateDestinationDetails>(_onUpdateDestinationDetails);
     on<DeleteDestinationFromRoute>(_onDeleteDestinationFromRoute);
     on<UpdateTravelRoute>(_onUpdateTravelRoute);
   }
@@ -57,7 +59,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
 
   Future<void> _onLoadRoutes(LoadTravelRoutes event, Emitter<TravelState> emit) async {
     try {
-      emit(TravelLoading());  // Luôn emit TravelLoading khi load routes
+      emit(TravelLoading()); 
       
       final user = _auth.currentUser;
       if (user == null) {
@@ -184,13 +186,16 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         final startTime = '${startHour.toString().padLeft(2, '0')}:00';
         final endTime = '${endHour.toString().padLeft(2, '0')}:00';
         
-        // Tạo danh sách destinations mới
-        final updatedDestinations = List<Map<String, String>>.from(currentDayDestinations);
+        // Tạo danh sách destinations mới với các trường mới
+        final updatedDestinations = List<Map<String, dynamic>>.from(currentDayDestinations);
         updatedDestinations.add({
           'destinationId': event.destination.destinationId,
           'uniqueId': uniqueId,
           'startTime': startTime,
-          'endTime': endTime
+          'endTime': endTime,
+          'images': <String>[],
+          'videos': <String>[],
+          'notes': '',
         });
         
         // Update destinations cho ngày hiện tại
@@ -222,7 +227,14 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
           )
         );
         
-        emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots));
+        // Tạo map destination details
+        final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
+          updatedDestinations.map((entry) => 
+            MapEntry(entry['uniqueId'] as String, Map<String, dynamic>.from(entry))
+          )
+        );
+        
+        emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
       } else {
         // Xử lý cho route tạm thời
         final currentDayDestinations = _tempDestinationsByDay[_currentDay] ?? [];
@@ -236,12 +248,15 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         final startTime = '${startHour.toString().padLeft(2, '0')}:00';
         final endTime = '${endHour.toString().padLeft(2, '0')}:00';
         
-        // Thêm destination mới vào cuối danh sách
+        // Thêm destination mới vào cuối danh sách với các trường mới
         currentDayDestinations.add({
           'destinationId': event.destination.destinationId,
           'uniqueId': uniqueId,
           'startTime': startTime,
-          'endTime': endTime
+          'endTime': endTime,
+          'images': <String>[],
+          'videos': <String>[],
+          'notes': '',
         });
         
         _tempDestinationsByDay[_currentDay] = currentDayDestinations;
@@ -266,7 +281,14 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
           )
         );
         
-        emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots));
+        // Tạo map destination details
+        final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
+          currentDayDestinations.map((entry) => 
+            MapEntry(entry['uniqueId'] as String, Map<String, dynamic>.from(entry))
+          )
+        );
+        
+        emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
       }
     } catch (e) {
       emit(TravelError(e.toString()));
@@ -275,6 +297,9 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
 
   Future<void> _onLoadRouteDestinations(LoadRouteDestinations event, Emitter<TravelState> emit) async {
     try {      
+      print('Loading route destinations for routeId: ${event.routeId}');
+      print('Current day: $_currentDay');
+      
       final List<TravelRouteModel> currentRoutes = (state is TravelLoaded) 
           ? (state as TravelLoaded).routes 
           : (state is RouteDetailState) 
@@ -297,13 +322,17 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         return;
       }
 
+      print('Raw Firestore data: $data');
       _currentRoute = TravelRouteModel.fromMap(data);
+      print('Parsed route: ${_currentRoute!.routeName}');
+      print('Destinations by day: ${_currentRoute!.destinationsByDay}');
       
       // Load destinations cho ngày hiện tại
       final currentDayDestinations = _currentRoute!.destinationsByDay[_currentDay] ?? [];
+      print('Current day destinations: $currentDayDestinations');
       
       if (currentDayDestinations.isEmpty) {
-        emit(RouteDetailLoaded(currentRoutes, [], timeSlots: {}));
+        emit(RouteDetailLoaded(currentRoutes, [], timeSlots: {}, destinationDetails: {}));
         return;
       }
       
@@ -330,9 +359,26 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         })
       );
       
+      // Tạo map destination details
+      final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
+        currentDayDestinations.map((entry) {
+          final uniqueId = entry['uniqueId'] ?? 
+            '${entry['destinationId']}_${DateTime.now().millisecondsSinceEpoch}';
+          
+          return MapEntry(uniqueId, Map<String, dynamic>.from(entry));
+        })
+      );
       
-      emit(RouteDetailLoaded(currentRoutes, destinations, timeSlots: timeSlots));
+      print('Destination details: $destinationDetails');
+      
+      emit(RouteDetailLoaded(
+        currentRoutes, 
+        destinations, 
+        timeSlots: timeSlots,
+        destinationDetails: destinationDetails,
+      ));
     } catch (e) {
+      print('Error loading route destinations: $e');
       emit(TravelError(e.toString()));
     }
   }
@@ -482,7 +528,14 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       )
     );
     
-    emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots));
+    // Tạo map destination details
+    final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
+      currentDayDestinations.map((entry) => 
+        MapEntry(entry['uniqueId'] as String, Map<String, dynamic>.from(entry))
+      )
+    );
+    
+    emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
   }
 
   Future<void> _onUpdateDestinationTime(
@@ -490,7 +543,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     Emitter<TravelState> emit,
   ) async {
     try {
-      List<Map<String, String?>> destinations;
+      List<Map<String, dynamic>> destinations;
       
       if (event.routeId != null) {
         // Cập nhật cho route đã tồn tại
@@ -502,12 +555,12 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         }
         
         _currentRoute = TravelRouteModel.fromMap(doc.data()!);
-        destinations = List<Map<String, String?>>.from(
+        destinations = List<Map<String, dynamic>>.from(
           _currentRoute!.destinationsByDay[event.currentDay] ?? []
         );
       } else {
         // Cập nhật cho route tạm thời
-        destinations = List<Map<String, String?>>.from(
+        destinations = List<Map<String, dynamic>>.from(
           _tempDestinationsByDay[event.currentDay] ?? []
         );
       }
@@ -518,7 +571,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       );
       
       if (index != -1) {
-        final updatedDestination = Map<String, String?>.from(destinations[index]);
+        final updatedDestination = Map<String, dynamic>.from(destinations[index]);
         updatedDestination['startTime'] = event.startTime;
         updatedDestination['endTime'] = event.endTime;
         destinations.removeAt(index);
@@ -565,7 +618,15 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
             ))
           );
           
-          emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots));
+          // Tạo map destination details
+          final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
+            destinations.map((entry) => MapEntry(
+              entry['uniqueId'] as String, 
+              Map<String, dynamic>.from(entry)
+            ))
+          );
+          
+          emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
         }
       }
     } catch (e) {
@@ -589,7 +650,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     return minutes1.compareTo(minutes2);
   }
 
-  void _updateFollowingDestinationsTimes(List<Map<String, String?>> destinations, int startIndex) {
+  void _updateFollowingDestinationsTimes(List<Map<String, dynamic>> destinations, int startIndex) {
     for (int i = startIndex; i < destinations.length; i++) {
       if (i == 0) continue;
       
@@ -621,7 +682,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         }
         
         _currentRoute = TravelRouteModel.fromMap(doc.data()!);
-        final destinations = List<Map<String, String?>>.from(
+        final destinations = List<Map<String, dynamic>>.from(
           _currentRoute!.destinationsByDay[event.currentDay] ?? []
         );
 
@@ -640,7 +701,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         add(LoadRouteDestinations(event.routeId!));
       } else {
         // Xóa khỏi route tạm thời
-        final destinations = List<Map<String, String?>>.from(
+        final destinations = List<Map<String, dynamic>>.from(
           _tempDestinationsByDay[event.currentDay] ?? []
         );
 
@@ -668,7 +729,15 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
           ))
         );
 
-        emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots));
+        // Tạo map destination details
+        final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
+          destinations.map((entry) => MapEntry(
+            entry['uniqueId'] as String, 
+            Map<String, dynamic>.from(entry)
+          ))
+        );
+
+        emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
       }
     } catch (e) {
       emit(TravelError(e.toString()));
@@ -689,4 +758,118 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       _tempDestinationsByDay.remove(fromDay);
     }
   }
+
+  Future<void> _onUpdateDestinationDetails(
+    UpdateDestinationDetails event,
+    Emitter<TravelState> emit,
+  ) async {
+    try {
+      print('Updating destination details for uniqueId: ${event.uniqueId}');
+      print('Notes to update: ${event.notes}');
+      print('Images to update: ${event.images}');
+      print('Videos to update: ${event.videos}');
+      
+      List<Map<String, dynamic>> destinations;
+      
+      if (event.routeId != null) {
+        // Cập nhật cho route đã tồn tại
+        final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.routeId);
+        final doc = await docRef.get();
+        if (!doc.exists) {
+          emit(TravelError("Route not found"));
+          return;
+        }
+        
+        _currentRoute = TravelRouteModel.fromMap(doc.data()!);
+        destinations = List<Map<String, dynamic>>.from(
+          _currentRoute!.destinationsByDay[event.currentDay] ?? []
+        );
+      } else {
+        // Cập nhật cho route tạm thời
+        destinations = List<Map<String, dynamic>>.from(
+          _tempDestinationsByDay[event.currentDay] ?? []
+        );
+      }
+
+      print('Found ${destinations.length} destinations for day: ${event.currentDay}');
+
+      // Tìm và cập nhật thông tin chi tiết cho địa điểm
+      final index = destinations.indexWhere(
+        (d) => d['uniqueId'] == event.uniqueId
+      );
+      
+      print('Found destination at index: $index');
+      
+      if (index != -1) {
+        final updatedDestination = Map<String, dynamic>.from(destinations[index]);
+        print('Current destination data: $updatedDestination');
+        
+        // Cập nhật các trường mới nếu được cung cấp
+        if (event.images != null) {
+          updatedDestination['images'] = event.images;
+          print('Updated images: ${updatedDestination['images']}');
+        }
+        if (event.videos != null) {
+          updatedDestination['videos'] = event.videos;
+          print('Updated videos: ${updatedDestination['videos']}');
+        }
+        if (event.notes != null) {
+          updatedDestination['notes'] = event.notes;
+          print('Updated notes: ${updatedDestination['notes']}');
+        }
+        
+        destinations[index] = updatedDestination;
+        print('Final destination data: ${destinations[index]}');
+
+        if (event.routeId != null) {
+          // Cập nhật lên Firestore
+          print('Updating Firestore with data: $destinations');
+          await _firestore.collection('TRAVEL_ROUTE').doc(event.routeId).update({
+            'destinationsByDay.${event.currentDay}': destinations,
+          });
+          
+          print('Firestore update completed');
+          
+          // Load lại route details
+          add(LoadRouteDestinations(event.routeId!));
+        } else {
+          // Cập nhật route tạm thời
+          _tempDestinationsByDay[event.currentDay] = destinations;
+          
+          // Load lại destinations
+          final destinationIds = destinations.map((d) => d['destinationId'] as String).toList();
+          final updatedDestinations = await _loadDestinationsFromIds(destinationIds);
+          
+          // Tạo time slots mới
+          final timeSlots = Map<String, String>.fromEntries(
+            destinations.map((entry) => MapEntry(
+              entry['uniqueId'] as String,
+              TimeSlotManager.formatTimeRange(
+                entry['startTime'] as String,
+                entry['endTime'] as String
+              )
+            ))
+          );
+          
+          // Tạo map destination details
+          final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
+            destinations.map((entry) => MapEntry(
+              entry['uniqueId'] as String, 
+              Map<String, dynamic>.from(entry)
+            ))
+          );
+          
+          emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
+        }
+      } else {
+        print('Destination not found with uniqueId: ${event.uniqueId}');
+      }
+    } catch (e) {
+      print('Error updating destination details: $e');
+      emit(TravelError(e.toString()));
+    }
+  }
+
+  // Getter để truy cập current route từ bên ngoài
+  TravelRouteModel? get currentRoute => _currentRoute;
 } 

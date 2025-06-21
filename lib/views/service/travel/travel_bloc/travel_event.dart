@@ -107,6 +107,27 @@ class UpdateDestinationTime extends TravelEvent {
   });
 }
 
+class UpdateDestinationDetails extends TravelEvent {
+  final String uniqueId;
+  final String? routeId;
+  final String currentDay;
+  final List<String>? images;
+  final List<String>? videos;
+  final String? notes;
+
+  UpdateDestinationDetails({
+    required this.uniqueId,
+    this.routeId,
+    required this.currentDay,
+    this.images,
+    this.videos,
+    this.notes,
+  });
+
+  @override
+  List<Object?> get props => [uniqueId, routeId, currentDay, images, videos, notes];
+}
+
 class DeleteDestinationFromRoute extends TravelEvent {
   final String uniqueId;
   final String? routeId;

@@ -14,7 +14,7 @@ import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/widgets/destination_route_card.dart';
 import 'package:tourguideapp/core/utils/time_slot_manager.dart';
-import 'package:tourguideapp/widgets/destination_edit_modal.dart';
+import 'package:tourguideapp/views/service/travel/destination_edit_screen.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 
 class RouteDetailScreen extends StatefulWidget {
@@ -158,9 +158,27 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
           title: widget.routeName,
           actions: widget.existingRouteId != null
               ? [
-                  PopupMenuButton<int>(
-                    onSelected: (value) {
-                      if (value == 1) {
+                  CustomIconButton(
+                    icon: Icons.delete,
+                    onPressed: () async {
+                      final shouldDelete = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Xác nhận'),
+                          content: const Text('Bạn có chắc chắn muốn xóa route này không?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Hủy'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Xóa'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (shouldDelete == true) {
                         context.read<TravelBloc>().add(
                           DeleteTravelRoute(widget.existingRouteId!)
                         );
@@ -170,12 +188,6 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                         );
                       }
                     },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 1,
-                        child: Text('Delete Route'),
-                      ),
-                    ],
                   ),
                 ]
               : [
@@ -288,6 +300,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                                   child: AddDestinationScreen(
                                     provinceName: widget.provinceName,
                                     existingRouteId: widget.existingRouteId,
+                                    maxDestinations: 20,
                                   ),
                                 ),
                               ),
@@ -373,34 +386,66 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                   : 'assets/images/default.jpg',
               timeRange: timeRange,
               onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => DestinationEditModal(
-                    destinationName: destination.destinationName,
-                    currentStartTime: startTime,
-                    currentEndTime: endTime,
-                    onUpdateTime: (newStartTime, newEndTime) {
-                      context.read<TravelBloc>().add(
-                        UpdateDestinationTime(
-                          uniqueId: uniqueId,
-                          startTime: newStartTime,
-                          endTime: newEndTime,
-                          routeId: widget.existingRouteId,
-                          currentDay: selectedCategory,
-                        ),
-                      );
-                    },
-                    onDelete: () {
-                      context.read<TravelBloc>().add(
-                        DeleteDestinationFromRoute(
-                          uniqueId: uniqueId,
-                          routeId: widget.existingRouteId,
-                          currentDay: selectedCategory,
-                        ),
-                      );
-                    },
+                // Lấy thông tin chi tiết của destination từ current route
+                List<String> images = [];
+                List<String> videos = [];
+                String notes = '';
+                
+                if (widget.existingRouteId != null) {
+                  // Lấy thông tin chi tiết từ state
+                  if (state.destinationDetails != null) {
+                    final destinationData = state.destinationDetails![uniqueId];
+                    if (destinationData != null) {
+                      images = List<String>.from(destinationData['images'] ?? []);
+                      videos = List<String>.from(destinationData['videos'] ?? []);
+                      notes = destinationData['notes']?.toString() ?? '';
+                    }
+                  }
+                }
+                
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DestinationEditScreen(
+                      destinationName: destination.destinationName,
+                      currentStartTime: startTime,
+                      currentEndTime: endTime,
+                      currentImages: images,
+                      currentVideos: videos,
+                      currentNotes: notes,
+                      onUpdateTime: (newStartTime, newEndTime) {
+                        context.read<TravelBloc>().add(
+                          UpdateDestinationTime(
+                            uniqueId: uniqueId,
+                            startTime: newStartTime,
+                            endTime: newEndTime,
+                            routeId: widget.existingRouteId,
+                            currentDay: selectedCategory,
+                          ),
+                        );
+                      },
+                      onUpdateDetails: (newImages, newVideos, newNotes) {
+                        context.read<TravelBloc>().add(
+                          UpdateDestinationDetails(
+                            uniqueId: uniqueId,
+                            routeId: widget.existingRouteId,
+                            currentDay: selectedCategory,
+                            images: newImages,
+                            videos: newVideos,
+                            notes: newNotes,
+                          ),
+                        );
+                      },
+                      onDelete: () {
+                        context.read<TravelBloc>().add(
+                          DeleteDestinationFromRoute(
+                            uniqueId: uniqueId,
+                            routeId: widget.existingRouteId,
+                            currentDay: selectedCategory,
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 );
               },
