@@ -101,11 +101,12 @@ class _AddDestinationScreenContentState extends State<AddDestinationScreenConten
                   }
 
                   return GridView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                    padding: EdgeInsets.only(left: 20.w, top: 10.h, right: 20.w, bottom: 20.h),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 161.w / 185.h,
-                      mainAxisSpacing: 20.h,
+                      childAspectRatio: 161.w / 190.h,
+                      mainAxisSpacing: 10.h,
+                      crossAxisSpacing: 10.w,
                     ),
                     itemCount: filteredDestinations.length,
                     itemBuilder: (context, index) {

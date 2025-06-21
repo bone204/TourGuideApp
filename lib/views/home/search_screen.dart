@@ -24,6 +24,9 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<HomeCardData> _searchResults = [];
+  int _visibleCount = 20;
+  bool _isLoading = false;
+  final ScrollController _scrollController = ScrollController();
 
   String _normalizeString(String text) {
     var output = text.toLowerCase();
@@ -50,6 +53,7 @@ class _SearchScreenState extends State<SearchScreen> {
     if (query.isEmpty) {
       setState(() {
         _searchResults = destinationsViewModel.horizontalCardsData;
+        _visibleCount = 20;
       });
     } else {
       final normalizedQuery = _normalizeString(query);
@@ -67,7 +71,24 @@ class _SearchScreenState extends State<SearchScreen> {
                 normalizedDescription.contains(word);
           });
         }).toList();
+        _visibleCount = 20;
       });
+    }
+  }
+
+  void _onScroll() async {
+    if (_isLoading) return;
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
+      if (_visibleCount < _searchResults.length) {
+        setState(() { _isLoading = true; });
+        await Future.delayed(const Duration(milliseconds: 600));
+        if (mounted) {
+          setState(() {
+            _visibleCount = (_visibleCount + 20).clamp(0, _searchResults.length);
+            _isLoading = false;
+          });
+        }
+      }
     }
   }
 
@@ -78,12 +99,15 @@ class _SearchScreenState extends State<SearchScreen> {
         Provider.of<DestinationsViewModel>(context, listen: false);
     setState(() {
       _searchResults = destinationsViewModel.horizontalCardsData;
+      _visibleCount = 20;
     });
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -106,7 +130,7 @@ class _SearchScreenState extends State<SearchScreen> {
             size: 20.sp,
           ),
           SizedBox(width: 8.w),
-          Expanded(
+          Flexible(
             child: TextField(
               controller: _searchController,
               autofocus: true,
@@ -138,6 +162,9 @@ class _SearchScreenState extends State<SearchScreen> {
         Provider.of<FavouriteDestinationsViewModel>(context);
     final destinationsViewModel = Provider.of<DestinationsViewModel>(context);
 
+    final pagedResults = _searchResults.take(_visibleCount).toList();
+    final hasMore = _visibleCount < _searchResults.length;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -162,6 +189,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             Expanded(
               child: GridView.builder(
+                controller: _scrollController,
                 padding: EdgeInsets.fromLTRB(20.w, 0.h, 20.w, 20.h),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
@@ -169,37 +197,45 @@ class _SearchScreenState extends State<SearchScreen> {
                   mainAxisSpacing: 10.h,
                   crossAxisSpacing: 10.w,
                 ),
-                itemCount: _searchResults.length,
+                itemCount: pagedResults.length + (hasMore ? 1 : 0),
                 itemBuilder: (context, index) {
-                  final cardData = _searchResults[index];
-                  return GestureDetector(
-                    onTap: () {
-                      final destination = destinationsViewModel.destinations.firstWhere(
-                        (dest) => dest.destinationName == cardData.placeName,
-                      );
-                      
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DestinationDetailPage(
-                            cardData: cardData,
-                            destinationData: destination,
-                            isFavourite: favouriteViewModel.isFavourite(destination),
-                            onFavouriteToggle: (isFavourite) {
-                              favouriteViewModel.toggleFavourite(destination);
-                            },
+                  if (index < pagedResults.length) {
+                    final cardData = pagedResults[index];
+                    return GestureDetector(
+                      onTap: () {
+                        final destination = destinationsViewModel.destinations.firstWhere(
+                          (dest) => dest.destinationName == cardData.placeName,
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DestinationDetailPage(
+                              cardData: cardData,
+                              destinationData: destination,
+                              isFavourite: favouriteViewModel.isFavourite(destination),
+                              onFavouriteToggle: (isFavourite) {
+                                favouriteViewModel.toggleFavourite(destination);
+                              },
+                            ),
                           ),
+                        );
+                      },
+                      child: FavouriteCard(
+                        data: FavouriteCardData(
+                          placeName: cardData.placeName,
+                          imageUrl: cardData.imageUrl,
+                          description: cardData.description,
                         ),
-                      );
-                    },
-                    child: FavouriteCard(
-                      data: FavouriteCardData(
-                        placeName: cardData.placeName,
-                        imageUrl: cardData.imageUrl,
-                        description: cardData.description,
                       ),
-                    ),
-                  );
+                    );
+                  } else {
+                    // Loading indicator cuối list
+                    return Center(
+                      child: _isLoading
+                          ? const CircularProgressIndicator()
+                          : const SizedBox.shrink(),
+                    );
+                  }
                 },
               ),
             ),

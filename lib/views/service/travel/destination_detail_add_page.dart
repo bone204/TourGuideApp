@@ -21,7 +21,7 @@ class DestinationDetailAddPage extends StatelessWidget {
           imageUrl: destination.photo.isNotEmpty ? destination.photo[0] : 'assets/images/default.jpg',
           placeName: destination.destinationName,
           description: destination.province,
-          rating: 4.5,
+          rating: destination.rating,
           favouriteTimes: destination.favouriteTimes,
         ),
         destinationData: destination,

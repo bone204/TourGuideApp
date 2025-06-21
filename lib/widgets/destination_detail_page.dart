@@ -305,7 +305,7 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
                 child: SafeArea(
                   top: false,
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(30.w, 0.h, 30.w, 12.h),
+                    padding: EdgeInsets.fromLTRB(30.w, 0.h, 30.w, 20.h),
                     child: CustomElevatedButton(
                       text: widget.hideActions ? "Add to Route" : "Save a Trip",
                       onPressed: widget.onSaveTrip ?? () {},
