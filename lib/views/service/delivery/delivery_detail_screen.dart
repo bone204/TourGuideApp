@@ -8,6 +8,8 @@ import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/delivery_interactive_row.dart';
 import 'package:tourguideapp/widgets/delivery_option_item.dart';
 import 'package:tourguideapp/widgets/image_picker.dart';
+import 'package:tourguideapp/models/cooperation_model.dart';
+import 'package:tourguideapp/core/services/delivery_service.dart';
 
 class DeliveryDetailScreen extends StatefulWidget {
   const DeliveryDetailScreen({super.key});
@@ -45,82 +47,70 @@ class VehicleType {
   });
 }
 
-
 class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
   final GlobalKey _contentKey = GlobalKey();
   double _contentHeight = 0;
   final TextEditingController _noteController = TextEditingController();
-  String selectedBrandId = 'lalamove';
-  String selectedVehicleId = 'motorbike';
+  final DeliveryService _deliveryService = DeliveryService();
 
-  // Danh sách các brands
-  final List<DeliveryBrand> deliveryBrands = const [
-    DeliveryBrand(
-      id: 'jt',
-      name: 'J&T Express',
-      image: 'assets/img/Logo_J&TExpress.png',
-      description: 'JT Express offers fast and reliable delivery services across Vietnam and beyond with advanced technology',
-    ),
-    DeliveryBrand(
-      id: 'lalamove',
-      name: 'Lalamove', 
-      image: 'assets/img/Logo_Lalamove.png',
-      description: 'Lalamove provides on-demand, same-day delivery with flexible and affordable logistics solutions',
-    ),
-    DeliveryBrand(
-      id: 'ghtk',
-      name: 'GHTK',
-      image: 'assets/img/Logo_GHTK.png',
-      description: 'GHTK offers cost-effective, timely delivery solutions with wide coverage across Vietnam',
-    ),
-    DeliveryBrand(
-      id: 'nhattin',
-      name: 'Nhat Tin Express',
-      image: 'assets/img/Logo_NhatTin.png',
-      description: 'Nhat Tin Express delivers fast, safe, and professional logistics services nationwide',
-    ),
-  ];
+  String selectedBrandId = '';
+  String selectedVehicleId = 'motorbike';
+  List<CooperationModel> deliveryBrands = [];
+  bool isLoading = true;
+  String? error;
 
   final List<VehicleType> vehicleTypes = const [
     VehicleType(
       id: 'motorbike',
       name: 'Motorbike',
       image: 'assets/img/ic_motorbike.png',
-      description: 'Maximum cargo capacity of 30 kilograms\nMaximun dimensions of 0.5 x 0.4 x 0.5 meters',
+      description:
+          'Maximum cargo capacity of 30 kilograms\nMaximun dimensions of 0.5 x 0.4 x 0.5 meters',
     ),
     VehicleType(
       id: 'van500',
       name: 'Van 500kg',
       image: 'assets/img/ic_truck.png',
-      description: 'Maximum cargo capacity of 500 kilograms\nMaximun dimensions of 1.7 x 1.2 x 1.2 meters',
+      description:
+          'Maximum cargo capacity of 500 kilograms\nMaximun dimensions of 1.7 x 1.2 x 1.2 meters',
     ),
     VehicleType(
       id: 'van750',
-      name: 'Van 500kg',
+      name: 'Van 750kg',
       image: 'assets/img/ic_truck.png',
-      description: 'Maximum cargo capacity of 750 kilograms\nMaximun dimensions of 2.1 x 1.3 x 1.3 meters',
+      description:
+          'Maximum cargo capacity of 750 kilograms\nMaximun dimensions of 2.1 x 1.3 x 1.3 meters',
     ),
     VehicleType(
       id: 'van1000',
       name: 'Van 1000kg',
       image: 'assets/img/ic_truck.png',
-      description: 'Maximum cargo capacity of 1000 kilograms\nMaximun dimensions of 2.1 x 1.3 x 1.3 meters',
+      description:
+          'Maximum cargo capacity of 1000 kilograms\nMaximun dimensions of 2.1 x 1.3 x 1.3 meters',
     ),
   ];
 
   // Lấy brand đang được chọn
-  DeliveryBrand get selectedBrand => 
-    deliveryBrands.firstWhere((brand) => brand.id == selectedBrandId);
+  CooperationModel? get selectedBrand {
+    try {
+      return deliveryBrands
+          .firstWhere((brand) => brand.cooperationId == selectedBrandId);
+    } catch (e) {
+      return null;
+    }
+  }
 
-    // Lấy vehicle type đang được chọn
-  VehicleType get selectedVehicle => 
-    vehicleTypes.firstWhere((types) => types.id == selectedVehicleId);
+  // Lấy vehicle type đang được chọn
+  VehicleType get selectedVehicle =>
+      vehicleTypes.firstWhere((types) => types.id == selectedVehicleId);
 
   @override
   void initState() {
     super.initState();
+    _loadDeliveryBrands();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final RenderBox? renderBox = _contentKey.currentContext?.findRenderObject() as RenderBox?;
+      final RenderBox? renderBox =
+          _contentKey.currentContext?.findRenderObject() as RenderBox?;
       if (renderBox != null) {
         setState(() {
           _contentHeight = renderBox.size.height;
@@ -129,34 +119,62 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
     });
   }
 
+  Future<void> _loadDeliveryBrands() async {
+    try {
+      setState(() {
+        isLoading = true;
+        error = null;
+      });
+
+      final brands = await _deliveryService.getDeliveryBrands();
+
+      setState(() {
+        deliveryBrands = brands;
+        if (brands.isNotEmpty) {
+          selectedBrandId = brands.first.cooperationId;
+        }
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        error = 'Lỗi khi tải danh sách đối tác vận chuyển: $e';
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _noteController.dispose();
     super.dispose();
   }
 
-  void _showDeliveryBrandSelector() {
+  void _showBrandSelectionModal() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      isDismissible: true,
-      enableDrag: true,
-      builder: (context) => Stack(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(color: Colors.black54),
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20.r),
+            topRight: Radius.circular(20.r),
           ),
-          DraggableScrollableSheet(
-            initialChildSize: 0.6,
-            minChildSize: 0.3,
-            maxChildSize: 0.9,
-            builder: (context, scrollController) => Container(
+        ),
+        child: Column(
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 8.h),
+              width: 40.w,
+              height: 4.h,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2.r),
               ),
+            ),
+            Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
                 child: Column(
@@ -170,37 +188,60 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                       ),
                     ),
                     SizedBox(height: 16.h),
-                    Expanded(
-                      child: ListView.separated(
-                        controller: scrollController,
-                        itemCount: deliveryBrands.length,
-                        separatorBuilder: (_, __) => SizedBox(height: 16.h),
-                        itemBuilder: (context, index) {
-                          final brand = deliveryBrands[index];
-                          return DeliveryOptionItem(
-                            option: DeliveryOption(
-                              id: brand.id,
-                              name: brand.name,
-                              image: brand.image,
-                              description: brand.description,
+                    if (isLoading)
+                      const Center(child: CircularProgressIndicator())
+                    else if (error != null)
+                      Center(
+                        child: Column(
+                          children: [
+                            Text(
+                              error!,
+                              style: TextStyle(color: Colors.red),
+                              textAlign: TextAlign.center,
                             ),
-                            isSelected: selectedBrandId == brand.id,
-                            onTap: () {
-                              setState(() {
-                                selectedBrandId = brand.id;
-                              });
-                              Navigator.pop(context);
-                            },
-                          );
-                        },
+                            SizedBox(height: 16.h),
+                            ElevatedButton(
+                              onPressed: _loadDeliveryBrands,
+                              child: Text('Thử lại'),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Expanded(
+                        child: ListView.separated(
+                          itemCount: deliveryBrands.length,
+                          separatorBuilder: (_, __) => SizedBox(height: 16.h),
+                          itemBuilder: (context, index) {
+                            final brand = deliveryBrands[index];
+                            return DeliveryOptionItem(
+                              option: DeliveryOption(
+                                id: brand.cooperationId,
+                                name: brand.name,
+                                image: brand.photo.isNotEmpty
+                                    ? brand.photo
+                                    : 'assets/img/ic_delivery.png',
+                                description:
+                                    '${brand.introduction}\nRating: ${brand.averageRating.toStringAsFixed(1)} ⭐',
+                              ),
+                              isSelected:
+                                  selectedBrandId == brand.cooperationId,
+                              onTap: () {
+                                setState(() {
+                                  selectedBrandId = brand.cooperationId;
+                                });
+                                Navigator.pop(context);
+                              },
+                            );
+                          },
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -305,7 +346,8 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                     ),
                     Center(
                       child: Text(
-                        AppLocalizations.of(context).translate('Delivery Detail'),
+                        AppLocalizations.of(context)
+                            .translate('Delivery Detail'),
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w700,
@@ -327,18 +369,18 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF000000).withOpacity(0.25),
-                      blurRadius: 4.r,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                ),
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF000000).withOpacity(0.25),
+                        blurRadius: 4.r,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 24.w),
+                  padding:
+                      EdgeInsets.symmetric(vertical: 24.h, horizontal: 24.w),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -351,11 +393,11 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                       SizedBox(height: 24.h),
                       DeliveryInteractiveRow(
                         imageUrl: 'assets/img/ic_delivery_brand.png',
-                        title: selectedBrand.name,
+                        title: selectedBrand?.name ?? '',
                         subtitle: "Delivery between November 16 - November 20",
                         trailingIcon: Icons.chevron_right,
                         isSelected: true,
-                        onTap: _showDeliveryBrandSelector,
+                        onTap: _showBrandSelectionModal,
                       ),
                       SizedBox(height: 24.h),
                       const Divider(
@@ -406,7 +448,8 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
               ),
               SizedBox(height: 12.h),
               CustomExpandableTextField(
-                hintText: AppLocalizations.of(context).translate("Enter note for delivery"),
+                hintText: AppLocalizations.of(context)
+                    .translate("Enter note for delivery"),
                 controller: _noteController,
                 minLines: 3,
                 maxLines: 5,
@@ -458,9 +501,12 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context) => const DeliveryBill())
-                  );
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => DeliveryBill(
+                                selectedBrand: selectedBrand,
+                                selectedVehicle: selectedVehicle.name,
+                              )));
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryColor,
@@ -497,7 +543,8 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
           children: [
             Column(
               children: [
-                Icon(Icons.location_pin, color: AppColors.primaryColor, size: 24.sp),
+                Icon(Icons.location_pin,
+                    color: AppColors.primaryColor, size: 24.sp),
                 if (_contentHeight > 0)
                   SizedBox(
                     width: 1.w,
@@ -516,21 +563,14 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Nguyễn Hữu Trường",
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.black
-                        )
-                      ),
-                      Text(
-                        "00914259475",
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: AppColors.grey
-                        )
-                      ),
+                      Text("Nguyễn Hữu Trường",
+                          style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.black)),
+                      Text("00914259475",
+                          style: TextStyle(
+                              fontSize: 12.sp, color: AppColors.grey)),
                     ],
                   ),
                   SizedBox(height: 6.h),
@@ -560,21 +600,14 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Trần Trung Thông",
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.black
-                        )
-                      ),
-                      Text(
-                        "0971 072 923",
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: AppColors.grey
-                        )
-                      ),
+                      Text("Trần Trung Thông",
+                          style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.black)),
+                      Text("0971 072 923",
+                          style: TextStyle(
+                              fontSize: 12.sp, color: AppColors.grey)),
                     ],
                   ),
                   SizedBox(height: 6.h),

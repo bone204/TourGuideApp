@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/models/hotel_bill_model.dart';
+import 'package:tourguideapp/models/restaurant_bill_model.dart';
 
 class UsedServicesService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -56,6 +57,36 @@ class UsedServicesService {
     } catch (e) {
       print('Error adding hotel booking to used services: $e');
       throw Exception('Không thể thêm đặt phòng vào dịch vụ đã sử dụng: $e');
+    }
+  }
+
+  // Thêm restaurant booking vào used services
+  Future<void> addRestaurantBookingToUsedServices(
+      RestaurantBillModel booking) async {
+    try {
+      await addUsedService(
+        userId: booking.userId,
+        serviceType: 'restaurant',
+        serviceName: 'Đặt bàn nhà hàng', // Tên dịch vụ chung
+        serviceId: booking.billId,
+        usedDate: booking.checkInDate,
+        amount: booking.totalPrice,
+        status: booking.status,
+        additionalData: {
+          'checkInDate': booking.checkInDate.toIso8601String(),
+          'checkInTime':
+              '${booking.checkInTime.hour}:${booking.checkInTime.minute.toString().padLeft(2, '0')}',
+          'numberOfPeople': booking.numberOfPeople,
+          'tableId': booking.tableId,
+          'restaurantId': booking.restaurantId,
+          'customerName': booking.customerName,
+          'customerPhone': booking.customerPhone,
+          'notes': booking.notes,
+        },
+      );
+    } catch (e) {
+      print('Error adding restaurant booking to used services: $e');
+      throw Exception('Không thể thêm đặt bàn vào dịch vụ đã sử dụng: $e');
     }
   }
 

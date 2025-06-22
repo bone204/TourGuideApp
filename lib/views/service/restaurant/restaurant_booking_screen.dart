@@ -5,13 +5,14 @@ import 'package:tourguideapp/views/service/restaurant/restaurant_list_screen.dar
 import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/budget_slider.dart';
 import 'package:tourguideapp/widgets/date_time_picker.dart';
-import 'package:tourguideapp/widgets/location_picker.dart';
+import 'package:tourguideapp/widgets/province_picker.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
 
 class RestaurantBookingScreen extends StatefulWidget {
   @override
-  State<RestaurantBookingScreen> createState() => _RestaurantBookingScreenState();
+  State<RestaurantBookingScreen> createState() =>
+      _RestaurantBookingScreenState();
 }
 
 class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
@@ -42,13 +43,9 @@ class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
     });
   }
 
-  void onLoctaionSelected(String location, Map<String, String> details) {
+  void onProvinceSelected(String provinceName, Map<String, String> details) {
     setState(() {
-      selectedProvince = [
-        details['province'],
-        details['city'],
-        details['district']
-      ].where((s) => s != null && s.isNotEmpty).join(", ");
+      selectedProvince = provinceName;
       locationDetails = details;
     });
   }
@@ -82,7 +79,8 @@ class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
                     isExpanded: true,
                     value: selectedSpecialty,
                     hint: Text(
-                      AppLocalizations.of(context).translate("Select Specialty"),
+                      AppLocalizations.of(context)
+                          .translate("Select Specialty"),
                       style: TextStyle(fontSize: 14.sp),
                     ),
                     items: specialtyOptions.map((String value) {
@@ -148,9 +146,9 @@ class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
             SizedBox(height: 24.h),
             _buildSpecialtyPicker(),
             SizedBox(height: 24.h),
-            LocationPicker(
+            ProvincePicker(
               title: AppLocalizations.of(context).translate("Location"),
-              onLocationSelected: onLoctaionSelected,
+              onProvinceSelected: onProvinceSelected,
             ),
             SizedBox(height: 50.h),
             CustomElevatedButton(
@@ -159,7 +157,12 @@ class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => RestaurantListScreen(),
+                    builder: (context) => RestaurantListScreen(
+                      selectedProvince: selectedProvince,
+                      selectedSpecialty: selectedSpecialty,
+                      minBudget: minBudget,
+                      maxBudget: maxBudget,
+                    ),
                   ),
                 );
               },

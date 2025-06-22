@@ -4,126 +4,76 @@ import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/restaurant_card.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/cooperation_model.dart';
+import 'package:tourguideapp/core/services/restaurant_service.dart';
 //import 'package:tourguideapp/views/service/restaurant/restaurant_detail_screen.dart';
 
-class RestaurantListScreen extends StatelessWidget {
-  // Dữ liệu mẫu
-  final List<CooperationModel> restaurants = [
-    CooperationModel(
-      cooperationId: '1',
-      name: 'Nhà Hàng Ngon',
-      type: 'restaurant',
-      numberOfObjects: 0,
-      numberOfObjectTypes: 0,
-      latitude: 0,
-      longitude: 0,
-      bossName: '',
-      bossPhone: '',
-      bossEmail: '',
-      address: '160 Pasteur, Bến Nghé, Quận 1, TP.HCM',
-      district: '',
-      city: '',
-      province: '',
-      photo:
-          'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
-      extension: '',
-      introduction: '',
-      contractDate: '',
-      contractTerm: '',
-      bankAccountNumber: '',
-      bankAccountName: '',
-      bankName: '',
-      bookingTimes: 0,
-      revenue: 0,
-      averageRating: 4.5,
-    ),
-    CooperationModel(
-      cooperationId: '2',
-      name: 'Quán Ăn Ngon Sài Gòn',
-      type: 'restaurant',
-      numberOfObjects: 0,
-      numberOfObjectTypes: 0,
-      latitude: 0,
-      longitude: 0,
-      bossName: '',
-      bossPhone: '',
-      bossEmail: '',
-      address: '138 Nam Kỳ Khởi Nghĩa, Bến Thành, Quận 1, TP.HCM',
-      district: '',
-      city: '',
-      province: '',
-      photo:
-          'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
-      extension: '',
-      introduction: '',
-      contractDate: '',
-      contractTerm: '',
-      bankAccountNumber: '',
-      bankAccountName: '',
-      bankName: '',
-      bookingTimes: 0,
-      revenue: 0,
-      averageRating: 4.0,
-    ),
-    CooperationModel(
-      cooperationId: '3',
-      name: 'Nhà Hàng Phố Cổ',
-      type: 'restaurant',
-      numberOfObjects: 0,
-      numberOfObjectTypes: 0,
-      latitude: 0,
-      longitude: 0,
-      bossName: '',
-      bossPhone: '',
-      bossEmail: '',
-      address: '76 Lê Lợi, Bến Nghé, Quận 1, TP.HCM',
-      district: '',
-      city: '',
-      province: '',
-      photo:
-          'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
-      extension: '',
-      introduction: '',
-      contractDate: '',
-      contractTerm: '',
-      bankAccountNumber: '',
-      bankAccountName: '',
-      bankName: '',
-      bookingTimes: 0,
-      revenue: 0,
-      averageRating: 5.0,
-    ),
-    CooperationModel(
-      cooperationId: '4',
-      name: 'Quán Ẩm Thực Huế',
-      type: 'restaurant',
-      numberOfObjects: 0,
-      numberOfObjectTypes: 0,
-      latitude: 0,
-      longitude: 0,
-      bossName: '',
-      bossPhone: '',
-      bossEmail: '',
-      address: '45 Nguyễn Du, Bến Nghé, Quận 1, TP.HCM',
-      district: '',
-      city: '',
-      province: '',
-      photo:
-          'https://images.foody.vn/res/g103/1025073/prof/s576x330/foody-upload-api-foody-mobile-hinh-anh-nha-hang-190425151748.jpg',
-      extension: '',
-      introduction: '',
-      contractDate: '',
-      contractTerm: '',
-      bankAccountNumber: '',
-      bankAccountName: '',
-      bankName: '',
-      bookingTimes: 0,
-      revenue: 0,
-      averageRating: 4.8,
-    ),
-  ];
+class RestaurantListScreen extends StatefulWidget {
+  final String? selectedProvince;
+  final String? selectedSpecialty;
+  final double? minBudget;
+  final double? maxBudget;
 
-  RestaurantListScreen({super.key});
+  const RestaurantListScreen({
+    super.key,
+    this.selectedProvince,
+    this.selectedSpecialty,
+    this.minBudget,
+    this.maxBudget,
+  });
+
+  @override
+  State<RestaurantListScreen> createState() => _RestaurantListScreenState();
+}
+
+class _RestaurantListScreenState extends State<RestaurantListScreen> {
+  final RestaurantService _restaurantService = RestaurantService();
+  List<CooperationModel> restaurants = [];
+  bool isLoading = true;
+  String? error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRestaurants();
+  }
+
+  Future<void> _loadRestaurants() async {
+    try {
+      setState(() {
+        isLoading = true;
+        error = null;
+      });
+
+      if (widget.selectedProvince != null &&
+          widget.selectedProvince!.isNotEmpty) {
+        restaurants = await _restaurantService
+            .getRestaurantsByProvince(widget.selectedProvince!);
+      } else {
+        // TODO: Load all restaurants if no province selected
+        restaurants = [];
+      }
+
+      // Apply filters
+      if (widget.selectedSpecialty != null) {
+        restaurants = _restaurantService.filterRestaurantsBySpecialty(
+            restaurants, widget.selectedSpecialty!);
+      }
+
+      if (widget.minBudget != null && widget.maxBudget != null) {
+        restaurants = _restaurantService.filterRestaurantsByBudget(
+            restaurants, widget.minBudget!, widget.maxBudget!);
+      }
+
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        error = 'Lỗi khi tải danh sách nhà hàng: $e';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,40 +119,79 @@ class RestaurantListScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 20.h),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 161.w / 190.h,
-            mainAxisSpacing: 20.h,
-            crossAxisSpacing: 0,
-          ),
-          itemCount: restaurants.length,
-          itemBuilder: (context, index) {
-            // Giả lập giá bàn rẻ nhất cho từng nhà hàng
-            int? minTablePrice;
-            switch (index) {
-              case 0:
-                minTablePrice = 250000;
-                break;
-              case 1:
-                minTablePrice = 150000;
-                break;
-              case 2:
-                minTablePrice = 350000;
-                break;
-              case 3:
-                minTablePrice = 280000;
-                break;
-              default:
-                minTablePrice = null;
-            }
-            return RestaurantCard(
-                restaurant: restaurants[index], minTablePrice: minTablePrice);
-          },
-        ),
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : error != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        error!,
+                        style: TextStyle(fontSize: 16.sp, color: Colors.red),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 16.h),
+                      ElevatedButton(
+                        onPressed: _loadRestaurants,
+                        child: const Text('Thử lại'),
+                      ),
+                    ],
+                  ),
+                )
+              : restaurants.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.restaurant,
+                            size: 64.sp,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(height: 16.h),
+                          Text(
+                            'Không tìm thấy nhà hàng nào',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 10.w, vertical: 20.h),
+                      child: GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 161.w / 190.h,
+                          mainAxisSpacing: 20.h,
+                          crossAxisSpacing: 0,
+                        ),
+                        itemCount: restaurants.length,
+                        itemBuilder: (context, index) {
+                          final restaurant = restaurants[index];
+
+                          // TODO: Tính giá bàn rẻ nhất từ dữ liệu thực tế
+                          int? minTablePrice;
+                          // Giả lập giá dựa trên rating
+                          if (restaurant.averageRating >= 4.5) {
+                            minTablePrice = 400000;
+                          } else if (restaurant.averageRating >= 4.0) {
+                            minTablePrice = 300000;
+                          } else {
+                            minTablePrice = 200000;
+                          }
+
+                          return RestaurantCard(
+                            restaurant: restaurant,
+                            minTablePrice: minTablePrice,
+                          );
+                        },
+                      ),
+                    ),
     );
   }
 }
