@@ -16,6 +16,14 @@ import 'package:tourguideapp/widgets/home_card.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/explore_viewmodel.dart';
 import 'package:tourguideapp/widgets/destination_detail_bottom_sheet.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/widgets/media_detail_view.dart';
+import 'package:tourguideapp/widgets/video_thumbnail.dart';
+import 'package:tourguideapp/widgets/cached_image.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:tourguideapp/widgets/destination_detail_draggable_sheet.dart';
 
 class ExploreScreen extends StatefulWidget {
   final List<DestinationModel>? destinationList;
@@ -214,7 +222,7 @@ class ExploreScreenState extends State<ExploreScreen> {
                               21.0285, 105.8542), // Vị trí mặc định (Hà Nội)
                       zoom: 15,
                     ),
-                    markers: _markers,
+                    markers: _buildMarkers(),
                     myLocationEnabled: true,
                     myLocationButtonEnabled: true,
                     zoomControlsEnabled: false,
@@ -314,16 +322,17 @@ class ExploreScreenState extends State<ExploreScreen> {
                                 itemCount: listForPlace.length,
                                 itemBuilder: (context, index) {
                                   final place = listForPlace[index];
-                                  final matchedDestination =
-                                      _effectiveDestinationList.firstWhere(
-                                    (d) => place['description']
-                                        .toString()
-                                        .toLowerCase()
-                                        .contains(d.destinationName
-                                            .trim()
-                                            .toLowerCase()),
-                                    orElse: () => null as DestinationModel,
-                                  );
+                                  DestinationModel? matchedDestination;
+                                  try {
+                                    matchedDestination = _effectiveDestinationList.firstWhere(
+                                      (d) => place['description']
+                                          .toString()
+                                          .toLowerCase()
+                                          .contains(d.destinationName.trim().toLowerCase()),
+                                    );
+                                  } catch (e) {
+                                    matchedDestination = null;
+                                  }
                                   if (matchedDestination == null) {
                                     return const SizedBox.shrink();
                                   }
@@ -362,9 +371,17 @@ class ExploreScreenState extends State<ExploreScreen> {
                                         ),
                                       ),
                                       onTap: () async {
-                                        final lat = matchedDestination.latitude;
-                                        final lng =
-                                            matchedDestination.longitude;
+                                        FocusScope.of(context).unfocus();
+                                        final lat = matchedDestination!.latitude;
+                                        final lng = matchedDestination!.longitude;
+
+                                        // Di chuyển camera đến vị trí mới
+                                        final GoogleMapController mapController = await _controller.future;
+                                        await mapController.animateCamera(
+                                          CameraUpdate.newLatLng(
+                                            LatLng(lat, lng),
+                                          ),
+                                        );
 
                                         setState(() {
                                           _markers.removeWhere((marker) =>
@@ -376,8 +393,7 @@ class ExploreScreenState extends State<ExploreScreen> {
                                                   'selected_location_$index'),
                                               position: LatLng(lat, lng),
                                               infoWindow: InfoWindow(
-                                                title: matchedDestination
-                                                    .destinationName,
+                                                title: matchedDestination!.destinationName,
                                                 snippet:
                                                     'Địa điểm có trong hệ thống',
                                               ),
@@ -385,16 +401,31 @@ class ExploreScreenState extends State<ExploreScreen> {
                                           );
                                         });
 
+                                        // Hiện bottom sheet drag
                                         showModalBottomSheet(
                                           context: context,
                                           isScrollControlled: true,
                                           backgroundColor: Colors.transparent,
-                                          builder: (context) =>
-                                              FractionallySizedBox(
-                                            heightFactor: 0.95,
-                                            child: DestinationDetailBottomSheet(
-                                              destination: matchedDestination,
-                                            ),
+                                          builder: (context) => Stack(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () => Navigator.of(context).pop(),
+                                                child: Container(color: Colors.transparent),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.bottomCenter,
+                                                child: FractionallySizedBox(
+                                                  heightFactor: 0.95,
+                                                  child: DestinationDetailDraggableSheet(
+                                                    cardData: toHomeCardData(matchedDestination!),
+                                                    destinationData: matchedDestination!,
+                                                    isFavourite: false,
+                                                    onFavouriteToggle: (val) {},
+                                                    hideActions: true,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         );
 
@@ -430,5 +461,64 @@ class ExploreScreenState extends State<ExploreScreen> {
       favouriteTimes: destination.favouriteTimes,
       // Thêm các trường khác nếu cần
     );
+  }
+
+  Set<Marker> _buildMarkers() {
+    final Set<Marker> markers = {};
+    // Marker vị trí hiện tại
+    if (_currentPosition != null) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('current_location'),
+          position: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          infoWindow: const InfoWindow(
+            title: 'Vị trí của bạn',
+            snippet: 'Bạn đang ở đây',
+          ),
+        ),
+      );
+    }
+    // Marker các địa điểm
+    for (final destination in _effectiveDestinationList) {
+      markers.add(
+        Marker(
+          markerId: MarkerId(destination.destinationId),
+          position: LatLng(destination.latitude, destination.longitude),
+          infoWindow: InfoWindow(
+            title: destination.destinationName,
+            snippet: 'Địa điểm có trong hệ thống',
+          ),
+          onTap: () {
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (context) => Stack(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(color: Colors.transparent),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: FractionallySizedBox(
+                      heightFactor: 0.95,
+                      child: DestinationDetailDraggableSheet(
+                        cardData: toHomeCardData(destination),
+                        destinationData: destination,
+                        isFavourite: false,
+                        onFavouriteToggle: (val) {},
+                        hideActions: true,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    }
+    return markers;
   }
 }
