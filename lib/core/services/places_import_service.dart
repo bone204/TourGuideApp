@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/models/destination_model.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class PlacesImportService {
   static const String _baseUrl = 'https://maps.googleapis.com/maps/api/place';
@@ -1237,5 +1238,57 @@ class PlacesImportService {
     } while (nextPageToken != null);
 
     return allResults;
+  }
+
+  Future<void> updateProvinceImages() async {
+    final storageRef = FirebaseStorage.instance.ref().child('province');
+    final firestore = FirebaseFirestore.instance;
+
+    // 1. Lấy danh sách file ảnh trong storage
+    final ListResult result = await storageRef.listAll();
+    final List<Reference> allFiles = result.items;
+
+    // 2. Lấy danh sách tỉnh trong Firestore
+    final QuerySnapshot provinceSnapshot =
+        await firestore.collection('PROVINCE').get();
+
+    // 3. Tạo map: key là tên không dấu, value là url ảnh
+    Map<String, String> provinceImageMap = {};
+    for (final file in allFiles) {
+      final fileName = file.name.split('.').first; // HaNoi, HoChiMinh,...
+      final url = await file.getDownloadURL();
+      provinceImageMap[fileName.toLowerCase()] = url;
+    }
+
+    // 4. Duyệt qua từng tỉnh, cập nhật imageUrl nếu tìm thấy ảnh
+    for (final doc in provinceSnapshot.docs) {
+      final provinceName = doc['provinceName'] as String;
+      // Chuyển provinceName về dạng không dấu, không khoảng trắng, viết liền
+      final normalized =
+          removeDiacritics(provinceName).replaceAll(' ', '').toLowerCase();
+
+      if (provinceImageMap.containsKey(normalized)) {
+        await doc.reference.update({'imageUrl': provinceImageMap[normalized]});
+        print('✅ Updated $provinceName');
+      } else {
+        print('❌ Không tìm thấy ảnh cho $provinceName');
+      }
+    }
+  }
+
+  // Hàm loại bỏ dấu tiếng Việt
+  String removeDiacritics(String str) {
+    // Bạn có thể dùng package diacritic hoặc tự code đơn giản như sau:
+    const withDiacritics =
+        'àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ'
+        'ÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ';
+    const withoutDiacritics =
+        'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd'
+        'AAAAAAAAAAAAAAAAAEEEEEEEEEEEIIIIIOOOOOOOOOOOOOOOOOUUUUUUUUUUUYYYYYD';
+
+    for (int i = 0; i < withDiacritics.length; i++) {
+      str = str.replaceAll(withDiacritics[i], withoutDiacritics[i]);
+    }
+    return str;
   }
 }

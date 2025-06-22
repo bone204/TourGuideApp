@@ -49,7 +49,8 @@ class _ProvinceListScreenState extends State<ProvinceListScreen> {
             children: [
               CustomSearchBar(
                 controller: _searchController,
-                hintText: AppLocalizations.of(context).translate("Search province to travel"),
+                hintText: AppLocalizations.of(context)
+                    .translate("Search province to travel"),
                 onChanged: (value) {
                   _viewModel.searchProvinces(value);
                 },
@@ -64,13 +65,15 @@ class _ProvinceListScreenState extends State<ProvinceListScreen> {
                     }
 
                     final provinces = _viewModel.provinces;
-                    
+
                     if (provinces.isEmpty) {
                       return Center(
                         child: Text(
                           _searchController.text.isEmpty
-                              ? AppLocalizations.of(context).translate('No provinces available')
-                              : AppLocalizations.of(context).translate('No results found'),
+                              ? AppLocalizations.of(context)
+                                  .translate('No provinces available')
+                              : AppLocalizations.of(context)
+                                  .translate('No results found'),
                           style: TextStyle(
                             color: const Color(0xFF6C6C6C),
                             fontSize: 16.sp,
@@ -84,7 +87,7 @@ class _ProvinceListScreenState extends State<ProvinceListScreen> {
                         crossAxisCount: 2,
                         crossAxisSpacing: 15.w,
                         mainAxisSpacing: 15.h,
-                        childAspectRatio: 160/180,
+                        childAspectRatio: 160 / 180,
                       ),
                       itemCount: _viewModel.provinceCards.length,
                       itemBuilder: (context, index) {
@@ -105,6 +108,7 @@ class _ProvinceListScreenState extends State<ProvinceListScreen> {
                                   value: context.read<TravelBloc>(),
                                   child: SuggestRouteScreen(
                                     provinceName: card.name,
+                                    imageUrl: card.imageUrl,
                                   ),
                                 ),
                               ),
@@ -122,4 +126,4 @@ class _ProvinceListScreenState extends State<ProvinceListScreen> {
       ),
     );
   }
-} 
+}
