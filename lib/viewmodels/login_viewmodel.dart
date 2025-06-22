@@ -178,6 +178,7 @@ class LoginViewModel extends ChangeNotifier {
         address: '',
         gender: '',
         citizenId: '',
+        idCardImageUrl: '',
         phoneNumber: firebaseUser.phoneNumber ?? '',
         nationality: '',
         birthday: '',

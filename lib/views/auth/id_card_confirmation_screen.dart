@@ -12,6 +12,7 @@ class IdCardConfirmationScreen extends StatefulWidget {
   final String password;
   final String username;
   final String phoneNumber;
+  final String? idCardImageUrl;
 
   const IdCardConfirmationScreen({
     super.key,
@@ -20,6 +21,7 @@ class IdCardConfirmationScreen extends StatefulWidget {
     required this.password,
     required this.username,
     required this.phoneNumber,
+    this.idCardImageUrl,
   });
 
   @override
@@ -53,6 +55,7 @@ class _IdCardConfirmationScreenState extends State<IdCardConfirmationScreen> {
             birthday: widget.idCardData['dob'] ?? '',
             address: widget.idCardData['address'] ?? '',
             citizenId: widget.idCardData['id'] ?? '',
+            idCardImageUrl: widget.idCardImageUrl ?? '',
           ),
         ),
       );
@@ -89,6 +92,19 @@ class _IdCardConfirmationScreenState extends State<IdCardConfirmationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (widget.idCardImageUrl != null)
+                Padding(
+                  padding: EdgeInsets.only(bottom: 16.h),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12.r),
+                    child: Image.network(
+                      widget.idCardImageUrl!,
+                      height: 180.h,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
               DisabledTextField(
                 labelText: AppLocalizations.of(context).translate("Full Name"),
                 text: widget.idCardData['name'] ?? '',

@@ -17,8 +17,9 @@ class HobbiesSelectionScreen extends StatefulWidget {
   final String gender;
   final String nationality;
   final String birthday;
-  final String citizenId;
   final String address;
+  final String citizenId;
+  final String idCardImageUrl;
 
   const HobbiesSelectionScreen({
     Key? key,
@@ -31,7 +32,8 @@ class HobbiesSelectionScreen extends StatefulWidget {
     required this.nationality,
     required this.birthday,
     required this.address,
-    required this.citizenId
+    required this.citizenId,
+    required this.idCardImageUrl,
   }) : super(key: key);
 
   @override
@@ -209,6 +211,7 @@ class _HobbiesSelectionScreenState extends State<HobbiesSelectionScreen> {
                                     widget.phoneNumber,
                                     widget.nationality,
                                     widget.birthday,
+                                    widget.idCardImageUrl,
                                     selectedCategoryIds,
                                   );
 

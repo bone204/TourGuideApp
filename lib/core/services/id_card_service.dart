@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class IdCardService {
   final String _apiUrl = 'https://api.fpt.ai/vision/idr/vnm';
@@ -114,6 +115,19 @@ class IdCardService {
     } catch (e) {
       print('Lỗi lưu thông tin CCCD: $e');
       throw Exception('Lỗi lưu thông tin CCCD: $e');
+    }
+  }
+
+  Future<String> uploadIdCardImage(File imageFile, String userId) async {
+    try {
+      // Lưu vào folder mới: id_card_images/
+      final storageRef = FirebaseStorage.instance.ref().child('id_card_images/$userId.jpg');
+      final uploadTask = await storageRef.putFile(imageFile);
+      final downloadUrl = await uploadTask.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print('Lỗi upload ảnh CCCD: $e');
+      throw Exception('Lỗi upload ảnh CCCD: $e');
     }
   }
 } 
