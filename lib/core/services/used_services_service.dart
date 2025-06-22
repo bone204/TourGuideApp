@@ -90,6 +90,52 @@ class UsedServicesService {
     }
   }
 
+  // Thêm delivery order vào used services
+  Future<void> addDeliveryOrderToUsedServices({
+    required String userId,
+    required String orderId,
+    required String deliveryBrandName,
+    required String selectedVehicle,
+    required String pickupLocation,
+    required String deliveryLocation,
+    required String recipientName,
+    required String recipientPhone,
+    required String senderName,
+    required String senderPhone,
+    required String requirements,
+    required double amount,
+    required List<String> packagePhotos,
+    required String status,
+  }) async {
+    try {
+      await addUsedService(
+        userId: userId,
+        serviceType: 'delivery',
+        serviceName: 'Dịch vụ giao hàng', // Tên dịch vụ chung
+        serviceId: orderId,
+        usedDate: DateTime.now(),
+        amount: amount,
+        status: status,
+        additionalData: {
+          'deliveryBrandName': deliveryBrandName,
+          'selectedVehicle': selectedVehicle,
+          'pickupLocation': pickupLocation,
+          'deliveryLocation': deliveryLocation,
+          'recipientName': recipientName,
+          'recipientPhone': recipientPhone,
+          'senderName': senderName,
+          'senderPhone': senderPhone,
+          'requirements': requirements,
+          'packagePhotos': packagePhotos,
+          'orderDate': DateTime.now().toIso8601String(),
+        },
+      );
+    } catch (e) {
+      print('Error adding delivery order to used services: $e');
+      throw Exception('Không thể thêm đơn giao hàng vào dịch vụ đã sử dụng: $e');
+    }
+  }
+
   // Lấy danh sách dịch vụ đã sử dụng của user
   Future<List<Map<String, dynamic>>> getUsedServicesByUserId(
       String userId) async {

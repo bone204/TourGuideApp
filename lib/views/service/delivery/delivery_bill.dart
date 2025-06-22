@@ -10,6 +10,7 @@ import 'package:tourguideapp/widgets/app_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
+import 'package:tourguideapp/core/services/used_services_service.dart';
 //import 'package:tourguideapp/services/momo_payment_service.dart';
 //import 'package:uuid/uuid.dart';
 
@@ -46,6 +47,7 @@ class DeliveryBill extends StatefulWidget {
 class _DeliveryBillState extends State<DeliveryBill> {
   String? selectedBank;
   final currencyFormat = NumberFormat('#,###', 'vi_VN');
+  final UsedServicesService _usedServicesService = UsedServicesService();
 
   final List<Map<String, String>> bankOptions = [
     {'id': 'visa', 'image': 'assets/img/Logo_Visa.png'},
@@ -61,6 +63,32 @@ class _DeliveryBillState extends State<DeliveryBill> {
 
   Future<void> _processPayment() async {
     try {
+      // Tạo order ID
+      final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+      final currentUser = FirebaseAuth.instance.currentUser;
+      
+      if (currentUser == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // Lưu vào used services
+      await _usedServicesService.addDeliveryOrderToUsedServices(
+        userId: currentUser.uid,
+        orderId: orderId,
+        deliveryBrandName: widget.selectedBrand?.name ?? 'Delivery Service',
+        selectedVehicle: widget.selectedVehicle,
+        pickupLocation: widget.pickupLocation,
+        deliveryLocation: widget.deliveryLocation,
+        recipientName: widget.recipientName,
+        recipientPhone: widget.recipientPhone,
+        senderName: widget.senderName,
+        senderPhone: widget.senderPhone,
+        requirements: widget.requirements,
+        amount: deliveryPrice.toDouble(),
+        packagePhotos: widget.packagePhotos,
+        status: 'confirmed',
+      );
+
       // Hiển thị thông báo thành công
       if (mounted) {
         showAppDialog(
@@ -542,7 +570,7 @@ class _DeliveryBillState extends State<DeliveryBill> {
                       extra: '{"deliveryBrandId":"${widget.selectedBrand?.cooperationId ?? ""}","vehicleType":"${widget.selectedVehicle}"}',
                       isTestMode: true,
                       onSuccess: (response) async {
-                        // Gọi _processPayment để lưu bill
+                        // Lưu vào used services khi thanh toán thành công
                         await _processPayment();
                       },
                       onError: (response) {
