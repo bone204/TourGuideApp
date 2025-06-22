@@ -154,6 +154,8 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen> {
                               routeName: routeName,
                               numberOfDays: _calculateNumberOfDays(),
                               provinceName: widget.provinceName,
+                              startDate: _startDate,
+                              endDate: _endDate,
                             ),
                           ),
                         ),

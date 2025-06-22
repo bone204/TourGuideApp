@@ -8,6 +8,8 @@ class TravelRouteModel {
   final DateTime createdDate;
   final int numberOfDays;
   final Map<String, List<Map<String, dynamic>>> destinationsByDay;
+  final DateTime startDate;
+  final DateTime endDate;
 
   TravelRouteModel({
     required this.travelRouteId,
@@ -17,6 +19,8 @@ class TravelRouteModel {
     required this.createdDate,
     required this.numberOfDays,
     required this.destinationsByDay,
+    required this.startDate,
+    required this.endDate,
   });
 
   Map<String, dynamic> toMap() {
@@ -28,6 +32,8 @@ class TravelRouteModel {
       'createdDate': createdDate,
       'numberOfDays': numberOfDays,
       'destinationsByDay': destinationsByDay,
+      'startDate': startDate,
+      'endDate': endDate,
     };
   }
 
@@ -80,6 +86,8 @@ class TravelRouteModel {
       createdDate: (map['createdDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       numberOfDays: map['numberOfDays']?.toInt() ?? 1,
       destinationsByDay: destinationsByDay,
+      startDate: (map['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      endDate: (map['endDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
     
     print('Final TravelRouteModel: ${result.routeName}, destinationsByDay: ${result.destinationsByDay}');

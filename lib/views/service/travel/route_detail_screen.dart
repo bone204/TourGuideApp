@@ -23,6 +23,8 @@ class RouteDetailScreen extends StatefulWidget {
   final int numberOfDays;
   final String provinceName;
   final String? existingRouteId;
+  final DateTime startDate;
+  final DateTime endDate;
 
   const RouteDetailScreen({
     super.key,
@@ -30,6 +32,8 @@ class RouteDetailScreen extends StatefulWidget {
     required this.numberOfDays,
     required this.provinceName,
     this.existingRouteId,
+    required this.startDate,
+    required this.endDate,
   });
 
   @override
@@ -42,12 +46,16 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
   late String selectedCategory;
   bool _isInitialized = false;
   bool _showSuccessSnackbar = false;
+  late DateTime _startDate;
+  late DateTime _endDate;
 
   @override
   void initState() {
     super.initState();
     // KHÔNG khởi tạo categories ở đây nữa!
     dayKeys = List.generate(widget.numberOfDays, (index) => 'Day ${index + 1}');
+    _startDate = widget.startDate;
+    _endDate = widget.endDate;
   }
 
   @override
@@ -130,12 +138,17 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
             categories[i] = '${AppLocalizations.of(context).translate('Day')} ${i + 1}';
             dayKeys[i] = 'Day ${i + 1}';
           }
-          if (selectedCategory == categoryToDelete) {
-            selectedCategory = categories[(currentIndex > 0) ? currentIndex - 1 : 0];
+          // Nếu selectedCategory vừa bị xóa hoặc không còn trong categories, chọn lại category đầu tiên
+          if (!categories.contains(selectedCategory)) {
+            selectedCategory = categories.isNotEmpty ? categories[0] : '';
           }
+          // Cập nhật lại endDate
+          _endDate = _startDate.add(Duration(days: categories.length - 1));
         });
 
-        final selectedDayKey = dayKeys[categories.indexOf(selectedCategory)];
+        // Luôn đảm bảo selectedDayKey hợp lệ
+        final selectedDayIndex = categories.indexOf(selectedCategory);
+        final selectedDayKey = selectedDayIndex >= 0 && selectedDayIndex < dayKeys.length ? dayKeys[selectedDayIndex] : dayKeys[0];
 
         if (widget.existingRouteId != null) {
           // Cập nhật số ngày và xóa dữ liệu của ngày bị xóa trong database
@@ -144,6 +157,8 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
               travelRouteId: widget.existingRouteId!,
               numberOfDays: categories.length,
               dayToDelete: dayKeyToDelete,
+              startDate: _startDate,
+              endDate: _endDate,
             ),
           );
 
@@ -169,6 +184,29 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
           context.read<TravelBloc>().add(LoadTemporaryDestinations(selectedDayKey));
         }
       }
+    }
+  }
+
+  void _addNewDay() {
+    setState(() {
+      final newDayIndex = categories.length + 1;
+      final newCategory = '${AppLocalizations.of(context).translate('Day')} $newDayIndex';
+      final newDayKey = 'Day $newDayIndex';
+      categories.add(newCategory);
+      dayKeys.add(newDayKey);
+      selectedCategory = newCategory;
+      // Luôn cập nhật _endDate dựa trên _startDate và số ngày
+      _endDate = _startDate.add(Duration(days: categories.length - 1));
+    });
+    context.read<TravelBloc>().setCurrentDay(dayKeys.last);
+    context.read<TravelBloc>().add(LoadTemporaryDestinations(dayKeys.last));
+    if (widget.existingRouteId != null) {
+      context.read<TravelBloc>().add(UpdateTravelRoute(
+        travelRouteId: widget.existingRouteId!,
+        numberOfDays: categories.length,
+        startDate: _startDate,
+        endDate: _endDate,
+      ));
     }
   }
 
@@ -291,7 +329,9 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                           CreateTravelRoute(
                             routeName: widget.routeName,
                             province: widget.provinceName,
-                            numberOfDays: widget.numberOfDays,
+                            numberOfDays: categories.length,
+                            startDate: _startDate,
+                            endDate: _endDate,
                           ),
                         );
                       }
@@ -353,6 +393,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                       existingRouteId: widget.existingRouteId,
                       allowDelete: true,
                       onCategoryDelete: _onDeleteDay,
+                      onAddDay: _addNewDay,
                     ),
                   ),
                   SizedBox(height: 20.h),

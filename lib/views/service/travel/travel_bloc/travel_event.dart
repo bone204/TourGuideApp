@@ -22,8 +22,13 @@ class UpdateTravelRoute extends TravelEvent {
   final String travelRouteId;
   final int numberOfDays;
   final String? dayToDelete;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
-  UpdateTravelRoute({required this.travelRouteId, required this.numberOfDays, this.dayToDelete});
+  UpdateTravelRoute({required this.travelRouteId, required this.numberOfDays, this.dayToDelete, this.startDate, this.endDate});
+
+  @override
+  List<Object?> get props => [travelRouteId, numberOfDays, dayToDelete, startDate, endDate];
 }
 
 class DeleteTravelRoute extends TravelEvent {
@@ -39,15 +44,19 @@ class CreateTravelRoute extends TravelEvent {
   final String routeName;
   final String province;
   final int numberOfDays;
+  final DateTime startDate;
+  final DateTime endDate;
 
   CreateTravelRoute({
     required this.routeName,
     required this.province,
     required this.numberOfDays,
+    required this.startDate,
+    required this.endDate,
   });
 
   @override
-  List<Object?> get props => [routeName, province, numberOfDays];
+  List<Object?> get props => [routeName, province, numberOfDays, startDate, endDate];
 }
 
 class StartTravelRoute extends TravelEvent {

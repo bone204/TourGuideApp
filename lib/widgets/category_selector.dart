@@ -17,6 +17,7 @@ class CategorySelector extends StatefulWidget {
   final bool allowDelete;
   final Function(String)? onCategoryDelete;
   final bool isDayCategory;
+  final Function()? onAddDay;
 
   const CategorySelector({
     Key? key,
@@ -28,6 +29,7 @@ class CategorySelector extends StatefulWidget {
     this.allowDelete = false,
     this.onCategoryDelete,
     this.isDayCategory = false,
+    this.onAddDay,
   }) : super(key: key);
 
   @override
@@ -105,7 +107,7 @@ class _CategorySelectorState extends State<CategorySelector> {
                   ),
                   if (widget.allowDelete && widget.categories.length > 1)
                     Positioned(
-                      top: -8,
+                      top: -4,
                       right: -8,
                       child: Material(
                         color: Colors.transparent,
@@ -139,17 +141,8 @@ class _CategorySelectorState extends State<CategorySelector> {
             IconButton(
               icon: const Icon(Icons.add, color: AppColors.primaryColor),
               onPressed: () {
-                final newDayKey = 'day${widget.categories.length + 1}';
-                setState(() {
-                  widget.categories.add(newDayKey);
-                });
-                widget.onCategorySelected(newDayKey);
-                // Chỉ gọi UpdateTravelRoute khi có existingRouteId
-                if (widget.existingRouteId != null) {
-                  context.read<TravelBloc>().add(UpdateTravelRoute(
-                    travelRouteId: widget.existingRouteId!,
-                    numberOfDays: widget.categories.length,
-                  ));
+                if (widget.onAddDay != null) {
+                  widget.onAddDay!();
                 }
               },
             ),
