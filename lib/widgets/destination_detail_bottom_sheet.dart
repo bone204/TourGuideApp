@@ -28,7 +28,7 @@ class DestinationDetailBottomSheet extends StatelessWidget {
               Text(
                 destination.destinationName,
                 style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 8),
               Row(
@@ -58,7 +58,7 @@ class DestinationDetailBottomSheet extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     destination.rating.toStringAsFixed(1),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(width: 8),
                   Text('(${destination.userRatingsTotal} đánh giá)'),
