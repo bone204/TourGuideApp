@@ -11,6 +11,7 @@ import 'package:tourguideapp/models/room_availability_model.dart';
 import 'package:tourguideapp/core/services/hotel_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:tourguideapp/core/services/momo_service.dart';
 
 class HotelBookingBillScreen extends StatefulWidget {
   final CooperationModel hotel;
@@ -184,20 +185,57 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Thanh toán thành công'),
-              content: const Text(
-                  'Đặt phòng khách sạn của bạn đã được xác nhận. Dịch vụ sẽ được thêm vào danh sách used services.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); 
-                    Navigator.of(context).popUntil(
-                        (route) => route.isFirst); 
-                  },
-                  child: const Text('OK'),
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.green[100],
+                        shape: BoxShape.circle,
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: const Icon(Icons.check_circle, color: Colors.green, size: 64),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Thanh toán thành công!',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.green[800],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Đặt phòng khách sạn của bạn đã được xác nhận. Dịch vụ sẽ được thêm vào danh sách đã sử dụng.',
+                      style: const TextStyle(fontSize: 16, color: Colors.black87),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).popUntil((route) => route.isFirst);
+                        },
+                        child: Text('OK', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             );
           },
         );
@@ -462,22 +500,69 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
 
                 // Confirm button
                 ElevatedButton(
-                    onPressed: (roomAvailability?.hasAvailability ?? false)
-                        ? _processPayment
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF007BFF),
-                      foregroundColor: Colors.white,
-                      minimumSize: Size(double.infinity, 50.h),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r)),
-                    ),
-                    child:
-                        Text(AppLocalizations.of(context).translate("Confirm"),
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w700,
-                            ))),
+                  onPressed: (roomAvailability?.hasAvailability ?? false)
+                      ? () async {
+                          if (selectedBank == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Vui lòng chọn phương thức thanh toán'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+                          if (selectedBank == 'momo') {
+                            // Gọi thanh toán momo
+                            // TODO: Thay các tham số bên dưới bằng dữ liệu thực tế của bạn
+                            await MomoService.processPayment(
+                              merchantName: 'TTN',
+                              appScheme: 'MOMO',
+                              merchantCode: 'MOMO',
+                              partnerCode: 'MOMO',
+                              amount: (roomAvailability!.price * (checkOutDate.difference(checkInDate).inDays) * numberOfRooms).toInt(),
+                              orderId: DateTime.now().millisecondsSinceEpoch.toString(),
+                              orderLabel: 'Đặt phòng khách sạn',
+                              merchantNameLabel: 'HLGD',
+                              fee: 0,
+                              description: 'Thanh toán đặt phòng khách sạn',
+                              username: FirebaseAuth.instance.currentUser?.uid ?? '',
+                              partner: 'merchant',
+                              extra: '{"hotelId":"${widget.hotel.cooperationId}","roomId":"${roomAvailability!.roomId}"}',
+                              isTestMode: true,
+                              onSuccess: (response) async {
+                                // Gọi _processPayment để lưu bill
+                                await _processPayment();
+                              },
+                              onError: (response) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Thanh toán MoMo thất bại: ${response.message}'), backgroundColor: Colors.red),
+                                );
+                              },
+                            );
+                          } else {
+                            // Các phương thức khác chỉ hiện thông báo Coming soon
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Tính năng này sẽ sớm ra mắt!'),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                          }
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF007BFF),
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 50.h),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.r)),
+                  ),
+                  child: Text(AppLocalizations.of(context).translate("Confirm"),
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                      )),
+                ),
               ]),
             ),
           ),
