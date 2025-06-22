@@ -450,6 +450,24 @@
     "You have unsaved changes. Do you want to discard them and exit?": "You have unsaved changes. Do you want to discard them and exit?",
     "Discard": "Discard",
     "Yes": "Yes",
-    "Booking Information": "Booking Information"
+    "Booking Information": "Booking Information",
+    "currency": "₫",
+    "people": "people",
+    "Table:": "Table:",
+    "Location:": "Location:",
+    "Capacity:": "Capacity:",
+    "Date:": "Date:",
+    "Time:": "Time:",
+    "Number of people:": "Number of people:",
+    "Delivery Vehicle:": "Delivery Vehicle:",
+    "Delivery Brand:": "Delivery Brand:",
+    "Rating:": "Rating:",
+    "S500 Sedan": "S500 Sedan",
+    "1,000,000 ₫ / day": "1,000,000 ₫ / day",
+    "26/11/2024 - 27/11/2024": "26/11/2024 - 27/11/2024",
+    "Helloooooooooooo": "Helloooooooooooo",
+    "Reviews coming soon": "Reviews coming soon",
+    "Videos coming soon": "Videos coming soon",
+    "Error loading vehicle details": "Error loading vehicle details"
 }
   

@@ -12,7 +12,7 @@ class HelpScreen extends StatelessWidget {
         title: AppLocalizations.of(context).translate("Help Screen"),
         onBackPressed: () => Navigator.of(context).pop(),
       ),
-      body: const Text("Helloooooooooooo", style: TextStyle(fontSize: 100)),
+      body: Text(AppLocalizations.of(context).translate("Helloooooooooooo"), style: TextStyle(fontSize: 100)),
     );
   }
 }

@@ -126,8 +126,8 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
   Future<void> _processPayment() async {
     if (selectedBank == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng chọn phương thức thanh toán'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).translate('Please select a payment method')),
           backgroundColor: Colors.red,
         ),
       );
@@ -136,8 +136,8 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
 
     if (roomAvailability == null || !roomAvailability!.hasAvailability) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Phòng không còn trống cho ngày đã chọn'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).translate('No rooms available for the selected dates')),
           backgroundColor: Colors.red,
         ),
       );
@@ -155,7 +155,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
       );
 
       if (!bookingSuccess) {
-        throw Exception('Đặt phòng thất bại, vui lòng thử lại');
+        throw Exception(AppLocalizations.of(context).translate('Booking failed, please try again'));
       }
 
       // Tính tổng tiền
@@ -184,8 +184,8 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
       if (mounted) {
         showAppDialog(
           context: context,
-          title: 'Thông báo',
-          content: 'Đặt phòng khách sạn của bạn đã được xác nhận. Dịch vụ sẽ được thêm vào danh sách đã sử dụng.',
+          title: AppLocalizations.of(context).translate('Notification'),
+          content: AppLocalizations.of(context).translate('Your hotel booking has been confirmed. The service will be added to your used list.'),
           icon: Icons.check_circle,
           iconColor: Colors.green,
           actions: [
@@ -194,7 +194,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                 Navigator.of(context).pop();
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
-              child: const Text('OK'),
+              child: Text(AppLocalizations.of(context).translate('OK')),
             ),
           ],
         );
@@ -203,7 +203,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Lỗi: $e'),
+            content: Text(AppLocalizations.of(context).translate('Error:') + ' $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -250,7 +250,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Hotel:",
+                    Text(AppLocalizations.of(context).translate("Hotel"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(widget.hotel.name,
@@ -264,7 +264,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Room:",
+                    Text(AppLocalizations.of(context).translate("Room"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(widget.room?.roomName ?? '',
@@ -285,7 +285,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Check-in Date:",
+                    Text(AppLocalizations.of(context).translate("Check-in Date"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(DateFormat('dd/MM/yyyy').format(checkInDate),
@@ -299,7 +299,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Check-out Date:",
+                    Text(AppLocalizations.of(context).translate("Check-out Date"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(DateFormat('dd/MM/yyyy').format(checkOutDate),
@@ -316,86 +316,12 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                 ),
                 SizedBox(height: 16.h),
 
-                // Room availability information
-                if (isLoadingAvailability) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 20.w,
-                        height: 20.h,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        "Đang kiểm tra phòng trống...",
-                        style:
-                            TextStyle(fontSize: 14.sp, color: AppColors.grey),
-                      ),
-                    ],
-                  ),
-                ] else if (roomAvailability != null) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Phòng trống:",
-                          style: TextStyle(
-                              fontSize: 16.sp, color: AppColors.black)),
-                      Text(
-                          roomAvailability!.hasAvailability
-                              ? "${roomAvailability!.availableRooms} phòng"
-                              : "Hết phòng",
-                          style: TextStyle(
-                              fontSize: 16.sp,
-                              color: roomAvailability!.hasAvailability
-                                  ? Colors.green
-                                  : Colors.red,
-                              fontWeight: FontWeight.w700))
-                    ],
-                  ),
-                  SizedBox(height: 18.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Số đêm:",
-                          style: TextStyle(
-                              fontSize: 16.sp, color: AppColors.black)),
-                      Text("${checkOutDate.difference(checkInDate).inDays} đêm",
-                          style: TextStyle(
-                              fontSize: 16.sp,
-                              color: AppColors.black,
-                              fontWeight: FontWeight.w700))
-                    ],
-                  ),
-                  SizedBox(height: 18.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Giá/đêm:",
-                          style: TextStyle(
-                              fontSize: 16.sp, color: AppColors.black)),
-                      Text(
-                          "${currencyFormat.format(roomAvailability!.price)} ₫",
-                          style: TextStyle(
-                              fontSize: 16.sp,
-                              color: AppColors.black,
-                              fontWeight: FontWeight.w700))
-                    ],
-                  ),
-                ],
-                SizedBox(height: 16.h),
-                const Divider(
-                  thickness: 1,
-                  color: AppColors.grey,
-                ),
-                SizedBox(height: 16.h),
-
                 // Total
                 if (roomAvailability != null) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Tổng cộng:",
+                      Text(AppLocalizations.of(context).translate("Total"),
                           style: TextStyle(
                               fontSize: 16.sp,
                               color: AppColors.black,
@@ -413,7 +339,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
 
                 // Payment methods
                 Text(
-                  "Chọn phương thức thanh toán:",
+                  AppLocalizations.of(context).translate("Payment Method"),
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
@@ -463,8 +389,8 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                       ? () async {
                           if (selectedBank == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Vui lòng chọn phương thức thanh toán'),
+                              SnackBar(
+                                content: Text(AppLocalizations.of(context).translate('Please select a payment method')),
                                 backgroundColor: Colors.red,
                               ),
                             );
@@ -494,15 +420,15 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                               },
                               onError: (response) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Thanh toán MoMo thất bại: ${response.message}'), backgroundColor: Colors.red),
+                                  SnackBar(content: Text(AppLocalizations.of(context).translate('MoMo payment failed:') + ' \\${response.message}'), backgroundColor: Colors.red),
                                 );
                               },
                             );
                           } else {
                             // Các phương thức khác chỉ hiện thông báo Coming soon
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Tính năng này sẽ sớm ra mắt!'),
+                              SnackBar(
+                                content: Text(AppLocalizations.of(context).translate('This feature will be available soon!')),
                                 backgroundColor: Colors.orange,
                               ),
                             );

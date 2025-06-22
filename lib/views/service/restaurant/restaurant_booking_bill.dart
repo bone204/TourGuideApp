@@ -86,7 +86,7 @@ class _RestaurantBookingBillScreenState
         // Tạo bill trong Firestore
         final bill = RestaurantBillModel(
           billId: '', // sẽ generate khi lưu
-          userId: 'current_user_id', // TODO: Get from auth
+          userId: 'current_user_id', 
           restaurantId: widget.restaurant.cooperationId,
           tableId: widget.table.tableId,
           customerName: _customerNameController.text,
@@ -182,7 +182,7 @@ class _RestaurantBookingBillScreenState
           child: Container(
             color: AppColors.white,
             child: Padding(
-              padding: EdgeInsets.only(bottom: 20.h, right: 20.w, left: 20.w),
+              padding: EdgeInsets.only(bottom: 20.h, right: 20.w, left: 20.w, top: 20.h),
               child: Column(children: [
                 // Restaurant image
                 ClipRRect(
@@ -242,7 +242,7 @@ class _RestaurantBookingBillScreenState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Bàn:",
+                    Text(AppLocalizations.of(context).translate("Table:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(widget.table.tableName,
@@ -256,7 +256,7 @@ class _RestaurantBookingBillScreenState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Vị trí:",
+                    Text(AppLocalizations.of(context).translate("Location:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(widget.table.location,
@@ -270,10 +270,10 @@ class _RestaurantBookingBillScreenState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Sức chứa:",
+                    Text(AppLocalizations.of(context).translate("Capacity:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                    Text("${widget.table.capacity} người",
+                    Text('${widget.table.capacity} ' + AppLocalizations.of(context).translate('people'),
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
@@ -284,10 +284,10 @@ class _RestaurantBookingBillScreenState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Giá:",
+                    Text(AppLocalizations.of(context).translate("Price:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                    Text("${currencyFormat.format(widget.table.price)} ₫",
+                    Text('${currencyFormat.format(widget.table.price)} ' + AppLocalizations.of(context).translate('currency'),
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,
@@ -303,7 +303,7 @@ class _RestaurantBookingBillScreenState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Ngày:",
+                    Text(AppLocalizations.of(context).translate("Date:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(
@@ -318,7 +318,7 @@ class _RestaurantBookingBillScreenState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Giờ:",
+                    Text(AppLocalizations.of(context).translate("Time:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(
@@ -333,10 +333,10 @@ class _RestaurantBookingBillScreenState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Số người:",
+                    Text(AppLocalizations.of(context).translate("Number of people:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                    Text("${widget.numberOfPeople}",
+                    Text('${widget.numberOfPeople} ' + AppLocalizations.of(context).translate('people'),
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,

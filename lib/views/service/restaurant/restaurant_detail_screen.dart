@@ -9,6 +9,7 @@ import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/models/cooperation_model.dart';
 //import 'package:tourguideapp/widgets/restaurant_card.dart';
 import 'package:intl/intl.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
 class RestaurantDetailScreen extends StatefulWidget {
   final CooperationModel restaurant;
@@ -214,8 +215,8 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                   },
                                 ),
                                 // Reviews
-                                const Center(
-                                    child: Text("Reviews coming soon")),
+                                Center(
+                                    child: Text(AppLocalizations.of(context).translate("Reviews coming soon"))),
                               ],
                             ),
                           ),

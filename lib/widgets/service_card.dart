@@ -43,17 +43,17 @@ class ServiceCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("S500 Sedan",
+                      Text(AppLocalizations.of(context).translate("S500 Sedan"),
                           style: TextStyle(
                               color: AppColors.black,
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w700)),
                       SizedBox(height: 8.h),
-                      Text("26/11/2024 - 27/11/2024",
+                      Text(AppLocalizations.of(context).translate("26/11/2024 - 27/11/2024"),
                           style: TextStyle(
                               color: AppColors.grey, fontSize: 12.sp)),
                       SizedBox(height: 8.h),
-                      Text("1,000,000 ₫ / day",
+                      Text(AppLocalizations.of(context).translate("1,000,000 ₫ / day"),
                           style: TextStyle(
                               color: AppColors.orange,
                               fontSize: 16.sp,

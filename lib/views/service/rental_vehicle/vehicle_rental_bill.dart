@@ -418,7 +418,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Customer:",
+                    Text(AppLocalizations.of(context).translate("Customer:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(customerName ?? 'Loading...',
@@ -432,7 +432,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Phone Number:",
+                    Text(AppLocalizations.of(context).translate("Phone Number:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(customerPhone ?? 'Loading...',
@@ -446,7 +446,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Owner:",
+                    Text(AppLocalizations.of(context).translate("Owner:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(ownerName ?? 'Loading...',
@@ -460,7 +460,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Phone Number:",
+                    Text(AppLocalizations.of(context).translate("Phone Number:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(ownerPhone ?? 'Loading...',
@@ -479,7 +479,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Selected:",
+                    Text(AppLocalizations.of(context).translate("Selected:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text("1",
@@ -510,7 +510,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Price:",
+                    Text(AppLocalizations.of(context).translate("Price:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Text(
@@ -530,7 +530,7 @@ class _VehicleRentalBillState extends State<VehicleRentalBill> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Total:",
+                    Text(AppLocalizations.of(context).translate("Total:"),
                         style: TextStyle(
                             fontSize: 16.sp,
                             color: AppColors.black,

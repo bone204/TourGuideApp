@@ -148,6 +148,7 @@ class VehicleDetailScreen extends StatelessWidget {
                     }
 
                     if (!snapshot.hasData) {
+                      return Center(child: Text(AppLocalizations.of(context).translate("Error loading vehicle details")));
                       return const Center(child: Text("Error loading vehicle details"));
                     }
 

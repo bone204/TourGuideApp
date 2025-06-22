@@ -92,47 +92,47 @@ class HotelCard extends StatelessWidget {
                       Icon(Icons.local_parking, size: 18.sp, color: Colors.green),
                     ],
                   ),
-                  SizedBox(height: 6.h),
-                  // Địa chỉ
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.location_on, size: 16.sp, color: Colors.blueAccent),
-                      SizedBox(width: 4.w),
-                      Expanded(
-                        child: Text(
-                          hotel.address,
-                          style: TextStyle(fontSize: 13.sp, color: Colors.grey[700]),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 6.h),
-                  // Loại hình & Số lần đặt
-                  Row(
-                    children: [
-                      Icon(Icons.category, size: 15.sp, color: Colors.deepPurple),
-                      SizedBox(width: 4.w),
-                      Text(hotel.type, style: TextStyle(fontSize: 13.sp)),
-                      SizedBox(width: 12.w),
-                      Icon(Icons.shopping_bag, size: 15.sp, color: Colors.orange),
-                      SizedBox(width: 4.w),
-                      Text('Đặt: ${hotel.bookingTimes}', style: TextStyle(fontSize: 13.sp)),
-                    ],
-                  ),
-                  SizedBox(height: 6.h),
+                  SizedBox(height: 12.h),
+                  // // Địa chỉ
+                  // Row(
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   children: [
+                  //     Icon(Icons.location_on, size: 16.sp, color: Colors.blueAccent),
+                  //     SizedBox(width: 4.w),
+                  //     Expanded(
+                  //       child: Text(
+                  //         hotel.address,
+                  //         style: TextStyle(fontSize: 13.sp, color: Colors.grey[700]),
+                  //         maxLines: 2,
+                  //         overflow: TextOverflow.ellipsis,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // SizedBox(height: 6.h),
+                  // // Loại hình & Số lần đặt
+                  // Row(
+                  //   children: [
+                  //     Icon(Icons.category, size: 15.sp, color: Colors.deepPurple),
+                  //     SizedBox(width: 4.w),
+                  //     Text(hotel.type, style: TextStyle(fontSize: 13.sp)),
+                  //     SizedBox(width: 12.w),
+                  //     Icon(Icons.shopping_bag, size: 15.sp, color: Colors.orange),
+                  //     SizedBox(width: 4.w),
+                  //     Text('Đặt: ${hotel.bookingTimes}', style: TextStyle(fontSize: 13.sp)),
+                  //   ],
+                  // ),
+                  // SizedBox(height: 6.h),
                   // Doanh thu
-                  Row(
-                    children: [
-                      Icon(Icons.attach_money, size: 15.sp, color: Colors.green[700]),
-                      SizedBox(width: 4.w),
-                      Text('${hotel.revenue.toStringAsFixed(0)} VNĐ', style: TextStyle(fontSize: 13.sp)),
-                    ],
-                  ),
-                  SizedBox(height: 6.h),
-                  // Phòng trống & Giá
+                  // Row(
+                  //   children: [
+                  //     Icon(Icons.attach_money, size: 15.sp, color: Colors.green[700]),
+                  //     SizedBox(width: 4.w),
+                  //     Text('${hotel.revenue.toStringAsFixed(0)} VNĐ', style: TextStyle(fontSize: 13.sp)),
+                  //   ],
+                  // ),
+                  // SizedBox(height: 6.h),
+                  // // Phòng trống & Giá
                   Row(
                     children: [
                       Container(

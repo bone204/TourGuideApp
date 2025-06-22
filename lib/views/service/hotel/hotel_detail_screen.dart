@@ -8,6 +8,7 @@ import 'package:tourguideapp/widgets/custom_like_button.dart';
 import 'package:provider/provider.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/models/cooperation_model.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
 class HotelDetailScreen extends StatefulWidget {
   final CooperationModel hotel;
@@ -202,7 +203,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                                   ),
                                 ),
                                 // Review
-                                const Center(child: Text("Reviews coming soon")),
+                                Center(child: Text(AppLocalizations.of(context).translate("Reviews coming soon"))),
                                 // Photos
                                 GridView.builder(
                                   gridDelegate:
@@ -223,7 +224,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                                   },
                                 ),
                                 // Videos
-                                const Center(child: Text("Videos coming soon")),
+                                Center(child: Text(AppLocalizations.of(context).translate("Videos coming soon"))),
                               ],
                             ),
                           ),

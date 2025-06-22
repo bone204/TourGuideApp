@@ -310,7 +310,7 @@ class _DeliveryBillState extends State<DeliveryBill> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Delivery Vehicle:",
+                  Text(AppLocalizations.of(context).translate("Delivery Vehicle:"),
                       style:
                           TextStyle(fontSize: 16.sp, color: AppColors.black)),
                   Text(widget.selectedVehicle,
@@ -324,7 +324,7 @@ class _DeliveryBillState extends State<DeliveryBill> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Delivery Brand:",
+                  Text(AppLocalizations.of(context).translate("Delivery Brand:"),
                       style:
                           TextStyle(fontSize: 16.sp, color: AppColors.black)),
                   Text(widget.selectedBrand?.name ?? 'N/A',
@@ -339,7 +339,7 @@ class _DeliveryBillState extends State<DeliveryBill> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Rating:",
+                    Text(AppLocalizations.of(context).translate("Rating:"),
                         style:
                             TextStyle(fontSize: 16.sp, color: AppColors.black)),
                     Row(
@@ -368,7 +368,7 @@ class _DeliveryBillState extends State<DeliveryBill> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Price:",
+                  Text(AppLocalizations.of(context).translate("Price:"),
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
