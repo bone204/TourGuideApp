@@ -65,7 +65,8 @@ class ProvinceCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(59.r),
                     ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
                       child: ConstrainedBox(
                         constraints: BoxConstraints(maxWidth: 140.w),
                         child: Text(
@@ -80,61 +81,6 @@ class ProvinceCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 8.h),
-                  // Rating và Favorite button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
-                          borderRadius: BorderRadius.circular(59.r),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.star,
-                                color: AppColors.yellow,
-                                size: 16.r,
-                              ),
-                              SizedBox(width: 4.w),
-                              Text(
-                                rating.toString(),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 24.r,
-                        height: 24.r,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          constraints: BoxConstraints.tightFor(
-                            width: 24.r,
-                            height: 24.r,
-                          ),
-                          icon: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: isFavorite ? Colors.red : Colors.grey,
-                            size: 14.r,
-                          ),
-                          onPressed: onFavoritePressed,
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),

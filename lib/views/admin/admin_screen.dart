@@ -47,8 +47,10 @@ class _AdminScreenState extends State<AdminScreen> {
   @override
   void initState() {
     super.initState();
-    _oldKeyController = TextEditingController(text: 'AIzaSyB4wRN-Lh1EveSPxRSOL6cgo3QvELheuoQ');
-    _newKeyController = TextEditingController(text: 'AIzaSyAc8DrI4ZfCS8KeaVVvSLDPbvyWTWs4qbw');
+    _oldKeyController =
+        TextEditingController(text: 'AIzaSyB4wRN-Lh1EveSPxRSOL6cgo3QvELheuoQ');
+    _newKeyController =
+        TextEditingController(text: 'AIzaSyAc8DrI4ZfCS8KeaVVvSLDPbvyWTWs4qbw');
     _maxWidthController = TextEditingController(text: '1000');
   }
 
@@ -250,7 +252,8 @@ class _AdminScreenState extends State<AdminScreen> {
       );
       final result = await service.checkUpdateCount();
       setState(() {
-        _photoKeyUpdateStatus = 'Tìm thấy ${result['total']} URL cần cập nhật (DESTINATION: ${result['destination']}, COOPERATION: ${result['cooperation']})';
+        _photoKeyUpdateStatus =
+            'Tìm thấy ${result['total']} URL cần cập nhật (DESTINATION: ${result['destination']}, COOPERATION: ${result['cooperation']})';
       });
     } catch (e) {
       setState(() {
@@ -308,7 +311,8 @@ class _AdminScreenState extends State<AdminScreen> {
         },
       );
       setState(() {
-        _photoKeyUpdateStatus = 'Cập nhật địa điểm hoàn tất: ${result['totalUpdated']}/${result['totalDocuments']} đã cập nhật, ${result['errorCount']} lỗi';
+        _photoKeyUpdateStatus =
+            'Cập nhật địa điểm hoàn tất: ${result['totalUpdated']}/${result['totalDocuments']} đã cập nhật, ${result['errorCount']} lỗi';
         _isUpdatingPhotoKeys = false;
       });
     } catch (e) {
@@ -338,7 +342,8 @@ class _AdminScreenState extends State<AdminScreen> {
         },
       );
       setState(() {
-        _photoKeyUpdateStatus = 'Cập nhật khách sạn/nhà hàng hoàn tất: ${result['totalUpdated']}/${result['totalDocuments']} đã cập nhật, ${result['errorCount']} lỗi';
+        _photoKeyUpdateStatus =
+            'Cập nhật khách sạn/nhà hàng hoàn tất: ${result['totalUpdated']}/${result['totalDocuments']} đã cập nhật, ${result['errorCount']} lỗi';
         _isUpdatingPhotoKeys = false;
       });
     } catch (e) {
@@ -361,7 +366,8 @@ class _AdminScreenState extends State<AdminScreen> {
       );
       final result = await service.checkDownloadCount();
       setState(() {
-        _photoDownloadStatus = 'Tìm thấy ${result['total']} ảnh cần download (DESTINATION: ${result['destination']}, COOPERATION: ${result['cooperation']})';
+        _photoDownloadStatus =
+            'Tìm thấy ${result['total']} ảnh cần download (DESTINATION: ${result['destination']}, COOPERATION: ${result['cooperation']})';
       });
     } catch (e) {
       setState(() {
@@ -423,7 +429,8 @@ class _AdminScreenState extends State<AdminScreen> {
         maxWidth: maxWidth,
       );
       setState(() {
-        _photoDownloadStatus = 'Download địa điểm hoàn tất: ${result['totalUpdated']}/${result['totalDocuments']} đã cập nhật, ${result['errorCount']} lỗi';
+        _photoDownloadStatus =
+            'Download địa điểm hoàn tất: ${result['totalUpdated']}/${result['totalDocuments']} đã cập nhật, ${result['errorCount']} lỗi';
         _isDownloadingPhotos = false;
       });
     } catch (e) {
@@ -455,7 +462,8 @@ class _AdminScreenState extends State<AdminScreen> {
         maxWidth: maxWidth,
       );
       setState(() {
-        _photoDownloadStatus = 'Download khách sạn/nhà hàng hoàn tất: ${result['totalUpdated']}/${result['totalDocuments']} đã cập nhật, ${result['errorCount']} lỗi';
+        _photoDownloadStatus =
+            'Download khách sạn/nhà hàng hoàn tất: ${result['totalUpdated']}/${result['totalDocuments']} đã cập nhật, ${result['errorCount']} lỗi';
         _isDownloadingPhotos = false;
       });
     } catch (e) {
@@ -729,7 +737,9 @@ class _AdminScreenState extends State<AdminScreen> {
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: _isUpdatingPhotoKeys ? null : _checkPhotoKeyUpdateCount,
+                            onPressed: _isUpdatingPhotoKeys
+                                ? null
+                                : _checkPhotoKeyUpdateCount,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,
                               foregroundColor: Colors.white,
@@ -740,7 +750,9 @@ class _AdminScreenState extends State<AdminScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: _isUpdatingPhotoKeys ? null : _updateDestinationPhotoKeys,
+                            onPressed: _isUpdatingPhotoKeys
+                                ? null
+                                : _updateDestinationPhotoKeys,
                             child: const Text('Cập Nhật Địa Điểm'),
                           ),
                         ),
@@ -751,14 +763,18 @@ class _AdminScreenState extends State<AdminScreen> {
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: _isUpdatingPhotoKeys ? null : _updateCooperationPhotoKeys,
+                            onPressed: _isUpdatingPhotoKeys
+                                ? null
+                                : _updateCooperationPhotoKeys,
                             child: const Text('Cập Nhật Khách Sạn/Nhà Hàng'),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: _isUpdatingPhotoKeys ? null : _updateAllPhotoKeys,
+                            onPressed: _isUpdatingPhotoKeys
+                                ? null
+                                : _updateAllPhotoKeys,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.orange,
                               foregroundColor: Colors.white,
@@ -796,7 +812,8 @@ class _AdminScreenState extends State<AdminScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Max Width (px)',
                         border: OutlineInputBorder(),
-                        helperText: 'Kích thước tối đa của ảnh (mặc định: 1000)',
+                        helperText:
+                            'Kích thước tối đa của ảnh (mặc định: 1000)',
                       ),
                       controller: _maxWidthController,
                       keyboardType: TextInputType.number,
@@ -815,7 +832,9 @@ class _AdminScreenState extends State<AdminScreen> {
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: _isDownloadingPhotos ? null : _checkPhotoDownloadCount,
+                            onPressed: _isDownloadingPhotos
+                                ? null
+                                : _checkPhotoDownloadCount,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,
                               foregroundColor: Colors.white,
@@ -826,7 +845,9 @@ class _AdminScreenState extends State<AdminScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: _isDownloadingPhotos ? null : _downloadDestinationPhotos,
+                            onPressed: _isDownloadingPhotos
+                                ? null
+                                : _downloadDestinationPhotos,
                             child: const Text('Download Địa Điểm'),
                           ),
                         ),
@@ -837,14 +858,18 @@ class _AdminScreenState extends State<AdminScreen> {
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: _isDownloadingPhotos ? null : _downloadCooperationPhotos,
+                            onPressed: _isDownloadingPhotos
+                                ? null
+                                : _downloadCooperationPhotos,
                             child: const Text('Download Khách Sạn/Nhà Hàng'),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: _isDownloadingPhotos ? null : _downloadAllPhotos,
+                            onPressed: _isDownloadingPhotos
+                                ? null
+                                : _downloadAllPhotos,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.orange,
                               foregroundColor: Colors.white,
@@ -857,6 +882,21 @@ class _AdminScreenState extends State<AdminScreen> {
                   ],
                 ),
               ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () async {
+                final service = PlacesImportService(
+                  apiKey: googleApiKey,
+                  firestore: FirebaseFirestore.instance,
+                );
+                await service.updateProvinceImages();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Đã cập nhật ảnh cho các tỉnh!')),
+                );
+              },
+              child: const Text('Cập nhật ảnh tỉnh từ Storage'),
             ),
           ],
         ),
