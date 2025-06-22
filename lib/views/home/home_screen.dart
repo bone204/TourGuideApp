@@ -9,7 +9,6 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
 import 'package:tourguideapp/views/admin/admin_screen.dart';
 import 'package:tourguideapp/views/chat/chat.dart';
-import 'package:tourguideapp/views/momo_payment/momo_screen.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/home_navigator.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
@@ -22,6 +21,9 @@ import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/views/home/search_screen.dart';
 import 'package:tourguideapp/widgets/shimmer_cards.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:tourguideapp/views/notification/notification_screen.dart';
+import 'package:tourguideapp/services/notification_service.dart';
+import 'package:tourguideapp/services/user_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -40,7 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final PageController _pageController = PageController();
   int _currentPageIndex = 0;
 
-  // Thêm biến cho vị trí floating button
   double _fabRight = 20;
   double _fabBottom = 40;
   double? _initX, _initY;
@@ -56,12 +57,70 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoadingProvince = false;
   bool _isLoadingInspiration = false;
 
+  // Thêm biến cho notification
+  final NotificationService _notificationService = NotificationService();
+  final UserService _userService = UserService();
+  int _unreadNotificationCount = 0;
+  Timer? _notificationTimer;
+  String? _currentUserId;
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
     _popularScrollController.addListener(_onPopularScroll);
     _provinceScrollController.addListener(_onProvinceScroll);
+    _initializeNotificationService();
+  }
+
+  Future<void> _initializeNotificationService() async {
+    try {
+      await _notificationService.initialize();
+      // Lấy user ID từ UserService
+      _currentUserId = await _userService.getCurrentUserId();
+      print('Debug: Initialized notification service, User ID: $_currentUserId');
+      
+      if (_currentUserId != null) {
+        await _notificationService.registerUserToken(_currentUserId!);
+        _startNotificationTimer();
+      } else {
+        print('Debug: No user ID found, using test user ID');
+        // Sử dụng test user ID nếu không có user đăng nhập
+        _currentUserId = 'test_user_${DateTime.now().millisecondsSinceEpoch}';
+        await _userService.saveCurrentUserId(_currentUserId!);
+        await _notificationService.registerUserToken(_currentUserId!);
+        _startNotificationTimer();
+      }
+    } catch (e) {
+      print('Error initializing notification service: $e');
+    }
+  }
+
+  void _startNotificationTimer() {
+    _notificationTimer?.cancel();
+    _notificationTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      _loadUnreadNotificationCount();
+    });
+    // Load ngay lập tức
+    _loadUnreadNotificationCount();
+  }
+
+  Future<void> _loadUnreadNotificationCount() async {
+    if (_currentUserId != null) {
+      try {
+        final count = await _notificationService.getUnreadNotificationCount(_currentUserId!);
+        print('Debug: User ID: $_currentUserId, Unread count: $count');
+        if (mounted && count != _unreadNotificationCount) {
+          setState(() {
+            _unreadNotificationCount = count;
+          });
+        }
+      } catch (e) {
+        print('Error loading unread notification count: $e');
+      }
+    } else {
+      print('Debug: Current user ID is null');
+    }
   }
 
   @override
@@ -153,6 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _pageController.dispose();
     _popularScrollController.dispose();
     _provinceScrollController.dispose();
+    _notificationTimer?.cancel();
     super.dispose();
   }
 
@@ -494,6 +554,59 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       SizedBox(width: 16.w),
+                      // Notification button with badge
+                      Stack(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              if (_currentUserId != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => NotificationScreen(
+                                      userId: _currentUserId!,
+                                    ),
+                                  ),
+                                ).then((_) {
+                                  // Reload notification count when returning from notification screen
+                                  _loadUnreadNotificationCount();
+                                });
+                              }
+                            },
+                            child: Icon(
+                              Icons.notifications_none,
+                              color: AppColors.white,
+                              size: 28.sp,
+                            ),
+                          ),
+                          if (_unreadNotificationCount > 0)
+                            Positioned(
+                              right: 0,
+                              top: 0,
+                              child: Container(
+                                padding: EdgeInsets.all(4.w),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                                constraints: BoxConstraints(
+                                  minWidth: 20.w,
+                                  minHeight: 20.h,
+                                ),
+                                child: Text(
+                                  _unreadNotificationCount > 99 ? '99+' : _unreadNotificationCount.toString(),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      SizedBox(width: 12.w),
                       GestureDetector(
                         onTap: () {
                           Navigator.push(
@@ -503,23 +616,49 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           );
                         },
-                        child: Icon(
-                          Icons.notifications_none,
-                          color: AppColors.white,
-                          size: 28.sp,
-                        ),
+                        child: Icon(Icons.payment, size: 28.sp, color: AppColors.white)
                       ),
                       SizedBox(width: 12.w),
+                      // Test notification button
                       GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MomoScreen(),
-                            ),
-                          );
+                        onTap: () async {
+                          try {
+                            if (_currentUserId != null) {
+                              await _notificationService.sendNotificationToUser(
+                                userId: _currentUserId!,
+                                title: 'Test Notification',
+                                body: 'This is a test notification to check if the system works!',
+                                serviceType: 'test',
+                                serviceId: 'test_001',
+                                serviceName: 'Test Service',
+                                additionalData: {'test': true},
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Test notification sent!'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                              // Reload notification count
+                              _loadUnreadNotificationCount();
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('No user ID found!'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Test notification failed: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                         },
-                        child: Icon(Icons.payment, size: 28.sp, color: AppColors.white)
+                        child: Icon(Icons.bug_report, size: 28.sp, color: AppColors.white)
                       ),
                     ],
                   ),

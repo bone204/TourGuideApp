@@ -54,6 +54,7 @@ dependencies:
   google_generative_ai: ^0.2.0
   url_launcher: ^6.2.5
   fluttertoast: ^8.2.12
+  flutter_local_notifications: ^19.3.0
   momo_vn:
     path: packages/momo_vn
 
