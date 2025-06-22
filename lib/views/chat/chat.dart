@@ -8,6 +8,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tourguideapp/core/services/gemini_service.dart';
 import 'package:intl/intl.dart';
+import 'package:tourguideapp/widgets/home_card_list_view.dart';
+import 'package:tourguideapp/widgets/home_card.dart';
+import 'dart:convert';
 
 class Chat extends StatefulWidget {
   const Chat({super.key});
@@ -25,6 +28,83 @@ class _ChatState extends State<Chat> {
   bool _isLoading = false;
   String? _errorMessage;
   bool _isAITyping = false;
+  List<String> _serviceIntents = [];
+
+  // Mapping intent sang thông tin dịch vụ
+  final List<Map<String, dynamic>> chatbotServices = [
+    {
+      "intent": "car_rental",
+      "label": "Thuê xe ô tô tự lái",
+      "imageUrl": "assets/img/car_home.png",
+      "description": "Thuê xe ô tô tự lái",
+      "navigate": (BuildContext context) {
+        Navigator.pushNamed(context, "/car_rental");
+      }
+    },
+    {
+      "intent": "motorbike_rental",
+      "label": "Thuê xe máy tự lái",
+      "imageUrl": "assets/img/motorbike_home.png",
+      "description": "Thuê xe máy tự lái",
+      "navigate": (BuildContext context) {
+        Navigator.pushNamed(context, "/motorbike_rental");
+      }
+    },
+    {
+      "intent": "custom_route",
+      "label": "Tạo lộ trình du lịch",
+      "imageUrl": "assets/img/travel_home.png",
+      "description": "Tạo lộ trình du lịch cho riêng bạn",
+      "navigate": (BuildContext context) {
+        Navigator.pushNamed(context, "/travel");
+      }
+    },
+    {
+      "intent": "restaurant_booking",
+      "label": "Đặt bàn nhà hàng",
+      "imageUrl": "assets/img/restaurant_home.png",
+      "description": "Đặt bàn nhà hàng",
+      "navigate": (BuildContext context) {
+        Navigator.pushNamed(context, "/restaurant");
+      }
+    },
+    {
+      "intent": "hotel_booking",
+      "label": "Đặt phòng khách sạn",
+      "imageUrl": "assets/img/hotel_home.png",
+      "description": "Đặt phòng khách sạn",
+      "navigate": (BuildContext context) {
+        Navigator.pushNamed(context, "/hotel");
+      }
+    },
+    {
+      "intent": "delivery",
+      "label": "Đặt chuyển phát nhanh",
+      "imageUrl": "assets/img/delivery_home.png",
+      "description": "Đặt chuyển phát nhanh",
+      "navigate": (BuildContext context) {
+        Navigator.pushNamed(context, "/delivery");
+      }
+    },
+    {
+      "intent": "find_eatery",
+      "label": "Tìm quán ăn ngon",
+      "imageUrl": "assets/img/eatery_home.png",
+      "description": "Tìm quán ăn ngon",
+      "navigate": (BuildContext context) {
+        Navigator.pushNamed(context, "/eatery");
+      }
+    },
+    {
+      "intent": "bus_ticket",
+      "label": "Đặt mua vé xe",
+      "imageUrl": "assets/img/bus_home.png",
+      "description": "Đặt mua vé xe",
+      "navigate": (BuildContext context) {
+        Navigator.pushNamed(context, "/bus");
+      }
+    },
+  ];
 
   @override
   void initState() {
@@ -56,16 +136,74 @@ class _ChatState extends State<Chat> {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      // Gọi GeminiService để lấy phản hồi AI
+      // Xử lý nếu là câu hỏi về ảnh địa điểm
+      final lowerMsg = userMessage.toLowerCase();
+      if (lowerMsg.contains('ảnh của') ||
+          lowerMsg.contains('hình của') ||
+          lowerMsg.contains('xem ảnh') ||
+          lowerMsg.contains('xem hình')) {
+        // Tách tên địa điểm từ câu hỏi
+        final RegExp reg = RegExp(r'(?:ảnh|hình|xem ảnh|xem hình) của (.+)',
+            caseSensitive: false);
+        String? destinationName;
+        final match = reg.firstMatch(lowerMsg);
+        if (match != null && match.groupCount >= 1) {
+          destinationName = match.group(1)?.trim();
+        } else {
+          // fallback: lấy từ cuối câu
+          final parts = lowerMsg.split('của');
+          if (parts.length > 1) destinationName = parts.last.trim();
+        }
+        if (destinationName != null && destinationName.isNotEmpty) {
+          final photos =
+              await _geminiService.getPhotosOfDestination(destinationName);
+          // Nếu không có ảnh thì trả về text thông báo
+          if (photos.isEmpty) {
+            await _firestore.collection('chats').add({
+              'userId': _auth.currentUser?.uid,
+              'message': 'Không tìm thấy ảnh cho địa điểm "$destinationName"',
+              'type': 'text',
+              'isUser': false,
+              'timestamp': FieldValue.serverTimestamp(),
+            });
+          } else {
+            await _firestore.collection('chats').add({
+              'userId': _auth.currentUser?.uid,
+              'message': jsonEncode(photos),
+              'type': 'image',
+              'isUser': false,
+              'timestamp': FieldValue.serverTimestamp(),
+            });
+          }
+          setState(() {
+            _isLoading = false;
+            _isAITyping = false;
+          });
+          return;
+        }
+      }
+
+      // Gọi GeminiService để lấy phản hồi AI như bình thường
       final aiResponse = await _geminiService.askGemini(userMessage);
 
-      // Lưu phản hồi của AI vào Firebase
-      await _firestore.collection('chats').add({
-        'userId': _auth.currentUser?.uid,
-        'message': aiResponse,
-        'isUser': false,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+      // Parse intent nếu có
+      _serviceIntents.clear();
+      try {
+        // Nếu Gemini trả về JSON intent
+        if (aiResponse.trim().startsWith('{') &&
+            aiResponse.trim().endsWith('}')) {
+          final Map<String, dynamic> data = aiResponse.contains('intent')
+              ? Map<String, dynamic>.from(jsonDecode(aiResponse))
+              : {};
+          if (data.isNotEmpty && data['intent'] == 'navigate_to') {
+            if (data['services'] is List) {
+              _serviceIntents = List<String>.from(data['services']);
+            } else if (data['screen'] is String) {
+              _serviceIntents = [data['screen']];
+            }
+          }
+        }
+      } catch (_) {}
     } catch (e) {
       setState(() {
         _errorMessage = 'Lỗi: $e';
@@ -96,7 +234,7 @@ class _ChatState extends State<Chat> {
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
-    
+
     if (_errorMessage != null) {
       return Scaffold(
         appBar: CustomAppBar(
@@ -130,6 +268,28 @@ class _ChatState extends State<Chat> {
         color: AppColors.white,
         child: Column(
           children: [
+            if (_serviceIntents.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: HomeCardListView(
+                  cardDataList: chatbotServices
+                      .where((service) =>
+                          _serviceIntents.contains(service["intent"]))
+                      .map((service) => HomeCardData(
+                            imageUrl: service["imageUrl"],
+                            placeName: service["label"],
+                            description: service["description"],
+                            rating: 0,
+                            favouriteTimes: 0,
+                          ))
+                      .toList(),
+                  onCardTap: (card) {
+                    final service = chatbotServices
+                        .firstWhere((s) => s["label"] == card.placeName);
+                    service["navigate"](context);
+                  },
+                ),
+              ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: _firestore
@@ -138,10 +298,12 @@ class _ChatState extends State<Chat> {
                     .orderBy('timestamp', descending: false)
                     .snapshots(),
                 builder: (context, snapshot) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+                  WidgetsBinding.instance
+                      .addPostFrameCallback((_) => _scrollToBottom());
                   if (snapshot.hasError) {
                     final error = snapshot.error.toString();
-                    if (error.contains('FAILED_PRECONDITION') && error.contains('index')) {
+                    if (error.contains('FAILED_PRECONDITION') &&
+                        error.contains('index')) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -165,7 +327,9 @@ class _ChatState extends State<Chat> {
                                   await launchUrl(url);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Không thể mở trình duyệt')),
+                                    const SnackBar(
+                                        content:
+                                            Text('Không thể mở trình duyệt')),
                                   );
                                 }
                               },
@@ -175,17 +339,19 @@ class _ChatState extends State<Chat> {
                         ),
                       );
                     }
-                    return Center(child: Text('Đã xảy ra lỗi: \\${snapshot.error}'));
+                    return Center(
+                        child: Text('Đã xảy ra lỗi: \\${snapshot.error}'));
                   }
-        
+
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
-        
+
                   final docs = snapshot.data?.docs ?? [];
                   return ListView.builder(
                     controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                     itemCount: docs.length + (_isAITyping ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (_isAITyping && index == docs.length) {
@@ -198,7 +364,8 @@ class _ChatState extends State<Chat> {
                               _buildAvatar(false),
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 18),
                                 margin: const EdgeInsets.symmetric(vertical: 4),
                                 decoration: BoxDecoration(
                                   color: Colors.grey[200],
@@ -220,7 +387,9 @@ class _ChatState extends State<Chat> {
                                   width: 36,
                                   child: Row(
                                     children: [
-                                      _TypingDot(), _TypingDot(delay: 200), _TypingDot(delay: 400),
+                                      _TypingDot(),
+                                      _TypingDot(delay: 200),
+                                      _TypingDot(delay: 400),
                                     ],
                                   ),
                                 ),
@@ -236,11 +405,41 @@ class _ChatState extends State<Chat> {
                       final timeString = timestamp != null
                           ? DateFormat('HH:mm').format(timestamp.toDate())
                           : '';
+                      final type = data['type'] ?? 'text';
+                      if (type == 'image') {
+                        final List<dynamic> images =
+                            jsonDecode(data['message']);
+                        return Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: images
+                              .map<Widget>((url) => ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      url,
+                                      width: 120,
+                                      height: 90,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stack) =>
+                                          Container(
+                                        width: 120,
+                                        height: 90,
+                                        color: Colors.grey[300],
+                                        child: Icon(Icons.broken_image),
+                                      ),
+                                    ),
+                                  ))
+                              .toList(),
+                        );
+                      }
                       return Align(
-                        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                        alignment: isUser
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
                         child: Row(
-                          mainAxisAlignment:
-                              isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+                          mainAxisAlignment: isUser
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             if (!isUser) _buildAvatar(false),
@@ -248,12 +447,17 @@ class _ChatState extends State<Chat> {
                             Flexible(
                               child: Container(
                                 margin: const EdgeInsets.symmetric(vertical: 4),
-                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
-                                constraints: const BoxConstraints(maxWidth: 320),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 18),
+                                constraints:
+                                    const BoxConstraints(maxWidth: 320),
                                 decoration: BoxDecoration(
                                   gradient: isUser
                                       ? const LinearGradient(
-                                          colors: [Color(0xFF4F8FFF), Color(0xFF1CB5E0)],
+                                          colors: [
+                                            Color(0xFF4F8FFF),
+                                            Color(0xFF1CB5E0)
+                                          ],
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                         )
@@ -281,7 +485,9 @@ class _ChatState extends State<Chat> {
                                     Text(
                                       data['message'] as String,
                                       style: TextStyle(
-                                        color: isUser ? Colors.white : Colors.black87,
+                                        color: isUser
+                                            ? Colors.white
+                                            : Colors.black87,
                                         fontSize: 16,
                                       ),
                                     ),
@@ -335,7 +541,10 @@ class _ChatState extends State<Chat> {
                     ),
                     IconButton(
                       icon: Icon(Icons.send_rounded,
-                          color: _isLoading ? Colors.grey : const Color(0xFF4F8FFF), size: 28),
+                          color: _isLoading
+                              ? Colors.grey
+                              : const Color(0xFF4F8FFF),
+                          size: 28),
                       onPressed: _isLoading ? null : _sendMessage,
                     ),
                   ],
@@ -373,7 +582,8 @@ class _TypingDot extends StatefulWidget {
   State<_TypingDot> createState() => _TypingDotState();
 }
 
-class _TypingDotState extends State<_TypingDot> with SingleTickerProviderStateMixin {
+class _TypingDotState extends State<_TypingDot>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -406,7 +616,8 @@ class _TypingDotState extends State<_TypingDot> with SingleTickerProviderStateMi
         padding: EdgeInsets.symmetric(horizontal: 1.5),
         child: Text(
           '.',
-          style: TextStyle(fontSize: 28, color: Colors.black54, fontWeight: FontWeight.w700),
+          style: TextStyle(
+              fontSize: 28, color: Colors.black54, fontWeight: FontWeight.w700),
         ),
       ),
     );
