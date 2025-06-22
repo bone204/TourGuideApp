@@ -5,16 +5,22 @@ import 'package:tourguideapp/core/constants/app_colors.dart';
 class RouteCard extends StatelessWidget {
   final String name;
   final String imagePath;
-  final double rating;
+  final DateTime startDate;
+  final DateTime endDate;
   final VoidCallback? onTap;
 
   const RouteCard({
     Key? key,
     required this.name,
     required this.imagePath,
-    required this.rating,
+    required this.startDate,
+    required this.endDate,
     this.onTap,
   }) : super(key: key);
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +62,7 @@ class RouteCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Tên tỉnh
+                  // Tên route
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.primaryColor,
@@ -80,7 +86,7 @@ class RouteCard extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 8.h),
-                  // Rating và Favorite button
+                  // Ngày bắt đầu và kết thúc
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.primaryColor,
@@ -94,13 +100,13 @@ class RouteCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              Icons.star,
-                              color: AppColors.yellow,
-                              size: 16.r,
+                              Icons.calendar_today,
+                              color: Colors.white,
+                              size: 14.r,
                             ),
                             SizedBox(width: 4.w),
                             Text(
-                              rating.toString(),
+                              '${_formatDate(startDate)} - ${_formatDate(endDate)}',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 10.sp,

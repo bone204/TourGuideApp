@@ -162,7 +162,8 @@ class TravelScreenContent extends StatelessWidget {
             child: RouteCard(
               name: route.routeName,
               imagePath: 'assets/img/bg_route_${index % 4 + 1}.png', 
-              rating: 5.0, 
+              startDate: route.createdDate,
+              endDate: route.createdDate.add(Duration(days: route.numberOfDays - 1)),
               onTap: () {
                 Navigator.push(
                   context,

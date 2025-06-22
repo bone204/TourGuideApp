@@ -41,34 +41,34 @@ class TravelRouteModel {
       print('Processing day: $key, value: $value');
       return MapEntry(
         key,
-        (value as List<dynamic>).map((e) {
-          print('Processing destination: $e');
-          if (e is Map<String, dynamic>) {
-            final result = <String, dynamic>{
-              'destinationId': e['destinationId']?.toString() ?? '',
-              'uniqueId': e['uniqueId']?.toString() ?? '',
-              'startTime': e['startTime']?.toString() ?? '08:00',
-              'endTime': e['endTime']?.toString() ?? '09:00',
-              'images': (e['images'] as List<dynamic>?)?.cast<String>() ?? [],
-              'videos': (e['videos'] as List<dynamic>?)?.cast<String>() ?? [],
-              'notes': e['notes']?.toString() ?? '',
-            };
-            print('Parsed destination: $result');
-            return result;
-          } else {
-            final result = <String, dynamic>{
-              'destinationId': e.toString(),
-              'uniqueId': '${e.toString()}_${DateTime.now().millisecondsSinceEpoch}',
-              'startTime': '08:00',
-              'endTime': '09:00',
-              'images': <String>[],
-              'videos': <String>[],
-              'notes': '',
-            };
-            print('Parsed simple destination: $result');
-            return result;
-          }
-        }).toList(),
+        (value as List<dynamic>)
+            .map((e) {
+              print('Processing destination: $e');
+              if (e is Map<String, dynamic>) {
+                if (e['startTime'] == null || e['endTime'] == null ||
+                    e['startTime'].toString().isEmpty || e['endTime'].toString().isEmpty) {
+                  print('LỖI: Địa điểm thiếu trường startTime hoặc endTime, bỏ qua: $e');
+                  return null;
+                }
+                final result = <String, dynamic>{
+                  'destinationId': e['destinationId']?.toString() ?? '',
+                  'uniqueId': e['uniqueId']?.toString() ?? '',
+                  'startTime': e['startTime'].toString(),
+                  'endTime': e['endTime'].toString(),
+                  'images': (e['images'] as List<dynamic>?)?.cast<String>() ?? [],
+                  'videos': (e['videos'] as List<dynamic>?)?.cast<String>() ?? [],
+                  'notes': e['notes']?.toString() ?? '',
+                };
+                print('Parsed destination: $result');
+                return result;
+              } else {
+                print('LỖI: Địa điểm không phải map, bỏ qua: $e');
+                return null;
+              }
+            })
+            .where((e) => e != null)
+            .cast<Map<String, dynamic>>()
+            .toList(),
       );
     });
 

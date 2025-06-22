@@ -94,10 +94,20 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
     if (picked != null) {
       setState(() {
         if (isStartTime) {
+          if (picked.hour >= 23) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppLocalizations.of(context).translate('Start time must be before 23:00')),
+                backgroundColor: Colors.red.shade400,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+              ),
+            );
+            return;
+          }
           startTime = picked;
           // Nếu thời gian bắt đầu lớn hơn hoặc bằng thời gian kết thúc
           if (_compareTimeOfDay(startTime, endTime) >= 0) {
-            // Tự động đặt thời gian kết thúc là 1 giờ sau thời gian bắt đầu
             endTime = TimeOfDay(
               hour: (startTime.hour + 1) % 24,
               minute: startTime.minute,
@@ -106,10 +116,9 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
         } else {
           // Nếu thời gian kết thúc nhỏ hơn hoặc bằng thời gian bắt đầu
           if (_compareTimeOfDay(picked, startTime) <= 0) {
-            // Hiển thị thông báo lỗi
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Thời gian kết thúc phải lớn hơn thời gian bắt đầu'),
+                content: Text(AppLocalizations.of(context).translate('End time must be greater than start time')),
                 backgroundColor: Colors.red.shade400,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
@@ -117,7 +126,12 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
             );
             return;
           }
-          endTime = picked;
+          // Giới hạn end time tối đa là 23:59
+          if (picked.hour == 23 && picked.minute > 59) {
+            endTime = const TimeOfDay(hour: 23, minute: 59);
+          } else {
+            endTime = picked;
+          }
         }
       });
     }
@@ -150,7 +164,7 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lỗi khi chọn ảnh: $e'),
+          content: Text('${AppLocalizations.of(context).translate('Error selecting image')}: $e'),
           backgroundColor: Colors.red.shade400,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
@@ -176,7 +190,7 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lỗi khi chụp ảnh: $e'),
+          content: Text('${AppLocalizations.of(context).translate('Error taking photo')}: $e'),
           backgroundColor: Colors.red.shade400,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
@@ -200,7 +214,7 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lỗi khi chọn video: $e'),
+          content: Text('${AppLocalizations.of(context).translate('Error selecting video')}: $e'),
           backgroundColor: Colors.red.shade400,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
@@ -224,7 +238,7 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lỗi khi quay video: $e'),
+          content: Text('${AppLocalizations.of(context).translate('Error recording video')}: $e'),
           backgroundColor: Colors.red.shade400,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
@@ -264,7 +278,43 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
     print('Videos to save: $_videos');
     print('Start time: ${_formatTimeOfDay(startTime)}');
     print('End time: ${_formatTimeOfDay(endTime)}');
-    
+    // Kiểm tra thời gian hợp lệ
+    final startMinutes = startTime.hour * 60 + startTime.minute;
+    final endMinutes = endTime.hour * 60 + endTime.minute;
+    if (endMinutes <= startMinutes) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).translate('End time must be greater than start time')),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        ),
+      );
+      return;
+    }
+    if (endMinutes - startMinutes < 60) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).translate('Each destination must be at least 1 hour')),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        ),
+      );
+      return;
+    }
+    // Không cho phép qua ngày (endTime < startTime)
+    if (endTime.hour < startTime.hour || (endTime.hour == startTime.hour && endTime.minute < startTime.minute)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).translate('End time cannot be on the next day')),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        ),
+      );
+      return;
+    }
     // Cập nhật cả thời gian và thông tin chi tiết
     widget.onUpdateTime(
       _formatTimeOfDay(startTime),
@@ -293,15 +343,15 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
                     children: [
                       Icon(Icons.warning, color: Colors.red.shade600),
                       SizedBox(width: 8.w),
-                      const Text('Xác nhận xóa'),
+                      Text(AppLocalizations.of(context).translate('Confirm Delete')),
                     ],
                   ),
-                  content: const Text('Bạn có chắc chắn muốn xóa địa điểm này không?'),
+                  content: Text(AppLocalizations.of(context).translate('Are you sure you want to delete this destination?')),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(false),
                       child: Text(
-                        'Hủy',
+                        AppLocalizations.of(context).translate('Cancel'),
                         style: TextStyle(color: Colors.grey.shade600),
                       ),
                     ),
@@ -312,7 +362,7 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
                       ),
-                      child: const Text('Xóa'),
+                      child: Text(AppLocalizations.of(context).translate('Delete')),
                     ),
                   ],
                 ),
@@ -358,7 +408,7 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
                                 children: [
                                   Expanded(
                                     child: _buildTimeSelector(
-                                      'Thời gian bắt đầu',
+                                      AppLocalizations.of(context).translate('Start time'),
                                       _formatTimeOfDay(startTime),
                                       () => _selectTime(context, true),
                                       Colors.blue.shade50,
@@ -368,7 +418,7 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
                                   SizedBox(width: 16.w),
                                   Expanded(
                                     child: _buildTimeSelector(
-                                      'Thời gian kết thúc',
+                                      AppLocalizations.of(context).translate('End time'),
                                       _formatTimeOfDay(endTime),
                                       () => _selectTime(context, false),
                                       Colors.green.shade50,
@@ -801,7 +851,7 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
             Icon(Icons.save, size: 20.sp),
             SizedBox(width: 8.w),
             Text(
-              'Lưu tất cả',
+              AppLocalizations.of(context).translate('Save all'),
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w700,

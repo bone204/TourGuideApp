@@ -9,6 +9,7 @@ import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/range_date_time_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
 class SuggestRouteScreen extends StatefulWidget{
   final String provinceName;
@@ -23,8 +24,8 @@ class SuggestRouteScreen extends StatefulWidget{
 }
 
 class _SuggestRouteScreenState extends State<SuggestRouteScreen>{
-  DateTime _startDate = DateTime.now();
-  DateTime _endDate = DateTime.now().add(const Duration(days: 1));
+  DateTime _startDate = DateTime.now().add(const Duration(days: 2));
+  DateTime _endDate = DateTime.now().add(const Duration(days: 3));
 
   int _calculateNumberOfDays() {
     return _endDate.difference(_startDate).inDays + 1;
@@ -95,7 +96,7 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen>{
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Về ${widget.provinceName}',
+                                '${AppLocalizations.of(context).translate('About')} ${widget.provinceName}',
                                 style: TextStyle(
                                   fontSize: 18.sp,
                                   fontWeight: FontWeight.w700,
@@ -104,7 +105,7 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen>{
                               ),
                               SizedBox(height: 10.h),
                               Text(
-                                '${widget.provinceName} là một điểm đến tuyệt vời với nhiều danh lam thắng cảnh đẹp, văn hóa đặc sắc và ẩm thực phong phú. Nơi đây thu hút du khách bởi những cảnh quan thiên nhiên hùng vĩ, di tích lịch sử quan trọng và con người thân thiện, hiếu khách.',
+                                '${widget.provinceName} ${AppLocalizations.of(context).translate('is a wonderful destination with many beautiful landscapes, unique culture and rich cuisine. This place attracts tourists with majestic natural scenery, important historical sites and friendly, hospitable people.')}',
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   color: AppColors.white,
@@ -113,7 +114,7 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen>{
                               ),
                               SizedBox(height: 15.h),
                               Text(
-                                'Hãy chọn thời gian phù hợp và để chúng tôi tạo ra một lộ trình du lịch hoàn hảo cho bạn khám phá ${widget.provinceName}!',
+                                '${AppLocalizations.of(context).translate('Choose a suitable time and let us create a perfect travel itinerary for you to explore')} ${widget.provinceName}!',
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   color: AppColors.white,
@@ -131,7 +132,7 @@ class _SuggestRouteScreenState extends State<SuggestRouteScreen>{
                   Padding(
                     padding: EdgeInsets.only(left: 20.w, top: 20.h, right: 20.w, bottom: 30.h),
                     child: CustomElevatedButton(
-                      text: 'Create Custom Route',
+                      text: AppLocalizations.of(context).translate('Create Custom Route'),
                       onPressed: () async {
                         final routeName = await context.read<TravelBloc>().generateRouteName();
                         Navigator.push(

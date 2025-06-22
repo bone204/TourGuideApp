@@ -16,6 +16,7 @@ import 'package:tourguideapp/widgets/destination_route_card.dart';
 import 'package:tourguideapp/core/utils/time_slot_manager.dart';
 import 'package:tourguideapp/views/service/travel/destination_edit_screen.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
+import 'package:tourguideapp/models/destination_model.dart';
 
 class RouteDetailScreen extends StatefulWidget {
   final String routeName;
@@ -37,20 +38,39 @@ class RouteDetailScreen extends StatefulWidget {
 
 class _RouteDetailScreenState extends State<RouteDetailScreen> {
   late List<String> categories;
+  late List<String> dayKeys;
   late String selectedCategory;
+  bool _isInitialized = false;
+  bool _showSuccessSnackbar = false;
 
   @override
   void initState() {
     super.initState();
-    categories = List.generate(widget.numberOfDays, (index) {
-      return 'Day ${index + 1}';
-    });
-    selectedCategory = categories.first;
+    // KHÔNG khởi tạo categories ở đây nữa!
+    dayKeys = List.generate(widget.numberOfDays, (index) => 'Day ${index + 1}');
+  }
 
-    // Load destinations ngay khi vào màn hình
-    if (widget.existingRouteId != null) {
-      print('Requesting destinations for route: ${widget.existingRouteId}');
-      context.read<TravelBloc>().add(LoadRouteDestinations(widget.existingRouteId!));
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      categories = List.generate(widget.numberOfDays, (index) {
+        return '${AppLocalizations.of(context).translate('Day')} ${index + 1}';
+      });
+      selectedCategory = categories.first; 
+      _isInitialized = true;
+
+      // Load destinations ngay khi vào màn hình
+      final dayKey = dayKeys[0];
+      if (widget.existingRouteId != null) {
+        print('Requesting destinations for existing route: ${widget.existingRouteId}');
+        context.read<TravelBloc>().setCurrentDay(dayKey);
+        context.read<TravelBloc>().add(LoadRouteDestinations(widget.existingRouteId!));
+      } else {
+        print('Loading temporary destinations for new route, day: $dayKey');
+        context.read<TravelBloc>().setCurrentDay(dayKey);
+        context.read<TravelBloc>().add(LoadTemporaryDestinations(dayKey));
+      }
     }
   }
 
@@ -58,15 +78,22 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
     setState(() {
       selectedCategory = category;
     });
+    // Lấy key kỹ thuật tương ứng
+    final dayIndex = categories.indexOf(category);
+    final dayKey = dayKeys[dayIndex];
     // Cập nhật ngày hiện tại trong bloc
-    context.read<TravelBloc>().setCurrentDay(category);
+    context.read<TravelBloc>().setCurrentDay(dayKey);
     // Load lại destinations cho ngày mới
     if (widget.existingRouteId != null) {
+      print('Loading destinations for existing route, day: $dayKey');
       context.read<TravelBloc>().add(LoadRouteDestinations(widget.existingRouteId!));
+    } else {
+      print('Loading temporary destinations for new route, day: $dayKey');
+      context.read<TravelBloc>().add(LoadTemporaryDestinations(dayKey));
     }
   }
 
-  void _onDeleteDay(String dayToDelete) async {
+  void _onDeleteDay(String categoryToDelete) async {
     if (categories.length > 1) {
       final bool? shouldDelete = await showDialog<bool>(
         context: context,
@@ -93,17 +120,22 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
       );
 
       if (shouldDelete == true) {
-        final currentIndex = categories.indexOf(dayToDelete);
+        final currentIndex = categories.indexOf(categoryToDelete);
+        final dayKeyToDelete = dayKeys[currentIndex];
 
         setState(() {
           categories.removeAt(currentIndex);
+          dayKeys.removeAt(currentIndex);
           for (int i = 0; i < categories.length; i++) {
-            categories[i] = 'Day ${i + 1}';
+            categories[i] = '${AppLocalizations.of(context).translate('Day')} ${i + 1}';
+            dayKeys[i] = 'Day ${i + 1}';
           }
-          if (selectedCategory == dayToDelete) {
+          if (selectedCategory == categoryToDelete) {
             selectedCategory = categories[(currentIndex > 0) ? currentIndex - 1 : 0];
           }
         });
+
+        final selectedDayKey = dayKeys[categories.indexOf(selectedCategory)];
 
         if (widget.existingRouteId != null) {
           // Cập nhật số ngày và xóa dữ liệu của ngày bị xóa trong database
@@ -111,19 +143,18 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
             UpdateTravelRoute(
               travelRouteId: widget.existingRouteId!,
               numberOfDays: categories.length,
-              dayToDelete: dayToDelete,
+              dayToDelete: dayKeyToDelete,
             ),
           );
 
           // Load lại destinations cho ngày mới được chọn
-          context.read<TravelBloc>().setCurrentDay(selectedCategory);
+          context.read<TravelBloc>().setCurrentDay(selectedDayKey);
           context.read<TravelBloc>().add(
             LoadRouteDestinations(widget.existingRouteId!),
           );
         } else {
           // Xóa dữ liệu tạm thời của ngày bị xóa
-          context.read<TravelBloc>().deleteTemporaryDay(dayToDelete);
-          
+          context.read<TravelBloc>().deleteTemporaryDay(dayKeyToDelete);
           // Cập nhật lại tên các ngày trong dữ liệu tạm thời
           final bloc = context.read<TravelBloc>();
           for (int i = 0; i < categories.length; i++) {
@@ -133,9 +164,9 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
               bloc.moveTemporaryDestinations(oldDay, newDay);
             }
           }
-          
           // Cập nhật ngày hiện tại và load lại destinations
-          context.read<TravelBloc>().setCurrentDay(selectedCategory);
+          context.read<TravelBloc>().setCurrentDay(selectedDayKey);
+          context.read<TravelBloc>().add(LoadTemporaryDestinations(selectedDayKey));
         }
       }
     }
@@ -151,6 +182,50 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
             (route) => false,
           );
         }
+        // Hiển thị thông báo lỗi khi có xung đột thời gian
+        if (state is TravelError) {
+          final errorMessage = state.message;
+          if (errorMessage.contains('xung đột') || errorMessage.contains('conflict')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.warning, color: Colors.white, size: 20.sp),
+                    SizedBox(width: 8.w),
+                    Expanded(child: Text(errorMessage)),
+                  ],
+                ),
+                backgroundColor: Colors.red.shade600,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          } else {
+            // Hiển thị thông báo lỗi thông thường
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(errorMessage),
+                backgroundColor: Colors.red.shade600,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+              ),
+            );
+          }
+        }
+        // Hiển thị thông báo thành công khi cập nhật detail
+        if (state is RouteDetailLoaded && _showSuccessSnackbar) {
+          _showSuccessSnackbar = false;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Cập nhật thành công!'),
+              backgroundColor: Colors.green.shade600,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
       },
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -164,16 +239,16 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                       final shouldDelete = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Xác nhận'),
-                          content: const Text('Bạn có chắc chắn muốn xóa route này không?'),
+                          title: Text(AppLocalizations.of(context).translate('Confirm')),
+                          content: Text(AppLocalizations.of(context).translate('Are you sure you want to delete this route?')),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text('Hủy'),
+                              child: Text(AppLocalizations.of(context).translate('Cancel')),
                             ),
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(true),
-                              child: const Text('Xóa'),
+                              child: Text(AppLocalizations.of(context).translate('Delete')),
                             ),
                           ],
                         ),
@@ -197,16 +272,16 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                       final shouldCreate = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Xác nhận'),
-                          content: const Text('Bạn có chắc chắn muốn tạo route này không?'),
+                          title: Text(AppLocalizations.of(context).translate('Confirm')),
+                          content: Text(AppLocalizations.of(context).translate('Are you sure you want to create this route?')),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text('Hủy'),
+                              child: Text(AppLocalizations.of(context).translate('Cancel')),
                             ),
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(true),
-                              child: const Text('Tạo'),
+                              child: Text(AppLocalizations.of(context).translate('Create')),
                             ),
                           ],
                         ),
@@ -228,12 +303,12 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
               final bool shouldPop = await showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Discard Changes?'),
-                  content: const Text('You have unsaved changes. Do you want to discard them and exit?'),
+                  title: Text(AppLocalizations.of(context).translate('Discard Changes?')),
+                  content: Text(AppLocalizations.of(context).translate('You have unsaved changes. Do you want to discard them and exit?')),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context).translate('Cancel')),
                     ),
                     TextButton(
                       onPressed: () {
@@ -242,7 +317,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                         context.read<TravelBloc>().add(LoadTravelRoutes());
                         Navigator.of(context).pop(true);
                       },
-                      child: const Text('Discard'),
+                      child: Text(AppLocalizations.of(context).translate('Yes')),
                     ),
                   ],
                 ),
@@ -263,7 +338,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
         ),
         body: BlocBuilder<TravelBloc, TravelState>(
           builder: (context, state) {
-            
+            // Luôn lấy danh sách từ state (đã đồng bộ với Firestore)
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
               child: Column(
@@ -323,7 +398,8 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
   Widget _buildDestinationsList(TravelState state) {
     
     if (state is RouteDetailLoaded) {
-      if (state.destinations.isEmpty) {
+      final items = state.destinationWithIds ?? [];
+      if (items.isEmpty) {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -347,36 +423,17 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
           ],
         );
       }
-
-      // Tạo map để theo dõi số lần xuất hiện của mỗi destination
-      final Map<String, int> destinationCount = {};
-      
       return ListView.builder(
-        itemCount: state.destinations.length,
+        itemCount: items.length,
         itemBuilder: (context, index) {
-          final destination = state.destinations[index];  
-          // Tăng số lần xuất hiện của destination này
-          destinationCount[destination.destinationId] = (destinationCount[destination.destinationId] ?? 0) + 1;
-          final currentCount = destinationCount[destination.destinationId]! - 1;
-          
-          // Lấy tất cả uniqueId cho destination này
-          final uniqueIds = state.timeSlots?.keys
-              .where((key) => key.startsWith(destination.destinationId))
-              .toList() ?? [];
-          
-          print('Found uniqueIds for this destination: $uniqueIds');
-          
-          // Lấy uniqueId tương ứng với vị trí hiện tại của destination này
-          final uniqueId = uniqueIds.length > currentCount ? uniqueIds[currentCount] : destination.destinationId;
-          
-          print('Selected uniqueId: $uniqueId');
-          
-          final timeRange = state.timeSlots?[uniqueId] ?? 
-                    TimeSlotManager.formatTimeRange('08:00', '09:00');
-          
-          final startTime = timeRange.split(' - ')[0];
-          final endTime = timeRange.split(' - ')[1];
-          
+          final item = items[index];
+          final destination = item['destination'] as DestinationModel;
+          final uniqueId = item['uniqueId'] as String;
+          final startTime = item['startTime'] as String;
+          final endTime = item['endTime'] as String;
+          // Lấy key kỹ thuật cho ngày hiện tại
+          final dayIndex = categories.indexOf(selectedCategory);
+          final currentDayKey = dayKeys[dayIndex];
           return Padding(
             padding: EdgeInsets.only(bottom: 16.h),
             child: DestinationRouteCard(
@@ -384,25 +441,21 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
               imagePath: destination.photo.isNotEmpty 
                   ? destination.photo[0] 
                   : 'assets/images/default.jpg',
-              timeRange: timeRange,
+              timeRange: '$startTime - $endTime',
               onTap: () {
                 // Lấy thông tin chi tiết của destination từ current route
                 List<String> images = [];
                 List<String> videos = [];
                 String notes = '';
-                
-                if (widget.existingRouteId != null) {
-                  // Lấy thông tin chi tiết từ state
-                  if (state.destinationDetails != null) {
-                    final destinationData = state.destinationDetails![uniqueId];
-                    if (destinationData != null) {
-                      images = List<String>.from(destinationData['images'] ?? []);
-                      videos = List<String>.from(destinationData['videos'] ?? []);
-                      notes = destinationData['notes']?.toString() ?? '';
-                    }
+                // Lấy thông tin chi tiết từ state (hoạt động cho cả existing và temporary routes)
+                if (state.destinationDetails != null) {
+                  final destinationData = state.destinationDetails![uniqueId];
+                  if (destinationData != null) {
+                    images = List<String>.from(destinationData['images'] ?? []);
+                    videos = List<String>.from(destinationData['videos'] ?? []);
+                    notes = destinationData['notes']?.toString() ?? '';
                   }
                 }
-                
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -414,22 +467,24 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                       currentVideos: videos,
                       currentNotes: notes,
                       onUpdateTime: (newStartTime, newEndTime) {
+                        setState(() { _showSuccessSnackbar = true; });
                         context.read<TravelBloc>().add(
                           UpdateDestinationTime(
                             uniqueId: uniqueId,
                             startTime: newStartTime,
                             endTime: newEndTime,
                             routeId: widget.existingRouteId,
-                            currentDay: selectedCategory,
+                            currentDay: currentDayKey,
                           ),
                         );
                       },
                       onUpdateDetails: (newImages, newVideos, newNotes) {
+                        setState(() { _showSuccessSnackbar = true; });
                         context.read<TravelBloc>().add(
                           UpdateDestinationDetails(
                             uniqueId: uniqueId,
                             routeId: widget.existingRouteId,
-                            currentDay: selectedCategory,
+                            currentDay: currentDayKey,
                             images: newImages,
                             videos: newVideos,
                             notes: newNotes,
@@ -441,7 +496,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                           DeleteDestinationFromRoute(
                             uniqueId: uniqueId,
                             routeId: widget.existingRouteId,
-                            currentDay: selectedCategory,
+                            currentDay: currentDayKey,
                           ),
                         );
                       },

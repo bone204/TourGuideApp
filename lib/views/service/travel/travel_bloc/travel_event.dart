@@ -141,4 +141,54 @@ class DeleteDestinationFromRoute extends TravelEvent {
 
   @override
   List<Object?> get props => [uniqueId, routeId, currentDay];
+}
+
+// Các event mới cho việc xử lý xung đột thời gian
+class ValidateTimeSlots extends TravelEvent {
+  final String? routeId;
+  final String currentDay;
+
+  ValidateTimeSlots({
+    this.routeId,
+    required this.currentDay,
+  });
+
+  @override
+  List<Object?> get props => [routeId, currentDay];
+}
+
+class AutoAdjustTimeSlots extends TravelEvent {
+  final String? routeId;
+  final String currentDay;
+  final String startTime; // Thời gian bắt đầu của ngày
+  final int durationPerDestination; // Thời gian cho mỗi địa điểm (phút)
+
+  AutoAdjustTimeSlots({
+    this.routeId,
+    required this.currentDay,
+    this.startTime = '08:00',
+    this.durationPerDestination = 120, // 2 giờ mặc định
+  });
+
+  @override
+  List<Object?> get props => [routeId, currentDay, startTime, durationPerDestination];
+}
+
+class SuggestTimeAdjustment extends TravelEvent {
+  final String uniqueId;
+  final String? routeId;
+  final String currentDay;
+  final String desiredStartTime;
+  final String desiredEndTime;
+
+  SuggestTimeAdjustment({
+    required this.uniqueId,
+    this.routeId,
+    required this.currentDay,
+    required this.desiredStartTime,
+    required this.desiredEndTime,
+  });
+
+  @override
+  List<Object?> get props => [uniqueId, routeId, currentDay, desiredStartTime, desiredEndTime];
 } 

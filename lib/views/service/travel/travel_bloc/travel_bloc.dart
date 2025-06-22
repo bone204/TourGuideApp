@@ -8,6 +8,7 @@ import 'package:tourguideapp/models/user_model.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/models/route_destination_model.dart';
 import 'package:tourguideapp/core/utils/time_slot_manager.dart';
+import 'package:collection/collection.dart';
 
 class TravelBloc extends Bloc<TravelEvent, TravelState> {
   final FirebaseFirestore _firestore;
@@ -36,6 +37,11 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     on<UpdateDestinationDetails>(_onUpdateDestinationDetails);
     on<DeleteDestinationFromRoute>(_onDeleteDestinationFromRoute);
     on<UpdateTravelRoute>(_onUpdateTravelRoute);
+    
+    // Thêm các event handlers mới
+    on<ValidateTimeSlots>(_onValidateTimeSlots);
+    on<AutoAdjustTimeSlots>(_onAutoAdjustTimeSlots);
+    on<SuggestTimeAdjustment>(_onSuggestTimeAdjustment);
   }
 
   Future<String> generateRouteName() async {
@@ -161,116 +167,113 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
 
   Future<void> _onAddDestinationToRoute(AddDestinationToRoute event, Emitter<TravelState> emit) async {
     try {
+      const int durationMinutes = 60; // Thời lượng mỗi địa điểm (có thể cho user chọn)
       if (event.existingRouteId != null) {
         final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.existingRouteId);
-        
-        // Load lại current route từ Firestore
         final doc = await docRef.get();
         if (!doc.exists) {
           emit(TravelError("Route not found"));
           return;
         }
-        
-        // Cập nhật _currentRoute với dữ liệu mới nhất
         _currentRoute = TravelRouteModel.fromMap(doc.data()!);
-        
-        // Lấy destinations của ngày hiện tại
         final currentDayDestinations = _currentRoute!.destinationsByDay[_currentDay] ?? [];
-        
-        // Tạo ID duy nhất cho lần thêm mới này
-        final uniqueId = '${event.destination.destinationId}_${DateTime.now().millisecondsSinceEpoch}';
-        
-        // Tính thời gian dựa trên số lượng destinations hiện tại
-        final startHour = 8 + (currentDayDestinations.length * 2);
-        final endHour = startHour + 1;
-        final startTime = '${startHour.toString().padLeft(2, '0')}:00';
-        final endTime = '${endHour.toString().padLeft(2, '0')}:00';
-        
-        // Tạo danh sách destinations mới với các trường mới
+        // Sắp xếp theo startTime
         final updatedDestinations = List<Map<String, dynamic>>.from(currentDayDestinations);
-        updatedDestinations.add({
+        updatedDestinations.sort((a, b) => _compareTime(a['startTime'], b['startTime']));
+        // Tìm khoảng trống
+        String? insertStartTime;
+        String? insertEndTime;
+        int insertIndex = 0;
+        String prevEnd = '08:00';
+        for (int i = 0; i <= updatedDestinations.length; i++) {
+          String nextStart;
+          if (i < updatedDestinations.length) {
+            nextStart = updatedDestinations[i]['startTime'];
+          } else {
+            nextStart = '23:59';
+          }
+          int prevEndMinutes = _timeToMinutes(prevEnd);
+          int nextStartMinutes = _timeToMinutes(nextStart);
+          if (nextStartMinutes - prevEndMinutes >= durationMinutes) {
+            insertStartTime = _minutesToTime(prevEndMinutes);
+            insertEndTime = _minutesToTime(prevEndMinutes + durationMinutes);
+            insertIndex = i;
+            break;
+          }
+          if (i < updatedDestinations.length) {
+            prevEnd = updatedDestinations[i]['endTime'];
+          }
+        }
+        if (insertStartTime == null || insertEndTime == null) {
+          emit(TravelError("Không còn khoảng thời gian trống trong ngày để thêm địa điểm mới!"));
+          return;
+        }
+        final uniqueId = '${event.destination.destinationId}_${DateTime.now().millisecondsSinceEpoch}';
+        final newDestination = {
           'destinationId': event.destination.destinationId,
           'uniqueId': uniqueId,
-          'startTime': startTime,
-          'endTime': endTime,
+          'startTime': insertStartTime,
+          'endTime': insertEndTime,
           'images': <String>[],
           'videos': <String>[],
           'notes': '',
-        });
-        
-        // Update destinations cho ngày hiện tại
+        };
+        updatedDestinations.insert(insertIndex, newDestination);
+        updatedDestinations.sort((a, b) => _compareTime(a['startTime'], b['startTime']));
         await docRef.update({
           'destinationsByDay.$_currentDay': updatedDestinations
         });
-        
-        // Load lại toàn bộ destinations với thời gian đã lưu
-        final updatedDoc = await docRef.get();
-        _currentRoute = TravelRouteModel.fromMap(updatedDoc.data()!);
-        
-        // Load tất cả destinations của ngày hiện tại
-        final destinationIds = updatedDestinations.map((entry) => 
-          entry['destinationId'] as String
-        ).toList();
-        
-        final destinations = await _loadDestinationsFromIds(destinationIds);
-        
-        // Tạo map time slots từ dữ liệu đã lưu
-        final timeSlots = Map<String, String>.fromEntries(
-          updatedDestinations.map((entry) => 
-            MapEntry(
-              entry['uniqueId'] as String,
-              TimeSlotManager.formatTimeRange(
-                entry['startTime'] as String,
-                entry['endTime'] as String
-              )
-            )
-          )
-        );
-        
-        // Tạo map destination details
-        final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
-          updatedDestinations.map((entry) => 
-            MapEntry(entry['uniqueId'] as String, Map<String, dynamic>.from(entry))
-          )
-        );
-        
-        emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
+        // Sau khi thêm mới, luôn reload lại từ Firestore để UI cập nhật ngay
+        add(LoadRouteDestinations(event.existingRouteId!));
+        return;
       } else {
-        // Xử lý cho route tạm thời
         final currentDayDestinations = _tempDestinationsByDay[_currentDay] ?? [];
-        
-        // Tạo ID duy nhất cho lần thêm mới này
+        final updatedDestinations = List<Map<String, dynamic>>.from(currentDayDestinations);
+        updatedDestinations.sort((a, b) => _compareTime(a['startTime'], b['startTime']));
+        String? insertStartTime;
+        String? insertEndTime;
+        int insertIndex = 0;
+        String prevEnd = '08:00';
+        for (int i = 0; i <= updatedDestinations.length; i++) {
+          String nextStart;
+          if (i < updatedDestinations.length) {
+            nextStart = updatedDestinations[i]['startTime'];
+          } else {
+            nextStart = '23:59';
+          }
+          int prevEndMinutes = _timeToMinutes(prevEnd);
+          int nextStartMinutes = _timeToMinutes(nextStart);
+          if (nextStartMinutes - prevEndMinutes >= durationMinutes) {
+            insertStartTime = _minutesToTime(prevEndMinutes);
+            insertEndTime = _minutesToTime(prevEndMinutes + durationMinutes);
+            insertIndex = i;
+            break;
+          }
+          if (i < updatedDestinations.length) {
+            prevEnd = updatedDestinations[i]['endTime'];
+          }
+        }
+        if (insertStartTime == null || insertEndTime == null) {
+          emit(TravelError("Không còn khoảng thời gian trống trong ngày để thêm địa điểm mới!"));
+          return;
+        }
         final uniqueId = '${event.destination.destinationId}_${DateTime.now().millisecondsSinceEpoch}';
-        
-        // Tính thời gian dựa trên số lượng destinations hiện tại
-        final startHour = 8 + (currentDayDestinations.length * 2);
-        final endHour = startHour + 1;
-        final startTime = '${startHour.toString().padLeft(2, '0')}:00';
-        final endTime = '${endHour.toString().padLeft(2, '0')}:00';
-        
-        // Thêm destination mới vào cuối danh sách với các trường mới
-        currentDayDestinations.add({
+        final newDestination = {
           'destinationId': event.destination.destinationId,
           'uniqueId': uniqueId,
-          'startTime': startTime,
-          'endTime': endTime,
+          'startTime': insertStartTime,
+          'endTime': insertEndTime,
           'images': <String>[],
           'videos': <String>[],
           'notes': '',
-        });
-        
-        _tempDestinationsByDay[_currentDay] = currentDayDestinations;
-
-        // Load destinations của ngày hiện tại
-        final destinationIds = currentDayDestinations.map((entry) => 
-          entry['destinationId'] as String
-        ).toList();
-        
+        };
+        updatedDestinations.insert(insertIndex, newDestination);
+        updatedDestinations.sort((a, b) => _compareTime(a['startTime'], b['startTime']));
+        _tempDestinationsByDay[_currentDay] = updatedDestinations;
+        final destinationIds = updatedDestinations.map((entry) => entry['destinationId'] as String).toList();
         final destinations = await _loadDestinationsFromIds(destinationIds);
-        
-        // Tạo map time slots cho destinations
         final timeSlots = Map<String, String>.fromEntries(
-          currentDayDestinations.map((entry) => 
+          updatedDestinations.map((entry) =>
             MapEntry(
               entry['uniqueId'] as String,
               TimeSlotManager.formatTimeRange(
@@ -280,15 +283,36 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
             )
           )
         );
-        
-        // Tạo map destination details
         final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
-          currentDayDestinations.map((entry) => 
+          updatedDestinations.map((entry) =>
             MapEntry(entry['uniqueId'] as String, Map<String, dynamic>.from(entry))
           )
         );
-        
-        emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
+        // Mapping destinationWithIds đúng thứ tự xuất hiện trong updatedDestinations
+        final List<Map<String, dynamic>> destinationWithIds = [];
+        for (final entry in updatedDestinations) {
+          if (entry['uniqueId'] != null && entry['destinationId'] != null) {
+            final dest = destinations.firstWhereOrNull(
+              (d) => d.destinationId == entry['destinationId'],
+            );
+            if (dest != null) {
+              destinationWithIds.add({
+                'destination': dest,
+                'uniqueId': entry['uniqueId'],
+                'startTime': entry['startTime'],
+                'endTime': entry['endTime'],
+              });
+            }
+          }
+        }
+        // Sort theo startTime tăng dần
+        destinationWithIds.sort((a, b) {
+          final t1 = (a['startTime'] ?? '') as String;
+          final t2 = (b['startTime'] ?? '') as String;
+          return t1.compareTo(t2);
+        });
+        print('destinationWithIds: ' + destinationWithIds.map((e) => e['uniqueId']).toList().toString());
+        emit(RouteDetailLoaded(<TravelRouteModel>[], destinations, timeSlots: timeSlots, destinationDetails: destinationDetails, destinationWithIds: destinationWithIds));
       }
     } catch (e) {
       emit(TravelError(e.toString()));
@@ -352,13 +376,20 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       
       // Tạo map time slots cho destinations
       final timeSlots = Map<String, String>.fromEntries(
-        currentDayDestinations.map((entry) {
-          final uniqueId = entry['uniqueId'] ?? 
-            '${entry['destinationId']}_${DateTime.now().millisecondsSinceEpoch}';
-          final startTime = entry['startTime'] ?? '08:00';
-          final endTime = entry['endTime'] ?? '09:00';
-          
-          print('Creating time slot for $uniqueId: $startTime - $endTime');
+        currentDayDestinations.where((entry) {
+          if (entry['startTime'] == null || entry['endTime'] == null) {
+            print('LỖI: Địa điểm thiếu trường startTime hoặc endTime: $entry');
+            return false;
+          }
+          if (entry['uniqueId'] == null) {
+            print('LỖI: Địa điểm thiếu uniqueId: $entry');
+            return false;
+          }
+          return true;
+        }).map((entry) {
+          final uniqueId = entry['uniqueId'] as String;
+          final startTime = entry['startTime'];
+          final endTime = entry['endTime'];
           return MapEntry(
             uniqueId,
             TimeSlotManager.formatTimeRange(startTime, endTime)
@@ -368,10 +399,18 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       
       // Tạo map destination details
       final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
-        currentDayDestinations.map((entry) {
-          final uniqueId = entry['uniqueId'] ?? 
-            '${entry['destinationId']}_${DateTime.now().millisecondsSinceEpoch}';
-          
+        currentDayDestinations.where((entry) {
+          if (entry['startTime'] == null || entry['endTime'] == null) {
+            print('LỖI: Địa điểm thiếu trường startTime hoặc endTime: $entry');
+            return false;
+          }
+          if (entry['uniqueId'] == null) {
+            print('LỖI: Địa điểm thiếu uniqueId: $entry');
+            return false;
+          }
+          return true;
+        }).map((entry) {
+          final uniqueId = entry['uniqueId'] as String;
           return MapEntry(uniqueId, Map<String, dynamic>.from(entry));
         })
       );
@@ -379,11 +418,36 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       print('Destination details: $destinationDetails');
       print('Time slots: $timeSlots');
       
+      // Mapping destinationWithIds đúng thứ tự xuất hiện trong currentDayDestinations
+      final List<Map<String, dynamic>> destinationWithIds = [];
+      for (final entry in currentDayDestinations) {
+        if (entry['uniqueId'] != null && entry['destinationId'] != null) {
+          final dest = destinations.firstWhereOrNull(
+            (d) => d.destinationId == entry['destinationId'],
+          );
+          if (dest != null) {
+            destinationWithIds.add({
+              'destination': dest,
+              'uniqueId': entry['uniqueId'],
+              'startTime': entry['startTime'],
+              'endTime': entry['endTime'],
+            });
+          }
+        }
+      }
+      // Sort theo startTime tăng dần
+      destinationWithIds.sort((a, b) {
+        final t1 = (a['startTime'] ?? '') as String;
+        final t2 = (b['startTime'] ?? '') as String;
+        return t1.compareTo(t2);
+      });
+      print('destinationWithIds: ' + destinationWithIds.map((e) => e['uniqueId']).toList().toString());
       emit(RouteDetailLoaded(
         currentRoutes, 
         destinations, 
         timeSlots: timeSlots,
         destinationDetails: destinationDetails,
+        destinationWithIds: destinationWithIds,
       ));
     } catch (e) {
       print('Error loading route destinations: $e');
@@ -404,6 +468,9 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       final userData = UserModel.fromMap(userDoc.data()!);
       final routeId = await _generateRouteId();
 
+      print('Creating new route with ID: $routeId');
+      print('Temporary destinations: $_tempDestinationsByDay');
+
       final newRoute = TravelRouteModel(
         travelRouteId: routeId,
         userId: userData.userId,
@@ -414,11 +481,16 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         destinationsByDay: _tempDestinationsByDay,
       );
 
+      print('Saving route to Firebase with destinations: ${newRoute.destinationsByDay}');
+
       await _firestore
           .collection('TRAVEL_ROUTE')
           .doc(routeId)
           .set(newRoute.toMap());
       
+      print('Route saved successfully to Firebase');
+      
+      // Clear temporary data after successful save
       _tempDestinationsByDay = {};
       emit(TravelRouteCreated(routeId));
       
@@ -433,6 +505,7 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
 
       emit(TravelLoaded(routes));
     } catch (e) {
+      print('Error creating route: $e');
       emit(TravelError(e.toString()));
     }
   }
@@ -577,11 +650,13 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         })
       );
       
-      // Tạo map destination details
+      // Tạo map destination details từ dữ liệu tạm thời
       final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
-        currentDayDestinations.map((entry) => 
-          MapEntry(entry['uniqueId'] as String, Map<String, dynamic>.from(entry))
-        )
+        currentDayDestinations.map((entry) {
+          final uniqueId = entry['uniqueId'] as String;
+          print('Creating destination details for $uniqueId: $entry');
+          return MapEntry(uniqueId, Map<String, dynamic>.from(entry));
+        })
       );
       
       print('Temporary destinations loaded successfully');
@@ -601,70 +676,51 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
   ) async {
     try {
       List<Map<String, dynamic>> destinations;
-      
       if (event.routeId != null) {
-        // Cập nhật cho route đã tồn tại
+        // Luôn lấy lại dữ liệu mới nhất từ Firestore
         final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.routeId);
         final doc = await docRef.get();
         if (!doc.exists) {
           emit(TravelError("Route not found"));
           return;
         }
-        
         _currentRoute = TravelRouteModel.fromMap(doc.data()!);
         destinations = List<Map<String, dynamic>>.from(
           _currentRoute!.destinationsByDay[event.currentDay] ?? []
         );
       } else {
-        // Cập nhật cho route tạm thời
         destinations = List<Map<String, dynamic>>.from(
           _tempDestinationsByDay[event.currentDay] ?? []
         );
       }
-
-      // Tìm và cập nhật thời gian cho địa điểm
       final index = destinations.indexWhere(
         (d) => d['uniqueId'] == event.uniqueId
       );
-      
       if (index != -1) {
+        final hasConflict = _checkTimeConflict(destinations, index, event.startTime, event.endTime);
+        if (hasConflict) {
+          emit(TravelError("Thời gian bị xung đột với địa điểm khác. Vui lòng chọn thời gian khác."));
+          // Không update gì local, chỉ báo lỗi
+          if (event.routeId != null) {
+            add(LoadRouteDestinations(event.routeId!));
+          }
+          return;
+        }
         final updatedDestination = Map<String, dynamic>.from(destinations[index]);
         updatedDestination['startTime'] = event.startTime;
         updatedDestination['endTime'] = event.endTime;
-        destinations.removeAt(index);
-        
-        // Tìm vị trí phù hợp để chèn dựa trên thời gian bắt đầu
-        int insertIndex = 0;
-        for (int i = 0; i < destinations.length; i++) {
-          final currentStartTime = destinations[i]['startTime'] ?? '00:00';
-          if (_compareTime(event.startTime, currentStartTime) <= 0) {
-            break;
-          }
-          insertIndex = i + 1;
-        }
-        
-        destinations.insert(insertIndex, updatedDestination);
-        
-        // Cập nhật thời gian cho các địa điểm sau
-        _updateFollowingDestinationsTimes(destinations, insertIndex + 1);
-
+        destinations[index] = updatedDestination;
+        destinations.sort((a, b) => _compareTime(a['startTime'], b['startTime']));
         if (event.routeId != null) {
-          // Cập nhật lên Firestore
           await _firestore.collection('TRAVEL_ROUTE').doc(event.routeId).update({
             'destinationsByDay.${event.currentDay}': destinations,
           });
-          
-          // Load lại route details
+          // Luôn reload lại từ Firestore
           add(LoadRouteDestinations(event.routeId!));
         } else {
-          // Cập nhật route tạm thời
           _tempDestinationsByDay[event.currentDay] = destinations;
-          
-          // Load lại destinations
           final destinationIds = destinations.map((d) => d['destinationId'] as String).toList();
           final updatedDestinations = await _loadDestinationsFromIds(destinationIds);
-          
-          // Tạo time slots mới
           final timeSlots = Map<String, String>.fromEntries(
             destinations.map((entry) => MapEntry(
               entry['uniqueId'] as String,
@@ -674,16 +730,36 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
               )
             ))
           );
-          
-          // Tạo map destination details
           final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
             destinations.map((entry) => MapEntry(
               entry['uniqueId'] as String, 
               Map<String, dynamic>.from(entry)
             ))
           );
-          
-          emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
+          // Mapping destinationWithIds đúng thứ tự xuất hiện trong destinations
+          final List<Map<String, dynamic>> destinationWithIds = [];
+          for (final entry in destinations) {
+            if (entry['uniqueId'] != null && entry['destinationId'] != null) {
+              final dest = updatedDestinations.firstWhereOrNull(
+                (d) => d.destinationId == entry['destinationId'],
+              );
+              if (dest != null) {
+                destinationWithIds.add({
+                  'destination': dest,
+                  'uniqueId': entry['uniqueId'],
+                  'startTime': entry['startTime'],
+                  'endTime': entry['endTime'],
+                });
+              }
+            }
+          }
+          // Sort theo startTime tăng dần
+          destinationWithIds.sort((a, b) {
+            final t1 = (a['startTime'] ?? '') as String;
+            final t2 = (b['startTime'] ?? '') as String;
+            return t1.compareTo(t2);
+          });
+          emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots, destinationDetails: destinationDetails, destinationWithIds: destinationWithIds));
         }
       }
     } catch (e) {
@@ -714,10 +790,26 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
       final previousEnd = destinations[i - 1]['endTime'] ?? '00:00';
       final previousEndParts = previousEnd.split(':');
       var nextStartHour = int.parse(previousEndParts[0]);
+      var nextStartMinute = int.parse(previousEndParts[1]);
       
       // Đặt thời gian bắt đầu của địa điểm tiếp theo là 1 tiếng sau thời gian kết thúc của địa điểm trước
-      final startTime = '${nextStartHour.toString().padLeft(2, '0')}:${previousEndParts[1]}';
-      final endTime = '${(nextStartHour + 1).toString().padLeft(2, '0')}:${previousEndParts[1]}';
+      // Nhưng giới hạn tối đa là 23:59 để tránh vượt qua ngày
+      if (nextStartHour >= 23) {
+        nextStartHour = 23;
+        nextStartMinute = 59;
+      } else {
+        nextStartHour = (nextStartHour + 1) % 24;
+      }
+      
+      final startTime = '${nextStartHour.toString().padLeft(2, '0')}:${nextStartMinute.toString().padLeft(2, '0')}';
+      
+      // Tính end time, giới hạn tối đa là 23:59
+      var endHour = nextStartHour + 1;
+      if (endHour >= 24) {
+        endHour = 23;
+        nextStartMinute = 59;
+      }
+      final endTime = '${endHour.toString().padLeft(2, '0')}:${nextStartMinute.toString().padLeft(2, '0')}';
       
       destinations[i]['startTime'] = startTime;
       destinations[i]['endTime'] = endTime;
@@ -746,9 +838,6 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
         // Tìm và xóa địa điểm
         destinations.removeWhere((d) => d['uniqueId'] == event.uniqueId);
 
-        // Cập nhật thời gian cho các địa điểm còn lại
-        _updateFollowingDestinationsTimes(destinations, 0);
-
         // Cập nhật lên Firestore
         await docRef.update({
           'destinationsByDay.${event.currentDay}': destinations,
@@ -764,9 +853,6 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
 
         // Tìm và xóa địa điểm
         destinations.removeWhere((d) => d['uniqueId'] == event.uniqueId);
-
-        // Cập nhật thời gian cho các địa điểm còn lại
-        _updateFollowingDestinationsTimes(destinations, 0);
 
         // Cập nhật route tạm thời
         _tempDestinationsByDay[event.currentDay] = destinations;
@@ -794,7 +880,30 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
           ))
         );
 
-        emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
+        // Mapping destinationWithIds đúng thứ tự xuất hiện trong destinations
+        final List<Map<String, dynamic>> destinationWithIds = [];
+        for (final entry in destinations) {
+          if (entry['uniqueId'] != null && entry['destinationId'] != null) {
+            final dest = updatedDestinations.firstWhereOrNull(
+              (d) => d.destinationId == entry['destinationId'],
+            );
+            if (dest != null) {
+              destinationWithIds.add({
+                'destination': dest,
+                'uniqueId': entry['uniqueId'],
+                'startTime': entry['startTime'],
+                'endTime': entry['endTime'],
+              });
+            }
+          }
+        }
+        // Sort theo startTime tăng dần
+        destinationWithIds.sort((a, b) {
+          final t1 = (a['startTime'] ?? '') as String;
+          final t2 = (b['startTime'] ?? '') as String;
+          return t1.compareTo(t2);
+        });
+        emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots, destinationDetails: destinationDetails, destinationWithIds: destinationWithIds));
       }
     } catch (e) {
       emit(TravelError(e.toString()));
@@ -821,43 +930,32 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     Emitter<TravelState> emit,
   ) async {
     try {
-      
       List<Map<String, dynamic>> destinations;
-      
       if (event.routeId != null) {
-        // Cập nhật cho route đã tồn tại
+        // Luôn lấy lại dữ liệu mới nhất từ Firestore
         final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.routeId);
         final doc = await docRef.get();
         if (!doc.exists) {
           emit(const TravelError("Route not found"));
           return;
         }
-        
         _currentRoute = TravelRouteModel.fromMap(doc.data()!);
         destinations = List<Map<String, dynamic>>.from(
           _currentRoute!.destinationsByDay[event.currentDay] ?? []
         );
       } else {
-        // Cập nhật cho route tạm thời
         destinations = List<Map<String, dynamic>>.from(
           _tempDestinationsByDay[event.currentDay] ?? []
         );
       }
-
       print('Found ${destinations.length} destinations for day: ${event.currentDay}');
-
-      // Tìm và cập nhật thông tin chi tiết cho địa điểm
       final index = destinations.indexWhere(
         (d) => d['uniqueId'] == event.uniqueId
       );
-      
       print('Found destination at index: $index');
-      
       if (index != -1) {
         final updatedDestination = Map<String, dynamic>.from(destinations[index]);
         print('Current destination data: $updatedDestination');
-        
-        // Cập nhật các trường mới nếu được cung cấp
         if (event.images != null) {
           updatedDestination['images'] = event.images;
           print('Updated images: ${updatedDestination['images']}');
@@ -870,30 +968,21 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
           updatedDestination['notes'] = event.notes;
           print('Updated notes: ${updatedDestination['notes']}');
         }
-        
         destinations[index] = updatedDestination;
         print('Final destination data: ${destinations[index]}');
-
         if (event.routeId != null) {
-          // Cập nhật lên Firestore
-          print('Updating Firestore with data: $destinations');
+          print('Will update Firestore routeId=${event.routeId}, day=${event.currentDay}, data=${destinations}');
           await _firestore.collection('TRAVEL_ROUTE').doc(event.routeId).update({
             'destinationsByDay.${event.currentDay}': destinations,
           });
-          
-          print('Firestore update completed');
-          
-          // Load lại route details
+          print('Firestore update completed for routeId=${event.routeId}, day=${event.currentDay}');
+          // Luôn reload lại từ Firestore
           add(LoadRouteDestinations(event.routeId!));
         } else {
-          // Cập nhật route tạm thời
           _tempDestinationsByDay[event.currentDay] = destinations;
-          
-          // Load lại destinations
+          print('Updated temporary destinations for day ${event.currentDay}: ${_tempDestinationsByDay[event.currentDay]}');
           final destinationIds = destinations.map((d) => d['destinationId'] as String).toList();
           final updatedDestinations = await _loadDestinationsFromIds(destinationIds);
-          
-          // Tạo time slots mới
           final timeSlots = Map<String, String>.fromEntries(
             destinations.map((entry) => MapEntry(
               entry['uniqueId'] as String,
@@ -903,16 +992,36 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
               )
             ))
           );
-          
-          // Tạo map destination details
           final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
             destinations.map((entry) => MapEntry(
               entry['uniqueId'] as String, 
               Map<String, dynamic>.from(entry)
             ))
           );
-          
-          emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
+          // Mapping destinationWithIds đúng thứ tự xuất hiện trong destinations
+          final List<Map<String, dynamic>> destinationWithIds = [];
+          for (final entry in destinations) {
+            if (entry['uniqueId'] != null && entry['destinationId'] != null) {
+              final dest = updatedDestinations.firstWhereOrNull(
+                (d) => d.destinationId == entry['destinationId'],
+              );
+              if (dest != null) {
+                destinationWithIds.add({
+                  'destination': dest,
+                  'uniqueId': entry['uniqueId'],
+                  'startTime': entry['startTime'],
+                  'endTime': entry['endTime'],
+                });
+              }
+            }
+          }
+          // Sort theo startTime tăng dần
+          destinationWithIds.sort((a, b) {
+            final t1 = (a['startTime'] ?? '') as String;
+            final t2 = (b['startTime'] ?? '') as String;
+            return t1.compareTo(t2);
+          });
+          emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots, destinationDetails: destinationDetails, destinationWithIds: destinationWithIds));
         }
       } else {
         print('Destination not found with uniqueId: ${event.uniqueId}');
@@ -994,6 +1103,313 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     if (!_tempDestinationsByDay.containsKey(_currentDay)) {
       print('Current day $_currentDay not found in temp destinations, creating empty list');
       _tempDestinationsByDay[_currentDay] = [];
+    }
+  }
+
+  // Method để kiểm tra xung đột thời gian khi cập nhật
+  bool _checkTimeConflict(List<Map<String, dynamic>> destinations, int currentIndex, String newStartTime, String newEndTime) {
+    for (int i = 0; i < destinations.length; i++) {
+      if (i == currentIndex) continue; // Bỏ qua địa điểm hiện tại
+      
+      final otherDestination = destinations[i];
+      final otherStartTime = otherDestination['startTime'] as String;
+      final otherEndTime = otherDestination['endTime'] as String;
+      
+      if (_hasTimeConflict(newStartTime, newEndTime, otherStartTime, otherEndTime)) {
+        return true; // Có xung đột
+      }
+    }
+    return false; // Không có xung đột
+  }
+
+  // Event handlers mới cho việc xử lý xung đột thời gian
+  Future<void> _onValidateTimeSlots(ValidateTimeSlots event, Emitter<TravelState> emit) async {
+    try {
+      List<Map<String, dynamic>> destinations;
+      
+      if (event.routeId != null) {
+        final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.routeId);
+        final doc = await docRef.get();
+        if (!doc.exists) {
+          emit(TravelError("Route not found"));
+          return;
+        }
+        
+        _currentRoute = TravelRouteModel.fromMap(doc.data()!);
+        destinations = List<Map<String, dynamic>>.from(
+          _currentRoute!.destinationsByDay[event.currentDay] ?? []
+        );
+      } else {
+        destinations = List<Map<String, dynamic>>.from(
+          _tempDestinationsByDay[event.currentDay] ?? []
+        );
+      }
+
+      // Kiểm tra xung đột thời gian
+      final conflicts = _findTimeConflicts(destinations);
+      
+      if (conflicts.isNotEmpty) {
+        emit(TravelError("Có xung đột thời gian: ${conflicts.join(', ')}"));
+      } else {
+        emit(TravelLoaded(<TravelRouteModel>[])); // Emit success state
+      }
+    } catch (e) {
+      emit(TravelError(e.toString()));
+    }
+  }
+
+  Future<void> _onAutoAdjustTimeSlots(AutoAdjustTimeSlots event, Emitter<TravelState> emit) async {
+    try {
+      List<Map<String, dynamic>> destinations;
+      
+      if (event.routeId != null) {
+        final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.routeId);
+        final doc = await docRef.get();
+        if (!doc.exists) {
+          emit(TravelError("Route not found"));
+          return;
+        }
+        
+        _currentRoute = TravelRouteModel.fromMap(doc.data()!);
+        destinations = List<Map<String, dynamic>>.from(
+          _currentRoute!.destinationsByDay[event.currentDay] ?? []
+        );
+      } else {
+        destinations = List<Map<String, dynamic>>.from(
+          _tempDestinationsByDay[event.currentDay] ?? []
+        );
+      }
+
+      if (destinations.isNotEmpty) {
+        // Tự động điều chỉnh thời gian
+        _autoAdjustTimeSlots(destinations, event.startTime, event.durationPerDestination);
+
+        if (event.routeId != null) {
+          await _firestore.collection('TRAVEL_ROUTE').doc(event.routeId).update({
+            'destinationsByDay.${event.currentDay}': destinations,
+          });
+          
+          add(LoadRouteDestinations(event.routeId!));
+        } else {
+          _tempDestinationsByDay[event.currentDay] = destinations;
+          
+          final destinationIds = destinations.map((d) => d['destinationId'] as String).toList();
+          final updatedDestinations = await _loadDestinationsFromIds(destinationIds);
+          
+          final timeSlots = Map<String, String>.fromEntries(
+            destinations.map((entry) => MapEntry(
+              entry['uniqueId'] as String,
+              TimeSlotManager.formatTimeRange(
+                entry['startTime'] as String,
+                entry['endTime'] as String
+              )
+            ))
+          );
+          
+          final destinationDetails = Map<String, Map<String, dynamic>>.fromEntries(
+            destinations.map((entry) => MapEntry(
+              entry['uniqueId'] as String, 
+              Map<String, dynamic>.from(entry)
+            ))
+          );
+          
+          emit(RouteDetailLoaded(<TravelRouteModel>[], updatedDestinations, timeSlots: timeSlots, destinationDetails: destinationDetails));
+        }
+      }
+    } catch (e) {
+      emit(TravelError(e.toString()));
+    }
+  }
+
+  Future<void> _onSuggestTimeAdjustment(SuggestTimeAdjustment event, Emitter<TravelState> emit) async {
+    try {
+      List<Map<String, dynamic>> destinations;
+      
+      if (event.routeId != null) {
+        final docRef = _firestore.collection('TRAVEL_ROUTE').doc(event.routeId);
+        final doc = await docRef.get();
+        if (!doc.exists) {
+          emit(TravelError("Route not found"));
+          return;
+        }
+        
+        _currentRoute = TravelRouteModel.fromMap(doc.data()!);
+        destinations = List<Map<String, dynamic>>.from(
+          _currentRoute!.destinationsByDay[event.currentDay] ?? []
+        );
+      } else {
+        destinations = List<Map<String, dynamic>>.from(
+          _tempDestinationsByDay[event.currentDay] ?? []
+        );
+      }
+
+      // Tìm index của destination
+      final index = destinations.indexWhere(
+        (d) => d['uniqueId'] == event.uniqueId
+      );
+      
+      if (index != -1) {
+        // Tạo gợi ý thời gian
+        final suggestions = _suggestTimeAdjustment(
+          destinations, 
+          index, 
+          event.desiredStartTime, 
+          event.desiredEndTime
+        );
+        
+        if (suggestions.isNotEmpty) {
+          emit(TravelError("Gợi ý thời gian: ${suggestions['startTime']} - ${suggestions['endTime']}"));
+        } else {
+          emit(TravelError("Không thể tìm thấy thời gian phù hợp. Vui lòng thử lại."));
+        }
+      } else {
+        emit(TravelError("Không tìm thấy địa điểm"));
+      }
+    } catch (e) {
+      emit(TravelError(e.toString()));
+    }
+  }
+
+  // Helper methods cho việc xử lý xung đột thời gian
+  List<String> _findTimeConflicts(List<Map<String, dynamic>> destinations) {
+    final conflicts = <String>[];
+    
+    for (int i = 0; i < destinations.length; i++) {
+      for (int j = i + 1; j < destinations.length; j++) {
+        final dest1 = destinations[i];
+        final dest2 = destinations[j];
+        
+        final start1 = dest1['startTime'] as String;
+        final end1 = dest1['endTime'] as String;
+        final start2 = dest2['startTime'] as String;
+        final end2 = dest2['endTime'] as String;
+        
+        if (_hasTimeConflict(start1, end1, start2, end2)) {
+          conflicts.add("${dest1['destinationId']} vs ${dest2['destinationId']}");
+        }
+      }
+    }
+    
+    return conflicts;
+  }
+
+  bool _hasTimeConflict(String start1, String end1, String start2, String end2) {
+    // Chuyển đổi thời gian thành phút để dễ so sánh
+    final start1Minutes = _timeToMinutes(start1);
+    final end1Minutes = _timeToMinutes(end1);
+    final start2Minutes = _timeToMinutes(start2);
+    final end2Minutes = _timeToMinutes(end2);
+    
+    // Kiểm tra xung đột: khoảng thời gian 1 và 2 có giao nhau
+    return !(end1Minutes <= start2Minutes || end2Minutes <= start1Minutes);
+  }
+
+  int _timeToMinutes(String time) {
+    final parts = time.split(':');
+    final hours = int.parse(parts[0]);
+    final minutes = int.parse(parts[1]);
+    return hours * 60 + minutes;
+  }
+
+  String _minutesToTime(int minutes) {
+    final hours = minutes ~/ 60;
+    final mins = minutes % 60;
+    return '${hours.toString().padLeft(2, '0')}:${mins.toString().padLeft(2, '0')}';
+  }
+
+  Map<String, String> _suggestTimeAdjustment(List<Map<String, dynamic>> destinations, int currentIndex, String desiredStartTime, String desiredEndTime) {
+    final suggestions = <String, String>{};
+    
+    // Tính thời gian mong muốn
+    final desiredStartMinutes = _timeToMinutes(desiredStartTime);
+    final desiredEndMinutes = _timeToMinutes(desiredEndTime);
+    final desiredDuration = desiredEndMinutes - desiredStartMinutes;
+    
+    // Tìm khoảng thời gian trống
+    final occupiedSlots = <MapEntry<int, int>>[];
+    
+    for (int i = 0; i < destinations.length; i++) {
+      if (i == currentIndex) continue;
+      
+      final destination = destinations[i];
+      final startTime = _timeToMinutes(destination['startTime'] as String);
+      final endTime = _timeToMinutes(destination['endTime'] as String);
+      
+      occupiedSlots.add(MapEntry(startTime, endTime));
+    }
+    
+    // Sắp xếp theo thời gian bắt đầu
+    occupiedSlots.sort((a, b) => a.key.compareTo(b.key));
+    
+    // Tìm khoảng trống đầu tiên đủ lớn
+    int currentTime = 6 * 60; // Bắt đầu từ 6:00
+    
+    for (final slot in occupiedSlots) {
+      if (slot.key - currentTime >= desiredDuration) {
+        // Tìm thấy khoảng trống đủ lớn
+        final suggestedStartTime = _minutesToTime(currentTime);
+        final suggestedEndTime = _minutesToTime(currentTime + desiredDuration);
+        
+        suggestions['startTime'] = suggestedStartTime;
+        suggestions['endTime'] = suggestedEndTime;
+        break;
+      }
+      currentTime = slot.value;
+    }
+    
+    // Nếu không tìm thấy khoảng trống, gợi ý thời gian cuối ngày
+    if (suggestions.isEmpty && currentTime + desiredDuration <= 23 * 60) {
+      final suggestedStartTime = _minutesToTime(currentTime);
+      final suggestedEndTime = _minutesToTime(currentTime + desiredDuration);
+      
+      suggestions['startTime'] = suggestedStartTime;
+      suggestions['endTime'] = suggestedEndTime;
+    }
+    
+    return suggestions;
+  }
+
+  void _autoAdjustTimeSlots(List<Map<String, dynamic>> destinations, String startTime, int durationPerDestination) {
+    if (destinations.isEmpty) return;
+    
+    final startDateTime = DateTime.parse('2024-01-01 $startTime:00');
+    var currentTime = startDateTime;
+    
+    for (int i = 0; i < destinations.length; i++) {
+      final destination = destinations[i];
+      
+      // Kiểm tra xem có vượt quá 23:59 không
+      if (currentTime.hour >= 23 && currentTime.minute >= 59) {
+        // Nếu vượt quá, dừng lại ở 23:59
+        currentTime = DateTime.parse('2024-01-01 23:59:00');
+      }
+      
+      // Đặt thời gian bắt đầu
+      final startTimeStr = '${currentTime.hour.toString().padLeft(2, '0')}:${currentTime.minute.toString().padLeft(2, '0')}';
+      
+      // Thêm thời gian cho địa điểm
+      currentTime = currentTime.add(Duration(minutes: durationPerDestination));
+      
+      // Kiểm tra và giới hạn end time tối đa là 23:59
+      if (currentTime.hour >= 24) {
+        currentTime = DateTime.parse('2024-01-01 23:59:00');
+      }
+      
+      // Đặt thời gian kết thúc
+      final endTimeStr = '${currentTime.hour.toString().padLeft(2, '0')}:${currentTime.minute.toString().padLeft(2, '0')}';
+      
+      destination['startTime'] = startTimeStr;
+      destination['endTime'] = endTimeStr;
+      
+      // Thêm thời gian di chuyển đến địa điểm tiếp theo
+      if (i < destinations.length - 1) {
+        currentTime = currentTime.add(const Duration(minutes: 30));
+        
+        // Kiểm tra lại sau khi thêm thời gian di chuyển
+        if (currentTime.hour >= 24) {
+          currentTime = DateTime.parse('2024-01-01 23:59:00');
+        }
+      }
     }
   }
 } 
