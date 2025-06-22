@@ -112,6 +112,16 @@ class _PersonInfoScreenState extends State<PersonInfoScreen> {
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
               child: Column(
                 children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12.r),
+                    child: Image.network(
+                      userData['idCardImageUrl'] ?? '',
+                      height: 180.h,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
                   DisabledTextField(
                     labelText: AppLocalizations.of(context).translate("Full Name"),
                     text: userData['fullName'] ?? '',

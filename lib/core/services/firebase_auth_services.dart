@@ -44,6 +44,7 @@ class FirebaseAuthService {
     String phoneNumber, 
     String nationality, 
     String birthday,
+    String idCardImageUrl,
     List<String> hobbies,
   ) async {
     try {
@@ -75,7 +76,8 @@ class FirebaseAuthService {
           phoneNumber: phoneNumber,
           nationality: nationality,
           birthday: birthday,
-          avatar: avatarUrl,  // Thêm URL avatar
+          idCardImageUrl: idCardImageUrl,
+          avatar: avatarUrl,  
           hobbies: hobbies,
         );
 

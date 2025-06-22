@@ -8,6 +8,8 @@ import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/core/services/id_card_service.dart';
 import 'package:tourguideapp/views/auth/id_card_confirmation_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CaptureIdCardScreen extends StatefulWidget {
   final String email;
@@ -185,7 +187,18 @@ class _CaptureIdCardScreenState extends State<CaptureIdCardScreen> with WidgetsB
       if (!mounted) return;
 
       final result = await _idCardService.processIdCardImage(image.path);
-      
+      if (!mounted) return;
+
+      // Upload ảnh CCCD lên Firebase Storage
+      final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+      if (userId.isEmpty) throw Exception('Người dùng chưa đăng nhập');
+      final String imageUrl = await _idCardService.uploadIdCardImage(imageFile, userId);
+
+      // KHÔNG lưu URL ảnh vào Firestore ở bước đăng ký
+      // await FirebaseFirestore.instance.collection('USER').doc(userId).update({
+      //   'idCardImageUrl': imageUrl,
+      // });
+
       if (!mounted) return;
 
       Navigator.push(
@@ -197,6 +210,7 @@ class _CaptureIdCardScreenState extends State<CaptureIdCardScreen> with WidgetsB
             password: widget.password,
             username: widget.username,
             phoneNumber: widget.phoneNumber,
+            idCardImageUrl: imageUrl,
           ),
         ),
       );

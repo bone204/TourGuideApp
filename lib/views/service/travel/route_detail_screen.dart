@@ -13,7 +13,6 @@ import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/widgets/destination_route_card.dart';
-import 'package:tourguideapp/core/utils/time_slot_manager.dart';
 import 'package:tourguideapp/views/service/travel/destination_edit_screen.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/models/destination_model.dart';

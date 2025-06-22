@@ -7,6 +7,7 @@ class UserModel {
   final String address;
   final String gender;
   final String citizenId;
+  final String idCardImageUrl;
   final String phoneNumber;
   final String nationality;
   final String birthday;
@@ -32,6 +33,7 @@ class UserModel {
     required this.address,
     required this.gender,
     required this.citizenId,
+    required this.idCardImageUrl,
     required this.phoneNumber,
     required this.nationality,
     required this.birthday,
@@ -59,6 +61,7 @@ class UserModel {
       'address': address,
       'gender': gender,
       'citizenId': citizenId,
+      'idCardImageUrl': idCardImageUrl,
       'phoneNumber': phoneNumber,
       'nationality': nationality,
       'birthday': birthday,
@@ -87,6 +90,7 @@ class UserModel {
       address: map['address'] ?? '',
       gender: map['gender'] ?? '',
       citizenId: map['citizenId'] ?? '',
+      idCardImageUrl: map['idCardImageUrl'] ?? '',
       phoneNumber: map['phoneNumber'] ?? '',
       nationality: map['nationality'] ?? '',
       birthday: map['birthday'] ?? '',

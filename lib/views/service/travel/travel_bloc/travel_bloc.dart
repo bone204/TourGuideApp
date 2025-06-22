@@ -6,7 +6,6 @@ import 'package:tourguideapp/views/service/travel/travel_bloc/travel_state.dart'
 import 'package:tourguideapp/models/travel_route_model.dart';
 import 'package:tourguideapp/models/user_model.dart';
 import 'package:tourguideapp/models/destination_model.dart';
-import 'package:tourguideapp/models/route_destination_model.dart';
 import 'package:tourguideapp/core/utils/time_slot_manager.dart';
 import 'package:collection/collection.dart';
 
@@ -783,38 +782,6 @@ class TravelBloc extends Bloc<TravelEvent, TravelState> {
     return minutes1.compareTo(minutes2);
   }
 
-  void _updateFollowingDestinationsTimes(List<Map<String, dynamic>> destinations, int startIndex) {
-    for (int i = startIndex; i < destinations.length; i++) {
-      if (i == 0) continue;
-      
-      final previousEnd = destinations[i - 1]['endTime'] ?? '00:00';
-      final previousEndParts = previousEnd.split(':');
-      var nextStartHour = int.parse(previousEndParts[0]);
-      var nextStartMinute = int.parse(previousEndParts[1]);
-      
-      // Đặt thời gian bắt đầu của địa điểm tiếp theo là 1 tiếng sau thời gian kết thúc của địa điểm trước
-      // Nhưng giới hạn tối đa là 23:59 để tránh vượt qua ngày
-      if (nextStartHour >= 23) {
-        nextStartHour = 23;
-        nextStartMinute = 59;
-      } else {
-        nextStartHour = (nextStartHour + 1) % 24;
-      }
-      
-      final startTime = '${nextStartHour.toString().padLeft(2, '0')}:${nextStartMinute.toString().padLeft(2, '0')}';
-      
-      // Tính end time, giới hạn tối đa là 23:59
-      var endHour = nextStartHour + 1;
-      if (endHour >= 24) {
-        endHour = 23;
-        nextStartMinute = 59;
-      }
-      final endTime = '${endHour.toString().padLeft(2, '0')}:${nextStartMinute.toString().padLeft(2, '0')}';
-      
-      destinations[i]['startTime'] = startTime;
-      destinations[i]['endTime'] = endTime;
-    }
-  }
 
   Future<void> _onDeleteDestinationFromRoute(
     DeleteDestinationFromRoute event,
