@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart'; 
+import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart';
 import 'package:tourguideapp/viewmodels/accountInfo_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/contract_viewmodel.dart';
@@ -34,6 +34,7 @@ import 'package:tourguideapp/core/services/firebase_auth_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourguideapp/core/services/notification_service.dart';
+import 'viewmodels/explore_viewmodel.dart';
 
 class ImagesPath {
   static const String kOnboarding1 = 'assets/images/img_1.jpg';
@@ -71,10 +72,11 @@ void main() async {
           ),
           ChangeNotifierProvider(create: (_) => SignupViewModel()),
           ChangeNotifierProvider(create: (_) => ProvinceViewModel()),
-          ChangeNotifierProvider(create: (_) => FavouriteDestinationsViewModel()),
+          ChangeNotifierProvider(
+              create: (_) => FavouriteDestinationsViewModel()),
           ChangeNotifierProvider(create: (_) => ProfileViewModel()),
           ChangeNotifierProvider(create: (_) => AccountInfoViewModel()),
-          ChangeNotifierProvider(create: (_) => HomeViewModel()), 
+          ChangeNotifierProvider(create: (_) => HomeViewModel()),
           ChangeNotifierProvider(create: (_) => PersonInfoViewModel()),
           ChangeNotifierProvider(create: (_) => AuthViewModel()),
           ChangeNotifierProvider(create: (_) => ContractViewModel()),
@@ -83,6 +85,8 @@ void main() async {
           ChangeNotifierProvider(create: (_) => BankViewModel()),
           ChangeNotifierProvider(create: (_) => BillViewModel()),
           ChangeNotifierProvider(create: (_) => DestinationsViewModel()),
+          ChangeNotifierProvider(
+              create: (_) => ExploreViewModel()..fetchDestinations()),
         ],
         child: const MyApp(showOnboarding: true),
       ),
@@ -146,7 +150,7 @@ class MyAppState extends State<MyApp> {
       setState(() {
         _locale = locale;
       });
-      
+
       // Save the language preference
       SharedPreferences.getInstance().then((prefs) {
         prefs.setString('languageCode', locale.languageCode);
@@ -193,7 +197,8 @@ class MyAppState extends State<MyApp> {
           },
           builder: (context, child) {
             return MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: const TextScaler.linear(1.0)),
               child: child!,
             );
           },
