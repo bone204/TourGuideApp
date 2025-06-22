@@ -5,6 +5,11 @@ import 'package:tourguideapp/widgets/bank_option_selector.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/cooperation_model.dart';
+import 'package:tourguideapp/core/services/momo_service.dart';
+import 'package:tourguideapp/widgets/app_dialog.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
+import 'dart:io';
 //import 'package:tourguideapp/services/momo_payment_service.dart';
 //import 'package:uuid/uuid.dart';
 
@@ -15,18 +20,23 @@ class DeliveryBill extends StatefulWidget {
   final String deliveryLocation;
   final String recipientName;
   final String recipientPhone;
+  final String senderName;
+  final String senderPhone;
   final String requirements;
+  final List<String> packagePhotos;
 
   const DeliveryBill({
     super.key,
     this.selectedBrand,
     this.selectedVehicle = 'Motorbike',
-    this.pickupLocation = '8 DT743 Street, Di An City, Binh Duong Province',
-    this.deliveryLocation =
-        '875 Cach Mang Thang 8 Street, District 1, Ho Chi Minh City',
-    this.recipientName = 'Nguyễn Hữu Trường',
-    this.recipientPhone = '00914259475',
-    this.requirements = 'Fragile - Please Handle with Care',
+    this.pickupLocation = '',
+    this.deliveryLocation = '',
+    this.recipientName = '',
+    this.recipientPhone = '',
+    this.senderName = '',
+    this.senderPhone = '',
+    this.requirements = '',
+    this.packagePhotos = const [],
   });
 
   @override
@@ -34,18 +44,53 @@ class DeliveryBill extends StatefulWidget {
 }
 
 class _DeliveryBillState extends State<DeliveryBill> {
-  String selectedBank = 'momo';
-  //final _momoService = MomoPaymentService();
-  //final _uuid = Uuid();
+  String? selectedBank;
+  final currencyFormat = NumberFormat('#,###', 'vi_VN');
 
   final List<Map<String, String>> bankOptions = [
-    {'id': 'momo', 'image': 'assets/img/ic_momo.png'},
-    {'id': 'vnpay', 'image': 'assets/img/ic_vnpay.png'},
-    {'id': 'zalo', 'image': 'assets/img/ic_zalo.png'},
-    {'id': 'airpay', 'image': 'assets/img/ic_airpay.png'},
-    {'id': 'shopee', 'image': 'assets/img/ic_shopee.png'},
-    {'id': 'bank', 'image': 'assets/img/ic_bank.png'},
+    {'id': 'visa', 'image': 'assets/img/Logo_Visa.png'},
+    {'id': 'mastercard', 'image': 'assets/img/Logo_Mastercard.png'},
+    {'id': 'paypal', 'image': 'assets/img/Logo_PayPal.png'},
+    {'id': 'momo', 'image': 'assets/img/Logo_Momo.png'},
+    {'id': 'zalopay', 'image': 'assets/img/Logo_Zalopay.png'},
+    {'id': 'shopee', 'image': 'assets/img/Logo_Shopee.png'},
   ];
+
+  // Giá cố định cho delivery
+  final int deliveryPrice = 650000;
+
+  Future<void> _processPayment() async {
+    try {
+      // Hiển thị thông báo thành công
+      if (mounted) {
+        showAppDialog(
+          context: context,
+          title: AppLocalizations.of(context).translate('Notification'),
+          content: AppLocalizations.of(context).translate('Your delivery order has been confirmed. The service will be added to your used list.'),
+          icon: Icons.check_circle,
+          iconColor: Colors.green,
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+              child: Text(AppLocalizations.of(context).translate('OK')),
+            ),
+          ],
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).translate('Error:') + ' $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   // @override
   // void initState() {
@@ -142,171 +187,59 @@ class _DeliveryBillState extends State<DeliveryBill> {
         child: Container(
           color: AppColors.white,
           child: Padding(
-            padding: EdgeInsets.only(bottom: 20.h, right: 20.w, left: 20.w),
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
             child: Column(children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: Image.asset(
-                  'assets/img/bg_delivery.png',
-                  height: 200.h,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
+              // Delivery image
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12.r),
+                  child: widget.packagePhotos.isNotEmpty
+                      ? Image.file(
+                          File(widget.packagePhotos.first),
+                          height: 256.h,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          'assets/img/my_vehicle_1.png',
+                          height: 256.h,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
+              SizedBox(height: 8.h),
+              const Divider(
+                thickness: 1,
+                color: AppColors.grey,
+              ),
               SizedBox(height: 16.h),
+
+              // Delivery brand information
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Text(
-                      widget.selectedBrand?.name ?? 'Delivery Service',
+                  Text(AppLocalizations.of(context).translate("Delivery Brand"),
+                      style:
+                          TextStyle(fontSize: 16.sp, color: AppColors.black)),
+                  Text(widget.selectedBrand?.name ?? 'Delivery Service',
                       style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.black,
-                      ),
-                    ),
-                  ),
-                  if (widget.selectedBrand != null)
-                    Row(
-                      children: List.generate(5, (index) {
-                        return Icon(
-                          index < widget.selectedBrand!.averageRating.floor()
-                              ? Icons.star
-                              : (index < widget.selectedBrand!.averageRating
-                                  ? Icons.star_half
-                                  : Icons.star_border),
-                          color: Colors.amber,
-                          size: 16.sp,
-                        );
-                      }),
-                    ),
+                          fontSize: 16.sp,
+                          color: AppColors.black,
+                          fontWeight: FontWeight.w700))
                 ],
               ),
-              SizedBox(height: 8.h),
-              if (widget.selectedBrand != null)
-                Text(
-                  widget.selectedBrand!.address,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              SizedBox(height: 16.h),
-              const Divider(thickness: 1, color: AppColors.grey),
-              SizedBox(height: 16.h),
-              Text(
-                "Pickup Address:",
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: AppColors.black,
-                ),
-              ),
-              SizedBox(height: 12.h),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.location_on_outlined,
-                    color: AppColors.black,
-                    size: 20.sp,
-                  ),
-                  SizedBox(width: 8.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(widget.recipientName,
-                                style: TextStyle(
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.black)),
-                            Text(widget.recipientPhone,
-                                style: TextStyle(
-                                    fontSize: 12.sp, color: AppColors.grey)),
-                          ],
-                        ),
-                        SizedBox(height: 6.h),
-                        Text(
-                          widget.pickupLocation,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: AppColors.black,
-                          ),
-                          softWrap: true,
-                          maxLines: null,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.h),
-              Text(
-                "Delivery Address:",
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: AppColors.black,
-                ),
-              ),
-              SizedBox(height: 12.h),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.location_on_outlined,
-                    color: AppColors.black,
-                    size: 20.sp,
-                  ),
-                  SizedBox(width: 8.w),
-                  Expanded(
-                    child: Text(
-                      widget.deliveryLocation,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        color: AppColors.black,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.h),
-              const Divider(
-                thickness: 1,
-                color: AppColors.grey,
-              ),
-              SizedBox(height: 16.h),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Requirements:",
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      color: AppColors.black,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    widget.requirements,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      color: AppColors.black,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.h),
-              const Divider(
-                thickness: 1,
-                color: AppColors.grey,
-              ),
-              SizedBox(height: 16.h),
+              SizedBox(height: 18.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -320,22 +253,8 @@ class _DeliveryBillState extends State<DeliveryBill> {
                           fontWeight: FontWeight.w700))
                 ],
               ),
-              SizedBox(height: 18.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(AppLocalizations.of(context).translate("Delivery Brand:"),
-                      style:
-                          TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                  Text(widget.selectedBrand?.name ?? 'N/A',
-                      style: TextStyle(
-                          fontSize: 16.sp,
-                          color: AppColors.black,
-                          fontWeight: FontWeight.w700))
-                ],
-              ),
               if (widget.selectedBrand != null) ...[
-                SizedBox(height: 8.h),
+                SizedBox(height: 18.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -365,15 +284,183 @@ class _DeliveryBillState extends State<DeliveryBill> {
                 color: AppColors.grey,
               ),
               SizedBox(height: 16.h),
+
+              // Pickup information
+              Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context).translate("Pickup Address:"),
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: AppColors.black,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          color: AppColors.black,
+                          size: 20.sp,
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(widget.senderName,
+                                      style: TextStyle(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.black)),
+                                  Text(widget.senderPhone,
+                                      style: TextStyle(
+                                          fontSize: 12.sp, color: AppColors.grey)),
+                                ],
+                              ),
+                              SizedBox(height: 6.h),
+                              Text(
+                                widget.pickupLocation,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: AppColors.black,
+                                ),
+                                softWrap: true,
+                                maxLines: null,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16.h),
+
+              // Delivery information
+              Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context).translate("Delivery Address:"),
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: AppColors.black,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          color: AppColors.black,
+                          size: 20.sp,
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(widget.recipientName,
+                                      style: TextStyle(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.black)),
+                                  Text(widget.recipientPhone,
+                                      style: TextStyle(
+                                          fontSize: 12.sp, color: AppColors.grey)),
+                                ],
+                              ),
+                              SizedBox(height: 6.h),
+                              Text(
+                                widget.deliveryLocation,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: AppColors.black,
+                                ),
+                                softWrap: true,
+                                maxLines: null,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16.h),
+              const Divider(
+                thickness: 1,
+                color: AppColors.grey,
+              ),
+              SizedBox(height: 16.h),
+
+              // Requirements
+              if (widget.requirements.isNotEmpty) ...[
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context).translate("Requirements:"),
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      widget.requirements,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: AppColors.black,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16.h),
+                const Divider(
+                  thickness: 1,
+                  color: AppColors.grey,
+                ),
+                SizedBox(height: 16.h),
+              ],
+
+              // Total
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(AppLocalizations.of(context).translate("Price:"),
+                  Text(AppLocalizations.of(context).translate("Total"),
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
                           fontWeight: FontWeight.w700)),
-                  Text('650,000 ₫',
+                  Text('${currencyFormat.format(deliveryPrice)} ₫',
                       style: TextStyle(
                           fontSize: 16.sp,
                           color: AppColors.black,
@@ -381,54 +468,108 @@ class _DeliveryBillState extends State<DeliveryBill> {
                 ],
               ),
               SizedBox(height: 24.h),
+
+              // Payment methods
+              Text(
+                AppLocalizations.of(context).translate("Payment Method"),
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.black,
+                ),
+              ),
+              SizedBox(height: 16.h),
               // Hàng 1
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: bankOptions
                     .sublist(0, 3)
                     .map((bank) => BankOptionSelector(
-                          bankImageUrl: bank['image'] ?? '',
+                          bankImageUrl: bank['image']!,
                           isSelected: selectedBank == bank['id'],
                           onTap: () {
                             setState(() {
-                              selectedBank = bank['id'] ?? '';
+                              selectedBank = bank['id'];
                             });
                           },
                         ))
                     .toList(),
               ),
-              SizedBox(height: 24.h),
+              SizedBox(height: 16.h),
               // Hàng 2
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: bankOptions
                     .sublist(3, 6)
                     .map((bank) => BankOptionSelector(
-                          bankImageUrl: bank['image'] ?? '',
+                          bankImageUrl: bank['image']!,
                           isSelected: selectedBank == bank['id'],
                           onTap: () {
                             setState(() {
-                              selectedBank = bank['id'] ?? '';
+                              selectedBank = bank['id'];
                             });
                           },
                         ))
                     .toList(),
               ),
-              SizedBox(height: 24.h),
+              SizedBox(height: 32.h),
               ElevatedButton(
-                onPressed: () {
-                  // if (selectedBank == 'momo') {
-                  //   _handleMomoPayment();
-                  // }
+                onPressed: () async {
+                  if (selectedBank == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context).translate('Please select a payment method')),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+                  if (selectedBank == 'momo') {
+                    // Gọi thanh toán momo
+                    await MomoService.processPayment(
+                      merchantName: 'TTN',
+                      appScheme: 'MOMO',
+                      merchantCode: 'MOMO',
+                      partnerCode: 'MOMO',
+                      amount: deliveryPrice,
+                      orderId: DateTime.now().millisecondsSinceEpoch.toString(),
+                      orderLabel: 'Đơn giao hàng',
+                      merchantNameLabel: 'HLGD',
+                      fee: 0,
+                      description: 'Thanh toán đơn giao hàng',
+                      username: FirebaseAuth.instance.currentUser?.uid ?? '',
+                      partner: 'merchant',
+                      extra: '{"deliveryBrandId":"${widget.selectedBrand?.cooperationId ?? ""}","vehicleType":"${widget.selectedVehicle}"}',
+                      isTestMode: true,
+                      onSuccess: (response) async {
+                        // Gọi _processPayment để lưu bill
+                        await _processPayment();
+                      },
+                      onError: (response) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(AppLocalizations.of(context).translate('MoMo payment failed:') + ' ${response.message}'), backgroundColor: Colors.red),
+                        );
+                      },
+                    );
+                  } else {
+                    // Các phương thức khác chỉ hiện thông báo Coming soon
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context).translate('This feature will be available soon!')),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF007BFF),
+                  backgroundColor: AppColors.primaryColor,
                   foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 50.h),
+                  minimumSize: Size(double.infinity, 56.h),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.r)),
+                      borderRadius: BorderRadius.circular(12.r)),
+                  elevation: 0,
                 ),
-                child: Text(AppLocalizations.of(context).translate("Confirm"),
+                child: Text(AppLocalizations.of(context).translate("Confirm Payment"),
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.w700,

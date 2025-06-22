@@ -78,7 +78,7 @@ class _VehicleRentalScreenState extends State<VehicleRentalScreen> {
     });
   }
 
-  void onLocationSelected(String location, Map<String, String> details) {
+  void onLocationSelected(String location, Map<String, String> details, String name, String phone) {
     setState(() {
       selectedLocation = location;
       locationDetails = details;

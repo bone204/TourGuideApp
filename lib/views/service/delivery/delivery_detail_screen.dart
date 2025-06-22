@@ -12,7 +12,26 @@ import 'package:tourguideapp/models/cooperation_model.dart';
 import 'package:tourguideapp/core/services/delivery_service.dart';
 
 class DeliveryDetailScreen extends StatefulWidget {
-  const DeliveryDetailScreen({super.key});
+  final String pickupLocation;
+  final String deliveryLocation;
+  final String recipientName;
+  final String recipientPhone;
+  final String senderName;
+  final String senderPhone;
+  final Map<String, String> pickupLocationDetails;
+  final Map<String, String> deliveryLocationDetails;
+
+  const DeliveryDetailScreen({
+    super.key,
+    required this.pickupLocation,
+    required this.deliveryLocation,
+    required this.recipientName,
+    required this.recipientPhone,
+    required this.senderName,
+    required this.senderPhone,
+    required this.pickupLocationDetails,
+    required this.deliveryLocationDetails,
+  });
 
   @override
   _DeliveryDetailScreenState createState() => _DeliveryDetailScreenState();
@@ -58,6 +77,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
   List<CooperationModel> deliveryBrands = [];
   bool isLoading = true;
   String? error;
+  List<String> selectedImages = [];
 
   final List<VehicleType> vehicleTypes = const [
     VehicleType(
@@ -422,8 +442,9 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                 title: AppLocalizations.of(context).translate("Package Photos"),
                 isRequired: true,
                 onImagePicked: (String imagePath) {
-                  // TODO: Xử lý khi ảnh được chọn
-                  print('Selected image path: $imagePath');
+                  setState(() {
+                    selectedImages.add(imagePath);
+                  });
                 },
               ),
               SizedBox(height: 24.h),
@@ -506,6 +527,16 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                           builder: (context) => DeliveryBill(
                                 selectedBrand: selectedBrand,
                                 selectedVehicle: selectedVehicle.name,
+                                pickupLocation: widget.pickupLocation,
+                                deliveryLocation: widget.deliveryLocation,
+                                recipientName: widget.recipientName,
+                                recipientPhone: widget.recipientPhone,
+                                senderName: widget.senderName,
+                                senderPhone: widget.senderPhone,
+                                requirements: _noteController.text.isNotEmpty 
+                                    ? _noteController.text 
+                                    : 'No special requirements',
+                                packagePhotos: selectedImages,
                               )));
                 },
                 style: ElevatedButton.styleFrom(
@@ -563,19 +594,19 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Nguyễn Hữu Trường",
+                      Text(widget.senderName,
                           style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w700,
                               color: AppColors.black)),
-                      Text("00914259475",
+                      Text(widget.senderPhone,
                           style: TextStyle(
                               fontSize: 12.sp, color: AppColors.grey)),
                     ],
                   ),
                   SizedBox(height: 6.h),
                   Text(
-                    "8 DT743 Street, Di An City, Binh Duong Province",
+                    widget.pickupLocation,
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: AppColors.black,
@@ -600,19 +631,19 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Trần Trung Thông",
+                      Text(widget.recipientName,
                           style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w700,
                               color: AppColors.black)),
-                      Text("0971 072 923",
+                      Text(widget.recipientPhone,
                           style: TextStyle(
                               fontSize: 12.sp, color: AppColors.grey)),
                     ],
                   ),
                   SizedBox(height: 6.h),
                   Text(
-                    "875 Cach Mang Thang 8 Street, District 1, Ho Chi Minh City",
+                    widget.deliveryLocation,
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: AppColors.black,

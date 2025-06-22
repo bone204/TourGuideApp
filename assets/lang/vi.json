@@ -547,6 +547,29 @@
     "Mini bar": "Mini bar",
     "Bathtub": "Bồn tắm",
     "Living room": "Phòng khách",
-    "Balcony": "Ban công"
+    "Balcony": "Ban công",
+    
+    "Choose Location": "Chọn Địa Điểm",
+    "Choose Pickup Location": "Chọn Địa Điểm Lấy Hàng",
+    "Choose Delivery Location": "Chọn Địa Điểm Giao Hàng",
+    "Search location": "Tìm kiếm địa điểm",
+    "Enter location to search": "Nhập địa điểm để tìm kiếm",
+    "Recipient Information": "Thông Tin Người Nhận",
+    "Please enter recipient information for:": "Vui lòng nhập thông tin người nhận cho:",
+    "Recipient Name": "Tên Người Nhận",
+    "Recipient Phone": "Số Điện Thoại Người Nhận",
+    "Please fill in all required information": "Vui lòng điền đầy đủ thông tin bắt buộc",
+    "Delivery Information": "Thông Tin Giao Hàng",
+    "Pickup Address:": "Địa Chỉ Lấy Hàng:",
+    "Delivery Address:": "Địa Chỉ Giao Hàng:",
+    "Requirements:": "Yêu Cầu:",
+    "Total Price": "Tổng Tiền",
+    
+    "Please select a payment method": "Vui lòng chọn phương thức thanh toán",
+    "Notification": "Thông Báo",
+    "Your delivery order has been confirmed. The service will be added to your used list.": "Đơn giao hàng của bạn đã được xác nhận. Dịch vụ sẽ được thêm vào danh sách đã sử dụng.",
+    "MoMo payment failed:": "Thanh toán MoMo thất bại:",
+    "This feature will be available soon!": "Tính năng này sẽ có sẵn sớm!",
+    "Error:": "Lỗi:"
 }
   

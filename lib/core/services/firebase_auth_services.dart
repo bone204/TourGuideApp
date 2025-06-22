@@ -173,6 +173,22 @@ class FirebaseAuthService {
     }
   }
 
+  // Lấy thông tin người dùng hiện tại
+  Future<UserModel?> getCurrentUserData() async {
+    try {
+      User? currentUser = _auth.currentUser;
+      if (currentUser != null) {
+        return await getUserData(currentUser.uid);
+      }
+      return null;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Lỗi khi lấy thông tin người dùng hiện tại: $e');
+      }
+      throw Exception("Lỗi khi lấy thông tin người dùng hiện tại: $e");
+    }
+  }
+
   String _handleFirebaseAuthException(FirebaseAuthException e) {
     String errorMessage;
     switch (e.code) {

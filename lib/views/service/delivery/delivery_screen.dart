@@ -6,6 +6,8 @@ import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/location_picker.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
+import 'package:tourguideapp/core/services/firebase_auth_services.dart';
+import 'package:tourguideapp/models/user_model.dart';
 
 class DeliveryScreen extends StatefulWidget {
   @override
@@ -19,13 +21,31 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
   Map<String, String> deliveryLocationDetails = {};
   String recipientName = '';
   String recipientPhone = '';
+  String senderName = '';
+  String senderPhone = '';
 
   final TextEditingController _recipientNameController = TextEditingController();
   final TextEditingController _recipientPhoneController = TextEditingController();
+  final FirebaseAuthService _authService = FirebaseAuthService();
 
   @override
   void initState() {
     super.initState();
+    _loadCurrentUserData();
+  }
+
+  Future<void> _loadCurrentUserData() async {
+    try {
+      UserModel? currentUser = await _authService.getCurrentUserData();
+      if (currentUser != null) {
+        setState(() {
+          senderName = currentUser.fullName;
+          senderPhone = currentUser.phoneNumber;
+        });
+      }
+    } catch (e) {
+      print('Error loading current user data: $e');
+    }
   }
 
   @override
@@ -35,21 +55,23 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     super.dispose();
   }
 
-  void onPickupLocationSelected(String location, Map<String, String> details) {
+  void onPickupLocationSelected(String location, Map<String, String> details, String senderName, String senderPhone) {
     setState(() {
       selectedPickupLocation = location;
-      selectedPickupLocation = [
-        details['province'],
-        details['city'],
-        details['district']
-      ].where((s) => s != null && s.isNotEmpty).join(", ");
+      pickupLocationDetails = details;
     });
   }
 
-  void onDeliveryLocationSelected(String location, Map<String, String> details) {
+  void onDeliveryLocationSelected(String location, Map<String, String> details, String recipientName, String recipientPhone) {
     setState(() {
       selectedDeliveryLocation = location;
       deliveryLocationDetails = details;
+      this.recipientName = recipientName;
+      this.recipientPhone = recipientPhone;
+      
+      // Cập nhật text controllers
+      _recipientNameController.text = recipientName;
+      _recipientPhoneController.text = recipientPhone;
     });
   }
 
@@ -75,12 +97,16 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
             children: [
               LocationPicker(
                 title: AppLocalizations.of(context).translate("Pickup Location"),
-                onLocationSelected: onPickupLocationSelected,
+                onLocationSelected: (location, details, name, phone) {
+                  onPickupLocationSelected(location, details, senderName, senderPhone);
+                },
+                isDeliveryLocation: false, // Địa điểm gửi hàng
               ),
               SizedBox(height: 24.h),
               LocationPicker(
                 title: AppLocalizations.of(context).translate("Delivery Location"),
                 onLocationSelected: onDeliveryLocationSelected,
+                isDeliveryLocation: true, // Địa điểm giao hàng
               ),
               SizedBox(height: 24.h),
               Column(
@@ -145,9 +171,32 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
               CustomElevatedButton(
                 text: "Confirm",
                 onPressed: () {
+                  // Kiểm tra xem đã chọn đủ thông tin chưa
+                  if (selectedPickupLocation.isEmpty || selectedDeliveryLocation.isEmpty || 
+                      recipientName.isEmpty || recipientPhone.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context).translate('Please fill in all required information')),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+                  
                   Navigator.push(
                     context, 
-                    MaterialPageRoute(builder: (context) => DeliveryDetailScreen())
+                    MaterialPageRoute(
+                      builder: (context) => DeliveryDetailScreen(
+                        pickupLocation: selectedPickupLocation,
+                        deliveryLocation: selectedDeliveryLocation,
+                        recipientName: recipientName,
+                        recipientPhone: recipientPhone,
+                        senderName: senderName,
+                        senderPhone: senderPhone,
+                        pickupLocationDetails: pickupLocationDetails,
+                        deliveryLocationDetails: deliveryLocationDetails,
+                      )
+                    )
                   );
                 },
               ),

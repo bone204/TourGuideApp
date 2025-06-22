@@ -684,7 +684,7 @@ class _VehicleRentalRegisterScreenState
                 title:
                     AppLocalizations.of(context).translate("Business Address"),
                 onLocationSelected:
-                    (String location, Map<String, String> details) {
+                    (String location, Map<String, String> details, String name, String phone) {
                   setState(() {
                     contractData['businessAddress'] =
                         location; // Chỉ lưu địa chỉ chi tiết

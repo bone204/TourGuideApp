@@ -549,6 +549,16 @@
     "Mini bar": "Mini bar",
     "Bathtub": "Bathtub",
     "Living room": "Living room",
-    "Balcony": "Balcony"
+    "Balcony": "Balcony",
+
+    "Requirements:": "Requirements:",
+    "Total Price": "Total Price",
+    
+    "Please select a payment method": "Please select a payment method",
+    "Notification": "Notification",
+    "Your delivery order has been confirmed. The service will be added to your used list.": "Your delivery order has been confirmed. The service will be added to your used list.",
+    "MoMo payment failed:": "MoMo payment failed:",
+    "This feature will be available soon!": "This feature will be available soon!",
+    "Error:": "Error:"
 }
   

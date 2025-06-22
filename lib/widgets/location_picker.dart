@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mapbox_search/mapbox_search.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
@@ -10,13 +9,15 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LocationPicker extends StatefulWidget {
-  final Function(String, Map<String, String>) onLocationSelected;
+  final Function(String, Map<String, String>, String, String) onLocationSelected;
   final String? title;
+  final bool isDeliveryLocation; // Để phân biệt địa điểm gửi và nhận
 
   const LocationPicker({
     Key? key,
     required this.onLocationSelected,
     required this.title,
+    this.isDeliveryLocation = false, // Mặc định là địa điểm gửi
   }) : super(key: key);
 
   @override
@@ -26,31 +27,54 @@ class LocationPicker extends StatefulWidget {
 class _LocationPickerState extends State<LocationPicker> {
   String selectedLocation = "";
   String selectedName = "";
-  List<Suggestion> _searchResults = [];
+  List<Map<String, dynamic>> _searchResults = [];
   final TextEditingController _searchController = TextEditingController();
+  bool _isLoading = false;
 
   Future<List<Map<String, dynamic>>> _searchPlaces(String input) async {
-    final apiKey = dotenv.env['GOOGLE_API_KEY']!;
-    final url =
-        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&language=vi&components=country:VN&key=$apiKey';
-    final response = await http.get(Uri.parse(url));
-    final data = jsonDecode(response.body);
-    if (data['status'] == 'OK') {
-      return List<Map<String, dynamic>>.from(data['predictions']);
+    if (input.length < 3) return [];
+    
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final apiKey = dotenv.env['GOOGLE_API_KEY']!;
+      final url =
+          'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&language=vi&components=country:VN&key=$apiKey';
+      final response = await http.get(Uri.parse(url));
+      final data = jsonDecode(response.body);
+      
+      if (data['status'] == 'OK') {
+        return List<Map<String, dynamic>>.from(data['predictions']);
+      }
+      return [];
+    } catch (e) {
+      print('Error searching places: $e');
+      return [];
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-    return [];
   }
 
   Future<Map<String, dynamic>> _getPlaceDetails(String placeId) async {
-    final apiKey = dotenv.env['GOOGLE_API_KEY']!;
-    final url =
-        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&language=vi&key=$apiKey';
-    final response = await http.get(Uri.parse(url));
-    final data = jsonDecode(response.body);
-    if (data['status'] == 'OK') {
-      return data['result'];
+    try {
+      final apiKey = dotenv.env['GOOGLE_API_KEY']!;
+      final url =
+          'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&language=vi&fields=formatted_address,address_components,geometry,name,formatted_phone_number&key=$apiKey';
+      final response = await http.get(Uri.parse(url));
+      final data = jsonDecode(response.body);
+      
+      if (data['status'] == 'OK') {
+        return data['result'];
+      }
+      return {};
+    } catch (e) {
+      print('Error getting place details: $e');
+      return {};
     }
-    return {};
   }
 
   void _showSearchScreen() {
@@ -66,8 +90,9 @@ class _LocationPickerState extends State<LocationPicker> {
             appBar: PreferredSize(
               preferredSize: Size.fromHeight(60.h),
               child: CustomAppBar(
-                title:
-                    AppLocalizations.of(context).translate('Choose Location'),
+                title: widget.isDeliveryLocation 
+                    ? AppLocalizations.of(context).translate('Choose Delivery Location')
+                    : AppLocalizations.of(context).translate('Choose Pickup Location'),
                 onBackPressed: () => Navigator.pop(context),
               ),
             ),
@@ -77,63 +102,97 @@ class _LocationPickerState extends State<LocationPicker> {
                 children: [
                   CustomSearchBar(
                     controller: _searchController,
-                    hintText: 'Search',
+                    hintText: AppLocalizations.of(context).translate('Search location'),
                     onChanged: (value) async {
-                      _searchPlaces(value);
+                      if (value.length >= 3) {
+                        final results = await _searchPlaces(value);
+                        setModalState(() {
+                          _searchResults = results;
+                        });
+                      } else {
+                        setModalState(() {
+                          _searchResults.clear();
+                        });
+                      }
                     },
                     margin: EdgeInsets.symmetric(horizontal: 20.w),
                   ),
                   SizedBox(height: 10.h),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      child: ListView.builder(
-                        itemCount: _searchResults.length,
-                        itemBuilder: (context, index) {
-                          final suggestion = _searchResults[index];
-                          return ListTile(
-                            leading: Icon(
-                                suggestion.featureType == 'poi'
-                                    ? Icons.place
-                                    : suggestion.featureType == 'address'
-                                        ? Icons.home
-                                        : Icons.location_city,
-                                color: AppColors.primaryColor),
-                            title: Text(
-                              suggestion.name,
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w700,
+                  if (_isLoading)
+                    Padding(
+                      padding: EdgeInsets.all(20.w),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20.w),
+                        child: _searchResults.isEmpty
+                            ? Center(
+                                child: Text(
+                                  AppLocalizations.of(context).translate('Enter location to search'),
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              )
+                            : ListView.builder(
+                                itemCount: _searchResults.length,
+                                itemBuilder: (context, index) {
+                                  final prediction = _searchResults[index];
+                                  return ListTile(
+                                    leading: Icon(
+                                      _getIconForType(prediction['types'] ?? []),
+                                      color: AppColors.primaryColor,
+                                    ),
+                                    title: Text(
+                                      prediction['structured_formatting']?['main_text'] ?? prediction['description'] ?? '',
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      prediction['structured_formatting']?['secondary_text'] ?? '',
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: Colors.grey,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    onTap: () async {
+                                      final details = await _getPlaceDetails(prediction['place_id']);
+                                      final locationDetails = extractLocationDetails(details);
+                                      
+                                      // Lấy thông tin từ Google Places API
+                                      String recipientName = '';
+                                      String recipientPhone = locationDetails['phone'] ?? '';
+                                      
+                                      // Chỉ lấy tên nếu là địa điểm gửi hàng (không phải giao hàng)
+                                      if (!widget.isDeliveryLocation) {
+                                        recipientName = locationDetails['name'] ?? '';
+                                      }
+                                      
+                                      setState(() {
+                                        selectedLocation = prediction['description'] ?? '';
+                                        selectedName = recipientName.isNotEmpty ? recipientName : prediction['structured_formatting']?['main_text'] ?? '';
+                                      });
+                                      
+                                      widget.onLocationSelected(
+                                        prediction['description'] ?? '',
+                                        locationDetails,
+                                        recipientName,
+                                        recipientPhone,
+                                      );
+                                      Navigator.pop(context);
+                                    },
+                                  );
+                                },
                               ),
-                            ),
-                            subtitle: Text(
-                              _formatAddress(suggestion.address ?? ''),
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                color: Colors.grey,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            onTap: () async {
-                              final details =
-                                  await _getPlaceDetails(suggestion.mapboxId);
-                              setState(() {
-                                selectedLocation = _formatAddress(
-                                    suggestion.fullAddress ?? '');
-                                selectedName = suggestion.name;
-                              });
-                              widget.onLocationSelected(
-                                _formatAddress(suggestion.fullAddress ?? ''),
-                                extractLocationDetails(details),
-                              );
-                              Navigator.pop(context);
-                            },
-                          );
-                        },
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -141,6 +200,14 @@ class _LocationPickerState extends State<LocationPicker> {
         ),
       ),
     );
+  }
+
+  IconData _getIconForType(List<dynamic> types) {
+    if (types.contains('establishment')) return Icons.business;
+    if (types.contains('sublocality') || types.contains('locality')) return Icons.location_city;
+    if (types.contains('route')) return Icons.route;
+    if (types.contains('street_address')) return Icons.home;
+    return Icons.location_on;
   }
 
   @override
@@ -195,10 +262,6 @@ class _LocationPickerState extends State<LocationPicker> {
     );
   }
 
-  String _formatAddress(String? address) {
-    if (address == null) return '';
-    return address.replaceAll('Vietnam', 'Việt Nam');
-  }
 }
 
 // Thêm class để quản lý dữ liệu địa điểm
@@ -236,7 +299,9 @@ Map<String, String> extractLocationDetails(Map<String, dynamic> placeDetails) {
     'city': city,
     'district': district,
     'address': placeDetails['formatted_address'] ?? '',
-    'lat': placeDetails['geometry']['location']['lat'].toString(),
-    'lng': placeDetails['geometry']['location']['lng'].toString(),
+    'lat': placeDetails['geometry']?['location']?['lat']?.toString() ?? '',
+    'lng': placeDetails['geometry']?['location']?['lng']?.toString() ?? '',
+    'name': placeDetails['name'] ?? '',
+    'phone': placeDetails['formatted_phone_number'] ?? '',
   };
 }
