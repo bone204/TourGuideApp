@@ -230,7 +230,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                           Navigator.of(context).pop();
                           Navigator.of(context).popUntil((route) => route.isFirst);
                         },
-                        child: Text('OK', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                        child: const Text('OK', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                       ),
                     ),
                   ],

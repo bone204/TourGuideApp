@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/views/service/restaurant/restaurant_booking_bill.dart';
-import 'package:tourguideapp/widgets/custom_icon_button.dart';
-import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/date_and_time_picker.dart';
 import 'package:tourguideapp/widgets/person_picker.dart';
 import 'package:tourguideapp/widgets/table_card.dart';
@@ -82,78 +81,25 @@ class _TableListScreenState extends State<TableListScreen> {
     _checkTableAvailability();
   }
 
-  void _onPersonCountChanged(PersonCount count) {
-    setState(() {
-      personCount = count;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.h),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          surfaceTintColor: Colors.transparent,
-          automaticallyImplyLeading: false,
-          flexibleSpace: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                height: 40.h,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: CustomIconButton(
-                        icon: Icons.chevron_left,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        AppLocalizations.of(context)
-                            .translate(widget.restaurant.name),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20.sp,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+      appBar: CustomAppBar(
+        title: widget.restaurant.name,
+        onBackPressed: () {
+          Navigator.of(context).pop();
+        }
       ),
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.only(top: 20.h, left: 20.w, right: 20.w),
-            child: Row(
-              children: [
-                Expanded(
-                  child: DateAndTimePicker(
-                    selectedDate: selectedDate,
-                    selectedTime: selectedTime,
-                    onDateSelected: _onDateSelected,
-                    onTimeSelected: _onTimeSelected,
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                PersonPicker(
-                  personCount: personCount,
-                  onPersonCountChanged: _onPersonCountChanged,
-                ),
-              ],
+            padding: EdgeInsets.only(top: 20.h, left: 20.w, right: 20.w, bottom: 20.h),
+            child: DateAndTimePicker(
+              selectedDate: selectedDate,
+              selectedTime: selectedTime,
+              onDateSelected: _onDateSelected,
+              onTimeSelected: _onTimeSelected,
             ),
           ),
           Expanded(

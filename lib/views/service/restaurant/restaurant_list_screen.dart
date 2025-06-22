@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/widgets/custom_icon_button.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/restaurant_card.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/cooperation_model.dart';
@@ -79,45 +79,11 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.h),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          flexibleSpace: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                height: 40.h,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: CustomIconButton(
-                        icon: Icons.chevron_left,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        AppLocalizations.of(context)
-                            .translate('Restaurant List'),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20.sp,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+      appBar: CustomAppBar(
+        onBackPressed: () {
+          Navigator.of(context).pop();
+        },
+        title: AppLocalizations.of(context).translate("Restaurant List"),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -162,13 +128,15 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
                     )
                   : Padding(
                       padding: EdgeInsets.symmetric(
-                          horizontal: 10.w, vertical: 20.h),
+                          horizontal: 10.w, vertical: 10.h),
                       child: GridView.builder(
+                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 161.w / 190.h,
-                          mainAxisSpacing: 20.h,
-                          crossAxisSpacing: 0,
+                          
+                          childAspectRatio: 161.w / 230.h,
+                          mainAxisSpacing: 10.h,
+                          crossAxisSpacing: 10.w,
                         ),
                         itemCount: restaurants.length,
                         itemBuilder: (context, index) {

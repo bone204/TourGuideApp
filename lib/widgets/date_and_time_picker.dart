@@ -104,7 +104,7 @@ class DateAndTimePicker extends StatelessWidget {
             Expanded(
               child: Text(
                 _formatDateTime(selectedDate, selectedTime),
-                style: TextStyle(fontSize: 12.sp),
+                style: TextStyle(fontSize: 16.sp),
               ),
             ),
           ],

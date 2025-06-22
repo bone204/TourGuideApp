@@ -28,9 +28,6 @@ class RestaurantCard extends StatelessWidget {
         );
       },
       child: Container(
-        width: 161.w,
-        height: 190.h,
-        margin: EdgeInsets.symmetric(horizontal: 10.w),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.r),
           color: Colors.white,
@@ -42,70 +39,68 @@ class RestaurantCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  restaurant.photo,
-                  height: 120,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16.r),
+                topRight: Radius.circular(16.r),
               ),
-              SizedBox(height: 8.h),
-              Text(
-                restaurant.name,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              child: Image.network(
+                restaurant.photo,
+                height: 124.h,
+                width: double.infinity,
+                fit: BoxFit.cover,
               ),
-              SizedBox(height: 4.h),
-              Text(
-                restaurant.address,
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 13.sp,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              SizedBox(height: 4.h),
-              Text(
-                minTablePrice != null
-                    ? 'Từ ${currencyFormat.format(minTablePrice)} ₫/bàn'
-                    : 'Giá: Xem chi tiết',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 14.sp,
-                ),
-              ),
-              SizedBox(height: 4.h),
-              Row(
+            ),
+            SizedBox(height: 8.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ...List.generate(5, (index) {
-                    return Icon(
-                      index < restaurant.averageRating.floor()
-                          ? Icons.star
-                          : (index < restaurant.averageRating
-                              ? Icons.star_half
-                              : Icons.star_border),
-                      color: Colors.amber,
-                      size: 16.sp,
-                    );
-                  }),
+                  Text(
+                    restaurant.name,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF000000),
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 6.h),
+                  Text(
+                    minTablePrice != null
+                        ? 'Từ ${currencyFormat.format(minTablePrice)} ₫/bàn'
+                        : 'Giá: Xem chi tiết',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                  SizedBox(height: 6.h),
+                  Row(
+                    children: [
+                      ...List.generate(5, (index) {
+                        return Icon(
+                          index < restaurant.averageRating.floor()
+                              ? Icons.star
+                              : (index < restaurant.averageRating
+                                  ? Icons.star_half
+                                  : Icons.star_border),
+                          color: Colors.amber,
+                          size: 16.sp,
+                        );
+                      }),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

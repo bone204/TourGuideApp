@@ -37,96 +37,101 @@ class TableCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 14.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16.r),
-              child: Image.network(
-                imageUrl,
-                height: 180.h,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16.r),
+              topRight: Radius.circular(16.r),
             ),
-            SizedBox(height: 16.h),
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w700,
-              ),
+            child: Image.network(
+              imageUrl,
+              height: 160.h,
+              width: double.infinity,
+              fit: BoxFit.cover,
             ),
-            SizedBox(height: 10.h),
-            const Divider(
-              thickness: 1,
-              color: AppColors.grey,
-            ),
-            SizedBox(height: 14.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Row(
-                      children: [
-                        Icon(Icons.person, size: 16.w, color: AppColors.grey),
-                        SizedBox(width: 4.w),
-                        Text(
-                          '$capacity person(s)',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: AppColors.grey,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            name,
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 8.h),
+                          Row(
+                            children: [
+                              Icon(Icons.person, size: 16.w, color: AppColors.grey),
+                              SizedBox(width: 4.w),
+                              Text(
+                                '$capacity người',
+                                style: TextStyle(fontSize: 12.sp, color: AppColors.grey),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+                          Row(
+                            children: [
+                              Icon(Icons.location_on, size: 16.w, color: AppColors.grey),
+                              SizedBox(width: 4.w),
+                              Expanded(
+                                child: Text(
+                                  location,
+                                  style: TextStyle(fontSize: 12.sp, color: AppColors.grey),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                    SizedBox(height: 12.h),
-                    Row(
-                      children: [
-                        Icon(Icons.table_bar,
-                            size: 16.w, color: AppColors.grey),
-                        SizedBox(width: 4.w),
-                        Text(
-                          '$tablesLeft table(s) left',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: AppColors.grey,
-                          ),
+                    SizedBox(width: 8.w),
+                    ElevatedButton(
+                      onPressed: onChoose,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
                         ),
-                      ],
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20.w,
+                          vertical: 8.h,
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Chọn',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                ElevatedButton(
-                  onPressed: onChoose,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 24.w,
-                      vertical: 8.h,
-                    ),
-                  ),
-                  child: Text(
-                    'Choose',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

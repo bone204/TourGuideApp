@@ -16,7 +16,7 @@ class RestaurantBookingScreen extends StatefulWidget {
 }
 
 class _RestaurantBookingScreenState extends State<RestaurantBookingScreen> {
-  DateTime checkTime = DateTime.now();
+  DateTime checkTime = DateTime.now().add(const Duration(days: 1));
   double minBudget = 0;
   double maxBudget = 1000000;
   String selectedProvince = '';
