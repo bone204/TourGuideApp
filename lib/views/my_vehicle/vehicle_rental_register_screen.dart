@@ -26,10 +26,12 @@ class VehicleRentalRegisterScreen extends StatefulWidget {
   const VehicleRentalRegisterScreen({super.key});
 
   @override
-  _VehicleRentalRegisterScreenState createState() => _VehicleRentalRegisterScreenState();
+  _VehicleRentalRegisterScreenState createState() =>
+      _VehicleRentalRegisterScreenState();
 }
 
-class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScreen> {
+class _VehicleRentalRegisterScreenState
+    extends State<VehicleRentalRegisterScreen> {
   final Map<String, dynamic> contractData = {};
   PageController _pageController = PageController();
   int _currentStep = 0;
@@ -44,8 +46,10 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
   // Định nghĩa các TextEditingController cụ thể
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _taxCodeController = TextEditingController();
-  final TextEditingController _bankAccountNumberController = TextEditingController();
-  final TextEditingController _bankAccountNameController = TextEditingController();
+  final TextEditingController _bankAccountNumberController =
+      TextEditingController();
+  final TextEditingController _bankAccountNameController =
+      TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
@@ -77,19 +81,20 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
     _loadUserData();
     _loadProvinces();
     _loadBanks();
-    
+
     // Thêm dòng này để load thông tin xe
-    final viewModel = Provider.of<RentalVehicleViewModel>(context, listen: false);
-    viewModel.loadVehicleInformation('Car', 'vi'); // hoặc 'Motorbike' tùy loại xe
+    final viewModel =
+        Provider.of<RentalVehicleViewModel>(context, listen: false);
+    viewModel.loadVehicleInformation(
+        'Car', 'vi'); // hoặc 'Motorbike' tùy loại xe
   }
 
   // Thêm hàm load danh sách tỉnh
   Future<void> _loadProvinces() async {
     try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('PROVINCE')
-          .get();
-      
+      final snapshot =
+          await FirebaseFirestore.instance.collection('PROVINCE').get();
+
       setState(() {
         _provinces = snapshot.docs
             .map((doc) => Province.fromMap({
@@ -97,7 +102,7 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                   'provinceId': doc.id,
                 }))
             .toList();
-        
+
         // Tự động chọn tỉnh đầu tiên nếu có dữ liệu
         if (_provinces.isNotEmpty) {
           _selectedProvinceId = _provinces.first.provinceId;
@@ -140,7 +145,8 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
 
       if (userDoc.exists) {
         // Chuyển đổi dữ liệu từ Firestore thành UserModel
-        UserModel currentUser = UserModel.fromMap(userDoc.data() as Map<String, dynamic>);
+        UserModel currentUser =
+            UserModel.fromMap(userDoc.data() as Map<String, dynamic>);
 
         // Cập nhật các TextEditingController với thông tin người dùng
         _fullNameController.text = currentUser.fullName;
@@ -161,12 +167,15 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
 
   void _nextStep() {
     if (_formKey.currentState?.validate() ?? false) {
-      if (_currentStep == 0 && (_citizenPhotoFrontPath.isEmpty || _citizenPhotoBackPath.isEmpty)) {
-        _showErrorDialog(AppLocalizations.of(context).translate('Please upload both front and back photos of your identification.'));
+      if (_currentStep == 0 &&
+          (_citizenPhotoFrontPath.isEmpty || _citizenPhotoBackPath.isEmpty)) {
+        _showErrorDialog(AppLocalizations.of(context).translate(
+            'Please upload both front and back photos of your identification.'));
         return;
       }
       if (_currentStep == 1 && _businessRegisterPhotoPath.isEmpty) {
-        _showErrorDialog(AppLocalizations.of(context).translate('Please upload the business register photo.'));
+        _showErrorDialog(AppLocalizations.of(context)
+            .translate('Please upload the business register photo.'));
         return;
       }
       if (_currentStep < 2) {
@@ -207,21 +216,26 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => const Center(child: CircularProgressIndicator()),
+          builder: (context) =>
+              const Center(child: CircularProgressIndicator()),
         );
 
-        final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-        final contractViewModel = Provider.of<ContractViewModel>(context, listen: false);
+        final authViewModel =
+            Provider.of<AuthViewModel>(context, listen: false);
+        final contractViewModel =
+            Provider.of<ContractViewModel>(context, listen: false);
         final currentUserId = authViewModel.currentUserId;
 
         if (currentUserId != null) {
           // Kiểm tra xem đã có đủ thông tin địa chỉ chưa
           if (contractData['businessAddress']?.isEmpty ?? true) {
-            throw Exception(AppLocalizations.of(context).translate('Business address is required'));
+            throw Exception(AppLocalizations.of(context)
+                .translate('Business address is required'));
           }
 
           if (contractData['businessLocation']?.isEmpty ?? true) {
-            throw Exception(AppLocalizations.of(context).translate('Administrative region information is required'));
+            throw Exception(AppLocalizations.of(context)
+                .translate('Administrative region information is required'));
           }
 
           // Cập nhật contractData với tất cả thông tin cần thiết
@@ -234,8 +248,10 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
             'userId': currentUserId,
             'businessType': _selectedBusinessType,
             'businessName': _businessNameController.text,
-            'businessLocation': contractData['businessLocation'], // Địa chỉ đầy đủ
-            'businessAddress': contractData['businessAddress'], // Địa chỉ chi tiết
+            'businessLocation':
+                contractData['businessLocation'], // Địa chỉ đầy đủ
+            'businessAddress':
+                contractData['businessAddress'], // Địa chỉ chi tiết
             'businessProvince': contractData['businessProvince'],
             'businessCity': contractData['businessCity'],
             'businessDistrict': contractData['businessDistrict'],
@@ -249,14 +265,16 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
           });
 
           final locale = Localizations.localeOf(context).languageCode;
-          await contractViewModel.createContractForUser(currentUserId, contractData, locale);
+          await contractViewModel.createContractForUser(
+              currentUserId, contractData, locale);
 
           Navigator.of(context).pop(); // Đóng loading indicator
           Navigator.of(context).pop(); // Quay lại màn hình trước
         }
       } catch (e) {
         Navigator.of(context).pop();
-        _showErrorDialog(AppLocalizations.of(context).translate('Error creating contract. Please try again.'));
+        _showErrorDialog(AppLocalizations.of(context)
+            .translate('Error creating contract. Please try again.'));
         if (kDebugMode) {
           print("Error creating contract: $e");
         }
@@ -294,7 +312,8 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812), minTextAdapt: true);
+    ScreenUtil.init(context,
+        designSize: const Size(375, 812), minTextAdapt: true);
     return Form(
       key: _formKey,
       child: Scaffold(
@@ -323,16 +342,24 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                                   width: 30.w,
                                   height: 30.h,
                                   decoration: BoxDecoration(
-                                    color: _currentStep >= index ? const Color(0xFF007BFF) : Colors.transparent,
+                                    color: _currentStep >= index
+                                        ? const Color(0xFF007BFF)
+                                        : Colors.transparent,
                                     border: Border.all(
-                                      color: _currentStep >= index ? const Color(0xFF007BFF) : Colors.grey,
+                                      color: _currentStep >= index
+                                          ? const Color(0xFF007BFF)
+                                          : Colors.grey,
                                     ),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Center(
                                     child: Icon(
-                                      _stepCompleted[index] ? Icons.check : Icons.circle,
-                                      color: _currentStep >= index ? Colors.white : Colors.white,
+                                      _stepCompleted[index]
+                                          ? Icons.check
+                                          : Icons.circle,
+                                      color: _currentStep >= index
+                                          ? Colors.white
+                                          : Colors.white,
                                       size: 20.sp,
                                     ),
                                   ),
@@ -341,7 +368,9 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                                   Container(
                                     width: 97.w,
                                     height: 1.h,
-                                    color: _currentStep > index ? const Color(0xFF007BFF) : Colors.grey,
+                                    color: _currentStep > index
+                                        ? const Color(0xFF007BFF)
+                                        : Colors.grey,
                                   ),
                               ],
                             );
@@ -354,7 +383,8 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                             SizedBox(
                               width: 80.w,
                               child: Text(
-                                AppLocalizations.of(context).translate('Identification Information'),
+                                AppLocalizations.of(context)
+                                    .translate('Identification Information'),
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w500,
@@ -367,7 +397,8 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                             SizedBox(
                               width: 90.w,
                               child: Text(
-                                AppLocalizations.of(context).translate("Tax Information"),
+                                AppLocalizations.of(context)
+                                    .translate("Tax Information"),
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w500,
@@ -380,7 +411,8 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                             SizedBox(
                               width: 80.w,
                               child: Text(
-                                AppLocalizations.of(context).translate("Billing Information"),
+                                AppLocalizations.of(context)
+                                    .translate("Billing Information"),
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w500,
@@ -443,11 +475,11 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                         ),
                       ),
                     ),
-                  if (_currentStep > 0)
-                    SizedBox(width: 16.w),
+                  if (_currentStep > 0) SizedBox(width: 16.w),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _currentStep == 2 ? _completeRegistration : _nextStep,
+                      onPressed:
+                          _currentStep == 2 ? _completeRegistration : _nextStep,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF007BFF),
                         foregroundColor: Colors.white,
@@ -458,7 +490,9 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                         ),
                       ),
                       child: Text(
-                        _currentStep == 2 ? AppLocalizations.of(context).translate("Confirm") : AppLocalizations.of(context).translate("Next"),
+                        _currentStep == 2
+                            ? AppLocalizations.of(context).translate("Confirm")
+                            : AppLocalizations.of(context).translate("Next"),
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16.sp,
@@ -486,12 +520,14 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
             children: [
               _buildTextField(
                 controller: _fullNameController,
-                hintText: AppLocalizations.of(context).translate("Enter your full name"),
+                hintText: AppLocalizations.of(context)
+                    .translate("Enter your full name"),
                 label: AppLocalizations.of(context).translate("Full Name"),
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context).translate("Please enter your full name");
+                    return AppLocalizations.of(context)
+                        .translate("Please enter your full name");
                   }
                   return null;
                 },
@@ -499,12 +535,14 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _emailController,
-                hintText: AppLocalizations.of(context).translate("Enter your email"),
+                hintText:
+                    AppLocalizations.of(context).translate("Enter your email"),
                 label: AppLocalizations.of(context).translate("Email"),
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context).translate("Please enter your email");
+                    return AppLocalizations.of(context)
+                        .translate("Please enter your email");
                   }
                   return null;
                 },
@@ -512,12 +550,14 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _phoneNumberController,
-                hintText: AppLocalizations.of(context).translate("Enter your phone number"),
+                hintText: AppLocalizations.of(context)
+                    .translate("Enter your phone number"),
                 label: AppLocalizations.of(context).translate("Phone Number"),
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context).translate("Please enter your phone number");
+                    return AppLocalizations.of(context)
+                        .translate("Please enter your phone number");
                   }
                   return null;
                 },
@@ -525,19 +565,23 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _citizenIdController,
-                hintText: AppLocalizations.of(context).translate("Enter your identification number"),
-                label: AppLocalizations.of(context).translate("Identification Number"),
+                hintText: AppLocalizations.of(context)
+                    .translate("Enter your identification number"),
+                label: AppLocalizations.of(context)
+                    .translate("Identification Number"),
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context).translate("Please enter your identification number");
+                    return AppLocalizations.of(context)
+                        .translate("Please enter your identification number");
                   }
                   return null;
                 },
               ),
               SizedBox(height: 16.h),
               ImagePickerWidget(
-                title: AppLocalizations.of(context).translate("Identification (Front Photo)"),
+                title: AppLocalizations.of(context)
+                    .translate("Identification (Front Photo)"),
                 initialImagePath: _citizenPhotoFrontPath,
                 onImagePicked: (String path) {
                   setState(() {
@@ -548,7 +592,8 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               ),
               SizedBox(height: 16.h),
               ImagePickerWidget(
-                title: AppLocalizations.of(context).translate("Identification (Back Photo)"),
+                title: AppLocalizations.of(context)
+                    .translate("Identification (Back Photo)"),
                 initialImagePath: _citizenPhotoBackPath,
                 onImagePicked: (String path) {
                   setState(() {
@@ -590,29 +635,34 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _businessNameController,
-                hintText: AppLocalizations.of(context).translate("Enter business name"),
+                hintText: AppLocalizations.of(context)
+                    .translate("Enter business name"),
                 label: AppLocalizations.of(context).translate("Business Name"),
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context).translate("Please enter your business name");
+                    return AppLocalizations.of(context)
+                        .translate("Please enter your business name");
                   }
                   return null;
                 },
               ),
               SizedBox(height: 16.h),
               ProvincePicker(
-                title: AppLocalizations.of(context).translate("Business Region"),
-                onRegionSelected: (Map<String, String> details) {
+                title:
+                    AppLocalizations.of(context).translate("Business Region"),
+                onProvinceSelected:
+                    (String provinceName, Map<String, String> details) {
                   setState(() {
                     // Lưu thông tin hành chính từ province picker
-                    contractData['businessProvince'] = details['province'] ?? '';
+                    contractData['businessProvince'] = provinceName;
                     contractData['businessCity'] = details['city'] ?? '';
-                    contractData['businessDistrict'] = details['district'] ?? '';
-                    
+                    contractData['businessDistrict'] =
+                        details['district'] ?? '';
+
                     // Tạo businessLocation chỉ từ thông tin hành chính
                     List<String> locationParts = [];
-                    
+
                     // Thêm thông tin hành chính theo thứ tự
                     if (details['district']?.isNotEmpty ?? false) {
                       locationParts.add(details['district']!);
@@ -620,13 +670,13 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
                     if (details['city']?.isNotEmpty ?? false) {
                       locationParts.add(details['city']!);
                     }
-                    if (details['province']?.isNotEmpty ?? false) {
-                      locationParts.add(details['province']!);
+                    if (provinceName.isNotEmpty) {
+                      locationParts.add(provinceName);
                     }
-                    
+
                     // Kết hợp thành chuỗi địa chỉ hành chính
                     String location = locationParts.join(', ');
-                    
+
                     // Lưu vào contractData
                     contractData['businessLocation'] = location;
                   });
@@ -634,29 +684,35 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               ),
               SizedBox(height: 16.h),
               LocationPicker(
-                title: AppLocalizations.of(context).translate("Business Address"),
-                onLocationSelected: (String location, Map<String, String> details) {
+                title:
+                    AppLocalizations.of(context).translate("Business Address"),
+                onLocationSelected:
+                    (String location, Map<String, String> details) {
                   setState(() {
-                    contractData['businessAddress'] = location; // Chỉ lưu địa chỉ chi tiết
+                    contractData['businessAddress'] =
+                        location; // Chỉ lưu địa chỉ chi tiết
                   });
                 },
               ),
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _taxCodeController,
-                hintText: AppLocalizations.of(context).translate("Enter tax code"),
+                hintText:
+                    AppLocalizations.of(context).translate("Enter tax code"),
                 label: AppLocalizations.of(context).translate("Tax Code"),
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context).translate("Please enter your tax code");
+                    return AppLocalizations.of(context)
+                        .translate("Please enter your tax code");
                   }
                   return null;
                 },
               ),
               SizedBox(height: 16.h),
               ImagePickerWidget(
-                title: AppLocalizations.of(context).translate("Business Register Photo"),
+                title: AppLocalizations.of(context)
+                    .translate("Business Register Photo"),
                 initialImagePath: _businessRegisterPhotoPath,
                 onImagePicked: (String path) {
                   setState(() {
@@ -683,26 +739,28 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
             children: [
               _buildDropdown(
                 label: AppLocalizations.of(context).translate("Bank Name"),
-                items: _banks.map((bank) => "${bank.bankName} - ${bank.bankSubName}").toList(),
-                selectedItem: "${_banks
-                    .firstWhere(
+                items: _banks
+                    .map((bank) => "${bank.bankName} - ${bank.bankSubName}")
+                    .toList(),
+                selectedItem: "${_banks.firstWhere(
                       (b) => b.bankId == _selectedBankId,
-                      orElse: () => _banks.isNotEmpty ? _banks.first : BankModel(
-                        bankId: '',
-                        bankName: '',
-                        bankSubName: '',
-                      ),
-                    )
-                    .bankName} - ${_banks
-                    .firstWhere(
+                      orElse: () => _banks.isNotEmpty
+                          ? _banks.first
+                          : BankModel(
+                              bankId: '',
+                              bankName: '',
+                              bankSubName: '',
+                            ),
+                    ).bankName} - ${_banks.firstWhere(
                       (b) => b.bankId == _selectedBankId,
-                      orElse: () => _banks.isNotEmpty ? _banks.first : BankModel(
-                        bankId: '',
-                        bankName: '',
-                        bankSubName: '',
-                      ),
-                    )
-                    .bankSubName}",
+                      orElse: () => _banks.isNotEmpty
+                          ? _banks.first
+                          : BankModel(
+                              bankId: '',
+                              bankName: '',
+                              bankSubName: '',
+                            ),
+                    ).bankSubName}",
                 onChanged: (String? newValue) {
                   if (newValue != null) {
                     setState(() {
@@ -718,12 +776,15 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _bankAccountNumberController,
-                hintText: AppLocalizations.of(context).translate("Enter bank account number"),
-                label: AppLocalizations.of(context).translate("Bank Account Number"),
+                hintText: AppLocalizations.of(context)
+                    .translate("Enter bank account number"),
+                label: AppLocalizations.of(context)
+                    .translate("Bank Account Number"),
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context).translate("Please enter your bank account number");
+                    return AppLocalizations.of(context)
+                        .translate("Please enter your bank account number");
                   }
                   return null;
                 },
@@ -731,20 +792,25 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               SizedBox(height: 16.h),
               _buildTextField(
                 controller: _bankAccountNameController,
-                hintText: AppLocalizations.of(context).translate("Enter bank account name"),
-                label: AppLocalizations.of(context).translate("Bank Account Name"),
+                hintText: AppLocalizations.of(context)
+                    .translate("Enter bank account name"),
+                label:
+                    AppLocalizations.of(context).translate("Bank Account Name"),
                 isEditing: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context).translate("Please enter your bank account name");
+                    return AppLocalizations.of(context)
+                        .translate("Please enter your bank account name");
                   }
                   return null;
                 },
               ),
               SizedBox(height: 26.h),
               CheckboxRow(
-                title: AppLocalizations.of(context).translate("I confirm all data provided is accurate and truthful. I have read and agree to "),
-                link: AppLocalizations.of(context).translate("Traveline's Privacy Policy."),
+                title: AppLocalizations.of(context).translate(
+                    "I confirm all data provided is accurate and truthful. I have read and agree to "),
+                link: AppLocalizations.of(context)
+                    .translate("Traveline's Privacy Policy."),
                 onTitleTap: _handleTitleTap,
                 value: _isCheckbox1Checked,
                 onChanged: (bool? newValue) {
@@ -755,8 +821,10 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               ),
               SizedBox(height: 12.h),
               CheckboxRow(
-                title: AppLocalizations.of(context).translate("I have read and commit that my vehicle meets all "),
-                link: AppLocalizations.of(context).translate("Legal Requirements for rental."),
+                title: AppLocalizations.of(context).translate(
+                    "I have read and commit that my vehicle meets all "),
+                link: AppLocalizations.of(context)
+                    .translate("Legal Requirements for rental."),
                 onTitleTap: _handleTitleTap,
                 value: _isCheckbox2Checked,
                 onChanged: (bool? newValue) {
@@ -767,7 +835,8 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
               ),
               SizedBox(height: 12.h),
               CheckboxRow(
-                title: AppLocalizations.of(context).translate("I agree to the commission rate applied by the application - 20% and the "),
+                title: AppLocalizations.of(context).translate(
+                    "I agree to the commission rate applied by the application - 20% and the "),
                 link: AppLocalizations.of(context).translate("Terms Of Use."),
                 onTitleTap: _handleTitleTap,
                 value: _isCheckbox3Checked,
@@ -786,7 +855,12 @@ class _VehicleRentalRegisterScreenState extends State<VehicleRentalRegisterScree
   }
 }
 
-Widget _buildTextField({required TextEditingController controller, required String label, required String hintText, required bool isEditing, required Function(String?) validator}) {
+Widget _buildTextField(
+    {required TextEditingController controller,
+    required String label,
+    required String hintText,
+    required bool isEditing,
+    required Function(String?) validator}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -832,5 +906,3 @@ Widget _buildDropdown({
     ],
   );
 }
-
-

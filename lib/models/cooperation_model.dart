@@ -53,6 +53,36 @@ class CooperationModel {
     required this.averageRating,
   });
 
+  factory CooperationModel.fromMap(Map<String, dynamic> map) {
+    return CooperationModel(
+      cooperationId: map['cooperationId'] ?? '',
+      name: map['name'] ?? '',
+      type: map['type'] ?? '',
+      numberOfObjects: map['numberOfObjects'] ?? 0,
+      numberOfObjectTypes: map['numberOfObjectTypes'] ?? 0,
+      latitude: (map['latitude'] ?? 0.0).toDouble(),
+      longitude: (map['longitude'] ?? 0.0).toDouble(),
+      bossName: map['bossName'] ?? '',
+      bossPhone: map['bossPhone'] ?? '',
+      bossEmail: map['bossEmail'] ?? '',
+      address: map['address'] ?? '',
+      district: map['district'] ?? '',
+      city: map['city'] ?? '',
+      province: map['province'] ?? '',
+      photo: map['photo'] ?? '',
+      extension: map['extension'] ?? '',
+      introduction: map['introduction'] ?? '',
+      contractDate: map['contractDate'] ?? '',
+      contractTerm: map['contractTerm'] ?? '',
+      bankAccountNumber: map['bankAccountNumber'] ?? '',
+      bankAccountName: map['bankAccountName'] ?? '',
+      bankName: map['bankName'] ?? '',
+      bookingTimes: map['bookingTimes'] ?? 0,
+      revenue: (map['revenue'] ?? 0.0).toDouble(),
+      averageRating: (map['averageRating'] ?? 0.0).toDouble(),
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'cooperationId': cooperationId,

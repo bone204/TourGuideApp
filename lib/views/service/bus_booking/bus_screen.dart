@@ -21,14 +21,13 @@ class BusScreen extends StatefulWidget {
 class _BusScreenState extends State<BusScreen> {
   DateTime departureDate = DateTime.now();
   DateTime? returnDate;
-  
+
   bool showReturnDate = false;
   String? selectedTickets;
   final List<String> ticketOptions = ['1', '2', '3', '4', '5', '6'];
 
   @override
   Widget build(BuildContext context) {
-    
     return BlocProvider(
       create: (context) => BusBookingBloc(),
       child: BlocBuilder<BusBookingBloc, BusBookingState>(
@@ -56,12 +55,12 @@ class _BusScreenState extends State<BusScreen> {
                       children: [
                         Expanded(
                           child: ProvincePicker(
-                            title: AppLocalizations.of(context).translate("From"),
-                            provinceOnly: true,
-                            onRegionSelected: (details) {
+                            title:
+                                AppLocalizations.of(context).translate("From"),
+                            onProvinceSelected: (provinceName, details) {
                               context.read<BusBookingBloc>().add(
-                                SetFromLocation(details['province'] ?? '', details),
-                              );
+                                    SetFromLocation(provinceName, details),
+                                  );
                             },
                           ),
                         ),
@@ -69,11 +68,10 @@ class _BusScreenState extends State<BusScreen> {
                         Expanded(
                           child: ProvincePicker(
                             title: AppLocalizations.of(context).translate("To"),
-                            provinceOnly: true,
-                            onRegionSelected: (details) {
+                            onProvinceSelected: (provinceName, details) {
                               context.read<BusBookingBloc>().add(
-                                SetToLocation(details['province'] ?? '', details),
-                              );
+                                    SetToLocation(provinceName, details),
+                                  );
                             },
                           ),
                         ),
@@ -88,12 +86,14 @@ class _BusScreenState extends State<BusScreen> {
                             onDateSelected: (date) {
                               setState(() {
                                 departureDate = date;
-                                if (returnDate != null && returnDate!.isBefore(date)) {
+                                if (returnDate != null &&
+                                    returnDate!.isBefore(date)) {
                                   returnDate = date;
                                 }
                               });
                             },
-                            title: AppLocalizations.of(context).translate("Arrival Date"),
+                            title: AppLocalizations.of(context)
+                                .translate("Arrival Date"),
                           ),
                         ),
                         SizedBox(width: 16.w),
@@ -108,7 +108,8 @@ class _BusScreenState extends State<BusScreen> {
                                       returnDate = date;
                                     });
                                   },
-                                  title: AppLocalizations.of(context).translate("Return Date"),
+                                  title: AppLocalizations.of(context)
+                                      .translate("Return Date"),
                                   minDate: departureDate,
                                 ),
                                 Positioned(
@@ -144,8 +145,11 @@ class _BusScreenState extends State<BusScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  AppLocalizations.of(context).translate("Return Date"),
-                                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
+                                  AppLocalizations.of(context)
+                                      .translate("Return Date"),
+                                  style: TextStyle(
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w700),
                                 ),
                                 SizedBox(height: 8.h),
                                 InkWell(
@@ -156,7 +160,8 @@ class _BusScreenState extends State<BusScreen> {
                                     });
                                   },
                                   child: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 12.h),
                                     width: double.infinity,
                                     decoration: BoxDecoration(
                                       color: AppColors.primaryColor,
@@ -164,16 +169,16 @@ class _BusScreenState extends State<BusScreen> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                          'Add Return Date',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 14.sp,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                        'Add Return Date',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w500,
                                         ),
-                                    ),
+                                      ),
                                     ),
                                   ),
+                                ),
                               ],
                             ),
                           ),
@@ -187,8 +192,11 @@ class _BusScreenState extends State<BusScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                AppLocalizations.of(context).translate("Tickets"),
-                                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
+                                AppLocalizations.of(context)
+                                    .translate("Tickets"),
+                                style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w700),
                               ),
                               SizedBox(height: 8.h),
                               CustomComboBox(
@@ -214,11 +222,13 @@ class _BusScreenState extends State<BusScreen> {
                     CustomElevatedButton(
                       text: "Search Tickets",
                       onPressed: () {
-                        if (state.fromLocation.isEmpty || state.toLocation.isEmpty) {
+                        if (state.fromLocation.isEmpty ||
+                            state.toLocation.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                AppLocalizations.of(context).translate('Please select departure and arrival locations'),
+                                AppLocalizations.of(context).translate(
+                                    'Please select departure and arrival locations'),
                                 style: TextStyle(color: Colors.white),
                               ),
                               backgroundColor: Colors.red,
@@ -228,13 +238,13 @@ class _BusScreenState extends State<BusScreen> {
                         }
 
                         context.read<BusBookingBloc>().add(
-                          SearchBuses(
-                            departureDate: departureDate,
-                            returnDate: returnDate,
-                            fromLocation: state.fromLocation,
-                            toLocation: state.toLocation,
-                          ),
-                        );
+                              SearchBuses(
+                                departureDate: departureDate,
+                                returnDate: returnDate,
+                                fromLocation: state.fromLocation,
+                                toLocation: state.toLocation,
+                              ),
+                            );
                         Navigator.push(
                           context,
                           MaterialPageRoute(

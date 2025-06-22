@@ -3,32 +3,26 @@ class RoomModel {
   final String hotelId;
   final String roomName;
   final int numberOfBeds;
-  final int maxPeople;
+  final int capacity; // Số người tối đa có thể ở
   final double area;
-  final double price;
-  final int numberOfRooms;
+  final double basePrice; // Giá cơ bản
   final String photo;
   final String description;
-  final String roomType;
-  final bool isAvailable;
-  final List<String> amenities;
-  final String priceType; // per night, per hour, etc.
+  final String roomType; // single, double, suite, etc.
+  final List<String> amenities; // Tiện nghi: wifi, ac, tv, etc.
 
   RoomModel({
     required this.roomId,
     required this.hotelId,
     required this.roomName,
     required this.numberOfBeds,
-    required this.maxPeople,
+    required this.capacity,
     required this.area,
-    required this.price,
-    required this.numberOfRooms,
+    required this.basePrice,
     required this.photo,
     required this.description,
     required this.roomType,
-    required this.isAvailable,
     required this.amenities,
-    required this.priceType,
   });
 
   factory RoomModel.fromMap(Map<String, dynamic> map) {
@@ -37,16 +31,13 @@ class RoomModel {
       hotelId: map['hotelId'] ?? '',
       roomName: map['roomName'] ?? '',
       numberOfBeds: map['numberOfBeds'] ?? 0,
-      maxPeople: map['maxPeople'] ?? 0,
+      capacity: map['capacity'] ?? 0,
       area: (map['area'] ?? 0.0).toDouble(),
-      price: (map['price'] ?? 0.0).toDouble(),
-      numberOfRooms: map['numberOfRooms'] ?? 0,
+      basePrice: (map['basePrice'] ?? 0.0).toDouble(),
       photo: map['photo'] ?? '',
       description: map['description'] ?? '',
       roomType: map['roomType'] ?? '',
-      isAvailable: map['isAvailable'] ?? true,
       amenities: List<String>.from(map['amenities'] ?? []),
-      priceType: map['priceType'] ?? 'per night',
     );
   }
 
@@ -56,16 +47,13 @@ class RoomModel {
       'hotelId': hotelId,
       'roomName': roomName,
       'numberOfBeds': numberOfBeds,
-      'maxPeople': maxPeople,
+      'capacity': capacity,
       'area': area,
-      'price': price,
-      'numberOfRooms': numberOfRooms,
+      'basePrice': basePrice,
       'photo': photo,
       'description': description,
       'roomType': roomType,
-      'isAvailable': isAvailable,
       'amenities': amenities,
-      'priceType': priceType,
     };
   }
 
@@ -74,32 +62,26 @@ class RoomModel {
     String? hotelId,
     String? roomName,
     int? numberOfBeds,
-    int? maxPeople,
+    int? capacity,
     double? area,
-    double? price,
-    int? numberOfRooms,
+    double? basePrice,
     String? photo,
     String? description,
     String? roomType,
-    bool? isAvailable,
     List<String>? amenities,
-    String? priceType,
   }) {
     return RoomModel(
       roomId: roomId ?? this.roomId,
       hotelId: hotelId ?? this.hotelId,
       roomName: roomName ?? this.roomName,
       numberOfBeds: numberOfBeds ?? this.numberOfBeds,
-      maxPeople: maxPeople ?? this.maxPeople,
+      capacity: capacity ?? this.capacity,
       area: area ?? this.area,
-      price: price ?? this.price,
-      numberOfRooms: numberOfRooms ?? this.numberOfRooms,
+      basePrice: basePrice ?? this.basePrice,
       photo: photo ?? this.photo,
       description: description ?? this.description,
       roomType: roomType ?? this.roomType,
-      isAvailable: isAvailable ?? this.isAvailable,
       amenities: amenities ?? this.amenities,
-      priceType: priceType ?? this.priceType,
     );
   }
 }
