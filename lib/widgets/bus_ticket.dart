@@ -19,9 +19,89 @@ class BusTicket extends StatelessWidget {
     this.returnDate,
   }) : super(key: key);
 
+  // Phương thức để tính thời gian và giá dựa trên tuyến đường
+  Map<String, dynamic> _getRouteInfo() {
+    // Thời gian và giá cho các tuyến đường khác nhau
+    final routeInfo = {
+      'Ho Chi Minh City': {
+        'Dak Lak': {
+          'departureTime': '22:00',
+          'arrivalTime': '06:05',
+          'duration': '8 giờ 5 phút',
+          'price': 285000,
+          'availableSeats': 23,
+        },
+        'Da Lat': {
+          'departureTime': '20:00',
+          'arrivalTime': '04:30',
+          'duration': '8 giờ 30 phút',
+          'price': 320000,
+          'availableSeats': 18,
+        },
+        'Nha Trang': {
+          'departureTime': '21:00',
+          'arrivalTime': '05:00',
+          'duration': '8 giờ',
+          'price': 280000,
+          'availableSeats': 25,
+        },
+      },
+      'Dak Lak': {
+        'Ho Chi Minh City': {
+          'departureTime': '20:00',
+          'arrivalTime': '04:05',
+          'duration': '8 giờ 5 phút',
+          'price': 285000,
+          'availableSeats': 20,
+        },
+      },
+      'Da Lat': {
+        'Ho Chi Minh City': {
+          'departureTime': '18:00',
+          'arrivalTime': '02:30',
+          'duration': '8 giờ 30 phút',
+          'price': 320000,
+          'availableSeats': 15,
+        },
+      },
+      'Nha Trang': {
+        'Ho Chi Minh City': {
+          'departureTime': '19:00',
+          'arrivalTime': '03:00',
+          'duration': '8 giờ',
+          'price': 280000,
+          'availableSeats': 22,
+        },
+      },
+    };
+
+    // Tìm thông tin tuyến đường
+    final fromInfo = routeInfo[fromLocation];
+    if (fromInfo != null && fromInfo[toLocation] != null) {
+      return fromInfo[toLocation]!;
+    }
+
+    // Thông tin mặc định nếu không tìm thấy
+    return {
+      'departureTime': '22:00',
+      'arrivalTime': '06:05',
+      'duration': '8 giờ 5 phút',
+      'price': 285000,
+      'availableSeats': 23,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
+    
+    final routeInfo = _getRouteInfo();
+    final departureTime = routeInfo['departureTime'] as String;
+    final arrivalTime = routeInfo['arrivalTime'] as String;
+    final duration = routeInfo['duration'] as String;
+    final price = routeInfo['price'] as int;
+    final availableSeats = routeInfo['availableSeats'] as int;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -62,7 +142,7 @@ class BusTicket extends StatelessWidget {
                   SizedBox(
                     width: 60.w,
                     child: Text(
-                      "22:00",
+                      departureTime,
                       style: TextStyle(
                         fontSize: 20.sp,
                         color: Colors.black,
@@ -86,7 +166,7 @@ class BusTicket extends StatelessWidget {
                   Column(
                     children: [
                       Text(
-                        "8 giờ 5 phút",
+                        duration,
                         style: TextStyle(
                           fontSize: 12.sp,
                           color: AppColors.grey,
@@ -122,7 +202,7 @@ class BusTicket extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          "06:05",
+                          arrivalTime,
                           style: TextStyle(
                             fontSize: 20.sp,
                             color: Colors.black,
@@ -139,7 +219,7 @@ class BusTicket extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Dak Lak",
+                    fromLocation,
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: Colors.black,
@@ -147,7 +227,7 @@ class BusTicket extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "Bến xe An Sương",
+                    toLocation,
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: Colors.black,
@@ -181,7 +261,7 @@ class BusTicket extends StatelessWidget {
                       Icon(Icons.chair, size: 16.sp, color: AppColors.grey),
                       SizedBox(width: 4.w),
                       Text(
-                        '23 chỗ trống',
+                        '$availableSeats chỗ trống',
                         style: TextStyle(
                           fontSize: 12.sp,
                           color: AppColors.grey,
@@ -191,7 +271,7 @@ class BusTicket extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    "285.000đ",
+                    "${price.toStringAsFixed(0)}đ",
                     style: TextStyle(
                       fontSize: 18.sp,
                       color: AppColors.orange,

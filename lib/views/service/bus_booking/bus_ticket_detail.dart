@@ -14,6 +14,10 @@ import 'package:tourguideapp/widgets/checkbox_row.dart';
 import 'package:tourguideapp/widgets/custom_radio_options.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/seat_widget.dart';
+import 'package:tourguideapp/core/services/momo_service.dart';
+import 'package:tourguideapp/core/services/used_services_service.dart';
+import 'package:tourguideapp/widgets/app_dialog.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BusTicketDetail extends StatefulWidget {
   final DateTime departureDate;
@@ -46,7 +50,34 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
   int _currentStep = 0;
   final List<bool> _stepCompleted = [false, false, false, false];
 
-  final double seatPrice = 50000; // Price per seat in VND
+  // Tính giá vé dựa trên tuyến đường
+  double get seatPrice {
+    final routeInfo = {
+      'Ho Chi Minh City': {
+        'Dak Lak': 285000,
+        'Da Lat': 320000,
+        'Nha Trang': 280000,
+      },
+      'Dak Lak': {
+        'Ho Chi Minh City': 285000,
+      },
+      'Da Lat': {
+        'Ho Chi Minh City': 320000,
+      },
+      'Nha Trang': {
+        'Ho Chi Minh City': 280000,
+      },
+    };
+
+    final fromInfo = routeInfo[fromLocation];
+    if (fromInfo != null && fromInfo[toLocation] != null) {
+      return fromInfo[toLocation]!.toDouble();
+    }
+
+    return 285000.0; // Giá mặc định
+  }
+
+  final UsedServicesService _usedServicesService = UsedServicesService();
 
   // Tạo layout cho 2 tầng xe cho cả chiều đi và về
   final List<List<SeatStatus>> departureUpperDeckLayout = List.generate(
@@ -106,7 +137,26 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
       name: 'Bến xe Miền Tây',
       address: '395 Kinh Dương Vương, An Lạc, Bình Tân, TP.HCM',
     ),
-    // Add more BusStation instances as needed
+    BusStation(
+      id: 3,
+      name: 'Bến xe An Sương',
+      address: 'QL22, An Sương, Hóc Môn, TP.HCM',
+    ),
+    BusStation(
+      id: 4,
+      name: 'Bến xe Buôn Ma Thuột',
+      address: '123 Nguyễn Tất Thành, Tân Lợi, Buôn Ma Thuột, Đắk Lắk',
+    ),
+    BusStation(
+      id: 5,
+      name: 'Bến xe Đà Lạt',
+      address: '1 Nguyễn Thị Minh Khai, Phường 1, Đà Lạt, Lâm Đồng',
+    ),
+    BusStation(
+      id: 6,
+      name: 'Bến xe Nha Trang',
+      address: '23 Tháng 10, Vĩnh Hải, Nha Trang, Khánh Hòa',
+    ),
   ];
 
   void toggleSeatSelection(int row, int col, bool isUpper, bool isDeparture) {
@@ -379,8 +429,127 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                     SizedBox(width: 16.w),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _currentStep == 3 ? () {
-                        // Handle confirmation
+                      onPressed: _currentStep == 3 ? () async {
+                        // Kiểm tra xem đã chọn ghế chưa
+                        if (departureSelectedSeats.isEmpty && returnSelectedSeats.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(AppLocalizations.of(context).translate('Please select at least one seat')),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        // Kiểm tra thông tin hành khách
+                        if (_fullNameController.text.isEmpty || 
+                            _emailController.text.isEmpty || 
+                            _phoneNumberController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(AppLocalizations.of(context).translate('Please fill in all passenger information')),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        // Tính tổng tiền
+                        final totalDepartureSeats = departureSelectedSeats.length;
+                        final totalReturnSeats = returnSelectedSeats.length;
+                        final totalSeats = totalDepartureSeats + totalReturnSeats;
+                        final totalPrice = totalSeats * seatPrice;
+
+                        // Gọi thanh toán MoMo
+                        await MomoService.processPayment(
+                          merchantName: 'TTN',
+                          appScheme: 'MOMO',
+                          merchantCode: 'MOMO',
+                          partnerCode: 'MOMO',
+                          amount: totalPrice.toInt(),
+                          orderId: DateTime.now().millisecondsSinceEpoch.toString(),
+                          orderLabel: 'Đặt vé xe buýt',
+                          merchantNameLabel: 'HLGD',
+                          fee: 0,
+                          description: 'Thanh toán đặt vé xe buýt',
+                          username: FirebaseAuth.instance.currentUser?.uid ?? '',
+                          partner: 'merchant',
+                          extra: '{"fromLocation":"$fromLocation","toLocation":"$toLocation","departureDate":"${departureDate.toIso8601String()}"}',
+                          isTestMode: true,
+                          onSuccess: (response) async {
+                            try {
+                              // Tạo order ID duy nhất
+                              final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+                              final currentUser = FirebaseAuth.instance.currentUser;
+                              
+                              if (currentUser == null) {
+                                throw Exception('User not authenticated');
+                              }
+
+                              // Lưu vào used services với thông tin chi tiết
+                              await _usedServicesService.addBusBookingToUsedServices(
+                                userId: currentUser.uid,
+                                orderId: orderId,
+                                fromLocation: fromLocation,
+                                toLocation: toLocation,
+                                departureDate: departureDate,
+                                returnDate: returnDate,
+                                passengerName: _fullNameController.text,
+                                passengerEmail: _emailController.text,
+                                passengerPhone: _phoneNumberController.text,
+                                departureSelectedSeats: departureSelectedSeats.map((e) => '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}').toList(),
+                                returnSelectedSeats: returnSelectedSeats.map((e) => '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}').toList(),
+                                departurePickupStation: selectedDeparturePickupStation?.name ?? '',
+                                departureDropStation: selectedDepartureDropStation?.name ?? '',
+                                returnPickupStation: selectedReturnPickupStation?.name,
+                                returnDropStation: selectedReturnDropStation?.name,
+                                amount: totalPrice,
+                                status: 'confirmed',
+                              );
+
+                              print('Bus booking saved to used services successfully: $orderId');
+
+                              // Hiển thị dialog thành công
+                              if (mounted) {
+                                showAppDialog(
+                                  context: context,
+                                  title: AppLocalizations.of(context).translate('Notification'),
+                                  content: AppLocalizations.of(context).translate('Your bus booking has been confirmed. The service will be added to your used list.'),
+                                  icon: Icons.check_circle,
+                                  iconColor: Colors.green,
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        Navigator.of(context).popUntil((route) => route.isFirst);
+                                      },
+                                      child: Text(AppLocalizations.of(context).translate('OK')),
+                                    ),
+                                  ],
+                                );
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context).translate('Error:') + ' $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          onError: (response) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(AppLocalizations.of(context).translate('MoMo payment failed:') + ' ${response.message}'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                        );
                       } : _nextStep,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF007BFF),

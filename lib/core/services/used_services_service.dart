@@ -111,7 +111,7 @@ class UsedServicesService {
       await addUsedService(
         userId: userId,
         serviceType: 'delivery',
-        serviceName: 'Dịch vụ giao hàng', // Tên dịch vụ chung
+        serviceName: 'Dịch vụ giao hàng', // Sẽ được translate trong UI
         serviceId: orderId,
         usedDate: DateTime.now(),
         amount: amount,
@@ -134,6 +134,134 @@ class UsedServicesService {
       print('Error adding delivery order to used services: $e');
       throw Exception('Không thể thêm đơn giao hàng vào dịch vụ đã sử dụng: $e');
     }
+  }
+
+  // Thêm bus booking vào used services
+  Future<void> addBusBookingToUsedServices({
+    required String userId,
+    required String orderId,
+    required String fromLocation,
+    required String toLocation,
+    required DateTime departureDate,
+    DateTime? returnDate,
+    required String passengerName,
+    required String passengerEmail,
+    required String passengerPhone,
+    required List<String> departureSelectedSeats,
+    required List<String> returnSelectedSeats,
+    required String departurePickupStation,
+    required String departureDropStation,
+    String? returnPickupStation,
+    String? returnDropStation,
+    required double amount,
+    required String status,
+  }) async {
+    try {
+      // Tính thông tin tuyến đường
+      final routeInfo = _getRouteInfo(fromLocation, toLocation);
+      
+      await addUsedService(
+        userId: userId,
+        serviceType: 'bus',
+        serviceName: 'Mua vé xe', // Sẽ được translate trong UI
+        serviceId: orderId,
+        usedDate: departureDate,
+        amount: amount,
+        status: status,
+        additionalData: {
+          'fromLocation': fromLocation,
+          'toLocation': toLocation,
+          'departureDate': departureDate.toIso8601String(),
+          'returnDate': returnDate?.toIso8601String(),
+          'passengerName': passengerName,
+          'passengerEmail': passengerEmail,
+          'passengerPhone': passengerPhone,
+          'departureSelectedSeats': departureSelectedSeats,
+          'returnSelectedSeats': returnSelectedSeats,
+          'departurePickupStation': departurePickupStation,
+          'departureDropStation': departureDropStation,
+          'returnPickupStation': returnPickupStation,
+          'returnDropStation': returnDropStation,
+          'orderDate': DateTime.now().toIso8601String(),
+          'totalSeats': departureSelectedSeats.length + returnSelectedSeats.length,
+          'isRoundTrip': returnDate != null,
+          'busCompany': 'Phương Trang - Futa Bus Lines',
+          'busType': 'Limousine',
+          'estimatedDuration': routeInfo['duration'],
+          'departureTime': routeInfo['departureTime'],
+          'arrivalTime': routeInfo['arrivalTime'],
+          'pricePerSeat': routeInfo['pricePerSeat'],
+        },
+      );
+      
+      print('Bus booking added to used services: $orderId');
+    } catch (e) {
+      print('Error adding bus booking to used services: $e');
+      throw Exception('Không thể thêm đặt vé xe buýt vào dịch vụ đã sử dụng: $e');
+    }
+  }
+
+  // Phương thức để lấy thông tin tuyến đường
+  Map<String, dynamic> _getRouteInfo(String fromLocation, String toLocation) {
+    final routeInfo = {
+      'Ho Chi Minh City': {
+        'Dak Lak': {
+          'departureTime': '22:00',
+          'arrivalTime': '06:05',
+          'duration': '8 giờ 5 phút',
+          'pricePerSeat': 285000,
+        },
+        'Da Lat': {
+          'departureTime': '20:00',
+          'arrivalTime': '04:30',
+          'duration': '8 giờ 30 phút',
+          'pricePerSeat': 320000,
+        },
+        'Nha Trang': {
+          'departureTime': '21:00',
+          'arrivalTime': '05:00',
+          'duration': '8 giờ',
+          'pricePerSeat': 280000,
+        },
+      },
+      'Dak Lak': {
+        'Ho Chi Minh City': {
+          'departureTime': '20:00',
+          'arrivalTime': '04:05',
+          'duration': '8 giờ 5 phút',
+          'pricePerSeat': 285000,
+        },
+      },
+      'Da Lat': {
+        'Ho Chi Minh City': {
+          'departureTime': '18:00',
+          'arrivalTime': '02:30',
+          'duration': '8 giờ 30 phút',
+          'pricePerSeat': 320000,
+        },
+      },
+      'Nha Trang': {
+        'Ho Chi Minh City': {
+          'departureTime': '19:00',
+          'arrivalTime': '03:00',
+          'duration': '8 giờ',
+          'pricePerSeat': 280000,
+        },
+      },
+    };
+
+    final fromInfo = routeInfo[fromLocation];
+    if (fromInfo != null && fromInfo[toLocation] != null) {
+      return fromInfo[toLocation]!;
+    }
+
+    // Thông tin mặc định
+    return {
+      'departureTime': '22:00',
+      'arrivalTime': '06:05',
+      'duration': '8 giờ 5 phút',
+      'pricePerSeat': 285000,
+    };
   }
 
   // Lấy danh sách dịch vụ đã sử dụng của user

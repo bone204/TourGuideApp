@@ -561,6 +561,26 @@
     "This feature will be available soon!": "This feature will be available soon!",
     "Error:": "Error:",
     "Delivery Service": "Delivery Service",
-    "Confirm Payment": "Confirm Payment"
+    "Confirm Payment": "Confirm Payment",
+    "Your bus booking has been confirmed. The service will be added to your used list.": "Your bus booking has been confirmed. The service will be added to your used list.",
+    "Please select at least one seat": "Please select at least one seat",
+    "Please fill in all passenger information": "Please fill in all passenger information",
+    "Choose Seats": "Choose Seats",
+    "Passenger Info": "Passenger Info",
+    "Pick-up/Drop": "Pick-up/Drop",
+    "Payment": "Payment",
+    "Passenger Information": "Passenger Information",
+    "Enter your full name": "Enter your full name",
+    "Enter your email": "Enter your email",
+    "Please enter your full name": "Please enter your full name",
+    "Please enter your email": "Please enter your email",
+    "Please enter your phone number": "Please enter your phone number",
+    "TERMS AND CONDITIONS": "TERMS AND CONDITIONS",
+    "Pick-up/Drop Information": "Pick-up/Drop Information",
+    "Departure trip": "Departure trip",
+    "Return trip": "Return trip",
+    "BUS STATION/COMPANY OFFICE": "BUS STATION/COMPANY OFFICE",
+    "Bus Station/\nCompany Office": "Bus Station/\nCompany Office",
+    "Shuttle Service": "Shuttle Service"
 }
   
