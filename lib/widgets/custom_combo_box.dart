@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomComboBox extends StatelessWidget {
   final String hintText;
@@ -55,8 +56,8 @@ class CustomComboBox extends StatelessWidget {
             item,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
-            style: const TextStyle(
-              fontSize: 16,
+            style: TextStyle(
+              fontSize: 14.sp,
             ),
           ),
         );
@@ -69,6 +70,7 @@ class CustomComboBox extends StatelessWidget {
           borderSide: BorderSide.none,
           borderRadius: BorderRadius.circular(8.0),
         ),
+        contentPadding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 12.w),
       ),
       isExpanded: true,
     );

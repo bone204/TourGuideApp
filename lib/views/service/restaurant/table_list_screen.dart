@@ -8,6 +8,7 @@ import 'package:tourguideapp/widgets/table_card.dart';
 import 'package:tourguideapp/models/cooperation_model.dart';
 import 'package:tourguideapp/models/table_availability_model.dart';
 import 'package:tourguideapp/core/services/restaurant_service.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
 class TableListScreen extends StatefulWidget {
   final CooperationModel restaurant;
@@ -61,7 +62,7 @@ class _TableListScreenState extends State<TableListScreen> {
       });
     } catch (e) {
       setState(() {
-        error = 'Lỗi khi kiểm tra bàn trống: $e';
+        error = AppLocalizations.of(context).translate("Error checking table availability") + ': $e';
         isLoading = false;
       });
     }
@@ -119,7 +120,7 @@ class _TableListScreenState extends State<TableListScreen> {
                             SizedBox(height: 16.h),
                             ElevatedButton(
                               onPressed: _checkTableAvailability,
-                              child: const Text('Thử lại'),
+                              child: Text(AppLocalizations.of(context).translate("Try again")),
                             ),
                           ],
                         ),

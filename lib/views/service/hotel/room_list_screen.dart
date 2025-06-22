@@ -7,6 +7,7 @@ import 'package:tourguideapp/core/services/hotel_service.dart';
 import 'package:tourguideapp/views/service/hotel/hotel_booking_bill.dart';
 import 'package:intl/intl.dart';
 import 'package:tourguideapp/widgets/range_date_time_picker.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
 class RoomListScreen extends StatefulWidget {
   final CooperationModel hotel;
@@ -67,34 +68,46 @@ class _RoomListScreenState extends State<RoomListScreen> {
     return [
       RoomAvailabilityModel(
         roomId: 'R00001',
-        roomName: 'Phòng Standard',
-        roomType: 'Standard',
+        roomName: AppLocalizations.of(context).translate("Standard Room"),
+        roomType: AppLocalizations.of(context).translate("Standard"),
         capacity: 2,
         price: 800000,
         availableRooms: 5,
         totalRooms: 10,
         photo:
             'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400',
-        amenities: ['WiFi', 'TV', 'Điều hòa', 'Tủ lạnh'],
-        description: 'Phòng tiêu chuẩn với đầy đủ tiện nghi cơ bản',
+        amenities: [
+          AppLocalizations.of(context).translate("WiFi"),
+          AppLocalizations.of(context).translate("TV"),
+          AppLocalizations.of(context).translate("Air conditioning"),
+          AppLocalizations.of(context).translate("Refrigerator")
+        ],
+        description: AppLocalizations.of(context).translate("Standard room with basic amenities"),
       ),
       RoomAvailabilityModel(
         roomId: 'R00002',
-        roomName: 'Phòng Deluxe',
-        roomType: 'Deluxe',
+        roomName: AppLocalizations.of(context).translate("Deluxe Room"),
+        roomType: AppLocalizations.of(context).translate("Deluxe"),
         capacity: 3,
         price: 1200000,
         availableRooms: 3,
         totalRooms: 8,
         photo:
             'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400',
-        amenities: ['WiFi', 'TV', 'Điều hòa', 'Tủ lạnh', 'Mini bar', 'Bồn tắm'],
-        description: 'Phòng cao cấp với view đẹp và tiện nghi sang trọng',
+        amenities: [
+          AppLocalizations.of(context).translate("WiFi"),
+          AppLocalizations.of(context).translate("TV"),
+          AppLocalizations.of(context).translate("Air conditioning"),
+          AppLocalizations.of(context).translate("Refrigerator"),
+          AppLocalizations.of(context).translate("Mini bar"),
+          AppLocalizations.of(context).translate("Bathtub")
+        ],
+        description: AppLocalizations.of(context).translate("Luxury room with beautiful view and elegant amenities"),
       ),
       RoomAvailabilityModel(
         roomId: 'R00003',
-        roomName: 'Phòng Suite',
-        roomType: 'Suite',
+        roomName: AppLocalizations.of(context).translate("Suite Room"),
+        roomType: AppLocalizations.of(context).translate("Suite"),
         capacity: 4,
         price: 2000000,
         availableRooms: 1,
@@ -102,16 +115,16 @@ class _RoomListScreenState extends State<RoomListScreen> {
         photo:
             'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
         amenities: [
-          'WiFi',
-          'TV',
-          'Điều hòa',
-          'Tủ lạnh',
-          'Mini bar',
-          'Bồn tắm',
-          'Phòng khách',
-          'Ban công'
+          AppLocalizations.of(context).translate("WiFi"),
+          AppLocalizations.of(context).translate("TV"),
+          AppLocalizations.of(context).translate("Air conditioning"),
+          AppLocalizations.of(context).translate("Refrigerator"),
+          AppLocalizations.of(context).translate("Mini bar"),
+          AppLocalizations.of(context).translate("Bathtub"),
+          AppLocalizations.of(context).translate("Living room"),
+          AppLocalizations.of(context).translate("Balcony")
         ],
-        description: 'Phòng suite sang trọng với không gian rộng rãi',
+        description: AppLocalizations.of(context).translate("Luxury suite with spacious space"),
       ),
     ];
   }
@@ -151,7 +164,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
                       Icon(Icons.bed, size: 64, color: Colors.grey[400]),
                       const SizedBox(height: 16),
                       Text(
-                        'Không có phòng trống',
+                        AppLocalizations.of(context).translate("No rooms available"),
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey[600],
@@ -164,7 +177,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
                   children: [
                     // RangeDateTimePicker để chọn lại ngày nhận/trả phòng
                     Padding(
-                      padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w, bottom: 0),
+                      padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w, bottom: 16.h),
                       child: RangeDateTimePicker(
                         startDate: checkInDate!,
                         endDate: checkOutDate!,
@@ -304,7 +317,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                '${NumberFormat('#,###', 'vi_VN').format(room.price.toInt())} ₫/đêm',
+                                                '${NumberFormat('#,###', 'vi_VN').format(room.price.toInt())} ₫${AppLocalizations.of(context).translate("per night")}',
                                                 style: TextStyle(
                                                   fontSize: 16.sp,
                                                   fontWeight: FontWeight.w700,
@@ -312,14 +325,14 @@ class _RoomListScreenState extends State<RoomListScreen> {
                                                 ),
                                               ),
                                               Text(
-                                                'Tổng: ${NumberFormat('#,###', 'vi_VN').format(totalPrice.toInt())} ₫',
+                                                '${AppLocalizations.of(context).translate("Total")}: ${NumberFormat('#,###', 'vi_VN').format(totalPrice.toInt())} ₫',
                                                 style: TextStyle(
                                                   fontSize: 12.sp,
                                                   color: Colors.grey[600],
                                                 ),
                                               ),
                                               Text(
-                                                '${room.capacity} người • ${room.availableRooms}/${room.totalRooms} phòng trống',
+                                                '${room.capacity} ${AppLocalizations.of(context).translate("people")} • ${room.availableRooms}/${room.totalRooms} ${AppLocalizations.of(context).translate("available rooms")}',
                                                 style: TextStyle(
                                                   fontSize: 12.sp,
                                                   color: Colors.grey[600],
@@ -344,8 +357,8 @@ class _RoomListScreenState extends State<RoomListScreen> {
                                             ),
                                             child: Text(
                                               room.hasAvailability
-                                                  ? 'Đặt phòng'
-                                                  : 'Hết phòng',
+                                                  ? AppLocalizations.of(context).translate("Book room")
+                                                  : AppLocalizations.of(context).translate("No rooms left"),
                                               style: TextStyle(fontSize: 14.sp),
                                             ),
                                           ),

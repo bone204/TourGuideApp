@@ -60,8 +60,8 @@ class _RestaurantBookingBillScreenState
     if (_customerNameController.text.isEmpty ||
         _customerPhoneController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng nhập đầy đủ thông tin'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).translate("Please enter complete information")),
           backgroundColor: Colors.red,
         ),
       );
@@ -104,16 +104,16 @@ class _RestaurantBookingBillScreenState
         await _restaurantService.createRestaurantBooking(bill);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đặt bàn thành công!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context).translate("Table booking successful!")),
             backgroundColor: Colors.green,
           ),
         );
         Navigator.of(context).popUntil((route) => route.isFirst);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đặt bàn thất bại. Vui lòng thử lại.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context).translate("Table booking failed. Please try again.")),
             backgroundColor: Colors.red,
           ),
         );
@@ -121,7 +121,7 @@ class _RestaurantBookingBillScreenState
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lỗi: $e'),
+          content: Text('${AppLocalizations.of(context).translate("Error")}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -350,7 +350,7 @@ class _RestaurantBookingBillScreenState
                 TextField(
                   controller: _customerNameController,
                   decoration: InputDecoration(
-                    labelText: 'Tên khách hàng',
+                    labelText: AppLocalizations.of(context).translate("Customer name"),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.r),
                     ),
@@ -360,7 +360,7 @@ class _RestaurantBookingBillScreenState
                 TextField(
                   controller: _customerPhoneController,
                   decoration: InputDecoration(
-                    labelText: 'Số điện thoại',
+                    labelText: AppLocalizations.of(context).translate("Phone number"),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.r),
                     ),
@@ -370,7 +370,7 @@ class _RestaurantBookingBillScreenState
                 TextField(
                   controller: _notesController,
                   decoration: InputDecoration(
-                    labelText: 'Ghi chú (tùy chọn)',
+                    labelText: AppLocalizations.of(context).translate("Note (optional)"),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.r),
                     ),

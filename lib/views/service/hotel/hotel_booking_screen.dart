@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/views/service/hotel/hotel_list_screen.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
@@ -28,7 +29,9 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
 
   String get duration {
     final difference = endDate.difference(startDate).inDays;
-    return '$difference ${difference > 1 ? 'ngày' : 'ngày'}';
+    final contextLocale = AppLocalizations.of(context);
+    final dayText = contextLocale.translate("day");
+    return '$difference $dayText';
   }
 
   @override
@@ -114,17 +117,61 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                         AppLocalizations.of(context).translate("Guests"),
                         style: TextStyle(
                             fontSize: 12.sp, fontWeight: FontWeight.w700),
-                      ),
+                      ),  
                       SizedBox(height: 8.h),
-                      CustomComboBox(
-                        hintText: "Select",
-                        value: selectedGuests,
-                        items: guestOptions,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedGuests = value;
-                          });
-                        },
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: (int.parse(selectedGuests!) > 1)
+                                  ? () {
+                                      setState(() {
+                                        selectedGuests = (int.parse(selectedGuests!) - 1).toString();
+                                      });
+                                    }
+                                  : null,
+                              child: Container(
+                                width: 24.w,
+                                height: 24.h,
+                                child: Icon(
+                                  Icons.remove,
+                                  size: 16.sp,
+                                  color: (int.parse(selectedGuests!) > 1) ? AppColors.red : Colors.grey.shade400,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 12.w),
+                            Text(
+                              selectedGuests ?? '1',
+                              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
+                            ),
+                            SizedBox(width: 12.w),
+                            GestureDetector(
+                              onTap: (int.parse(selectedGuests!) < 6)
+                                  ? () {
+                                      setState(() {
+                                        selectedGuests = (int.parse(selectedGuests!) + 1).toString();
+                                      });
+                                    }
+                                  : null,
+                              child: Container(
+                                width: 24.w,
+                                height: 24.h,
+                                child: Icon(
+                                  Icons.add,
+                                  size: 16.sp,
+                                  color: (int.parse(selectedGuests!) < 6) ? AppColors.red : Colors.grey.shade400,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

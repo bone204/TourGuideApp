@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/core/constants/app_colors.dart';
 
 class DisabledTextField extends StatelessWidget {
   final String labelText;
@@ -25,12 +26,12 @@ class DisabledTextField extends StatelessWidget {
           style: TextStyle(
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
-            color: Colors.grey[600],
+            color: AppColors.black,
           ),
         ),
         SizedBox(height: 8.h),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
           decoration: BoxDecoration(
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(8.r),

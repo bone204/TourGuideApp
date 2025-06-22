@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 import 'seat_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -18,7 +19,7 @@ class BusSeatLayout extends StatelessWidget {
     required this.getSeatLabel,
   });
 
-  Widget _buildDeck(List<List<SeatStatus>> deckLayout, bool isUpper) {
+  Widget _buildDeck(BuildContext context, List<List<SeatStatus>> deckLayout, bool isUpper) {
     return Column(
       children: [
         // Deck title
@@ -30,7 +31,7 @@ class BusSeatLayout extends StatelessWidget {
             borderRadius: BorderRadius.circular(8.r),
           ),
           child: Text(
-            isUpper ? 'Tầng trên' : 'Tầng dưới',
+            isUpper ? AppLocalizations.of(context).translate("Upper deck") : AppLocalizations.of(context).translate("Lower deck"),
             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
@@ -95,9 +96,9 @@ class BusSeatLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildDeck(lowerDeckLayout, false),
+        _buildDeck(context, lowerDeckLayout, false),
         SizedBox(height: 32.h),
-        _buildDeck(upperDeckLayout, true),
+        _buildDeck(context, upperDeckLayout, true),
       ],
     );
   }

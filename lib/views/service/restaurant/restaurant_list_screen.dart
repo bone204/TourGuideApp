@@ -70,7 +70,7 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
     } catch (e) {
       setState(() {
         isLoading = false;
-        error = 'Lỗi khi tải danh sách nhà hàng: $e';
+        error = AppLocalizations.of(context).translate("Error loading restaurant list") + ': $e';
       });
     }
   }
@@ -100,7 +100,7 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
                       SizedBox(height: 16.h),
                       ElevatedButton(
                         onPressed: _loadRestaurants,
-                        child: const Text('Thử lại'),
+                        child: Text(AppLocalizations.of(context).translate("Try again")),
                       ),
                     ],
                   ),
@@ -117,7 +117,7 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
                           ),
                           SizedBox(height: 16.h),
                           Text(
-                            'Không tìm thấy nhà hàng nào',
+                            AppLocalizations.of(context).translate("No restaurants found"),
                             style: TextStyle(
                               fontSize: 16.sp,
                               color: Colors.grey,

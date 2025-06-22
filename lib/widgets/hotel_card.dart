@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 //import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:intl/intl.dart';
 import 'package:tourguideapp/models/cooperation_model.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
 class HotelCard extends StatelessWidget {
   final CooperationModel hotel;
@@ -146,11 +147,11 @@ class HotelCard extends StatelessWidget {
                             Icon(Icons.bed, size: 14.sp, color: Colors.green[700]),
                             SizedBox(width: 4.w),
                             Text(
-                              '$availableRooms phòng trống',
+                              '$availableRooms ${AppLocalizations.of(context).translate("Available rooms")}',
                               style: TextStyle(
                                 fontSize: 12.sp,
                                 color: Colors.green[700],
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -158,11 +159,11 @@ class HotelCard extends StatelessWidget {
                       ),
                       SizedBox(width: 12.w),
                       Text(
-                        'Từ ${NumberFormat('#,###', 'vi_VN').format(minPrice.toInt())} ₫',
+                        '${AppLocalizations.of(context).translate("From")} ${NumberFormat('#,###', 'vi_VN').format(minPrice.toInt())} ₫',
                         style: TextStyle(
-                          fontSize: 15.sp,
+                          fontSize: 16.sp,
+                          color: Colors.blue[700],
                           fontWeight: FontWeight.w700,
-                          color: Colors.red,
                         ),
                       ),
                     ],

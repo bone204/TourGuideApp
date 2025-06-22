@@ -379,7 +379,7 @@ class _HotelListScreenState extends State<HotelListScreen> {
                       Icon(Icons.hotel, size: 64, color: Colors.grey[400]),
                       SizedBox(height: 16),
                       Text(
-                        'Không tìm thấy khách sạn phù hợp',
+                        AppLocalizations.of(context).translate("No suitable hotels found"),
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey[600],
@@ -388,7 +388,7 @@ class _HotelListScreenState extends State<HotelListScreen> {
                       if (checkInDate != null && checkOutDate != null) ...[
                         SizedBox(height: 8),
                         Text(
-                          'Từ ${DateFormat('dd/MM/yyyy').format(checkInDate!)} đến ${DateFormat('dd/MM/yyyy').format(checkOutDate!)}',
+                          '${AppLocalizations.of(context).translate("From")} ${DateFormat('dd/MM/yyyy').format(checkInDate!)} ${AppLocalizations.of(context).translate("to")} ${DateFormat('dd/MM/yyyy').format(checkOutDate!)}',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[500],
@@ -417,7 +417,7 @@ class _HotelListScreenState extends State<HotelListScreen> {
                             SizedBox(width: 8.w),
                             Expanded(
                               child: Text(
-                                'Tìm kiếm từ ${DateFormat('dd/MM/yyyy').format(checkInDate!)} đến ${DateFormat('dd/MM/yyyy').format(checkOutDate!)} (${checkOutDate!.difference(checkInDate!).inDays} đêm)',
+                                '${AppLocalizations.of(context).translate("Search from")} ${DateFormat('dd/MM/yyyy').format(checkInDate!)} ${AppLocalizations.of(context).translate("to")} ${DateFormat('dd/MM/yyyy').format(checkOutDate!)} (${checkOutDate!.difference(checkInDate!).inDays} ${AppLocalizations.of(context).translate("nights")})',
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   color: Colors.blue[700],

@@ -256,7 +256,7 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
           _showSuccessSnackbar = false;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Cập nhật thành công!'),
+              content: Text(AppLocalizations.of(context).translate("Update successful!")),
               backgroundColor: Colors.green.shade600,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),

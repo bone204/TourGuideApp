@@ -328,18 +328,18 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
   Future<bool?> _showDeleteConfirmDialog(BuildContext context) {
     return showAppDialog<bool>(
       context: context,
-      title: 'Xác nhận',
-      content: 'Bạn có chắc chắn muốn xoá điểm đến này?',
+      title: AppLocalizations.of(context).translate("Confirm"),
+      content: AppLocalizations.of(context).translate("Are you sure you want to delete this destination?"),
       icon: Icons.warning_amber_rounded,
       iconColor: Colors.orange,
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Huỷ'),
+          child: Text(AppLocalizations.of(context).translate("Cancel")),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(true),
-          child: const Text('Xoá'),
+          child: Text(AppLocalizations.of(context).translate("Delete")),
         ),
       ],
     );
