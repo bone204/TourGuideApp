@@ -112,6 +112,21 @@ class NotificationService {
     Map<String, dynamic>? additionalData,
   }) async {
     try {
+      // Kiểm tra xem notification đã tồn tại chưa để tránh duplicate
+      final existingNotification = await _firestore
+          .collection('NOTIFICATIONS')
+          .where('userId', isEqualTo: userId)
+          .where('serviceType', isEqualTo: serviceType)
+          .where('serviceId', isEqualTo: serviceId)
+          .where('title', isEqualTo: title)
+          .limit(1)
+          .get();
+
+      if (existingNotification.docs.isNotEmpty) {
+        print('Notification already exists, skipping duplicate: $serviceId');
+        return;
+      }
+
       // Lưu thông báo vào Firestore
       final notification = NotificationModel(
         id: '',
@@ -360,6 +375,47 @@ class NotificationService {
       print('Test notification sent successfully');
     } catch (e) {
       print('Test notification failed: $e');
+    }
+  }
+
+  // Xóa notification duplicate
+  Future<void> removeDuplicateNotifications(String userId) async {
+    try {
+      print('Removing duplicate notifications for user: $userId');
+      
+      // Lấy tất cả notifications của user
+      final snapshot = await _firestore
+          .collection('NOTIFICATIONS')
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      final notifications = snapshot.docs;
+      final seen = <String>{};
+      final toDelete = <String>[];
+
+      for (var doc in notifications) {
+        final data = doc.data();
+        final key = '${data['serviceType']}_${data['serviceId']}_${data['title']}';
+        
+        if (seen.contains(key)) {
+          toDelete.add(doc.id);
+        } else {
+          seen.add(key);
+        }
+      }
+
+      if (toDelete.isNotEmpty) {
+        final batch = _firestore.batch();
+        for (var docId in toDelete) {
+          batch.delete(_firestore.collection('NOTIFICATIONS').doc(docId));
+        }
+        await batch.commit();
+        print('Removed ${toDelete.length} duplicate notifications');
+      } else {
+        print('No duplicate notifications found');
+      }
+    } catch (e) {
+      print('Error removing duplicate notifications: $e');
     }
   }
 } 

@@ -606,60 +606,60 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                         ],
                       ),
-                      SizedBox(width: 12.w),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const AdminScreen(),
-                            ),
-                          );
-                        },
-                        child: Icon(Icons.payment, size: 28.sp, color: AppColors.white)
-                      ),
-                      SizedBox(width: 12.w),
-                      // Test notification button
-                      GestureDetector(
-                        onTap: () async {
-                          try {
-                            if (_currentUserId != null) {
-                              await _notificationService.sendNotificationToUser(
-                                userId: _currentUserId!,
-                                title: 'Test Notification',
-                                body: 'This is a test notification to check if the system works!',
-                                serviceType: 'test',
-                                serviceId: 'test_001',
-                                serviceName: 'Test Service',
-                                additionalData: {'test': true},
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Test notification sent!'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                              // Reload notification count
-                              _loadUnreadNotificationCount();
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('No user ID found!'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Test notification failed: $e'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
-                        child: Icon(Icons.bug_report, size: 28.sp, color: AppColors.white)
-                      ),
+                      // SizedBox(width: 12.w),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //         builder: (context) => const AdminScreen(),
+                      //       ),
+                      //     );
+                      //   },
+                      //   child: Icon(Icons.payment, size: 28.sp, color: AppColors.white)
+                      // ),
+                      // SizedBox(width: 12.w),
+                      // // Test notification button
+                      // GestureDetector(
+                      //   onTap: () async {
+                      //     try {
+                      //       if (_currentUserId != null) {
+                      //         await _notificationService.sendNotificationToUser(
+                      //           userId: _currentUserId!,
+                      //           title: 'Test Notification',
+                      //           body: 'This is a test notification to check if the system works!',
+                      //           serviceType: 'test',
+                      //           serviceId: 'test_001',
+                      //           serviceName: 'Test Service',
+                      //           additionalData: {'test': true},
+                      //         );
+                      //         ScaffoldMessenger.of(context).showSnackBar(
+                      //           const SnackBar(
+                      //             content: Text('Test notification sent!'),
+                      //             backgroundColor: Colors.green,
+                      //           ),
+                      //         );
+                      //         // Reload notification count
+                      //         _loadUnreadNotificationCount();
+                      //       } else {
+                      //         ScaffoldMessenger.of(context).showSnackBar(
+                      //           const SnackBar(
+                      //             content: Text('No user ID found!'),
+                      //             backgroundColor: Colors.red,
+                      //           ),
+                      //         );
+                      //       }
+                      //     } catch (e) {
+                      //       ScaffoldMessenger.of(context).showSnackBar(
+                      //         SnackBar(
+                      //           content: Text('Test notification failed: $e'),
+                      //           backgroundColor: Colors.red,
+                      //         ),
+                      //       );
+                      //     }
+                      //   },
+                      //   child: Icon(Icons.bug_report, size: 28.sp, color: AppColors.white)
+                      // ),
                     ],
                   ),
                 ),

@@ -19,6 +19,20 @@ class UsedServicesService {
     Map<String, dynamic>? additionalData,
   }) async {
     try {
+      // Kiểm tra xem service đã tồn tại chưa để tránh duplicate
+      final existingService = await _firestore
+          .collection('USED_SERVICES')
+          .where('userId', isEqualTo: userId)
+          .where('serviceType', isEqualTo: serviceType)
+          .where('serviceId', isEqualTo: serviceId)
+          .limit(1)
+          .get();
+
+      if (existingService.docs.isNotEmpty) {
+        print('Service already exists, skipping duplicate: $serviceId');
+        return;
+      }
+
       await _firestore.collection('USED_SERVICES').add({
         'userId': userId,
         'serviceType': serviceType, // 'hotel', 'bus', 'eatery', etc.

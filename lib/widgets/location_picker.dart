@@ -168,11 +168,12 @@ class _LocationPickerState extends State<LocationPicker> {
                                       
                                       // Lấy thông tin từ Google Places API
                                       String recipientName = '';
-                                      String recipientPhone = locationDetails['phone'] ?? '';
+                                      String recipientPhone = '';
                                       
-                                      // Chỉ lấy tên nếu là địa điểm gửi hàng (không phải giao hàng)
+                                      // Chỉ lấy thông tin nếu là địa điểm gửi hàng (không phải giao hàng)
                                       if (!widget.isDeliveryLocation) {
                                         recipientName = locationDetails['name'] ?? '';
+                                        recipientPhone = locationDetails['phone'] ?? '';
                                       }
                                       
                                       setState(() {
