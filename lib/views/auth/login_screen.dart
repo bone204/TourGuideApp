@@ -12,6 +12,7 @@ import 'package:tourguideapp/core/services/firebase_auth_services.dart';
 import 'signup_screen.dart';
 import 'forgot_password_phone_screen.dart';
 import 'package:tourguideapp/blocs/auth_bloc.dart';
+import 'package:tourguideapp/widgets/app_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -23,23 +24,19 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final FirebaseAuthService _authService = FirebaseAuthService();
 
-  void _showErrorDialog(String message) {
-    showDialog(
+  void _showErrorDialog(BuildContext context, String message) {
+    showAppDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(AppLocalizations.of(context).translate('Error')),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: Text(AppLocalizations.of(context).translate('OK')),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+      title: 'Lỗi',
+      content: message,
+      icon: Icons.error_outline,
+      iconColor: Colors.red,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('ĐÓNG'),
+        ),
+      ],
     );
   }
 
@@ -49,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (email.isEmpty || password.isEmpty) {
       if (mounted) {
-        _showErrorDialog(AppLocalizations.of(context).translate('Please enter both email and password.'));
+        _showErrorDialog(context, AppLocalizations.of(context).translate('Please enter both email and password.'));
       }
       return;
     }
@@ -61,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        _showErrorDialog(e.toString());
+        _showErrorDialog(context, e.toString());
       }
     }
   }

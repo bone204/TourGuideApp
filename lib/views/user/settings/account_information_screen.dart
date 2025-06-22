@@ -8,6 +8,7 @@ import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/disable_textfield.dart';
 import '../../../viewmodels/accountInfo_viewmodel.dart';
 import '../../../widgets/custom_icon_button.dart';
+import '../../../widgets/app_dialog.dart';
 
 class AccountInfoScreen extends StatefulWidget {
   const AccountInfoScreen({super.key});
@@ -178,6 +179,26 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _showSaveConfirmDialog(BuildContext context) async {
+    await showAppDialog(
+      context: context,
+      title: AppLocalizations.of(context).translate('Thông báo'),
+      content: AppLocalizations.of(context).translate('Bạn có chắc chắn muốn lưu thay đổi?'),
+      icon: Icons.info_outline,
+      iconColor: Theme.of(context).primaryColor,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(AppLocalizations.of(context).translate('Huỷ')),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(AppLocalizations.of(context).translate('Lưu')),
+        ),
+      ],
     );
   }
 }

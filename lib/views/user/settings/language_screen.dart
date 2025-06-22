@@ -5,6 +5,7 @@ import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/interactive_row_widget.dart';  // Import InteractiveRowWidget
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tourguideapp/widgets/app_dialog.dart';
 
 class LanguageScreen extends StatefulWidget {
   const LanguageScreen({super.key});
@@ -75,24 +76,22 @@ class _LanguageScreenState extends State<LanguageScreen> {
       return;
     }
 
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(AppLocalizations.of(context).translate('Confirm Language Change')),
-          content: Text(AppLocalizations.of(context).translate('Do you want to change the language?')),
-          actions: [
-            TextButton(
-              child: Text(AppLocalizations.of(context).translate('Cancel')),
-              onPressed: () => Navigator.of(context).pop(false),
-            ),
-            TextButton(
-              child: Text(AppLocalizations.of(context).translate('Confirm')),
-              onPressed: () => Navigator.of(context).pop(true),
-            ),
-          ],
-        );
-      },
+      title: AppLocalizations.of(context).translate('Confirm Language Change'),
+      content: AppLocalizations.of(context).translate('Do you want to change the language?'),
+      icon: Icons.language,
+      iconColor: Theme.of(context).primaryColor,
+      actions: [
+        TextButton(
+          child: Text(AppLocalizations.of(context).translate('Cancel')),
+          onPressed: () => Navigator.of(context).pop(false),
+        ),
+        TextButton(
+          child: Text(AppLocalizations.of(context).translate('Confirm')),
+          onPressed: () => Navigator.of(context).pop(true),
+        ),
+      ],
     );
 
     if (confirmed == true) {

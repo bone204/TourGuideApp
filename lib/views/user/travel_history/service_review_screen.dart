@@ -7,6 +7,7 @@ import 'package:tourguideapp/viewmodels/feedback_viewmodel.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/widgets/feedback_form.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tourguideapp/widgets/app_dialog.dart';
 
 final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
@@ -116,39 +117,38 @@ class ServiceReviewScreen extends StatelessWidget {
                               if (!success) {
                                 if (viewModel.error.contains('độc hại')) {
                                   // Trường hợp toxic >= 90%
-                                  await showDialog(
+                                  await showAppDialog(
                                     context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: Text(AppLocalizations.of(context).translate("Warning")),
-                                      content: Text(viewModel.error),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context),
-                                          child: Text(AppLocalizations.of(context).translate("OK")),
-                                        ),
-                                      ],
-                                    ),
+                                    title: AppLocalizations.of(context).translate("Warning"),
+                                    content: viewModel.error,
+                                    icon: Icons.warning_amber_rounded,
+                                    iconColor: Colors.orange,
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text(AppLocalizations.of(context).translate("OK")),
+                                      ),
+                                    ],
                                   );
                                 } else if (viewModel.error.contains('có thể chứa nội dung không phù hợp')) {
                                   // Trường hợp toxic < 90%, cho phép xác nhận gửi
-                                  final confirmed = await showDialog<bool>(
+                                  final confirmed = await showAppDialog<bool>(
                                     context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: Text(AppLocalizations.of(context).translate("Warning")),
-                                      content: Text(viewModel.error),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context, false),
-                                          child: Text(AppLocalizations.of(context).translate("Cancel")),
-                                        ),
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context, true),
-                                          child: Text(AppLocalizations.of(context).translate("Submit")),
-                                        ),
-                                      ],
-                                    ),
+                                    title: AppLocalizations.of(context).translate("Warning"),
+                                    content: viewModel.error,
+                                    icon: Icons.warning_amber_rounded,
+                                    iconColor: Colors.orange,
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, false),
+                                        child: Text(AppLocalizations.of(context).translate("Cancel")),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, true),
+                                        child: Text(AppLocalizations.of(context).translate("Submit")),
+                                      ),
+                                    ],
                                   );
-
                                   if (confirmed == true) {
                                     // Gửi lại comment không cần kiểm tra lại
                                     await viewModel.submitFeedback(
@@ -156,7 +156,6 @@ class ServiceReviewScreen extends StatelessWidget {
                                       licensePlate: licensePlate,
                                       userId: userId
                                     );
-
                                     Navigator.pop(context);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(

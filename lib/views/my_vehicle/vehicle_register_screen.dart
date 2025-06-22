@@ -13,6 +13,7 @@ import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
+import 'package:tourguideapp/widgets/app_dialog.dart';
 
 class VehicleRegisterScreen extends StatefulWidget {
   const VehicleRegisterScreen({super.key});
@@ -237,22 +238,18 @@ class _VehicleRegisterScreenState extends State<VehicleRegisterScreen> {
   }
 
   void _showErrorDialog(String message) {
-    showDialog(
+    showAppDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Error'),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+      title: 'Lỗi',
+      content: message,
+      icon: Icons.error_outline,
+      iconColor: Colors.red,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('ĐÓNG'),
+        ),
+      ],
     );
   }
 

@@ -12,6 +12,7 @@ import 'package:tourguideapp/core/services/hotel_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:tourguideapp/core/services/momo_service.dart';
+import 'package:tourguideapp/widgets/app_dialog.dart';
 
 class HotelBookingBillScreen extends StatefulWidget {
   final CooperationModel hotel;
@@ -181,63 +182,21 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
 
       // Hiển thị thông báo thành công
       if (mounted) {
-        showDialog(
+        showAppDialog(
           context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.green[100],
-                        shape: BoxShape.circle,
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: const Icon(Icons.check_circle, color: Colors.green, size: 64),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Thanh toán thành công!',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.green[800],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Đặt phòng khách sạn của bạn đã được xác nhận. Dịch vụ sẽ được thêm vào danh sách đã sử dụng.',
-                      style: const TextStyle(fontSize: 16, color: Colors.black87),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 28),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).popUntil((route) => route.isFirst);
-                        },
-                        child: const Text('OK', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+          title: 'Thông báo',
+          content: 'Đặt phòng khách sạn của bạn đã được xác nhận. Dịch vụ sẽ được thêm vào danh sách đã sử dụng.',
+          icon: Icons.check_circle,
+          iconColor: Colors.green,
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+              child: const Text('OK'),
+            ),
+          ],
         );
       }
     } catch (e) {

@@ -16,6 +16,7 @@ import 'package:tourguideapp/widgets/destination_route_card.dart';
 import 'package:tourguideapp/views/service/travel/destination_edit_screen.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/models/destination_model.dart';
+import 'package:tourguideapp/widgets/app_dialog.dart';
 
 class RouteDetailScreen extends StatefulWidget {
   final String routeName;
@@ -94,28 +95,28 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
 
   void _onDeleteDay(String categoryToDelete) async {
     if (categories.length > 1) {
-      final bool? shouldDelete = await showDialog<bool>(
+      final bool? shouldDelete = await showAppDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: Text(AppLocalizations.of(context).translate("Delete Day")),
-          content: Text(AppLocalizations.of(context).translate(
-            "Are you sure you want to delete this day? All destinations in this day will be deleted.",
-          )),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(AppLocalizations.of(context).translate("Cancel"),
-                style: const TextStyle(color: AppColors.primaryColor),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(AppLocalizations.of(context).translate("Delete"),
-                style: const TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
+        title: AppLocalizations.of(context).translate("Delete Day"),
+        content: AppLocalizations.of(context).translate(
+          "Are you sure you want to delete this day? All destinations in this day will be deleted.",
         ),
+        icon: Icons.warning_amber_rounded,
+        iconColor: Colors.orange,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(AppLocalizations.of(context).translate("Cancel"),
+              style: const TextStyle(color: AppColors.primaryColor),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(AppLocalizations.of(context).translate("Delete"),
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
       );
 
       if (shouldDelete == true) {
@@ -235,22 +236,22 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                   CustomIconButton(
                     icon: Icons.delete,
                     onPressed: () async {
-                      final shouldDelete = await showDialog<bool>(
+                      final shouldDelete = await showAppDialog(
                         context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text(AppLocalizations.of(context).translate('Confirm')),
-                          content: Text(AppLocalizations.of(context).translate('Are you sure you want to delete this route?')),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: Text(AppLocalizations.of(context).translate('Cancel')),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: Text(AppLocalizations.of(context).translate('Delete')),
-                            ),
-                          ],
-                        ),
+                        title: AppLocalizations.of(context).translate('Confirm'),
+                        content: AppLocalizations.of(context).translate('Are you sure you want to delete this route?'),
+                        icon: Icons.warning_amber_rounded,
+                        iconColor: Colors.orange,
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: Text(AppLocalizations.of(context).translate('Cancel')),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: Text(AppLocalizations.of(context).translate('Delete')),
+                          ),
+                        ],
                       );
                       if (shouldDelete == true) {
                         context.read<TravelBloc>().add(
@@ -268,22 +269,22 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                   CustomIconButton(
                     icon: Icons.check,
                     onPressed: () async {
-                      final shouldCreate = await showDialog<bool>(
+                      final shouldCreate = await showAppDialog<bool>(
                         context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text(AppLocalizations.of(context).translate('Confirm')),
-                          content: Text(AppLocalizations.of(context).translate('Are you sure you want to create this route?')),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: Text(AppLocalizations.of(context).translate('Cancel')),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: Text(AppLocalizations.of(context).translate('Create')),
-                            ),
-                          ],
-                        ),
+                        title: AppLocalizations.of(context).translate('Confirm'),
+                        content: AppLocalizations.of(context).translate('Are you sure you want to create this route?'),
+                        icon: Icons.info_outline,
+                        iconColor: Theme.of(context).primaryColor,
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: Text(AppLocalizations.of(context).translate('Cancel')),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: Text(AppLocalizations.of(context).translate('Create')),
+                          ),
+                        ],
                       );
                       if (shouldCreate == true) {
                         context.read<TravelBloc>().add(
@@ -299,27 +300,27 @@ class _RouteDetailScreenState extends State<RouteDetailScreen> {
                 ],
           onBackPressed: () async {
             if (widget.existingRouteId == null && context.read<TravelBloc>().hasTemporaryData()) {
-              final bool shouldPop = await showDialog(
+              final bool shouldPop = await showAppDialog<bool>(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: Text(AppLocalizations.of(context).translate('Discard Changes?')),
-                  content: Text(AppLocalizations.of(context).translate('You have unsaved changes. Do you want to discard them and exit?')),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: Text(AppLocalizations.of(context).translate('Cancel')),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        context.read<TravelBloc>().clearTemporaryData();
-                        context.read<TravelBloc>().resetCurrentRoute();
-                        context.read<TravelBloc>().add(LoadTravelRoutes());
-                        Navigator.of(context).pop(true);
-                      },
-                      child: Text(AppLocalizations.of(context).translate('Yes')),
-                    ),
-                  ],
-                ),
+                title: AppLocalizations.of(context).translate('Discard Changes?'),
+                content: AppLocalizations.of(context).translate('You have unsaved changes. Do you want to discard them and exit?'),
+                icon: Icons.warning_amber_rounded,
+                iconColor: Colors.orange,
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(AppLocalizations.of(context).translate('Cancel')),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      context.read<TravelBloc>().clearTemporaryData();
+                      context.read<TravelBloc>().resetCurrentRoute();
+                      context.read<TravelBloc>().add(LoadTravelRoutes());
+                      Navigator.of(context).pop(true);
+                    },
+                    child: Text(AppLocalizations.of(context).translate('Yes')),
+                  ),
+                ],
               ) ?? false;
 
               if (shouldPop) {

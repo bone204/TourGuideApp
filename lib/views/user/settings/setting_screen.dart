@@ -12,6 +12,7 @@ import 'package:tourguideapp/widgets/interactive_row_widget.dart';
 import 'language_screen.dart'; // Import màn hình lựa chọn ngôn ngữ
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourguideapp/blocs/auth_bloc.dart';
+import 'package:tourguideapp/widgets/app_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -145,28 +146,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
               leadingIcon: Icons.logout,
               title: AppLocalizations.of(context).translate('Sign Out'),
               onTap: () async {
-                bool shouldLogout = await showDialog<bool>(
+                bool shouldLogout = await showAppDialog<bool>(
                   context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text(AppLocalizations.of(context).translate('Confirm Logout')),
-                      content: Text(AppLocalizations.of(context).translate('Are you sure you want to log out?')),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(false);
-                          },
-                          child: Text(AppLocalizations.of(context).translate('Cancel')),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(true);
-                          },
-                          child: Text(AppLocalizations.of(context).translate('Logout')),
-                        ),
-                      ],
-                    );
-                  },
+                  title: AppLocalizations.of(context).translate('Confirm Logout'),
+                  content: AppLocalizations.of(context).translate('Are you sure you want to log out?'),
+                  icon: Icons.logout,
+                  iconColor: Colors.red,
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: Text(AppLocalizations.of(context).translate('Cancel')),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: Text(AppLocalizations.of(context).translate('Logout')),
+                    ),
+                  ],
                 ) ?? false;
     
                 if (shouldLogout) {

@@ -8,6 +8,7 @@ import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/views/service/travel/image_viewer_screen.dart';
 import 'dart:io';
+import 'package:tourguideapp/widgets/app_dialog.dart';
 
 class DestinationEditScreen extends StatefulWidget {
   final String destinationName;
@@ -324,6 +325,26 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
     Navigator.pop(context);
   }
 
+  Future<bool?> _showDeleteConfirmDialog(BuildContext context) {
+    return showAppDialog<bool>(
+      context: context,
+      title: 'Xác nhận',
+      content: 'Bạn có chắc chắn muốn xoá điểm đến này?',
+      icon: Icons.warning_amber_rounded,
+      iconColor: Colors.orange,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Huỷ'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text('Xoá'),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -335,38 +356,7 @@ class _DestinationEditScreenState extends State<DestinationEditScreen> {
           CustomIconButton(
             icon: Icons.delete,
             onPressed: () async {
-              final shouldDelete = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-                  title: Row(
-                    children: [
-                      Icon(Icons.warning, color: Colors.red.shade600),
-                      SizedBox(width: 8.w),
-                      Text(AppLocalizations.of(context).translate('Confirm Delete')),
-                    ],
-                  ),
-                  content: Text(AppLocalizations.of(context).translate('Are you sure you want to delete this destination?')),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: Text(
-                        AppLocalizations.of(context).translate('Cancel'),
-                        style: TextStyle(color: Colors.grey.shade600),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red.shade600,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                      ),
-                      child: Text(AppLocalizations.of(context).translate('Delete')),
-                    ),
-                  ],
-                ),
-              );
+              final shouldDelete = await _showDeleteConfirmDialog(context);
               
               if (shouldDelete == true) {
                 widget.onDelete();

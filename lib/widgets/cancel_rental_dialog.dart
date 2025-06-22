@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/widgets/app_dialog.dart';
 
 class CancelRentalDialog extends StatefulWidget {
   final Function(String) onConfirm;
@@ -18,16 +19,9 @@ class _CancelRentalDialogState extends State<CancelRentalDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(AppLocalizations.of(context).translate("Cancel Rental")),
-      content: TextField(
-        controller: _reasonController,
-        decoration: InputDecoration(
-          hintText: AppLocalizations.of(context)
-              .translate("Enter reason for cancellation"),
-        ),
-        maxLines: 3,
-      ),
+    return AppDialog(
+      title: AppLocalizations.of(context).translate("Cancel Rental"),
+      content: null,
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
@@ -43,6 +37,8 @@ class _CancelRentalDialogState extends State<CancelRentalDialog> {
           child: Text(AppLocalizations.of(context).translate("Confirm")),
         ),
       ],
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      backgroundColor: Colors.white,
     );
   }
 }

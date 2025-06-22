@@ -21,6 +21,7 @@ import 'package:tourguideapp/viewmodels/bank_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/rental_vehicle_viewmodel.dart';
 import 'package:tourguideapp/widgets/location_picker.dart';
 import 'package:tourguideapp/widgets/province_picker.dart';
+import 'package:tourguideapp/widgets/app_dialog.dart';
 
 class VehicleRentalRegisterScreen extends StatefulWidget {
   const VehicleRentalRegisterScreen({super.key});
@@ -283,22 +284,18 @@ class _VehicleRentalRegisterScreenState
   }
 
   void _showErrorDialog(String message) {
-    showDialog(
+    showAppDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Error'),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+      title: 'Lỗi',
+      content: message,
+      icon: Icons.error_outline,
+      iconColor: Colors.red,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('ĐÓNG'),
+        ),
+      ],
     );
   }
 
