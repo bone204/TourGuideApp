@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/widgets/custom_icon_button.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/hotel_card.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/cooperation_model.dart';
 import 'package:tourguideapp/models/room_availability_model.dart';
 import 'package:tourguideapp/core/services/hotel_service.dart';
-import 'package:tourguideapp/views/service/hotel/room_list_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:tourguideapp/views/service/hotel/hotel_detail_screen.dart';
 
 class HotelListScreen extends StatefulWidget {
   final Map<String, dynamic>? searchParams;
@@ -127,24 +127,23 @@ class _HotelListScreenState extends State<HotelListScreen> {
         numberOfObjectTypes: 0,
         latitude: 0,
         longitude: 0,
-        bossName: '',
-        bossPhone: '',
-        bossEmail: '',
+        bossName: 'Nguyen Van A',
+        bossPhone: '0901234567',
+        bossEmail: 'rex@hotel.com',
         address: '141 Nguyễn Huệ, Bến Nghé, Quận 1, TP.HCM',
-        district: '',
-        city: '',
+        district: 'Quận 1',
+        city: 'Hồ Chí Minh',
         province: 'TP.HCM',
-        photo:
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
+        photo: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
         extension: '',
-        introduction: '',
+        introduction: 'Khách sạn 5 sao trung tâm Sài Gòn.',
         contractDate: '',
         contractTerm: '',
         bankAccountNumber: '',
         bankAccountName: '',
         bankName: '',
-        bookingTimes: 0,
-        revenue: 0,
+        bookingTimes: 120,
+        revenue: 150000000,
         averageRating: 4.5,
       ),
       CooperationModel(
@@ -155,24 +154,23 @@ class _HotelListScreenState extends State<HotelListScreen> {
         numberOfObjectTypes: 0,
         latitude: 0,
         longitude: 0,
-        bossName: '',
-        bossPhone: '',
-        bossEmail: '',
+        bossName: 'Tran Thi B',
+        bossPhone: '0912345678',
+        bossEmail: 'caravelle@hotel.com',
         address: '19 Lam Sơn, Bến Nghé, Quận 1, TP.HCM',
-        district: '',
-        city: '',
+        district: 'Quận 1',
+        city: 'Hồ Chí Minh',
         province: 'TP.HCM',
-        photo:
-            'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400',
+        photo: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400',
         extension: '',
-        introduction: '',
+        introduction: 'Khách sạn sang trọng với hồ bơi ngoài trời.',
         contractDate: '',
         contractTerm: '',
         bankAccountNumber: '',
         bankAccountName: '',
         bankName: '',
-        bookingTimes: 0,
-        revenue: 0,
+        bookingTimes: 98,
+        revenue: 120000000,
         averageRating: 4.0,
       ),
       CooperationModel(
@@ -183,26 +181,159 @@ class _HotelListScreenState extends State<HotelListScreen> {
         numberOfObjectTypes: 0,
         latitude: 0,
         longitude: 0,
-        bossName: '',
-        bossPhone: '',
-        bossEmail: '',
-        address:
-            'Corner of Hai Ba Trung St. & Le Duan Blvd, District 1, TP.HCM',
-        district: '',
-        city: '',
+        bossName: 'Le Van C',
+        bossPhone: '0923456789',
+        bossEmail: 'icsaigon@hotel.com',
+        address: 'Corner of Hai Ba Trung St. & Le Duan Blvd, District 1, TP.HCM',
+        district: 'Quận 1',
+        city: 'Hồ Chí Minh',
         province: 'TP.HCM',
-        photo:
-            'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400',
+        photo: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400',
         extension: '',
-        introduction: '',
+        introduction: 'Khách sạn quốc tế, dịch vụ đẳng cấp.',
         contractDate: '',
         contractTerm: '',
         bankAccountNumber: '',
         bankAccountName: '',
         bankName: '',
-        bookingTimes: 0,
-        revenue: 0,
+        bookingTimes: 150,
+        revenue: 200000000,
         averageRating: 5.0,
+      ),
+      CooperationModel(
+        cooperationId: 'H00004',
+        name: 'Hanoi Pearl Hotel',
+        type: 'hotel',
+        numberOfObjects: 0,
+        numberOfObjectTypes: 0,
+        latitude: 0,
+        longitude: 0,
+        bossName: 'Pham Thi D',
+        bossPhone: '0934567890',
+        bossEmail: 'pearl@hotel.com',
+        address: '6 Bao Khanh Lane, Hoan Kiem, Hà Nội',
+        district: 'Hoàn Kiếm',
+        city: 'Hà Nội',
+        province: 'Hà Nội',
+        photo: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400',
+        extension: '',
+        introduction: 'Khách sạn boutique giữa lòng Hà Nội.',
+        contractDate: '',
+        contractTerm: '',
+        bankAccountNumber: '',
+        bankAccountName: '',
+        bankName: '',
+        bookingTimes: 80,
+        revenue: 90000000,
+        averageRating: 4.2,
+      ),
+      CooperationModel(
+        cooperationId: 'H00005',
+        name: 'Da Nang Golden Bay',
+        type: 'resort',
+        numberOfObjects: 0,
+        numberOfObjectTypes: 0,
+        latitude: 0,
+        longitude: 0,
+        bossName: 'Nguyen Van E',
+        bossPhone: '0945678901',
+        bossEmail: 'goldenbay@resort.com',
+        address: '01 Le Van Duyet, Son Tra, Đà Nẵng',
+        district: 'Sơn Trà',
+        city: 'Đà Nẵng',
+        province: 'Đà Nẵng',
+        photo: 'https://images.unsplash.com/photo-1465156799763-2c087c332922?w=400',
+        extension: '',
+        introduction: 'Resort 5 sao với hồ bơi dát vàng.',
+        contractDate: '',
+        contractTerm: '',
+        bankAccountNumber: '',
+        bankAccountName: '',
+        bankName: '',
+        bookingTimes: 60,
+        revenue: 110000000,
+        averageRating: 4.7,
+      ),
+      CooperationModel(
+        cooperationId: 'H00006',
+        name: 'Nha Trang Beach Hotel',
+        type: 'hotel',
+        numberOfObjects: 0,
+        numberOfObjectTypes: 0,
+        latitude: 0,
+        longitude: 0,
+        bossName: 'Tran Van F',
+        bossPhone: '0956789012',
+        bossEmail: 'beach@nhatranghotel.com',
+        address: '42 Tran Phu, Nha Trang, Khánh Hòa',
+        district: 'Nha Trang',
+        city: 'Khánh Hòa',
+        province: 'Khánh Hòa',
+        photo: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=400',
+        extension: '',
+        introduction: 'Khách sạn sát biển, view tuyệt đẹp.',
+        contractDate: '',
+        contractTerm: '',
+        bankAccountNumber: '',
+        bankAccountName: '',
+        bankName: '',
+        bookingTimes: 70,
+        revenue: 85000000,
+        averageRating: 4.3,
+      ),
+      CooperationModel(
+        cooperationId: 'H00007',
+        name: 'Hue Riverside Resort',
+        type: 'resort',
+        numberOfObjects: 0,
+        numberOfObjectTypes: 0,
+        latitude: 0,
+        longitude: 0,
+        bossName: 'Le Thi G',
+        bossPhone: '0967890123',
+        bossEmail: 'riverside@hueresort.com',
+        address: '588 Bui Thi Xuan, Hue',
+        district: 'Huế',
+        city: 'Thừa Thiên Huế',
+        province: 'Thừa Thiên Huế',
+        photo: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=400',
+        extension: '',
+        introduction: 'Resort ven sông, không gian yên tĩnh.',
+        contractDate: '',
+        contractTerm: '',
+        bankAccountNumber: '',
+        bankAccountName: '',
+        bankName: '',
+        bookingTimes: 55,
+        revenue: 70000000,
+        averageRating: 4.1,
+      ),
+      CooperationModel(
+        cooperationId: 'H00008',
+        name: 'Sapa Mountain View',
+        type: 'hotel',
+        numberOfObjects: 0,
+        numberOfObjectTypes: 0,
+        latitude: 0,
+        longitude: 0,
+        bossName: 'Pham Van H',
+        bossPhone: '0978901234',
+        bossEmail: 'mountain@sapahotel.com',
+        address: '10 Fansipan, Sapa, Lào Cai',
+        district: 'Sa Pa',
+        city: 'Lào Cai',
+        province: 'Lào Cai',
+        photo: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400',
+        extension: '',
+        introduction: 'Khách sạn view núi, không khí trong lành.',
+        contractDate: '',
+        contractTerm: '',
+        bankAccountNumber: '',
+        bankAccountName: '',
+        bankName: '',
+        bookingTimes: 40,
+        revenue: 60000000,
+        averageRating: 4.0,
       ),
     ];
   }
@@ -227,57 +358,16 @@ class _HotelListScreenState extends State<HotelListScreen> {
         .reduce((a, b) => a + b);
   }
 
-  void _navigateToRoomList(CooperationModel hotel) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => RoomListScreen(hotel: hotel),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.h),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          flexibleSpace: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                height: 40.h,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: CustomIconButton(
-                        icon: Icons.chevron_left,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        AppLocalizations.of(context).translate('Hotel List'),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20.sp,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+      appBar: CustomAppBar(
+        onBackPressed: () {
+          Navigator.of(context).pop();
+        },
+        title: AppLocalizations.of(context).translate("Hotel List"),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -342,130 +432,28 @@ class _HotelListScreenState extends State<HotelListScreen> {
                     Expanded(
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10.w),
-                        child: GridView.builder(
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 161.w /
-                                220.h, // Tăng chiều cao để hiển thị thêm thông tin
-                            mainAxisSpacing: 20.h,
-                            crossAxisSpacing: 0,
-                          ),
+                        child: ListView.builder(
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
                           itemCount: filteredHotels.length,
                           itemBuilder: (context, index) {
                             final hotel = filteredHotels[index];
-                            final minPrice =
-                                _getMinRoomPrice(hotel.cooperationId);
-                            final availableRooms =
-                                _getTotalAvailableRooms(hotel.cooperationId);
+                            final minPrice = _getMinRoomPrice(hotel.cooperationId);
+                            final availableRooms = _getTotalAvailableRooms(hotel.cooperationId);
 
-                            return GestureDetector(
-                              onTap: () => _navigateToRoomList(hotel),
-                              child: Container(
-                                margin: EdgeInsets.only(bottom: 16.h),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12.r),
-                                  border: Border.all(color: Colors.grey[300]!),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: 16.h),
+                              child: HotelCard(
+                                hotel: hotel,
+                                minPrice: minPrice,
+                                availableRooms: availableRooms,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => HotelDetailScreen(hotel: hotel),
                                     ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Ảnh khách sạn
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(12.r),
-                                        topRight: Radius.circular(12.r),
-                                      ),
-                                      child: Image.network(
-                                        hotel.photo,
-                                        height: 120.h,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    // Thông tin khách sạn
-                                    Padding(
-                                      padding: EdgeInsets.all(12.w),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            hotel.name,
-                                            style: TextStyle(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          SizedBox(height: 4.h),
-                                          Row(
-                                            children: [
-                                              Icon(Icons.star,
-                                                  size: 14.sp,
-                                                  color: Colors.amber),
-                                              SizedBox(width: 4.w),
-                                              Text(
-                                                hotel.averageRating.toString(),
-                                                style: TextStyle(
-                                                  fontSize: 12.sp,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 8.h),
-                                          // Thông tin phòng trống
-                                          Container(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 8.w, vertical: 4.h),
-                                            decoration: BoxDecoration(
-                                              color: Colors.green[50],
-                                              borderRadius:
-                                                  BorderRadius.circular(8.r),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(Icons.bed,
-                                                    size: 12.sp,
-                                                    color: Colors.green[700]),
-                                                SizedBox(width: 4.w),
-                                                Text(
-                                                  '$availableRooms phòng trống',
-                                                  style: TextStyle(
-                                                    fontSize: 11.sp,
-                                                    color: Colors.green[700],
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(height: 8.h),
-                                          // Giá phòng
-                                          Text(
-                                            'Từ ${NumberFormat('#,###', 'vi_VN').format(minPrice.toInt())} ₫',
-                                            style: TextStyle(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  );
+                                },
                               ),
                             );
                           },

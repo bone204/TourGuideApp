@@ -175,16 +175,34 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                               children: [
                                 // About
                                 SingleChildScrollView(
-                                  child: Text(
-                                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-                                    style: TextStyle(
-                                        color: Colors.grey[700],
-                                        fontSize: 14.sp),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        hotel.introduction.isNotEmpty ? hotel.introduction : 'Không có mô tả.',
+                                        style: TextStyle(color: Colors.grey[700], fontSize: 14.sp),
+                                      ),
+                                      SizedBox(height: 8.h),
+                                      Text('Địa chỉ: ${hotel.address}', style: TextStyle(fontSize: 13.sp)),
+                                      SizedBox(height: 4.h),
+                                      Text('Tỉnh/Thành: ${hotel.province}', style: TextStyle(fontSize: 13.sp)),
+                                      SizedBox(height: 4.h),
+                                      Text('Số điện thoại: ${hotel.bossPhone}', style: TextStyle(fontSize: 13.sp)),
+                                      SizedBox(height: 4.h),
+                                      Text('Email: ${hotel.bossEmail}', style: TextStyle(fontSize: 13.sp)),
+                                      SizedBox(height: 4.h),
+                                      Text('Số lần đặt: ${hotel.bookingTimes}', style: TextStyle(fontSize: 13.sp)),
+                                      SizedBox(height: 4.h),
+                                      Text('Doanh thu: ${hotel.revenue.toStringAsFixed(0)} VNĐ', style: TextStyle(fontSize: 13.sp)),
+                                      SizedBox(height: 4.h),
+                                      Text('Chủ khách sạn: ${hotel.bossName}', style: TextStyle(fontSize: 13.sp)),
+                                      SizedBox(height: 4.h),
+                                      Text('Loại hình: ${hotel.type}', style: TextStyle(fontSize: 13.sp)),
+                                    ],
                                   ),
                                 ),
                                 // Review
-                                const Center(
-                                    child: Text("Reviews coming soon")),
+                                const Center(child: Text("Reviews coming soon")),
                                 // Photos
                                 GridView.builder(
                                   gridDelegate:

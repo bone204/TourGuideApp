@@ -422,10 +422,6 @@
     "Loading more...": "Loading more...",
     "No more destinations": "No more destinations",
     
-    "Confirm": "Confirm",
-    "Are you sure you want to delete this route?": "Are you sure you want to delete this route?",
-    "Cancel": "Cancel",
-    "Delete": "Delete",
     "Are you sure you want to create this route?": "Are you sure you want to create this route?",
     "Create": "Create",
     "End time must be greater than start time": "End time must be greater than start time",
@@ -435,7 +431,6 @@
     "Error recording video": "Error recording video",
     "Confirm Delete": "Confirm Delete",
     "Are you sure you want to delete this destination?": "Are you sure you want to delete this destination?",
-    "About": "About",
     "is a wonderful destination with many beautiful landscapes, unique culture and rich cuisine. This place attracts tourists with majestic natural scenery, important historical sites and friendly, hospitable people.": "is a wonderful destination with many beautiful landscapes, unique culture and rich cuisine. This place attracts tourists with majestic natural scenery, important historical sites and friendly, hospitable people.",
     "Choose a suitable time and let us create a perfect travel itinerary for you to explore": "Choose a suitable time and let us create a perfect travel itinerary for you to explore",
     "Time": "Time",
@@ -454,6 +449,7 @@
     "Discard Changes?": "Discard Changes?",
     "You have unsaved changes. Do you want to discard them and exit?": "You have unsaved changes. Do you want to discard them and exit?",
     "Discard": "Discard",
-    "Yes": "Yes"
+    "Yes": "Yes",
+    "Booking Information": "Booking Information"
 }
   

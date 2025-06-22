@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:tourguideapp/widgets/custom_icon_button.dart';
-import 'package:tourguideapp/localization/app_localizations.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/models/cooperation_model.dart';
 import 'package:tourguideapp/models/room_availability_model.dart';
 import 'package:tourguideapp/core/services/hotel_service.dart';
 import 'package:tourguideapp/views/service/hotel/hotel_booking_bill.dart';
 import 'package:intl/intl.dart';
+import 'package:tourguideapp/widgets/range_date_time_picker.dart';
 
 class RoomListScreen extends StatefulWidget {
   final CooperationModel hotel;
@@ -38,9 +38,9 @@ class _RoomListScreenState extends State<RoomListScreen> {
 
     try {
       // Lấy thông tin từ navigation arguments hoặc sử dụng ngày mặc định
-      checkInDate = DateTime.now().add(const Duration(days: 1));
-      checkOutDate = DateTime.now().add(const Duration(days: 2));
-      numberOfGuests = 2;
+      checkInDate ??= DateTime.now().add(const Duration(days: 1));
+      checkOutDate ??= DateTime.now().add(const Duration(days: 2));
+      numberOfGuests ??= 2;
 
       // Kiểm tra phòng trống cho khách sạn
       final availability = await _hotelService.checkRoomAvailability(
@@ -135,46 +135,11 @@ class _RoomListScreenState extends State<RoomListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.h),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          flexibleSpace: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                height: 40.h,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: CustomIconButton(
-                        icon: Icons.chevron_left,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        widget.hotel.name,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18.sp,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+      appBar: CustomAppBar(
+        title: widget.hotel.name,
+        onBackPressed: () {
+          Navigator.of(context).pop();
+        }
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -184,7 +149,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.bed, size: 64, color: Colors.grey[400]),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
                         'Không có phòng trống',
                         style: TextStyle(
@@ -197,75 +162,25 @@ class _RoomListScreenState extends State<RoomListScreen> {
                 )
               : Column(
                   children: [
-                    // Thông tin khách sạn
-                    Container(
-                      padding: EdgeInsets.all(16.w),
-                      margin: EdgeInsets.all(16.w),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12.r),
-                        border: Border.all(color: Colors.grey[300]!),
-                      ),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8.r),
-                            child: Image.network(
-                              widget.hotel.photo,
-                              width: 60.w,
-                              height: 60.h,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.hotel.name,
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 4.h),
-                                Text(
-                                  widget.hotel.address,
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: Colors.grey[600],
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 4.h),
-                                Row(
-                                  children: [
-                                    Icon(Icons.star,
-                                        size: 14.sp, color: Colors.amber),
-                                    SizedBox(width: 4.w),
-                                    Text(
-                                      widget.hotel.averageRating.toString(),
-                                      style: TextStyle(
-                                        fontSize: 12.sp,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                    // RangeDateTimePicker để chọn lại ngày nhận/trả phòng
+                    Padding(
+                      padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w, bottom: 0),
+                      child: RangeDateTimePicker(
+                        startDate: checkInDate!,
+                        endDate: checkOutDate!,
+                        onDateRangeSelected: (range) async {
+                          setState(() {
+                            checkInDate = range.start;
+                            checkOutDate = range.end;
+                          });
+                          await _loadRooms();
+                        },
                       ),
                     ),
                     // Danh sách phòng
                     Expanded(
                       child: ListView.builder(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w,vertical: 16.h),
                         itemCount: rooms.length,
                         itemBuilder: (context, index) {
                           final room = rooms[index];
@@ -281,7 +196,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
                               border: Border.all(color: Colors.grey[300]!),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withOpacity(0.25),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),

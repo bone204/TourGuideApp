@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
+import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/widgets/bank_option_selector.dart';
-import 'package:tourguideapp/widgets/custom_icon_button.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/cooperation_model.dart';
 import 'package:tourguideapp/models/room_model.dart';
@@ -191,9 +191,9 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Đóng dialog
+                    Navigator.of(context).pop(); 
                     Navigator.of(context).popUntil(
-                        (route) => route.isFirst); // Về màn hình chính
+                        (route) => route.isFirst); 
                   },
                   child: const Text('OK'),
                 ),
@@ -218,53 +218,17 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.h),
-          child: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            surfaceTintColor: Colors.transparent,
-            automaticallyImplyLeading: false,
-            flexibleSpace: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  height: 40.h,
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: CustomIconButton(
-                          icon: Icons.chevron_left,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          AppLocalizations.of(context)
-                              .translate('Booking Information'),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        appBar: CustomAppBar(
+        onBackPressed: () {
+          Navigator.of(context).pop();
+        },
+        title: AppLocalizations.of(context).translate("Booking Information"),
+      ),
         body: SingleChildScrollView(
           child: Container(
             color: AppColors.white,
             child: Padding(
-              padding: EdgeInsets.only(bottom: 20.h, right: 20.w, left: 20.w),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
               child: Column(children: [
                 // Hotel image
                 ClipRRect(

@@ -9,7 +9,6 @@ import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/core/services/id_card_service.dart';
 import 'package:tourguideapp/views/auth/id_card_confirmation_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CaptureIdCardScreen extends StatefulWidget {
   final String email;
