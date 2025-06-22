@@ -204,7 +204,7 @@ class MyAppState extends State<MyApp> {
             '/home': (context) => const MainScreen(),
             '/settings': (context) => const SettingsScreen(),
             '/travel': (context) => TravelScreen(),
-            '/personal-info': (context) => PersonInfoScreen()
+            '/personal-info': (context) => const PersonInfoScreen()
           },
           debugShowCheckedModeBanner: false,
         );

@@ -43,8 +43,6 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
-    final currentLocale = Localizations.localeOf(context).languageCode;
-
     return Scaffold(
       body: Stack(
         children: [
@@ -67,7 +65,7 @@ class _DestinationDetailPageState extends State<DestinationDetailPage> {
           Positioned.fill(
             bottom: MediaQuery.of(context)
                 .padding
-                .bottom, // Thêm khoảng cách cho bottom bar
+                .bottom, 
             child: DraggableScrollableSheet(
               controller: _dragController,
               initialChildSize: 0.6,

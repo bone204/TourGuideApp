@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart';
 import 'package:tourguideapp/views/service/travel/travel_bloc/travel_event.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
+import 'package:tourguideapp/localization/app_localizations.dart';
 
 class CategorySelector extends StatefulWidget {
   final String selectedCategory;
@@ -15,6 +16,7 @@ class CategorySelector extends StatefulWidget {
   final String? existingRouteId;
   final bool allowDelete;
   final Function(String)? onCategoryDelete;
+  final bool isDayCategory;
 
   const CategorySelector({
     Key? key,
@@ -25,6 +27,7 @@ class CategorySelector extends StatefulWidget {
     this.existingRouteId,
     this.allowDelete = false,
     this.onCategoryDelete,
+    this.isDayCategory = false,
   }) : super(key: key);
 
   @override
@@ -60,6 +63,14 @@ class _CategorySelectorState extends State<CategorySelector> {
     super.dispose();
   }
 
+  String displayCategory(String key, BuildContext context) {
+    if (widget.isDayCategory) {
+      final dayNumber = int.tryParse(key.replaceAll(RegExp(r'[^0-9]'), '')) ?? 1;
+      return '${AppLocalizations.of(context).translate('Day')} $dayNumber';
+    }
+    return key;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -67,15 +78,15 @@ class _CategorySelectorState extends State<CategorySelector> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          ...widget.categories.map((category) {
-            final isSelected = category == widget.selectedCategory;
+          ...widget.categories.map((categoryKey) {
+            final isSelected = categoryKey == widget.selectedCategory;
             return Padding(
               padding: EdgeInsets.only(right: 16.w),
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
                   GestureDetector(
-                    onTap: () => widget.onCategorySelected(category),
+                    onTap: () => widget.onCategorySelected(categoryKey),
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
                       decoration: BoxDecoration(
@@ -83,7 +94,7 @@ class _CategorySelectorState extends State<CategorySelector> {
                         borderRadius: BorderRadius.circular(16.r),
                       ),
                       child: Text(
-                        category,
+                        displayCategory(categoryKey, context),
                         style: TextStyle(
                           color: isSelected ? Colors.white : AppColors.primaryColor,
                           fontSize: 14.sp,
@@ -111,7 +122,7 @@ class _CategorySelectorState extends State<CategorySelector> {
                           ),
                           child: InkWell(
                             customBorder: const CircleBorder(),
-                            onTap: () => widget.onCategoryDelete?.call(category),
+                            onTap: () => widget.onCategoryDelete?.call(categoryKey),
                             child: const Padding(
                               padding: EdgeInsets.all(2.0),
                               child: Icon(Icons.close, size: 16, color: AppColors.white),
@@ -128,12 +139,11 @@ class _CategorySelectorState extends State<CategorySelector> {
             IconButton(
               icon: const Icon(Icons.add, color: AppColors.primaryColor),
               onPressed: () {
-                final newDay = 'Day ${widget.categories.length + 1}';
+                final newDayKey = 'day${widget.categories.length + 1}';
                 setState(() {
-                  widget.categories.add(newDay);
+                  widget.categories.add(newDayKey);
                 });
-                widget.onCategorySelected(newDay);
-                
+                widget.onCategorySelected(newDayKey);
                 // Chỉ gọi UpdateTravelRoute khi có existingRouteId
                 if (widget.existingRouteId != null) {
                   context.read<TravelBloc>().add(UpdateTravelRoute(

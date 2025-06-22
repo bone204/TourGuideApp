@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:tourguideapp/core/services/places_import_service.dart';
 import 'package:tourguideapp/core/services/cooperation_import_service.dart';
 import 'package:tourguideapp/core/services/sample_data_service.dart';
+import 'package:tourguideapp/core/services/photo_key_update_service.dart';
+import 'package:tourguideapp/core/services/photo_download_service.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -30,6 +33,33 @@ class _AdminScreenState extends State<AdminScreen> {
   bool _isCreatingSampleData = false;
   String _sampleDataStatus = '';
 
+  // Thêm biến cho cập nhật key ảnh
+  bool _isUpdatingPhotoKeys = false;
+  String _photoKeyUpdateStatus = '';
+  late TextEditingController _oldKeyController;
+  late TextEditingController _newKeyController;
+
+  // Thêm biến cho download ảnh
+  bool _isDownloadingPhotos = false;
+  String _photoDownloadStatus = '';
+  late TextEditingController _maxWidthController;
+
+  @override
+  void initState() {
+    super.initState();
+    _oldKeyController = TextEditingController(text: 'AIzaSyB4wRN-Lh1EveSPxRSOL6cgo3QvELheuoQ');
+    _newKeyController = TextEditingController(text: 'AIzaSyAc8DrI4ZfCS8KeaVVvSLDPbvyWTWs4qbw');
+    _maxWidthController = TextEditingController(text: '1000');
+  }
+
+  @override
+  void dispose() {
+    _oldKeyController.dispose();
+    _newKeyController.dispose();
+    _maxWidthController.dispose();
+    super.dispose();
+  }
+
   Future<void> _startImport() async {
     setState(() {
       _isImporting = true;
@@ -40,18 +70,18 @@ class _AdminScreenState extends State<AdminScreen> {
 
     try {
       final service = PlacesImportService(
-        apiKey: googleApiKey, // Thay thế bằng API key của bạn
+        apiKey: googleApiKey,
         firestore: FirebaseFirestore.instance,
       );
 
       // Đếm tổng số địa điểm sẽ import
       // for (var city in service.vietnamProvinces) {
       //   final places = await service.searchNearbyPlaces(
-      //     latitude: city['lat'] as double,
-      //     longitude: city['lng'] as double,
-      //     radius: 10000,
-      //     type: 'tourist_attraction',
-      //   );
+      //         latitude: city['lat'] as double,
+      //         longitude: city['lng'] as double,
+      //         radius: 10000,
+      //         type: 'tourist_attraction',
+      //       );
       //   _totalPlaces += places.length;
       // }
 
@@ -204,6 +234,234 @@ class _AdminScreenState extends State<AdminScreen> {
       setState(() {
         _sampleDataStatus = 'Lỗi: $e';
         _isCreatingSampleData = false;
+      });
+    }
+  }
+
+  Future<void> _checkPhotoKeyUpdateCount() async {
+    setState(() {
+      _photoKeyUpdateStatus = 'Đang kiểm tra số lượng URL cần cập nhật...';
+    });
+    try {
+      final service = PhotoKeyUpdateService(
+        firestore: FirebaseFirestore.instance,
+        oldKey: _oldKeyController.text,
+        newKey: _newKeyController.text,
+      );
+      final result = await service.checkUpdateCount();
+      setState(() {
+        _photoKeyUpdateStatus = 'Tìm thấy ${result['total']} URL cần cập nhật (DESTINATION: ${result['destination']}, COOPERATION: ${result['cooperation']})';
+      });
+    } catch (e) {
+      setState(() {
+        _photoKeyUpdateStatus = 'Lỗi kiểm tra: $e';
+      });
+    }
+  }
+
+  Future<void> _updateAllPhotoKeys() async {
+    setState(() {
+      _isUpdatingPhotoKeys = true;
+      _photoKeyUpdateStatus = 'Bắt đầu cập nhật key ảnh...';
+    });
+    try {
+      final service = PhotoKeyUpdateService(
+        firestore: FirebaseFirestore.instance,
+        oldKey: _oldKeyController.text,
+        newKey: _newKeyController.text,
+      );
+      await service.updateAllPhotos(
+        onProgress: (status) {
+          setState(() {
+            _photoKeyUpdateStatus = status;
+          });
+        },
+      );
+      setState(() {
+        _photoKeyUpdateStatus = 'Cập nhật key ảnh hoàn tất!';
+        _isUpdatingPhotoKeys = false;
+      });
+    } catch (e) {
+      setState(() {
+        _photoKeyUpdateStatus = 'Lỗi: $e';
+        _isUpdatingPhotoKeys = false;
+      });
+    }
+  }
+
+  Future<void> _updateDestinationPhotoKeys() async {
+    setState(() {
+      _isUpdatingPhotoKeys = true;
+      _photoKeyUpdateStatus = 'Bắt đầu cập nhật key ảnh địa điểm...';
+    });
+    try {
+      final service = PhotoKeyUpdateService(
+        firestore: FirebaseFirestore.instance,
+        oldKey: _oldKeyController.text,
+        newKey: _newKeyController.text,
+      );
+      final result = await service.updateDestinationPhotos(
+        onProgress: (status) {
+          setState(() {
+            _photoKeyUpdateStatus = status;
+          });
+        },
+      );
+      setState(() {
+        _photoKeyUpdateStatus = 'Cập nhật địa điểm hoàn tất: ${result['totalUpdated']}/${result['totalDocuments']} đã cập nhật, ${result['errorCount']} lỗi';
+        _isUpdatingPhotoKeys = false;
+      });
+    } catch (e) {
+      setState(() {
+        _photoKeyUpdateStatus = 'Lỗi: $e';
+        _isUpdatingPhotoKeys = false;
+      });
+    }
+  }
+
+  Future<void> _updateCooperationPhotoKeys() async {
+    setState(() {
+      _isUpdatingPhotoKeys = true;
+      _photoKeyUpdateStatus = 'Bắt đầu cập nhật key ảnh khách sạn/nhà hàng...';
+    });
+    try {
+      final service = PhotoKeyUpdateService(
+        firestore: FirebaseFirestore.instance,
+        oldKey: _oldKeyController.text,
+        newKey: _newKeyController.text,
+      );
+      final result = await service.updateCooperationPhotos(
+        onProgress: (status) {
+          setState(() {
+            _photoKeyUpdateStatus = status;
+          });
+        },
+      );
+      setState(() {
+        _photoKeyUpdateStatus = 'Cập nhật khách sạn/nhà hàng hoàn tất: ${result['totalUpdated']}/${result['totalDocuments']} đã cập nhật, ${result['errorCount']} lỗi';
+        _isUpdatingPhotoKeys = false;
+      });
+    } catch (e) {
+      setState(() {
+        _photoKeyUpdateStatus = 'Lỗi: $e';
+        _isUpdatingPhotoKeys = false;
+      });
+    }
+  }
+
+  Future<void> _checkPhotoDownloadCount() async {
+    setState(() {
+      _photoDownloadStatus = 'Đang kiểm tra số lượng ảnh cần download...';
+    });
+    try {
+      final service = PhotoDownloadService(
+        firestore: FirebaseFirestore.instance,
+        storage: FirebaseStorage.instance,
+        apiKey: googleApiKey,
+      );
+      final result = await service.checkDownloadCount();
+      setState(() {
+        _photoDownloadStatus = 'Tìm thấy ${result['total']} ảnh cần download (DESTINATION: ${result['destination']}, COOPERATION: ${result['cooperation']})';
+      });
+    } catch (e) {
+      setState(() {
+        _photoDownloadStatus = 'Lỗi kiểm tra: $e';
+      });
+    }
+  }
+
+  Future<void> _downloadAllPhotos() async {
+    setState(() {
+      _isDownloadingPhotos = true;
+      _photoDownloadStatus = 'Bắt đầu download và upload ảnh...';
+    });
+    try {
+      final maxWidth = int.tryParse(_maxWidthController.text) ?? 1000;
+      final service = PhotoDownloadService(
+        firestore: FirebaseFirestore.instance,
+        storage: FirebaseStorage.instance,
+        apiKey: googleApiKey,
+      );
+      await service.updateAllPhotos(
+        onProgress: (status) {
+          setState(() {
+            _photoDownloadStatus = status;
+          });
+        },
+        maxWidth: maxWidth,
+      );
+      setState(() {
+        _photoDownloadStatus = 'Download và upload ảnh hoàn tất!';
+        _isDownloadingPhotos = false;
+      });
+    } catch (e) {
+      setState(() {
+        _photoDownloadStatus = 'Lỗi: $e';
+        _isDownloadingPhotos = false;
+      });
+    }
+  }
+
+  Future<void> _downloadDestinationPhotos() async {
+    setState(() {
+      _isDownloadingPhotos = true;
+      _photoDownloadStatus = 'Bắt đầu download ảnh địa điểm...';
+    });
+    try {
+      final maxWidth = int.tryParse(_maxWidthController.text) ?? 1000;
+      final service = PhotoDownloadService(
+        firestore: FirebaseFirestore.instance,
+        storage: FirebaseStorage.instance,
+        apiKey: googleApiKey,
+      );
+      final result = await service.updateDestinationPhotos(
+        onProgress: (status) {
+          setState(() {
+            _photoDownloadStatus = status;
+          });
+        },
+        maxWidth: maxWidth,
+      );
+      setState(() {
+        _photoDownloadStatus = 'Download địa điểm hoàn tất: ${result['totalUpdated']}/${result['totalDocuments']} đã cập nhật, ${result['errorCount']} lỗi';
+        _isDownloadingPhotos = false;
+      });
+    } catch (e) {
+      setState(() {
+        _photoDownloadStatus = 'Lỗi: $e';
+        _isDownloadingPhotos = false;
+      });
+    }
+  }
+
+  Future<void> _downloadCooperationPhotos() async {
+    setState(() {
+      _isDownloadingPhotos = true;
+      _photoDownloadStatus = 'Bắt đầu download ảnh khách sạn/nhà hàng...';
+    });
+    try {
+      final maxWidth = int.tryParse(_maxWidthController.text) ?? 1000;
+      final service = PhotoDownloadService(
+        firestore: FirebaseFirestore.instance,
+        storage: FirebaseStorage.instance,
+        apiKey: googleApiKey,
+      );
+      final result = await service.updateCooperationPhotos(
+        onProgress: (status) {
+          setState(() {
+            _photoDownloadStatus = status;
+          });
+        },
+        maxWidth: maxWidth,
+      );
+      setState(() {
+        _photoDownloadStatus = 'Download khách sạn/nhà hàng hoàn tất: ${result['totalUpdated']}/${result['totalDocuments']} đã cập nhật, ${result['errorCount']} lỗi';
+        _isDownloadingPhotos = false;
+      });
+    } catch (e) {
+      setState(() {
+        _photoDownloadStatus = 'Lỗi: $e';
+        _isDownloadingPhotos = false;
       });
     }
   }
@@ -406,6 +664,192 @@ class _AdminScreenState extends State<AdminScreen> {
                               foregroundColor: Colors.white,
                             ),
                             child: const Text('Xóa Dữ Liệu Mẫu'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Cập Nhật Key Ảnh',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Cập nhật tất cả URL ảnh với key mới trong Firebase',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            decoration: const InputDecoration(
+                              labelText: 'Key Cũ',
+                              border: OutlineInputBorder(),
+                            ),
+                            controller: _oldKeyController,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            decoration: const InputDecoration(
+                              labelText: 'Key Mới',
+                              border: OutlineInputBorder(),
+                            ),
+                            controller: _newKeyController,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Trạng thái: $_photoKeyUpdateStatus',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    if (_isUpdatingPhotoKeys) ...[
+                      const SizedBox(height: 16),
+                      LinearProgressIndicator(),
+                    ],
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _isUpdatingPhotoKeys ? null : _checkPhotoKeyUpdateCount,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Kiểm Tra Số Lượng'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _isUpdatingPhotoKeys ? null : _updateDestinationPhotoKeys,
+                            child: const Text('Cập Nhật Địa Điểm'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _isUpdatingPhotoKeys ? null : _updateCooperationPhotoKeys,
+                            child: const Text('Cập Nhật Khách Sạn/Nhà Hàng'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _isUpdatingPhotoKeys ? null : _updateAllPhotoKeys,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Cập Nhật Tất Cả'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Download Ảnh',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Download và upload ảnh từ Google Places API vào Firebase Storage',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Max Width (px)',
+                        border: OutlineInputBorder(),
+                        helperText: 'Kích thước tối đa của ảnh (mặc định: 1000)',
+                      ),
+                      controller: _maxWidthController,
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Trạng thái: $_photoDownloadStatus',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    if (_isDownloadingPhotos) ...[
+                      const SizedBox(height: 16),
+                      LinearProgressIndicator(),
+                    ],
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _isDownloadingPhotos ? null : _checkPhotoDownloadCount,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Kiểm Tra Số Lượng'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _isDownloadingPhotos ? null : _downloadDestinationPhotos,
+                            child: const Text('Download Địa Điểm'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _isDownloadingPhotos ? null : _downloadCooperationPhotos,
+                            child: const Text('Download Khách Sạn/Nhà Hàng'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _isDownloadingPhotos ? null : _downloadAllPhotos,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Download Tất Cả'),
                           ),
                         ),
                       ],
