@@ -72,7 +72,7 @@ class ProfileScreen extends StatelessWidget {
                             width: 335.w,
                             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16.r), 
+                              borderRadius: BorderRadius.circular(16.r),
                               color: Colors.white,
                               boxShadow: [
                                 BoxShadow(
@@ -82,89 +82,96 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            child: Column(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: AppColors.primaryColor.withOpacity(0.2),
-                                          width: 3,
-                                        ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.primaryColor.withOpacity(0.25),
+                                        blurRadius: 16.r,
+                                        offset: const Offset(0, 8),
                                       ),
-                                      child: CircleAvatar(
-                                        radius: 50.r,
-                                        backgroundImage: NetworkImage(
-                                          profileViewModel.avatar,
-                                        ),
-                                        onBackgroundImageError: (exception, stackTrace) {
-                                          const AssetImage('assets/img/bg_route_1.png');
-                                        },
-                                      ),
+                                    ],
+                                    border: Border.all(
+                                      color: AppColors.primaryColor.withOpacity(0.2),
+                                      width: 3,
                                     ),
-                                    SizedBox(width: 12.w),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: 48.r,
+                                    backgroundImage: NetworkImage(profileViewModel.avatar),
+                                    onBackgroundImageError: (exception, stackTrace) {
+                                      const AssetImage('assets/img/bg_route_1.png');
+                                    },
+                                  ),
+                                ),
+                                SizedBox(width: 18.w),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
                                         children: [
-                                          Text(
-                                            profileViewModel.name,
-                                            style: TextStyle(
-                                              fontSize: 24.sp, 
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.black87,
+                                          Expanded(
+                                            child: Text(
+                                              profileViewModel.name,
+                                              style: TextStyle(
+                                                fontSize: 22.sp,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.black87,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
-                                          SizedBox(height: 2.h),
-                                          Text(
-                                            _getTierDisplay(context, profileViewModel.userTier),
-                                            style: TextStyle(
-                                              fontSize: 14.sp,
-                                              color: AppColors.primaryColor,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          SizedBox(height: 4.h),
-                                          Text(
-                                            profileViewModel.email,
-                                            style: TextStyle(
-                                              fontSize: 14.sp, 
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
-                                          SizedBox(height: 12.h),
-                                          Container(
-                                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                                            decoration: BoxDecoration(
-                                              color: AppColors.primaryColor.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(20.r),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  Icons.calendar_today,
-                                                  size: 14.sp,
-                                                  color: AppColors.primaryColor,
-                                                ),
-                                                SizedBox(width: 4.w),
-                                                Text(
-                                                  _getMemberSinceText(context, profileViewModel.createdAt),
-                                                  style: TextStyle(
-                                                    fontSize: 12.sp,
-                                                    color: AppColors.primaryColor,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ],
+                                          // Nút chỉnh sửa thông tin (nếu muốn)
+                                          /*IconButton(
+                                            icon: Icon(Icons.edit, size: 20.sp, color: AppColors.primaryColor),
+                                            onPressed: () {},
+                                            tooltip: 'Chỉnh sửa',
+                                          ),*/
+                                        ],
+                                      ),
+                                      SizedBox(height: 6.h),
+                                      _buildTierBadge(context, profileViewModel.userTier),
+                                      SizedBox(height: 10.h),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.email, size: 16.sp, color: Colors.grey[600]),
+                                          SizedBox(width: 6.w),
+                                          Expanded(
+                                            child: Text(
+                                              profileViewModel.email,
+                                              style: TextStyle(
+                                                fontSize: 14.sp,
+                                                color: Colors.grey[700],
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ],
+                                      SizedBox(height: 8.h),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.calendar_today, size: 15.sp, color: AppColors.primaryColor),
+                                          SizedBox(width: 6.w),
+                                          Text(
+                                            _getMemberSinceText(context, profileViewModel.createdAt),
+                                            style: TextStyle(
+                                              fontSize: 13.sp,
+                                              color: AppColors.primaryColor,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -335,20 +342,66 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  String _getTierDisplay(BuildContext context, String tier) {
+  Widget _buildTierBadge(BuildContext context, String tier) {
     final locale = Localizations.localeOf(context).languageCode;
+    Color bgColor;
+    IconData icon;
+    String label;
     switch (tier) {
       case 'Bronze':
-        return locale == 'vi' ? 'Thành viên Đồng' : 'Bronze Member';
+        bgColor = Color(0xFFCD7F32);
+        icon = Icons.emoji_events;
+        label = locale == 'vi' ? 'Thành viên Đồng' : 'Bronze Member';
+        break;
       case 'Silver':
-        return locale == 'vi' ? 'Thành viên Bạc' : 'Silver Member';
+        bgColor = Color(0xFFC0C0C0);
+        icon = Icons.emoji_events;
+        label = locale == 'vi' ? 'Thành viên Bạc' : 'Silver Member';
+        break;
       case 'Gold':
-        return locale == 'vi' ? 'Thành viên Vàng' : 'Gold Member';
+        bgColor = Color(0xFFFFD700);
+        icon = Icons.emoji_events;
+        label = locale == 'vi' ? 'Thành viên Vàng' : 'Gold Member';
+        break;
       case 'Platinum':
-        return locale == 'vi' ? 'Thành viên Bạch Kim' : 'Platinum Member';
+        bgColor = Color(0xFFE5E4E2);
+        icon = Icons.workspace_premium;
+        label = locale == 'vi' ? 'Thành viên Bạch Kim' : 'Platinum Member';
+        break;
       default:
-        return tier;
+        bgColor = AppColors.primaryColor;
+        icon = Icons.verified_user;
+        label = tier;
     }
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: bgColor.withOpacity(0.85),
+        borderRadius: BorderRadius.circular(30.r),
+        boxShadow: [
+          BoxShadow(
+            color: bgColor.withOpacity(0.25),
+            blurRadius: 8.r,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 18.sp),
+          SizedBox(width: 8.w),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 15.sp,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String _getMemberSinceText(BuildContext context, DateTime? createdAt) {
