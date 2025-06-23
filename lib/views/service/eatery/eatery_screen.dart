@@ -10,6 +10,11 @@ import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
 import 'package:tourguideapp/models/destination_model.dart';
 import 'package:tourguideapp/models/eatery_model.dart';
+import 'package:tourguideapp/core/services/cooperation_service.dart';
+import 'package:tourguideapp/models/cooperation_model.dart';
+import 'package:tourguideapp/widgets/shimmer_cards.dart';
+import 'package:shimmer/shimmer.dart';
+import 'dart:math';
 
 class EateryScreen extends StatefulWidget {
   @override
@@ -19,51 +24,84 @@ class EateryScreen extends StatefulWidget {
 class _EateryScreenState extends State<EateryScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedProvince = 'All';
-  List<FavouriteCardData> _filteredEateries = [];
+  List<HomeCardData> _filteredEateries = [];
   List<String> _provinces = ['All'];
   bool _isLoading = true;
-
-  // Fake data cho danh sách eatery
-  final List<FavouriteCardData> _eateries = [
-    FavouriteCardData(
-      imageUrl: 'https://vcdn1-dulich.vnecdn.net/2022/06/03/cauvang-1654247842-9403-1654247849.jpg?w=1200&h=0&q=100&dpr=1&fit=crop&s=Swd6JjpStebEzT6WARcoOA',
-      placeName: 'Quán Ăn Ngon',
-      description: 'Hà Nội',
-    ),
-    FavouriteCardData(
-      imageUrl: 'https://vcdn1-dulich.vnecdn.net/2022/06/03/cauvang-1654247842-9403-1654247849.jpg?w=1200&h=0&q=100&dpr=1&fit=crop&s=Swd6JjpStebEzT6WARcoOA',
-      placeName: 'Nhà Hàng Biển Đông',
-      description: 'Hồ Chí Minh',
-    ),
-    FavouriteCardData(
-      imageUrl: 'https://vcdn1-dulich.vnecdn.net/2022/06/03/cauvang-1654247842-9403-1654247849.jpg?w=1200&h=0&q=100&dpr=1&fit=crop&s=Swd6JjpStebEzT6WARcoOA',
-      placeName: 'Phở 24',
-      description: 'Đà Nẵng',
-    ),
-    FavouriteCardData(
-      imageUrl: 'https://vcdn1-dulich.vnecdn.net/2022/06/03/cauvang-1654247842-9403-1654247849.jpg?w=1200&h=0&q=100&dpr=1&fit=crop&s=Swd6JjpStebEzT6WARcoOA',
-      placeName: 'Bún Bò Huế Nam Giao',
-      description: 'Thừa Thiên Huế',
-    ),
-    FavouriteCardData(
-      imageUrl: 'https://vcdn1-dulich.vnecdn.net/2022/06/03/cauvang-1654247842-9403-1654247849.jpg?w=1200&h=0&q=100&dpr=1&fit=crop&s=Swd6JjpStebEzT6WARcoOA',
-      placeName: 'Cơm Tấm Sài Gòn',
-      description: 'Hồ Chí Minh',
-    ),
-    // Thêm nhiều nhà hàng khác...
-  ];
+  bool _isLoadingData = false;
+  final CooperationService _cooperationService = CooperationService();
+  List<HomeCardData> _allEateries = [];
+  String _sortBy = 'rating'; // 'rating' hoặc 'name'
+  String _selectedPriceLevel = 'All'; // 'All', '<500k', '500k-1tr', '>1tr'
 
   @override
   void initState() {
     super.initState();
-    _filteredEateries = _eateries;
     _fetchProvinces();
+    _loadEateryData();
+  }
+
+  Future<void> _loadEateryData() async {
+    setState(() => _isLoadingData = true);
+    try {
+      List<CooperationModel> eateryCooperations;
+
+      // Lọc theo tỉnh nếu không phải "All"
+      if (_selectedProvince != 'All') {
+        eateryCooperations =
+            await _cooperationService.getEateriesByProvince(_selectedProvince);
+      } else {
+        // Lấy tất cả eatery từ COOPERATION
+        final cooperations = await _cooperationService.getAllCooperations();
+        eateryCooperations =
+            cooperations.where((coop) => coop.type == 'eatery').toList();
+      }
+
+      // Thêm priceLevel ngẫu nhiên cho các eatery
+      final priceLevels = ['<500k', '500k-1tr', '>1tr'];
+      final random = Random();
+
+      // Chuyển đổi thành HomeCardData
+      _allEateries = eateryCooperations.map((coop) {
+        // Gán priceLevel ngẫu nhiên
+        final randomPriceLevel =
+            priceLevels[random.nextInt(priceLevels.length)];
+        final coopWithPrice = coop.copyWith(priceLevel: randomPriceLevel);
+
+        return HomeCardData(
+          imageUrl: coopWithPrice.photo.isNotEmpty ? coopWithPrice.photo : '',
+          placeName: coopWithPrice.name,
+          description: coopWithPrice.province,
+          rating: coopWithPrice.averageRating,
+          favouriteTimes: coopWithPrice.bookingTimes,
+          userRatingsTotal: 0,
+          priceLevel: coopWithPrice.priceLevel,
+        );
+      }).toList();
+
+      // Sắp xếp theo rating cao đến thấp (mặc định)
+      _sortEateries();
+      _filterEateries(_searchController.text);
+    } catch (e) {
+      print('Error loading eatery data: $e');
+    } finally {
+      setState(() => _isLoadingData = false);
+    }
+  }
+
+  void _sortEateries() {
+    if (_sortBy == 'rating') {
+      _allEateries.sort((a, b) => b.rating.compareTo(a.rating));
+    } else if (_sortBy == 'name') {
+      _allEateries.sort((a, b) => a.placeName.compareTo(b.placeName));
+    }
   }
 
   Future<void> _fetchProvinces() async {
     try {
-      final snapshot = await FirebaseFirestore.instance.collection('PROVINCE').get();
-      final provinceNames = snapshot.docs.map((doc) => doc['provinceName'] as String).toList();
+      final snapshot =
+          await FirebaseFirestore.instance.collection('PROVINCE').get();
+      final provinceNames =
+          snapshot.docs.map((doc) => doc['provinceName'] as String).toList();
       setState(() {
         _provinces = ['All', ...provinceNames];
         _isLoading = false;
@@ -78,50 +116,201 @@ class _EateryScreenState extends State<EateryScreen> {
 
   void _filterEateries(String query) {
     setState(() {
-      if (query.isEmpty && _selectedProvince == 'All') {
-        _filteredEateries = _eateries;
+      if (query.isEmpty && _selectedPriceLevel == 'All') {
+        _filteredEateries = List.from(_allEateries);
       } else {
-        _filteredEateries = _eateries.where((eatery) {
+        _filteredEateries = _allEateries.where((eatery) {
           final matchesQuery = query.isEmpty ||
               eatery.placeName.toLowerCase().contains(query.toLowerCase()) ||
               eatery.description.toLowerCase().contains(query.toLowerCase());
-          
-          final matchesProvince = _selectedProvince == 'All' ||
-              eatery.description == _selectedProvince;
-          
-          return matchesQuery && matchesProvince;
+
+          final matchesPriceLevel = _selectedPriceLevel == 'All' ||
+              eatery.priceLevel == _selectedPriceLevel;
+
+          return matchesQuery && matchesPriceLevel;
         }).toList();
       }
     });
   }
 
+  void _onPriceLevelChanged(String priceLevel) {
+    setState(() {
+      _selectedPriceLevel = priceLevel;
+      _filterEateries(_searchController.text);
+    });
+  }
 
-  DestinationModel _convertToDestinationModel(EateryModel eatery) {
+  void _onProvinceChanged(String province) {
+    setState(() {
+      _selectedProvince = province;
+    });
+    _loadEateryData(); // Reload data khi thay đổi tỉnh
+  }
+
+  DestinationModel _convertToDestinationModel(HomeCardData eateryData) {
     return DestinationModel(
-      destinationId: eatery.eateryId,
-      destinationName: eatery.eateryName,
-      province: eatery.province,
-      specificAddress: eatery.address,
-      photo: eatery.photo,
+      destinationId: 'eatery-${eateryData.placeName}',
+      destinationName: eateryData.placeName,
+      province: eateryData.description,
+      specificAddress: eateryData.description,
+      photo: [eateryData.imageUrl],
       video: [],
       createdDate: DateTime.now().toString(),
       descriptionViet: '''
-${eatery.descriptionViet}
+${eateryData.placeName} là một địa điểm ẩm thực nổi tiếng.
 
-Địa chỉ: ${eatery.address}
-Số điện thoại: ${eatery.phoneNumber}
-Giờ mở cửa: ${eatery.openTime} - ${eatery.closeTime}
+Địa chỉ: ${eateryData.description}
+Đánh giá: ${eateryData.rating}/5.0
+Số lượt yêu thích: ${eateryData.favouriteTimes}
     ''',
       descriptionEng: '''
-${eatery.descriptionEng}
+${eateryData.placeName} is a famous restaurant.
 
-Address: ${eatery.address}
-Phone: ${eatery.phoneNumber}
-Opening hours: ${eatery.openTime} - ${eatery.closeTime}
+Address: ${eateryData.description}
+Rating: ${eateryData.rating}/5.0
+Favourite times: ${eateryData.favouriteTimes}
     ''',
-      latitude: eatery.latitude,
-      longitude: eatery.longitude,
+      latitude: 0.0,
+      longitude: 0.0,
       categories: ['eatery'],
+    );
+  }
+
+  Widget _buildSortButton() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Row(
+        children: [
+          Text(
+            AppLocalizations.of(context).translate('Price Range:'),
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+          SizedBox(width: 10.w),
+          GestureDetector(
+            onTap: () => _onPriceLevelChanged('All'),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+              decoration: BoxDecoration(
+                color: _selectedPriceLevel == 'All'
+                    ? Colors.blue
+                    : Colors.grey[200],
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Text(
+                AppLocalizations.of(context).translate('All'),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: _selectedPriceLevel == 'All'
+                      ? Colors.white
+                      : Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 8.w),
+          GestureDetector(
+            onTap: () => _onPriceLevelChanged('<500k'),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+              decoration: BoxDecoration(
+                color: _selectedPriceLevel == '<500k'
+                    ? Colors.blue
+                    : Colors.grey[200],
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Text(
+                '<500k',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: _selectedPriceLevel == '<500k'
+                      ? Colors.white
+                      : Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 8.w),
+          GestureDetector(
+            onTap: () => _onPriceLevelChanged('500k-1tr'),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+              decoration: BoxDecoration(
+                color: _selectedPriceLevel == '500k-1tr'
+                    ? Colors.blue
+                    : Colors.grey[200],
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Text(
+                '500k-1tr',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: _selectedPriceLevel == '500k-1tr'
+                      ? Colors.white
+                      : Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 8.w),
+          GestureDetector(
+            onTap: () => _onPriceLevelChanged('>1tr'),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+              decoration: BoxDecoration(
+                color: _selectedPriceLevel == '>1tr'
+                    ? Colors.blue
+                    : Colors.grey[200],
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Text(
+                '>1tr',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: _selectedPriceLevel == '>1tr'
+                      ? Colors.white
+                      : Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerGrid() {
+    return GridView.builder(
+      padding:
+          EdgeInsets.only(top: 10.w, right: 10.h, left: 10.h, bottom: 20.h),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 161.w / 190.h,
+        mainAxisSpacing: 20.h,
+        crossAxisSpacing: 0,
+      ),
+      itemCount: 6,
+      itemBuilder: (context, index) => const ShimmerFavoriteCard(),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Text(
+        AppLocalizations.of(context).translate('No eatery found'),
+        style: TextStyle(
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w500,
+          color: Colors.grey[600],
+        ),
+      ),
     );
   }
 
@@ -191,74 +380,64 @@ Opening hours: ${eatery.openTime} - ${eatery.closeTime}
                   child: CategorySelector(
                     selectedCategory: _selectedProvince,
                     categories: _provinces,
-                    onCategorySelected: (province) {
-                      setState(() {
-                        _selectedProvince = province;
-                        _filterEateries(_searchController.text);
-                      });
-                    },
+                    onCategorySelected: _onProvinceChanged,
                   ),
                 ),
           SizedBox(height: 20.h),
+          // Sort Button
+          _buildSortButton(),
+          SizedBox(height: 20.h),
           // Eatery Grid
           Expanded(
-            child: GridView.builder(
-              padding: EdgeInsets.only(top: 10.w, right: 10.h, left: 10.h, bottom: 20.h),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 161.w / 190.h,
-                mainAxisSpacing: 20.h,
-                crossAxisSpacing: 0,
-              ),
-              itemCount: _filteredEateries.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    // Tạo EateryModel từ dữ liệu
-                    final eatery = EateryModel(
-                      eateryId: 'eatery-${index}',
-                      eateryName: _filteredEateries[index].placeName,
-                      address: _filteredEateries[index].description,
-                      province: _filteredEateries[index].description,
-                      photo: [_filteredEateries[index].imageUrl],
-                      descriptionViet: 'Nhà hàng ${_filteredEateries[index].placeName} là một địa điểm ẩm thực nổi tiếng tại ${_filteredEateries[index].description}...',
-                      descriptionEng: '${_filteredEateries[index].placeName} is a famous restaurant in ${_filteredEateries[index].description}...',
-                      rating: 4.5,
-                      phoneNumber: '0123456789',
-                      openTime: '07:00',
-                      closeTime: '22:00',
-                    );
-
-                    // Chuyển đổi sang DestinationModel
-                    final destinationData = _convertToDestinationModel(eatery);
-                    final homeCardData = HomeCardData(
-                      placeName: eatery.eateryName,
-                      imageUrl: eatery.photo[0],
-                      description: eatery.province,
-                      rating: eatery.rating,
-                      favouriteTimes: 0,
-                    );
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DestinationDetailPage(
-                          cardData: homeCardData,
-                          destinationData: destinationData,
-                          isFavourite: false,
-                          onFavouriteToggle: (isFavourite) {
-                            // Xử lý khi toggle favourite
-                          },
+            child: _isLoadingData
+                ? _buildShimmerGrid()
+                : _filteredEateries.isEmpty
+                    ? _buildEmptyState()
+                    : GridView.builder(
+                        padding: EdgeInsets.only(
+                            top: 10.w, right: 10.h, left: 10.h, bottom: 20.h),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 161.w / 190.h,
+                          mainAxisSpacing: 20.h,
+                          crossAxisSpacing: 0,
                         ),
+                        itemCount: _filteredEateries.length,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () {
+                              // Tạo HomeCardData từ dữ liệu
+                              final eateryData = _filteredEateries[index];
+
+                              // Chuyển đổi sang DestinationModel
+                              final destinationData =
+                                  _convertToDestinationModel(eateryData);
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DestinationDetailPage(
+                                    cardData: eateryData,
+                                    destinationData: destinationData,
+                                    isFavourite: false,
+                                    onFavouriteToggle: (isFavourite) {
+                                      // Xử lý khi toggle favourite
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                            child: FavouriteCard(
+                              data: FavouriteCardData(
+                                placeName: _filteredEateries[index].placeName,
+                                imageUrl: _filteredEateries[index].imageUrl,
+                                description:
+                                    _filteredEateries[index].description,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                  child: FavouriteCard(
-                    data: _filteredEateries[index],
-                  ),
-                );
-              },
-            ),
           ),
         ],
       ),

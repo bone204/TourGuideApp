@@ -64,7 +64,8 @@ class GeminiService {
     await initialize();
     final destinationsInfo = await getDestinationsInfo();
     final prompt =
-        "Dưới đây là danh sách các địa điểm và thông tin chi tiết. Hãy trả lời các câu hỏi của người dùng dựa trên dữ liệu này.\n"
+        "Dưới đây là danh sách các địa điểm và thông tin chi tiết. Hãy trả lời các câu hỏi"
+        "của người dùng dựa trên dữ liệu này.\n"
         "$destinationsInfo\n"
         "Dữ liệu địa điểm đã được cung cấp đầy đủ các trường. Khi người dùng hỏi về: \n"
         "- Địa điểm nổi tiếng: sắp xếp theo số người đánh giá giảm dần. \n"
@@ -86,7 +87,8 @@ class GeminiService {
       'timestamp': FieldValue.serverTimestamp(),
     });
     return response.text ??
-        'Xin lỗi, câu hỏi của bạn có vẻ không liên quan đến ứng dụng du lịch Traveline của mình. Hãy thử hỏi lại nhé!';
+        'Xin lỗi, câu hỏi của bạn có vẻ không liên quan đến ứng dụng du lịch Traveline' 
+        'của mình. Hãy thử hỏi lại nhé!';
   }
 
   /// Lấy các địa điểm nổi tiếng nhất (nhiều người đánh giá nhất)

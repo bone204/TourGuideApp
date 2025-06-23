@@ -103,6 +103,7 @@ class FavouriteDestinationsViewModel extends ChangeNotifier {
             bookingTimes: data['bookingTimes'] ?? 0,
             revenue: (data['revenue'] ?? 0.0).toDouble(),
             averageRating: (data['averageRating'] ?? 0.0).toDouble(),
+            priceLevel: (data['priceLevel'] ?? 0).toInt(),
           );
         }
         return null;
@@ -144,6 +145,7 @@ class FavouriteDestinationsViewModel extends ChangeNotifier {
             bookingTimes: data['bookingTimes'] ?? 0,
             revenue: (data['revenue'] ?? 0.0).toDouble(),
             averageRating: (data['averageRating'] ?? 0.0).toDouble(),
+            priceLevel: (data['priceLevel'] ?? 0).toInt(),
           );
         }
         return null;

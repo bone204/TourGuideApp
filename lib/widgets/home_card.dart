@@ -9,6 +9,7 @@ class HomeCardData {
   final double rating;
   final int favouriteTimes;
   final int userRatingsTotal;
+  final String priceLevel; // <500k, 500k-1tr, >1tr
 
   HomeCardData({
     required this.imageUrl,
@@ -17,6 +18,7 @@ class HomeCardData {
     required this.rating,
     required this.favouriteTimes,
     this.userRatingsTotal = 0,
+    this.priceLevel = '<500k',
   });
 }
 

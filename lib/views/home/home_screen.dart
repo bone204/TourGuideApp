@@ -12,7 +12,7 @@ import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/home_navigator.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
 import 'package:tourguideapp/widgets/home_card_list_view.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; 
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/viewmodels/destinations_viewmodel.dart';
 import 'package:tourguideapp/views/home/view_all_destinations_screen.dart';
 import 'package:tourguideapp/widgets/category_selector.dart';
@@ -24,6 +24,7 @@ import 'package:tourguideapp/views/notification/notification_screen.dart';
 import 'package:tourguideapp/services/notification_service.dart';
 import 'package:tourguideapp/services/user_service.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:tourguideapp/core/services/cooperation_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -63,12 +64,30 @@ class _HomeScreenState extends State<HomeScreen> {
   Timer? _notificationTimer;
   String? _currentUserId;
 
+  // Thêm biến cho 3 phần mới
+  final CooperationService _cooperationService = CooperationService();
+  List<HomeCardData> _highRatedPlaces = [];
+  List<HomeCardData> _binhDuongHotels = [];
+  List<HomeCardData> _binhDuongRestaurants = [];
+  bool _isLoadingHighRated = false;
+  bool _isLoadingHotels = false;
+  bool _isLoadingRestaurants = false;
+  int _visibleHighRated = 10;
+  int _visibleHotels = 10;
+  int _visibleRestaurants = 10;
+  final ScrollController _highRatedScrollController = ScrollController();
+  final ScrollController _hotelsScrollController = ScrollController();
+  final ScrollController _restaurantsScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
     _popularScrollController.addListener(_onPopularScroll);
     _provinceScrollController.addListener(_onProvinceScroll);
+    _highRatedScrollController.addListener(_onHighRatedScroll);
+    _hotelsScrollController.addListener(_onHotelsScroll);
+    _restaurantsScrollController.addListener(_onRestaurantsScroll);
     _initializeNotificationService();
   }
 
@@ -126,26 +145,69 @@ class _HomeScreenState extends State<HomeScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _selectedProvince = AppLocalizations.of(context).translate('All');
-    
+
     if (!_isInitialized) {
       Provider.of<DestinationsViewModel>(context, listen: false).initialize();
       _isInitialized = true;
       _startDestinationTimer();
+      // Delay để đảm bảo DestinationsViewModel đã load xong
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _loadCooperationData();
+      });
     }
   }
 
   void _startDestinationTimer() {
     _destinationTimer?.cancel();
-    _destinationTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) {
+    _destinationTimer =
+        Timer.periodic(const Duration(milliseconds: 2000), (timer) {
       if (mounted) {
-        final destinations = Provider.of<DestinationsViewModel>(context, listen: false).destinations;
+        final destinations =
+            Provider.of<DestinationsViewModel>(context, listen: false)
+                .destinations;
         if (destinations.isNotEmpty) {
           setState(() {
-            _currentDestinationIndex = (_currentDestinationIndex + 1) % destinations.length;
+            _currentDestinationIndex =
+                (_currentDestinationIndex + 1) % destinations.length;
           });
         }
       }
     });
+  }
+
+  Future<void> _loadCooperationData() async {
+    // Load High Rated Places từ DESTINATION
+    setState(() => _isLoadingHighRated = true);
+    try {
+      final destinationsViewModel =
+          Provider.of<DestinationsViewModel>(context, listen: false);
+      final allDestinations = destinationsViewModel.horizontalCardsData;
+      // Sắp xếp theo rating cao đến thấp
+      _highRatedPlaces = allDestinations.toList()
+        ..sort((a, b) => b.rating.compareTo(a.rating));
+    } catch (e) {
+      print('Error loading high rated places: $e');
+    }
+    setState(() => _isLoadingHighRated = false);
+
+    // Load Bình Dương Hotels
+    setState(() => _isLoadingHotels = true);
+    try {
+      _binhDuongHotels = await _cooperationService.getBinhDuongHotels();
+    } catch (e) {
+      print('Error loading Bình Dương hotels: $e');
+    }
+    setState(() => _isLoadingHotels = false);
+
+    // Load Bình Dương Restaurants
+    setState(() => _isLoadingRestaurants = true);
+    try {
+      _binhDuongRestaurants =
+          await _cooperationService.getBinhDuongRestaurants();
+    } catch (e) {
+      print('Error loading Bình Dương restaurants: $e');
+    }
+    setState(() => _isLoadingRestaurants = false);
   }
 
   void _onScroll() {
@@ -161,13 +223,20 @@ class _HomeScreenState extends State<HomeScreen> {
     // Logic mới: khi kéo tới đáy trang thì load thêm cho Inspiration
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
-    final total = Provider.of<DestinationsViewModel>(context, listen: false).horizontalCardsData.length;
-    if (currentScroll >= maxScroll - 100 && !_isLoadingInspiration && _visibleInspiration < total) {
-      setState(() { _isLoadingInspiration = true; });
+    final total = Provider.of<DestinationsViewModel>(context, listen: false)
+        .horizontalCardsData
+        .length;
+    if (currentScroll >= maxScroll - 100 &&
+        !_isLoadingInspiration &&
+        _visibleInspiration < total) {
+      setState(() {
+        _isLoadingInspiration = true;
+      });
       Future.delayed(const Duration(milliseconds: 800)).then((_) {
         if (mounted) {
           setState(() {
-            _visibleInspiration = (_visibleInspiration + _itemsPerPage).clamp(0, total);
+            _visibleInspiration =
+                (_visibleInspiration + _itemsPerPage).clamp(0, total);
             _isLoadingInspiration = false;
           });
         }
@@ -176,10 +245,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onPopularScroll() async {
-    if (_popularScrollController.position.pixels >= _popularScrollController.position.maxScrollExtent - 100 && !_isLoadingPopular) {
-      final total = Provider.of<DestinationsViewModel>(context, listen: false).horizontalCardsData.length;
+    if (_popularScrollController.position.pixels >=
+            _popularScrollController.position.maxScrollExtent - 100 &&
+        !_isLoadingPopular) {
+      final total = Provider.of<DestinationsViewModel>(context, listen: false)
+          .horizontalCardsData
+          .length;
       if (_visiblePopular < total) {
-        setState(() { _isLoadingPopular = true; });
+        setState(() {
+          _isLoadingPopular = true;
+        });
         await Future.delayed(const Duration(milliseconds: 800));
         setState(() {
           _visiblePopular = (_visiblePopular + _itemsPerPage).clamp(0, total);
@@ -188,17 +263,83 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
   }
+
   void _onProvinceScroll() async {
-    final total = _selectedProvince == AppLocalizations.of(context).translate('All')
-        ? Provider.of<DestinationsViewModel>(context, listen: false).horizontalCardsData.length
-        : Provider.of<DestinationsViewModel>(context, listen: false).getDestinationsByProvince(_selectedProvince).length;
-    if (_provinceScrollController.position.pixels >= _provinceScrollController.position.maxScrollExtent - 100 && !_isLoadingProvince) {
+    final total =
+        _selectedProvince == AppLocalizations.of(context).translate('All')
+            ? Provider.of<DestinationsViewModel>(context, listen: false)
+                .horizontalCardsData
+                .length
+            : Provider.of<DestinationsViewModel>(context, listen: false)
+                .getDestinationsByProvince(_selectedProvince)
+                .length;
+    if (_provinceScrollController.position.pixels >=
+            _provinceScrollController.position.maxScrollExtent - 100 &&
+        !_isLoadingProvince) {
       if (_visibleProvince < total) {
-        setState(() { _isLoadingProvince = true; });
+        setState(() {
+          _isLoadingProvince = true;
+        });
         await Future.delayed(const Duration(milliseconds: 800));
         setState(() {
           _visibleProvince = (_visibleProvince + _itemsPerPage).clamp(0, total);
           _isLoadingProvince = false;
+        });
+      }
+    }
+  }
+
+  void _onHighRatedScroll() async {
+    if (_highRatedScrollController.position.pixels >=
+            _highRatedScrollController.position.maxScrollExtent - 100 &&
+        !_isLoadingHighRated) {
+      final total = _highRatedPlaces.length;
+      if (_visibleHighRated < total) {
+        setState(() {
+          _isLoadingHighRated = true;
+        });
+        await Future.delayed(const Duration(milliseconds: 800));
+        setState(() {
+          _visibleHighRated =
+              (_visibleHighRated + _itemsPerPage).clamp(0, total);
+          _isLoadingHighRated = false;
+        });
+      }
+    }
+  }
+
+  void _onHotelsScroll() async {
+    if (_hotelsScrollController.position.pixels >=
+            _hotelsScrollController.position.maxScrollExtent - 100 &&
+        !_isLoadingHotels) {
+      final total = _binhDuongHotels.length;
+      if (_visibleHotels < total) {
+        setState(() {
+          _isLoadingHotels = true;
+        });
+        await Future.delayed(const Duration(milliseconds: 800));
+        setState(() {
+          _visibleHotels = (_visibleHotels + _itemsPerPage).clamp(0, total);
+          _isLoadingHotels = false;
+        });
+      }
+    }
+  }
+
+  void _onRestaurantsScroll() async {
+    if (_restaurantsScrollController.position.pixels >=
+            _restaurantsScrollController.position.maxScrollExtent - 100 &&
+        !_isLoadingRestaurants) {
+      final total = _binhDuongRestaurants.length;
+      if (_visibleRestaurants < total) {
+        setState(() {
+          _isLoadingRestaurants = true;
+        });
+        await Future.delayed(const Duration(milliseconds: 800));
+        setState(() {
+          _visibleRestaurants =
+              (_visibleRestaurants + _itemsPerPage).clamp(0, total);
+          _isLoadingRestaurants = false;
         });
       }
     }
@@ -212,6 +353,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _popularScrollController.dispose();
     _provinceScrollController.dispose();
     _notificationTimer?.cancel();
+    _highRatedScrollController.dispose();
+    _hotelsScrollController.dispose();
+    _restaurantsScrollController.dispose();
     super.dispose();
   }
 
@@ -220,19 +364,25 @@ class _HomeScreenState extends State<HomeScreen> {
     ScreenUtil.init(context, designSize: const Size(375, 812));
 
     final destinationsViewModel = Provider.of<DestinationsViewModel>(context);
-    final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
+    final favouriteViewModel =
+        Provider.of<FavouriteDestinationsViewModel>(context);
 
     // Lấy danh sách phân trang cho từng section
     List<HomeCardData> popularList = destinationsViewModel.horizontalCardsData;
-    List<HomeCardData> pagedPopularList = popularList.take(_visiblePopular).toList();
+    List<HomeCardData> pagedPopularList =
+        popularList.take(_visiblePopular).toList();
 
-    List<HomeCardData> provinceList = _selectedProvince == AppLocalizations.of(context).translate('All')
+    List<HomeCardData> provinceList = _selectedProvince ==
+            AppLocalizations.of(context).translate('All')
         ? destinationsViewModel.horizontalCardsData
         : destinationsViewModel.getDestinationsByProvince(_selectedProvince);
-    List<HomeCardData> pagedProvinceList = provinceList.take(_visibleProvince).toList();
+    List<HomeCardData> pagedProvinceList =
+        provinceList.take(_visibleProvince).toList();
 
-    List<HomeCardData> inspirationList = destinationsViewModel.horizontalCardsData;
-    List<HomeCardData> pagedInspirationList = inspirationList.take(_visibleInspiration).toList();
+    List<HomeCardData> inspirationList =
+        destinationsViewModel.horizontalCardsData;
+    List<HomeCardData> pagedInspirationList =
+        inspirationList.take(_visibleInspiration).toList();
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -252,7 +402,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: double.infinity,
                         height: 250.h,
                         decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.only(topLeft: Radius.zero, topRight: Radius.zero, bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.zero,
+                              topRight: Radius.zero,
+                              bottomLeft: Radius.circular(16),
+                              bottomRight: Radius.circular(16)),
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
@@ -267,104 +421,104 @@ class _HomeScreenState extends State<HomeScreen> {
                     SafeArea(
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(20.w, 60.h, 20.w, 10.h),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 335.w,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16.r), 
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(0xFF000000).withOpacity(0.25),
-                                    blurRadius: 4.r,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              padding: EdgeInsets.fromLTRB(4.w, 16.h, 4.w, 8.h),
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                    height: 76.h,
-                                    child: PageView(
-                                      controller: _pageController,
-                                      onPageChanged: (index) {
-                                        setState(() {
-                                          _currentPageIndex = index;
-                                        });
-                                      },
-                                      padEnds: false,
-                                      children: [
-                                        GridView.count(
-                                          physics: const NeverScrollableScrollPhysics(),
-                                          crossAxisCount: 4,
-                                          children: const [
-                                            HomeNavigator(
-                                              image: 'assets/img/car_home.png', 
-                                              text: "Car Rental"
-                                            ),
-                                            HomeNavigator(
-                                              image: 'assets/img/motorbike_home.png', 
-                                              text: "Motorbike Rental"
-                                            ),
-                                            HomeNavigator(
-                                              image: 'assets/img/travel_home.png', 
-                                              text: "Travel"
-                                            ),
-                                            HomeNavigator(
-                                              image: 'assets/img/restaurant_home.png', 
-                                              text: "Find Restaurant"
-                                            ),
-                                          ],
-                                        ),
-                                        GridView.count(
-                                          physics: const NeverScrollableScrollPhysics(),
-                                          crossAxisCount: 4,
-                                          children: const [
-                                            HomeNavigator(
-                                              image: 'assets/img/hotel_home.png', 
-                                              text: "Find Hotel"
-                                            ),
-                                            HomeNavigator(
-                                              image: 'assets/img/delivery_home.png', 
-                                              text: "Fast Delivery"
-                                            ),
-                                            HomeNavigator(
-                                              image: 'assets/img/eatery_home.png', 
-                                              text: "Find Eatery"
-                                            ),
-                                            HomeNavigator(
-                                              image: 'assets/img/bus_home.png', 
-                                              text: "Bus Booking"
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(height: 8.h),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: List.generate(2, (index) {
-                                      return Container(
-                                        width: 8.w,
-                                        height: 8.h,
-                                        margin: EdgeInsets.symmetric(horizontal: 4.w),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: _currentPageIndex == index
-                                              ? AppColors.primaryColor
-                                              : Colors.grey.withOpacity(0.3),
-                                        ),
-                                      );
-                                    }),
-                                  ),
-                                ],
-                              ),
+                        child: Column(children: [
+                          Container(
+                            width: 335.w,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16.r),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      const Color(0xFF000000).withOpacity(0.25),
+                                  blurRadius: 4.r,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                          ]
-                        ),
+                            padding: EdgeInsets.fromLTRB(4.w, 16.h, 4.w, 8.h),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 76.h,
+                                  child: PageView(
+                                    controller: _pageController,
+                                    onPageChanged: (index) {
+                                      setState(() {
+                                        _currentPageIndex = index;
+                                      });
+                                    },
+                                    padEnds: false,
+                                    children: [
+                                      GridView.count(
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        crossAxisCount: 4,
+                                        children: const [
+                                          HomeNavigator(
+                                              image: 'assets/img/car_home.png',
+                                              text: "Car Rental"),
+                                          HomeNavigator(
+                                              image:
+                                                  'assets/img/motorbike_home.png',
+                                              text: "Motorbike Rental"),
+                                          HomeNavigator(
+                                              image:
+                                                  'assets/img/travel_home.png',
+                                              text: "Travel"),
+                                          HomeNavigator(
+                                              image:
+                                                  'assets/img/restaurant_home.png',
+                                              text: "Find Restaurant"),
+                                        ],
+                                      ),
+                                      GridView.count(
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        crossAxisCount: 4,
+                                        children: const [
+                                          HomeNavigator(
+                                              image:
+                                                  'assets/img/hotel_home.png',
+                                              text: "Find Hotel"),
+                                          HomeNavigator(
+                                              image:
+                                                  'assets/img/delivery_home.png',
+                                              text: "Fast Delivery"),
+                                          HomeNavigator(
+                                              image:
+                                                  'assets/img/eatery_home.png',
+                                              text: "Find Eatery"),
+                                          HomeNavigator(
+                                              image: 'assets/img/bus_home.png',
+                                              text: "Bus Booking"),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 8.h),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: List.generate(2, (index) {
+                                    return Container(
+                                      width: 8.w,
+                                      height: 8.h,
+                                      margin:
+                                          EdgeInsets.symmetric(horizontal: 4.w),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: _currentPageIndex == index
+                                            ? AppColors.primaryColor
+                                            : Colors.grey.withOpacity(0.3),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ]),
                       ),
                     ),
                   ],
@@ -373,13 +527,52 @@ class _HomeScreenState extends State<HomeScreen> {
                 Padding(
                   padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 32.h),
                   child: buildSectionHeadline(
-                    context, 
-                    "Popular", 
-                    "The best destination for you", 
+                    context,
+                    "Popular",
+                    "The best destination for you",
                     pagedPopularList,
                     scrollController: _popularScrollController,
                     isLoading: _isLoadingPopular,
                     hasMore: _visiblePopular < popularList.length,
+                  ),
+                ),
+                // High Rates Section
+                Padding(
+                  padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 32.h),
+                  child: buildSectionHeadline(
+                    context,
+                    "High Rates",
+                    "Top rated destinations across Vietnam",
+                    _highRatedPlaces.take(_visibleHighRated).toList(),
+                    scrollController: _highRatedScrollController,
+                    isLoading: _isLoadingHighRated,
+                    hasMore: _visibleHighRated < _highRatedPlaces.length,
+                  ),
+                ),
+                // Hotel Nearby Section
+                Padding(
+                  padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 32.h),
+                  child: buildSectionHeadline(
+                    context,
+                    "Hotel Nearby",
+                    "Best hotels in Bình Dương province",
+                    _binhDuongHotels.take(_visibleHotels).toList(),
+                    scrollController: _hotelsScrollController,
+                    isLoading: _isLoadingHotels,
+                    hasMore: _visibleHotels < _binhDuongHotels.length,
+                  ),
+                ),
+                // Restaurant Nearby Section
+                Padding(
+                  padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 32.h),
+                  child: buildSectionHeadline(
+                    context,
+                    "Restaurant Nearby",
+                    "Best restaurants in Bình Dương province",
+                    _binhDuongRestaurants.take(_visibleRestaurants).toList(),
+                    scrollController: _restaurantsScrollController,
+                    isLoading: _isLoadingRestaurants,
+                    hasMore: _visibleRestaurants < _binhDuongRestaurants.length,
                   ),
                 ),
                 // Province Section
@@ -397,17 +590,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                   cardDataList: pagedProvinceList,
                   onCardTap: (cardData) {
-                    final destination = destinationsViewModel.destinations.firstWhere(
+                    final destination =
+                        destinationsViewModel.destinations.firstWhere(
                       (dest) => dest.destinationName == cardData.placeName,
                     );
-                    
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => DestinationDetailPage(
                           cardData: cardData,
                           destinationData: destination,
-                          isFavourite: favouriteViewModel.isFavourite(destination),
+                          isFavourite:
+                              favouriteViewModel.isFavourite(destination),
                           onFavouriteToggle: (isFavourite) {
                             favouriteViewModel.toggleFavourite(destination);
                           },
@@ -424,17 +619,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 InspirationSection(
                   cardDataList: pagedInspirationList,
                   onCardTap: (cardData) {
-                    final destination = destinationsViewModel.destinations.firstWhere(
+                    final destination =
+                        destinationsViewModel.destinations.firstWhere(
                       (dest) => dest.destinationName == cardData.placeName,
                     );
-                    
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => DestinationDetailPage(
                           cardData: cardData,
                           destinationData: destination,
-                          isFavourite: favouriteViewModel.isFavourite(destination),
+                          isFavourite:
+                              favouriteViewModel.isFavourite(destination),
                           onFavouriteToggle: (isFavourite) {
                             favouriteViewModel.toggleFavourite(destination);
                           },
@@ -456,9 +653,8 @@ class _HomeScreenState extends State<HomeScreen> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 0),
               decoration: BoxDecoration(
-                color: _isScrolled
-                    ? AppColors.primaryColor
-                    : Colors.transparent,
+                color:
+                    _isScrolled ? AppColors.primaryColor : Colors.transparent,
                 boxShadow: _isScrolled
                     ? [
                         BoxShadow(
@@ -480,14 +676,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Expanded(
                         child: GestureDetector(
-                          onTap: () { 
+                          onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => SearchScreen(
-                                  initialHint: destinationsViewModel.destinations.isNotEmpty
-                                      ? destinationsViewModel.destinations[_currentDestinationIndex].destinationName
-                                      : AppLocalizations.of(context).translate('Search destinations...'),
+                                  initialHint: destinationsViewModel
+                                          .destinations.isNotEmpty
+                                      ? destinationsViewModel
+                                          .destinations[
+                                              _currentDestinationIndex]
+                                          .destinationName
+                                      : AppLocalizations.of(context)
+                                          .translate('Search destinations...'),
                                 ),
                               ),
                             );
@@ -498,7 +699,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               vertical: 8.h,
                             ),
                             decoration: BoxDecoration(
-                              color:  Colors.white,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                             child: Row(
@@ -515,8 +716,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Container(
                                     alignment: Alignment.centerLeft,
                                     child: AnimatedSwitcher(
-                                      duration: const Duration(milliseconds: 500),
-                                      transitionBuilder: (Widget child, Animation<double> animation) {
+                                      duration:
+                                          const Duration(milliseconds: 500),
+                                      transitionBuilder: (Widget child,
+                                          Animation<double> animation) {
                                         return Align(
                                           alignment: Alignment.centerLeft,
                                           child: SlideTransition(
@@ -532,10 +735,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                         );
                                       },
                                       child: Text(
-                                        destinationsViewModel.destinations.isNotEmpty
-                                            ? destinationsViewModel.destinations[_currentDestinationIndex].destinationName
-                                            : AppLocalizations.of(context).translate('Search destinations...'),
-                                        key: ValueKey<int>(_currentDestinationIndex),
+                                        destinationsViewModel
+                                                .destinations.isNotEmpty
+                                            ? destinationsViewModel
+                                                .destinations[
+                                                    _currentDestinationIndex]
+                                                .destinationName
+                                            : AppLocalizations.of(context)
+                                                .translate(
+                                                    'Search destinations...'),
+                                        key: ValueKey<int>(
+                                            _currentDestinationIndex),
                                         style: TextStyle(
                                           color: AppColors.primaryColor,
                                           fontSize: 14.sp,
@@ -689,7 +899,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 },
-                child: SizedBox(width: 300.w, height: 300.h, child: Image.asset('assets/img/floating.gif')),
+                child: SizedBox(
+                    width: 300.w,
+                    height: 300.h,
+                    child: Image.asset('assets/img/floating.gif')),
               ),
             ),
           ),
@@ -698,8 +911,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget buildSectionHeadline(BuildContext context, String title, String subtitle, List<HomeCardData> cardDataList, {ScrollController? scrollController, bool isLoading = false, bool hasMore = false}) {
-    final favouriteViewModel = Provider.of<FavouriteDestinationsViewModel>(context);
+  Widget buildSectionHeadline(BuildContext context, String title,
+      String subtitle, List<HomeCardData> cardDataList,
+      {ScrollController? scrollController,
+      bool isLoading = false,
+      bool hasMore = false}) {
+    final favouriteViewModel =
+        Provider.of<FavouriteDestinationsViewModel>(context);
     final destinationsViewModel = Provider.of<DestinationsViewModel>(context);
 
     return Column(
@@ -754,23 +972,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   return HomeCardListView(
                     cardDataList: cardDataList,
                     onCardTap: (cardData) {
-                      final destination = destinationsViewModel.destinations.firstWhere(
-                        (dest) => dest.destinationName == cardData.placeName,
-                      );
-                      
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DestinationDetailPage(
-                            cardData: cardData,
-                            destinationData: destination,
-                            isFavourite: favouriteViewModel.isFavourite(destination),
-                            onFavouriteToggle: (isFavourite) {
-                              favouriteViewModel.toggleFavourite(destination);
-                            },
-                          ),
-                        ),
-                      );
+                      _handleCardTap(cardData, title, destinationsViewModel,
+                          favouriteViewModel);
                     },
                     scrollController: scrollController,
                     isLoading: isLoading,
@@ -780,6 +983,47 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
       ],
     );
+  }
+
+  void _handleCardTap(
+      HomeCardData cardData,
+      String sectionTitle,
+      DestinationsViewModel destinationsViewModel,
+      FavouriteDestinationsViewModel favouriteViewModel) {
+    // Xử lý tap cho các card từ COOPERATION
+    if (sectionTitle == "Hotel Nearby" || sectionTitle == "Restaurant Nearby") {
+      // TODO: Navigate to cooperation detail page
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${cardData.placeName} - Coming soon!'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // Xử lý tap cho các card từ DESTINATION (Popular, Province, Inspiration, High Rates)
+    try {
+      final destination = destinationsViewModel.destinations.firstWhere(
+        (dest) => dest.destinationName == cardData.placeName,
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DestinationDetailPage(
+            cardData: cardData,
+            destinationData: destination,
+            isFavourite: favouriteViewModel.isFavourite(destination),
+            onFavouriteToggle: (isFavourite) {
+              favouriteViewModel.toggleFavourite(destination);
+            },
+          ),
+        ),
+      );
+    } catch (e) {
+      print('Destination not found: ${cardData.placeName}');
+    }
   }
 
   Widget _buildShimmerHomeCards() {
@@ -798,14 +1042,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<bool> _precacheImages(List<HomeCardData> cardDataList, BuildContext context) async {
+  Future<bool> _precacheImages(
+      List<HomeCardData> cardDataList, BuildContext context) async {
     try {
       final imagesToPrecache = cardDataList.take(3); // chỉ lấy 3 ảnh đầu
       await Future.wait(
         imagesToPrecache.map((card) => precacheImage(
-          NetworkImage(card.imageUrl),
-          context,
-        )),
+              NetworkImage(card.imageUrl),
+              context,
+            )),
       );
       return true;
     } catch (e) {
@@ -901,13 +1146,14 @@ class ProvinceSection extends StatelessWidget {
     required this.hasMore,
   });
 
-  Future<bool> _precacheImages(List<HomeCardData> cardDataList, BuildContext context) async {
+  Future<bool> _precacheImages(
+      List<HomeCardData> cardDataList, BuildContext context) async {
     try {
       await Future.wait(
         cardDataList.map((card) => precacheImage(
-          NetworkImage(card.imageUrl),
-          context,
-        )),
+              NetworkImage(card.imageUrl),
+              context,
+            )),
       );
       return true;
     } catch (e) {
@@ -939,7 +1185,8 @@ class ProvinceSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context).translate("Explore top spots by province"),
+            AppLocalizations.of(context)
+                .translate("Explore top spots by province"),
             style: TextStyle(
               fontSize: 20.sp,
               fontWeight: FontWeight.w700,
@@ -948,7 +1195,8 @@ class ProvinceSection extends StatelessWidget {
           ),
           SizedBox(height: 8.h),
           Text(
-            AppLocalizations.of(context).translate("Discover places across provinces"),
+            AppLocalizations.of(context)
+                .translate("Discover places across provinces"),
             style: TextStyle(
               fontSize: 14.sp,
               color: Colors.grey,
@@ -1009,7 +1257,8 @@ class InspirationSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppLocalizations.of(context).translate("More travel inspiration"),
+                AppLocalizations.of(context)
+                    .translate("More travel inspiration"),
                 style: TextStyle(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
@@ -1018,7 +1267,8 @@ class InspirationSection extends StatelessWidget {
               ),
               SizedBox(height: 5.h),
               Text(
-                AppLocalizations.of(context).translate("Extra highlights just for you"),
+                AppLocalizations.of(context)
+                    .translate("Extra highlights just for you"),
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: Colors.grey,
@@ -1086,13 +1336,14 @@ class InspirationSection extends StatelessWidget {
     );
   }
 
-  Future<bool> _precacheImages(List<HomeCardData> cardDataList, BuildContext context) async {
+  Future<bool> _precacheImages(
+      List<HomeCardData> cardDataList, BuildContext context) async {
     try {
       await Future.wait(
         cardDataList.map((card) => precacheImage(
-          NetworkImage(card.imageUrl),
-          context,
-        )),
+              NetworkImage(card.imageUrl),
+              context,
+            )),
       );
       return true;
     } catch (e) {

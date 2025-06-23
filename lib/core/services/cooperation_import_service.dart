@@ -459,6 +459,7 @@ class CooperationImportService {
       bookingTimes: 0,
       revenue: 0.0,
       averageRating: rating,
+      priceLevel: '', // Chưa có thông tin giá
     );
   }
 
