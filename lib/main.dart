@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:tourguideapp/viewmodels/used_services_viewmodel.dart';
 import 'package:tourguideapp/views/service/travel/travel_bloc/travel_bloc.dart';
 import 'package:tourguideapp/viewmodels/accountInfo_viewmodel.dart';
 import 'package:tourguideapp/viewmodels/auth_viewmodel.dart';
@@ -85,6 +86,7 @@ void main() async {
           ChangeNotifierProvider(create: (_) => BankViewModel()),
           ChangeNotifierProvider(create: (_) => BillViewModel()),
           ChangeNotifierProvider(create: (_) => DestinationsViewModel()),
+          ChangeNotifierProvider(create: (_) => UsedServicesViewModel()),
           ChangeNotifierProvider(
               create: (_) => ExploreViewModel()..fetchDestinations()),
         ],

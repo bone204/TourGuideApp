@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tourguideapp/views/explore/explore.dart';
 import 'package:tourguideapp/views/my_vehicle/my_vehicle_screen.dart';
-import 'package:tourguideapp/views/service/service_screen.dart';
+import 'package:tourguideapp/views/service/used_service/service_screen.dart';
 import 'package:tourguideapp/views/user/profile_screen.dart';
 import '../../widgets/bottombar.dart'; 
 import 'home_screen.dart'; 

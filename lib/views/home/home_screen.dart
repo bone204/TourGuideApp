@@ -1077,27 +1077,35 @@ class SectionHeadline extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AppLocalizations.of(context).translate(title),
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w700,
-                fontSize: 20.sp,
+        // Sử dụng Flexible để tránh overflow
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppLocalizations.of(context).translate(title),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20.sp,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            SizedBox(height: 5.h),
-            Text(
-              AppLocalizations.of(context).translate(subtitle),
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14.sp,
+              SizedBox(height: 5.h),
+              Text(
+                AppLocalizations.of(context).translate(subtitle),
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14.sp,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         TextButton(
           onPressed: () {
