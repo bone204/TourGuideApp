@@ -55,6 +55,7 @@ dependencies:
   url_launcher: ^6.2.5
   fluttertoast: ^8.2.12
   flutter_local_notifications: ^19.3.0
+  badges: ^3.1.2
   momo_vn:
     path: packages/momo_vn
 

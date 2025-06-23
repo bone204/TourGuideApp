@@ -24,6 +24,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:tourguideapp/views/notification/notification_screen.dart';
 import 'package:tourguideapp/services/notification_service.dart';
 import 'package:tourguideapp/services/user_service.dart';
+import 'package:badges/badges.dart' as badges;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -555,56 +556,50 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       SizedBox(width: 16.w),
                       // Notification button with badge
-                      Stack(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              if (_currentUserId != null) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => NotificationScreen(
-                                      userId: _currentUserId!,
-                                    ),
-                                  ),
-                                ).then((_) {
-                                  // Reload notification count when returning from notification screen
-                                  _loadUnreadNotificationCount();
-                                });
-                              }
-                            },
-                            child: Icon(
-                              Icons.notifications_none,
-                              color: AppColors.white,
-                              size: 28.sp,
+                      badges.Badge(
+                        showBadge: _unreadNotificationCount > 0,
+                        badgeStyle: badges.BadgeStyle(
+                          badgeColor: Colors.red,
+                          padding: const EdgeInsets.all(3),
+                          borderRadius: BorderRadius.circular(10),
+                          elevation: 0,
+                        ),
+                        badgeContent: Container(
+                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                          alignment: Alignment.center,
+                          child: Text(
+                            _unreadNotificationCount > 99 ? '99+' : _unreadNotificationCount.toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w700,
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                          if (_unreadNotificationCount > 0)
-                            Positioned(
-                              right: 0,
-                              top: 0,
-                              child: Container(
-                                padding: EdgeInsets.all(4.w),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(10.r),
-                                ),
-                                constraints: BoxConstraints(
-                                  minWidth: 20.w,
-                                  minHeight: 20.h,
-                                ),
-                                child: Text(
-                                  _unreadNotificationCount > 99 ? '99+' : _unreadNotificationCount.toString(),
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w700,
+                        ),
+                        position: badges.BadgePosition.topEnd(top: -2, end: -2),
+                        child: GestureDetector(
+                          onTap: () {
+                            if (_currentUserId != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => NotificationScreen(
+                                    userId: _currentUserId!,
                                   ),
-                                  textAlign: TextAlign.center,
                                 ),
-                              ),
-                            ),
-                        ],
+                              ).then((_) {
+                                // Reload notification count when returning from notification screen
+                                _loadUnreadNotificationCount();
+                              });
+                            }
+                          },
+                          child: Icon(
+                            Icons.notifications,
+                            color: AppColors.white,
+                            size: 28.sp,
+                          ),
+                        ),
                       ),
                       // SizedBox(width: 12.w),
                       // GestureDetector(
