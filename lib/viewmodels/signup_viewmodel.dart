@@ -149,6 +149,8 @@ class SignupViewModel extends ChangeNotifier {
         travelTrip: 0,
         feedbackTimes: 0,
         dayParticipation: 0,
+        userTier: 'Bronze',
+        createdAt: DateTime.now(),
       );
 
       // Lưu thông tin user vào Firestore

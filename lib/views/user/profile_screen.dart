@@ -104,7 +104,7 @@ class ProfileScreen extends StatelessWidget {
                                         },
                                       ),
                                     ),
-                                    SizedBox(width: 20.w),
+                                    SizedBox(width: 12.w),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,6 +117,15 @@ class ProfileScreen extends StatelessWidget {
                                               color: Colors.black87,
                                             ),
                                           ),
+                                          SizedBox(height: 2.h),
+                                          Text(
+                                            _getTierDisplay(context, profileViewModel.userTier),
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              color: AppColors.primaryColor,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
                                           SizedBox(height: 4.h),
                                           Text(
                                             profileViewModel.email,
@@ -127,7 +136,7 @@ class ProfileScreen extends StatelessWidget {
                                           ),
                                           SizedBox(height: 12.h),
                                           Container(
-                                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+                                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                                             decoration: BoxDecoration(
                                               color: AppColors.primaryColor.withOpacity(0.1),
                                               borderRadius: BorderRadius.circular(20.r),
@@ -142,7 +151,7 @@ class ProfileScreen extends StatelessWidget {
                                                 ),
                                                 SizedBox(width: 4.w),
                                                 Text(
-                                                  '${AppLocalizations.of(context).translate('Member since')} ${profileViewModel.dayParticipation} ${AppLocalizations.of(context).translate('days')}',
+                                                  _getMemberSinceText(context, profileViewModel.createdAt),
                                                   style: TextStyle(
                                                     fontSize: 12.sp,
                                                     color: AppColors.primaryColor,
@@ -326,4 +335,33 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  String _getTierDisplay(BuildContext context, String tier) {
+    final locale = Localizations.localeOf(context).languageCode;
+    switch (tier) {
+      case 'Bronze':
+        return locale == 'vi' ? 'Thành viên Đồng' : 'Bronze Member';
+      case 'Silver':
+        return locale == 'vi' ? 'Thành viên Bạc' : 'Silver Member';
+      case 'Gold':
+        return locale == 'vi' ? 'Thành viên Vàng' : 'Gold Member';
+      case 'Platinum':
+        return locale == 'vi' ? 'Thành viên Bạch Kim' : 'Platinum Member';
+      default:
+        return tier;
+    }
+  }
+
+  String _getMemberSinceText(BuildContext context, DateTime? createdAt) {
+    final locale = Localizations.localeOf(context).languageCode;
+    if (createdAt == null) {
+      return locale == 'vi'
+          ? 'Thành viên được ${0} ngày'
+          : 'Member for ${0} days';
+    }
+    final now = DateTime.now();
+    final days = now.difference(createdAt).inDays + 1;
+    return locale == 'vi'
+        ? 'Thành viên được $days ngày'
+        : 'Member for $days days';
+  }
 }

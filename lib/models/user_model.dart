@@ -23,6 +23,8 @@ class UserModel {
   final int travelTrip;
   final int feedbackTimes;
   final int dayParticipation;
+  final String userTier;
+  final DateTime? createdAt;
 
   UserModel({
     required this.userId,
@@ -49,6 +51,8 @@ class UserModel {
     this.travelTrip = 0,
     this.feedbackTimes = 0,
     this.dayParticipation = 0,
+    required this.userTier,
+    this.createdAt,
   });
 
   Map<String, dynamic> toMap() {
@@ -77,6 +81,8 @@ class UserModel {
       'travelTrip': travelTrip,
       'feedbackTimes': feedbackTimes,
       'dayParticipation': dayParticipation,
+      'userTier': userTier,
+      'createdAt': createdAt?.toIso8601String(),
     };
   }
 
@@ -106,6 +112,8 @@ class UserModel {
       travelTrip: map['travelTrip'] ?? 0,
       feedbackTimes: map['feedbackTimes'] ?? 0,
       dayParticipation: map['dayParticipation'] ?? 0,
+      userTier: map['userTier'] ?? '',
+      createdAt: map['createdAt'] != null ? DateTime.tryParse(map['createdAt']) : null,
     );
   }
 }

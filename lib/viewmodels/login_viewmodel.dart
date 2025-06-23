@@ -187,6 +187,8 @@ class LoginViewModel extends ChangeNotifier {
         favoriteDestinationIds: [],
         favoriteHotelIds: [],
         favoriteRestaurantIds: [],
+        userTier: 'Bronze',
+        createdAt: DateTime.now(),
       );
 
       await _firestore.collection('USER').doc(firebaseUser.uid).set(newUser.toMap());

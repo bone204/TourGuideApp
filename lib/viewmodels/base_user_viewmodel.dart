@@ -17,6 +17,8 @@ class BaseUserViewModel extends ChangeNotifier {
   String? _phoneNumber;
   String? _address;
   String? _gender;
+  String _userTier = 'Bronze';
+  DateTime? _createdAt;
 
   String get name => _name;
   String get email => _email;
@@ -29,6 +31,8 @@ class BaseUserViewModel extends ChangeNotifier {
   String? get phoneNumber => _phoneNumber;
   String? get address => _address;
   String? get gender => _gender;
+  String get userTier => _userTier;
+  DateTime? get createdAt => _createdAt;
 
   BaseUserViewModel() {
     _initUserDataStream();
@@ -51,10 +55,12 @@ class BaseUserViewModel extends ChangeNotifier {
             _travelPoint = data['travelPoint'] ?? 0;
             _travelTrip = data['travelTrip'] ?? 0;
             _feedbackTimes = data['feedbackTimes'] ?? 0;
-            _dayParticipation = data['dayParticipation'] ?? 0;
+            _createdAt = data['createdAt'] != null ? (data['createdAt'] is Timestamp ? (data['createdAt'] as Timestamp).toDate() : DateTime.tryParse(data['createdAt'].toString())) : null;
+            _dayParticipation = _createdAt == null ? 0 : DateTime.now().difference(_createdAt!).inDays + 1;
             _phoneNumber = data['phoneNumber'];
             _address = data['address'];
             _gender = data['gender'];
+            _userTier = data['userTier'] ?? 'Bronze';
             notifyListeners();
           } else {
             _clearUserData();
@@ -78,6 +84,7 @@ class BaseUserViewModel extends ChangeNotifier {
     _phoneNumber = null;
     _address = null;
     _gender = null;
+    _userTier = 'Bronze';
     notifyListeners();
   }
 

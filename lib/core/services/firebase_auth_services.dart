@@ -79,6 +79,8 @@ class FirebaseAuthService {
           idCardImageUrl: idCardImageUrl,
           avatar: avatarUrl,  
           hobbies: hobbies,
+          userTier: 'Bronze',
+          createdAt: DateTime.now(),
         );
 
         // Lưu thông tin người dùng vào Firestore
