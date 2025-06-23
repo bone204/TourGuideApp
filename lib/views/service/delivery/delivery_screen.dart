@@ -66,12 +66,13 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     setState(() {
       selectedDeliveryLocation = location;
       deliveryLocationDetails = details;
-      this.recipientName = recipientName;
-      this.recipientPhone = recipientPhone;
+      // Không tự động cập nhật thông tin người nhận từ địa điểm
+      // this.recipientName = recipientName;
+      // this.recipientPhone = recipientPhone;
       
-      // Cập nhật text controllers
-      _recipientNameController.text = recipientName;
-      _recipientPhoneController.text = recipientPhone;
+      // Không cập nhật text controllers
+      // _recipientNameController.text = recipientName;
+      // _recipientPhoneController.text = recipientPhone;
     });
   }
 

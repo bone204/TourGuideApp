@@ -295,7 +295,7 @@ class _MyVehicleScreenState extends State<MyVehicleScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-          title: AppLocalizations.of(context).translate("Chat Screen"),
+          title: AppLocalizations.of(context).translate("My Vehicle"),
           actions: [
             CustomIconButton(
               icon: Icons.info_rounded,

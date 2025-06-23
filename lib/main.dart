@@ -33,7 +33,7 @@ import 'package:tourguideapp/blocs/auth_bloc.dart';
 import 'package:tourguideapp/core/services/firebase_auth_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tourguideapp/core/services/notification_service.dart';
+import 'package:tourguideapp/services/notification_service.dart';
 import 'viewmodels/explore_viewmodel.dart';
 
 class ImagesPath {

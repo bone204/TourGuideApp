@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/models/hotel_bill_model.dart';
 import 'package:tourguideapp/models/restaurant_bill_model.dart';
+import 'package:tourguideapp/services/notification_service.dart';
 
 class UsedServicesService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NotificationService _notificationService = NotificationService();
 
   // Thêm dịch vụ đã sử dụng vào danh sách
   Future<void> addUsedService({
@@ -17,6 +19,20 @@ class UsedServicesService {
     Map<String, dynamic>? additionalData,
   }) async {
     try {
+      // Kiểm tra xem service đã tồn tại chưa để tránh duplicate
+      final existingService = await _firestore
+          .collection('USED_SERVICES')
+          .where('userId', isEqualTo: userId)
+          .where('serviceType', isEqualTo: serviceType)
+          .where('serviceId', isEqualTo: serviceId)
+          .limit(1)
+          .get();
+
+      if (existingService.docs.isNotEmpty) {
+        print('Service already exists, skipping duplicate: $serviceId');
+        return;
+      }
+
       await _firestore.collection('USED_SERVICES').add({
         'userId': userId,
         'serviceType': serviceType, // 'hotel', 'bus', 'eatery', etc.
@@ -28,10 +44,85 @@ class UsedServicesService {
         'additionalData': additionalData ?? {},
         'createdAt': FieldValue.serverTimestamp(),
       });
+
+      // Gửi thông báo cho user
+      await _sendServiceNotification(
+        userId: userId,
+        serviceType: serviceType,
+        serviceName: serviceName,
+        serviceId: serviceId,
+        amount: amount,
+        additionalData: additionalData,
+      );
     } catch (e) {
       print('Error adding used service: $e');
       throw Exception('Không thể thêm dịch vụ đã sử dụng: $e');
     }
+  }
+
+  // Gửi thông báo cho service
+  Future<void> _sendServiceNotification({
+    required String userId,
+    required String serviceType,
+    required String serviceName,
+    required String serviceId,
+    required double amount,
+    Map<String, dynamic>? additionalData,
+  }) async {
+    try {
+      String title = '';
+      String body = '';
+
+      switch (serviceType) {
+        case 'hotel':
+          title = 'Đặt phòng khách sạn thành công!';
+          body = 'Bạn đã đặt phòng thành công với giá ${_formatCurrency(amount)}. Kiểm tra email để biết thêm chi tiết.';
+          break;
+        case 'restaurant':
+          title = 'Đặt bàn nhà hàng thành công!';
+          body = 'Bạn đã đặt bàn thành công với giá ${_formatCurrency(amount)}. Vui lòng đến đúng giờ!';
+          break;
+        case 'delivery':
+          title = 'Đơn giao hàng đã được tạo!';
+          body = 'Đơn giao hàng của bạn đã được tạo với giá ${_formatCurrency(amount)}. Chúng tôi sẽ cập nhật trạng thái sớm nhất.';
+          break;
+        case 'bus':
+          title = 'Đặt vé xe buýt thành công!';
+          body = 'Bạn đã đặt vé xe buýt thành công với giá ${_formatCurrency(amount)}. Vui lòng đến bến xe đúng giờ!';
+          break;
+        case 'car_rental':
+          title = 'Thuê xe thành công!';
+          body = 'Bạn đã thuê xe thành công với giá ${_formatCurrency(amount)}. Vui lòng đến địa điểm nhận xe đúng giờ!';
+          break;
+        case 'motorbike_rental':
+          title = 'Thuê xe máy thành công!';
+          body = 'Bạn đã thuê xe máy thành công với giá ${_formatCurrency(amount)}. Vui lòng đến địa điểm nhận xe đúng giờ!';
+          break;
+        default:
+          title = 'Dịch vụ mới!';
+          body = 'Bạn đã sử dụng dịch vụ ${serviceName} với giá ${_formatCurrency(amount)}.';
+      }
+
+      await _notificationService.sendNotificationToUser(
+        userId: userId,
+        title: title,
+        body: body,
+        serviceType: serviceType,
+        serviceId: serviceId,
+        serviceName: serviceName,
+        additionalData: additionalData,
+      );
+    } catch (e) {
+      print('Error sending service notification: $e');
+    }
+  }
+
+  // Format tiền tệ
+  String _formatCurrency(double amount) {
+    return '${amount.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    )} VNĐ';
   }
 
   // Thêm hotel booking vào used services
@@ -198,6 +289,86 @@ class UsedServicesService {
     } catch (e) {
       print('Error adding bus booking to used services: $e');
       throw Exception('Không thể thêm đặt vé xe buýt vào dịch vụ đã sử dụng: $e');
+    }
+  }
+
+  // Thêm car rental vào used services
+  Future<void> addCarRentalToUsedServices({
+    required String userId,
+    required String rentalId,
+    required String carModel,
+    required String carBrand,
+    required DateTime pickupDate,
+    required DateTime returnDate,
+    required String pickupLocation,
+    required String returnLocation,
+    required double amount,
+    required String status,
+    Map<String, dynamic>? additionalData,
+  }) async {
+    try {
+      await addUsedService(
+        userId: userId,
+        serviceType: 'car_rental',
+        serviceName: 'Thuê xe ô tô',
+        serviceId: rentalId,
+        usedDate: pickupDate,
+        amount: amount,
+        status: status,
+        additionalData: {
+          'carModel': carModel,
+          'carBrand': carBrand,
+          'pickupDate': pickupDate.toIso8601String(),
+          'returnDate': returnDate.toIso8601String(),
+          'pickupLocation': pickupLocation,
+          'returnLocation': returnLocation,
+          'rentalDays': returnDate.difference(pickupDate).inDays,
+          ...?additionalData,
+        },
+      );
+    } catch (e) {
+      print('Error adding car rental to used services: $e');
+      throw Exception('Không thể thêm thuê xe vào dịch vụ đã sử dụng: $e');
+    }
+  }
+
+  // Thêm motorbike rental vào used services
+  Future<void> addMotorbikeRentalToUsedServices({
+    required String userId,
+    required String rentalId,
+    required String motorbikeModel,
+    required String motorbikeBrand,
+    required DateTime pickupDate,
+    required DateTime returnDate,
+    required String pickupLocation,
+    required String returnLocation,
+    required double amount,
+    required String status,
+    Map<String, dynamic>? additionalData,
+  }) async {
+    try {
+      await addUsedService(
+        userId: userId,
+        serviceType: 'motorbike_rental',
+        serviceName: 'Thuê xe máy',
+        serviceId: rentalId,
+        usedDate: pickupDate,
+        amount: amount,
+        status: status,
+        additionalData: {
+          'motorbikeModel': motorbikeModel,
+          'motorbikeBrand': motorbikeBrand,
+          'pickupDate': pickupDate.toIso8601String(),
+          'returnDate': returnDate.toIso8601String(),
+          'pickupLocation': pickupLocation,
+          'returnLocation': returnLocation,
+          'rentalDays': returnDate.difference(pickupDate).inDays,
+          ...?additionalData,
+        },
+      );
+    } catch (e) {
+      print('Error adding motorbike rental to used services: $e');
+      throw Exception('Không thể thêm thuê xe máy vào dịch vụ đã sử dụng: $e');
     }
   }
 

@@ -208,7 +208,11 @@ class _ProvincePickerState extends State<ProvincePicker> {
             ),
             child: Row(
               children: [
-                Icon(Icons.location_on_outlined, size: 24.sp),
+                Image.asset(
+                  'assets/img/ic_location.png',
+                  width: 24.w,
+                  height: 24.h,
+                ),
                 SizedBox(width: 12.w),
                 Expanded(
                   child: Text(
@@ -226,7 +230,6 @@ class _ProvincePickerState extends State<ProvincePicker> {
                     maxLines: 1,
                   ),
                 ),
-                Icon(Icons.arrow_drop_down, size: 24.sp),
               ],
             ),
           ),

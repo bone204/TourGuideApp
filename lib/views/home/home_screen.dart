@@ -7,9 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
-import 'package:tourguideapp/views/admin/admin_screen.dart';
 import 'package:tourguideapp/views/chat/chat.dart';
-import 'package:tourguideapp/views/momo_payment/momo_screen.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/home_navigator.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
@@ -22,6 +20,10 @@ import 'package:tourguideapp/widgets/favourite_card.dart';
 import 'package:tourguideapp/views/home/search_screen.dart';
 import 'package:tourguideapp/widgets/shimmer_cards.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:tourguideapp/views/notification/notification_screen.dart';
+import 'package:tourguideapp/services/notification_service.dart';
+import 'package:tourguideapp/services/user_service.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:tourguideapp/core/services/cooperation_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -41,10 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final PageController _pageController = PageController();
   int _currentPageIndex = 0;
 
-  // Thêm biến cho vị trí floating button
   double _fabRight = 20;
   double _fabBottom = 40;
-  double? _initX, _initY;
 
   // Thêm biến phân trang
   int _visiblePopular = 10;
@@ -56,6 +56,13 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoadingPopular = false;
   bool _isLoadingProvince = false;
   bool _isLoadingInspiration = false;
+
+  // Thêm biến cho notification
+  final NotificationService _notificationService = NotificationService();
+  final UserService _userService = UserService();
+  int _unreadNotificationCount = 0;
+  Timer? _notificationTimer;
+  String? _currentUserId;
 
   // Thêm biến cho 3 phần mới
   final CooperationService _cooperationService = CooperationService();
@@ -81,6 +88,57 @@ class _HomeScreenState extends State<HomeScreen> {
     _highRatedScrollController.addListener(_onHighRatedScroll);
     _hotelsScrollController.addListener(_onHotelsScroll);
     _restaurantsScrollController.addListener(_onRestaurantsScroll);
+    _initializeNotificationService();
+  }
+
+  Future<void> _initializeNotificationService() async {
+    try {
+      await _notificationService.initialize();
+      // Lấy user ID từ UserService
+      _currentUserId = await _userService.getCurrentUserId();
+      print('Debug: Initialized notification service, User ID: $_currentUserId');
+      
+      if (_currentUserId != null) {
+        await _notificationService.registerUserToken(_currentUserId!);
+        _startNotificationTimer();
+      } else {
+        print('Debug: No user ID found, using test user ID');
+        // Sử dụng test user ID nếu không có user đăng nhập
+        _currentUserId = 'test_user_${DateTime.now().millisecondsSinceEpoch}';
+        await _userService.saveCurrentUserId(_currentUserId!);
+        await _notificationService.registerUserToken(_currentUserId!);
+        _startNotificationTimer();
+      }
+    } catch (e) {
+      print('Error initializing notification service: $e');
+    }
+  }
+
+  void _startNotificationTimer() {
+    _notificationTimer?.cancel();
+    _notificationTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      _loadUnreadNotificationCount();
+    });
+    // Load ngay lập tức
+    _loadUnreadNotificationCount();
+  }
+
+  Future<void> _loadUnreadNotificationCount() async {
+    if (_currentUserId != null) {
+      try {
+        final count = await _notificationService.getUnreadNotificationCount(_currentUserId!);
+        print('Debug: User ID: $_currentUserId, Unread count: $count');
+        if (mounted && count != _unreadNotificationCount) {
+          setState(() {
+            _unreadNotificationCount = count;
+          });
+        }
+      } catch (e) {
+        print('Error loading unread notification count: $e');
+      }
+    } else {
+      print('Debug: Current user ID is null');
+    }
   }
 
   @override
@@ -294,6 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _pageController.dispose();
     _popularScrollController.dispose();
     _provinceScrollController.dispose();
+    _notificationTimer?.cancel();
     _highRatedScrollController.dispose();
     _hotelsScrollController.dispose();
     _restaurantsScrollController.dispose();
@@ -704,33 +763,106 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       SizedBox(width: 16.w),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const AdminScreen(),
+                      // Notification button with badge
+                      badges.Badge(
+                        showBadge: _unreadNotificationCount > 0,
+                        badgeStyle: badges.BadgeStyle(
+                          badgeColor: Colors.red,
+                          padding: const EdgeInsets.all(3),
+                          borderRadius: BorderRadius.circular(10),
+                          elevation: 0,
+                        ),
+                        badgeContent: Container(
+                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                          alignment: Alignment.center,
+                          child: Text(
+                            _unreadNotificationCount > 99 ? '99+' : _unreadNotificationCount.toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w700,
                             ),
-                          );
-                        },
-                        child: Icon(
-                          Icons.notifications_none,
-                          color: AppColors.white,
-                          size: 28.sp,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        position: badges.BadgePosition.topEnd(top: -2, end: -2),
+                        child: GestureDetector(
+                          onTap: () {
+                            if (_currentUserId != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => NotificationScreen(
+                                    userId: _currentUserId!,
+                                  ),
+                                ),
+                              ).then((_) {
+                                // Reload notification count when returning from notification screen
+                                _loadUnreadNotificationCount();
+                              });
+                            }
+                          },
+                          child: Icon(
+                            Icons.notifications,
+                            color: AppColors.white,
+                            size: 28.sp,
+                          ),
                         ),
                       ),
-                      SizedBox(width: 12.w),
-                      GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MomoScreen(),
-                              ),
-                            );
-                          },
-                          child: Icon(Icons.payment,
-                              size: 28.sp, color: AppColors.white)),
+                      // SizedBox(width: 12.w),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //         builder: (context) => const AdminScreen(),
+                      //       ),
+                      //     );
+                      //   },
+                      //   child: Icon(Icons.payment, size: 28.sp, color: AppColors.white)
+                      // ),
+                      // SizedBox(width: 12.w),
+                      // // Test notification button
+                      // GestureDetector(
+                      //   onTap: () async {
+                      //     try {
+                      //       if (_currentUserId != null) {
+                      //         await _notificationService.sendNotificationToUser(
+                      //           userId: _currentUserId!,
+                      //           title: 'Test Notification',
+                      //           body: 'This is a test notification to check if the system works!',
+                      //           serviceType: 'test',
+                      //           serviceId: 'test_001',
+                      //           serviceName: 'Test Service',
+                      //           additionalData: {'test': true},
+                      //         );
+                      //         ScaffoldMessenger.of(context).showSnackBar(
+                      //           const SnackBar(
+                      //             content: Text('Test notification sent!'),
+                      //             backgroundColor: Colors.green,
+                      //           ),
+                      //         );
+                      //         // Reload notification count
+                      //         _loadUnreadNotificationCount();
+                      //       } else {
+                      //         ScaffoldMessenger.of(context).showSnackBar(
+                      //           const SnackBar(
+                      //             content: Text('No user ID found!'),
+                      //             backgroundColor: Colors.red,
+                      //           ),
+                      //         );
+                      //       }
+                      //     } catch (e) {
+                      //       ScaffoldMessenger.of(context).showSnackBar(
+                      //         SnackBar(
+                      //           content: Text('Test notification failed: $e'),
+                      //           backgroundColor: Colors.red,
+                      //         ),
+                      //       );
+                      //     }
+                      //   },
+                      //   child: Icon(Icons.bug_report, size: 28.sp, color: AppColors.white)
+                      // ),
                     ],
                   ),
                 ),
@@ -743,8 +875,8 @@ class _HomeScreenState extends State<HomeScreen> {
             bottom: _fabBottom,
             child: GestureDetector(
               onPanStart: (details) {
-                _initX = details.globalPosition.dx;
-                _initY = details.globalPosition.dy;
+                // _initX = details.globalPosition.dx;
+                // _initY = details.globalPosition.dy;
               },
               onPanUpdate: (details) {
                 setState(() {
@@ -1117,7 +1249,7 @@ class InspirationSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 20.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1168,7 +1300,7 @@ class InspirationSection extends StatelessWidget {
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 161.w / 190.h,
-        mainAxisSpacing: 20.h,
+        mainAxisSpacing: 10.h,
         crossAxisSpacing: 10.w,
       ),
       itemCount: 4,

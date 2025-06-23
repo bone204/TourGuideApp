@@ -19,7 +19,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(375, 812)); // Thiết lập kích thước màn hình
+    ScreenUtil.init(context, designSize: const Size(375, 812)); 
     final profileViewModel = Provider.of<ProfileViewModel>(context);
     final user = FirebaseAuth.instance.currentUser;
 
