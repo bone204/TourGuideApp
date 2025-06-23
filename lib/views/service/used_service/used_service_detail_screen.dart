@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
-import 'package:tourguideapp/widgets/app_bar.dart';
 import 'package:tourguideapp/core/utils/currency_formatter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tourguideapp/core/services/used_services_service.dart';
 
 class UsedServiceDetailScreen extends StatelessWidget {
   final Map<String, dynamic> service;
@@ -67,11 +67,56 @@ class UsedServiceDetailScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      appBar: CustomAppBar(
-        title: serviceName,
-        onBackPressed: () => {
-          Navigator.of(context).pop(),
-        },
+      appBar: AppBar(
+        backgroundColor: AppColors.primaryColor,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        title: Text('Chi tiết dịch vụ đã sử dụng', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+        leading: IconButton(
+          icon: Icon(Icons.chevron_left, size: 28),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.delete, color: Colors.white),
+            tooltip: 'Xóa dịch vụ',
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text('Xác nhận'),
+                  content: Text('Bạn có chắc muốn xóa dịch vụ này?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text('Hủy'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text('Xóa', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              );
+              if (confirm == true) {
+                try {
+                  await UsedServicesService().deleteUsedServiceById(service['id']);
+                  // ignore: use_build_context_synchronously
+                  Navigator.of(context).pop();
+                  // ignore: use_build_context_synchronously
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Đã xóa dịch vụ thành công!')),
+                  );
+                } catch (e) {
+                  // ignore: use_build_context_synchronously
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Xóa thất bại: $e'), backgroundColor: Colors.red),
+                  );
+                }
+              }
+            },
+          ),
+        ],
       ),
       body: Container(
         color: AppColors.white,

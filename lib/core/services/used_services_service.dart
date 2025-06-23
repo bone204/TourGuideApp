@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/models/hotel_bill_model.dart';
 import 'package:tourguideapp/models/restaurant_bill_model.dart';
-import 'package:tourguideapp/services/notification_service.dart';
+import 'package:tourguideapp/core/services/notification_service.dart';
 
 class UsedServicesService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -515,6 +515,16 @@ class UsedServicesService {
     } catch (e) {
       print('Error updating used service status: $e');
       throw Exception('Không thể cập nhật trạng thái: $e');
+    }
+  }
+
+  // Xóa dịch vụ đã sử dụng theo id
+  Future<void> deleteUsedServiceById(String serviceId) async {
+    try {
+      await _firestore.collection('USED_SERVICES').doc(serviceId).delete();
+    } catch (e) {
+      print('Error deleting used service: $e');
+      throw Exception('Không thể xóa dịch vụ đã sử dụng: $e');
     }
   }
 }

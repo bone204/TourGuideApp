@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/models/notification_model.dart';
-import 'package:tourguideapp/services/notification_service.dart';
+import 'package:tourguideapp/core/services/notification_service.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:tourguideapp/core/services/used_services_service.dart';

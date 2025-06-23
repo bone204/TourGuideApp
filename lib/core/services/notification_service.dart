@@ -416,4 +416,14 @@ class NotificationService {
       print('Error removing duplicate notifications: $e');
     }
   }
+
+  // Stream số lượng thông báo chưa đọc
+  Stream<int> unreadNotificationCountStream(String userId) {
+    return _firestore
+        .collection('NOTIFICATIONS')
+        .where('userId', isEqualTo: userId)
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
+  }
 } 

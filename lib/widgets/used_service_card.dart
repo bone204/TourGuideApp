@@ -67,8 +67,8 @@ class UsedServiceCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20.r),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF000000).withOpacity(0.10),
-                blurRadius: 8.r,
+                color: const Color(0xFF000000).withOpacity(0.25),
+                blurRadius: 4.r,
                 offset: const Offset(0, 2),
               ),
             ],

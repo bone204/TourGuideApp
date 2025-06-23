@@ -21,8 +21,8 @@ import 'package:tourguideapp/views/home/search_screen.dart';
 import 'package:tourguideapp/widgets/shimmer_cards.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:tourguideapp/views/notification/notification_screen.dart';
-import 'package:tourguideapp/services/notification_service.dart';
-import 'package:tourguideapp/services/user_service.dart';
+import 'package:tourguideapp/core/services/notification_service.dart';
+import 'package:tourguideapp/core/services/user_service.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:tourguideapp/core/services/cooperation_service.dart';
 
@@ -764,105 +764,60 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       SizedBox(width: 16.w),
                       // Notification button with badge
-                      badges.Badge(
-                        showBadge: _unreadNotificationCount > 0,
-                        badgeStyle: badges.BadgeStyle(
-                          badgeColor: Colors.red,
-                          padding: const EdgeInsets.all(3),
-                          borderRadius: BorderRadius.circular(10),
-                          elevation: 0,
-                        ),
-                        badgeContent: Container(
-                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                          alignment: Alignment.center,
-                          child: Text(
-                            _unreadNotificationCount > 99 ? '99+' : _unreadNotificationCount.toString(),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        position: badges.BadgePosition.topEnd(top: -2, end: -2),
-                        child: GestureDetector(
-                          onTap: () {
-                            if (_currentUserId != null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => NotificationScreen(
-                                    userId: _currentUserId!,
+                      _currentUserId == null
+                          ? Icon(
+                              Icons.notifications,
+                              color: AppColors.white,
+                              size: 28.sp,
+                            )
+                          : StreamBuilder<int>(
+                              stream: _notificationService.unreadNotificationCountStream(_currentUserId!),
+                              builder: (context, snapshot) {
+                                final count = snapshot.data ?? 0;
+                                return badges.Badge(
+                                  showBadge: count > 0,
+                                  badgeStyle: badges.BadgeStyle(
+                                    badgeColor: Colors.red,
+                                    padding: const EdgeInsets.all(3),
+                                    borderRadius: BorderRadius.circular(10),
+                                    elevation: 0,
                                   ),
-                                ),
-                              ).then((_) {
-                                // Reload notification count when returning from notification screen
-                                _loadUnreadNotificationCount();
-                              });
-                            }
-                          },
-                          child: Icon(
-                            Icons.notifications,
-                            color: AppColors.white,
-                            size: 28.sp,
-                          ),
-                        ),
-                      ),
-                      // SizedBox(width: 12.w),
-                      // GestureDetector(
-                      //   onTap: () {
-                      //     Navigator.push(
-                      //       context,
-                      //       MaterialPageRoute(
-                      //         builder: (context) => const AdminScreen(),
-                      //       ),
-                      //     );
-                      //   },
-                      //   child: Icon(Icons.payment, size: 28.sp, color: AppColors.white)
-                      // ),
-                      // SizedBox(width: 12.w),
-                      // // Test notification button
-                      // GestureDetector(
-                      //   onTap: () async {
-                      //     try {
-                      //       if (_currentUserId != null) {
-                      //         await _notificationService.sendNotificationToUser(
-                      //           userId: _currentUserId!,
-                      //           title: 'Test Notification',
-                      //           body: 'This is a test notification to check if the system works!',
-                      //           serviceType: 'test',
-                      //           serviceId: 'test_001',
-                      //           serviceName: 'Test Service',
-                      //           additionalData: {'test': true},
-                      //         );
-                      //         ScaffoldMessenger.of(context).showSnackBar(
-                      //           const SnackBar(
-                      //             content: Text('Test notification sent!'),
-                      //             backgroundColor: Colors.green,
-                      //           ),
-                      //         );
-                      //         // Reload notification count
-                      //         _loadUnreadNotificationCount();
-                      //       } else {
-                      //         ScaffoldMessenger.of(context).showSnackBar(
-                      //           const SnackBar(
-                      //             content: Text('No user ID found!'),
-                      //             backgroundColor: Colors.red,
-                      //           ),
-                      //         );
-                      //       }
-                      //     } catch (e) {
-                      //       ScaffoldMessenger.of(context).showSnackBar(
-                      //         SnackBar(
-                      //           content: Text('Test notification failed: $e'),
-                      //           backgroundColor: Colors.red,
-                      //         ),
-                      //       );
-                      //     }
-                      //   },
-                      //   child: Icon(Icons.bug_report, size: 28.sp, color: AppColors.white)
-                      // ),
+                                  badgeContent: Container(
+                                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      count > 99 ? '99+' : count.toString(),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10.sp,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  position: badges.BadgePosition.topEnd(top: -2, end: -2),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      if (_currentUserId != null) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => NotificationScreen(
+                                              userId: _currentUserId!,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: Icon(
+                                      Icons.notifications,
+                                      color: AppColors.white,
+                                      size: 28.sp,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                     ],
                   ),
                 ),
