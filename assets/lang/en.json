@@ -52,6 +52,12 @@
     "The best destination for you": "The best destination for you",
     "Nearest Places": "Nearest Places",
     "The best destination close to you": "The best destination close to you",
+    "High Rates": "High Rates",
+    "Top rated destinations": "Top rated destinations",
+    "Hotel Nearby": "Hotel Nearby",
+    "Best hotels in Bình Dương": "Best hotels in Bình Dương",
+    "Restaurant Nearby": "Restaurant Nearby",
+    "Best restaurants in Bình Dương": "Best restaurants in Bình Dương",
 
     "Account & Security": "Account & Security",
     "Personal Information": "Personal Information",
@@ -581,6 +587,10 @@
     "Return trip": "Return trip",
     "BUS STATION/COMPANY OFFICE": "BUS STATION/COMPANY OFFICE",
     "Bus Station/\nCompany Office": "Bus Station/\nCompany Office",
-    "Shuttle Service": "Shuttle Service"
+    "Shuttle Service": "Shuttle Service",
+    "Sort by:": "Sort by:",
+    "Name": "Name",
+    "No eatery found": "No eatery found",
+    "Price Range:": "Price Range:"
 }
   

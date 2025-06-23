@@ -24,6 +24,7 @@ class CooperationModel {
   final int bookingTimes;
   final double revenue;
   final double averageRating;
+  final String priceLevel; // <500k, 500k-1tr, >1tr
 
   CooperationModel({
     required this.cooperationId,
@@ -51,6 +52,7 @@ class CooperationModel {
     required this.bookingTimes,
     required this.revenue,
     required this.averageRating,
+    required this.priceLevel,
   });
 
   factory CooperationModel.fromMap(Map<String, dynamic> map) {
@@ -80,6 +82,7 @@ class CooperationModel {
       bookingTimes: map['bookingTimes'] ?? 0,
       revenue: (map['revenue'] ?? 0.0).toDouble(),
       averageRating: (map['averageRating'] ?? 0.0).toDouble(),
+      priceLevel: map['priceLevel'] ?? '',
     );
   }
 
@@ -110,6 +113,7 @@ class CooperationModel {
       'bookingTimes': bookingTimes,
       'revenue': revenue,
       'averageRating': averageRating,
+      'priceLevel': priceLevel,
     };
   }
 
@@ -139,6 +143,7 @@ class CooperationModel {
     int? bookingTimes,
     double? revenue,
     double? averageRating,
+    String? priceLevel,
   }) {
     return CooperationModel(
       cooperationId: cooperationId ?? this.cooperationId,
@@ -166,6 +171,7 @@ class CooperationModel {
       bookingTimes: bookingTimes ?? this.bookingTimes,
       revenue: revenue ?? this.revenue,
       averageRating: averageRating ?? this.averageRating,
+      priceLevel: priceLevel ?? this.priceLevel,
     );
   }
 }

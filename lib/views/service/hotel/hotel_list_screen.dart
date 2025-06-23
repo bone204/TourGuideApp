@@ -134,7 +134,8 @@ class _HotelListScreenState extends State<HotelListScreen> {
         district: 'Quận 1',
         city: 'Hồ Chí Minh',
         province: 'TP.HCM',
-        photo: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
+        photo:
+            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
         extension: '',
         introduction: 'Khách sạn 5 sao trung tâm Sài Gòn.',
         contractDate: '',
@@ -145,6 +146,7 @@ class _HotelListScreenState extends State<HotelListScreen> {
         bookingTimes: 120,
         revenue: 150000000,
         averageRating: 4.5,
+        priceLevel: '<500k',
       ),
       CooperationModel(
         cooperationId: 'H00002',
@@ -161,7 +163,8 @@ class _HotelListScreenState extends State<HotelListScreen> {
         district: 'Quận 1',
         city: 'Hồ Chí Minh',
         province: 'TP.HCM',
-        photo: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400',
+        photo:
+            'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400',
         extension: '',
         introduction: 'Khách sạn sang trọng với hồ bơi ngoài trời.',
         contractDate: '',
@@ -172,6 +175,7 @@ class _HotelListScreenState extends State<HotelListScreen> {
         bookingTimes: 98,
         revenue: 120000000,
         averageRating: 4.0,
+        priceLevel: '<500k',
       ),
       CooperationModel(
         cooperationId: 'H00003',
@@ -184,11 +188,13 @@ class _HotelListScreenState extends State<HotelListScreen> {
         bossName: 'Le Van C',
         bossPhone: '0923456789',
         bossEmail: 'icsaigon@hotel.com',
-        address: 'Corner of Hai Ba Trung St. & Le Duan Blvd, District 1, TP.HCM',
+        address:
+            'Corner of Hai Ba Trung St. & Le Duan Blvd, District 1, TP.HCM',
         district: 'Quận 1',
         city: 'Hồ Chí Minh',
         province: 'TP.HCM',
-        photo: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400',
+        photo:
+            'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400',
         extension: '',
         introduction: 'Khách sạn quốc tế, dịch vụ đẳng cấp.',
         contractDate: '',
@@ -199,6 +205,7 @@ class _HotelListScreenState extends State<HotelListScreen> {
         bookingTimes: 150,
         revenue: 200000000,
         averageRating: 5.0,
+        priceLevel: '<500k',
       ),
       CooperationModel(
         cooperationId: 'H00004',
@@ -215,7 +222,8 @@ class _HotelListScreenState extends State<HotelListScreen> {
         district: 'Hoàn Kiếm',
         city: 'Hà Nội',
         province: 'Hà Nội',
-        photo: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400',
+        photo:
+            'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400',
         extension: '',
         introduction: 'Khách sạn boutique giữa lòng Hà Nội.',
         contractDate: '',
@@ -226,6 +234,7 @@ class _HotelListScreenState extends State<HotelListScreen> {
         bookingTimes: 80,
         revenue: 90000000,
         averageRating: 4.2,
+        priceLevel: '<500k',
       ),
       CooperationModel(
         cooperationId: 'H00005',
@@ -242,7 +251,8 @@ class _HotelListScreenState extends State<HotelListScreen> {
         district: 'Sơn Trà',
         city: 'Đà Nẵng',
         province: 'Đà Nẵng',
-        photo: 'https://images.unsplash.com/photo-1465156799763-2c087c332922?w=400',
+        photo:
+            'https://images.unsplash.com/photo-1465156799763-2c087c332922?w=400',
         extension: '',
         introduction: 'Resort 5 sao với hồ bơi dát vàng.',
         contractDate: '',
@@ -253,6 +263,7 @@ class _HotelListScreenState extends State<HotelListScreen> {
         bookingTimes: 60,
         revenue: 110000000,
         averageRating: 4.7,
+        priceLevel: '<500k',
       ),
       CooperationModel(
         cooperationId: 'H00006',
@@ -269,7 +280,8 @@ class _HotelListScreenState extends State<HotelListScreen> {
         district: 'Nha Trang',
         city: 'Khánh Hòa',
         province: 'Khánh Hòa',
-        photo: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=400',
+        photo:
+            'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=400',
         extension: '',
         introduction: 'Khách sạn sát biển, view tuyệt đẹp.',
         contractDate: '',
@@ -280,6 +292,7 @@ class _HotelListScreenState extends State<HotelListScreen> {
         bookingTimes: 70,
         revenue: 85000000,
         averageRating: 4.3,
+        priceLevel: '<500k',
       ),
       CooperationModel(
         cooperationId: 'H00007',
@@ -296,7 +309,8 @@ class _HotelListScreenState extends State<HotelListScreen> {
         district: 'Huế',
         city: 'Thừa Thiên Huế',
         province: 'Thừa Thiên Huế',
-        photo: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=400',
+        photo:
+            'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=400',
         extension: '',
         introduction: 'Resort ven sông, không gian yên tĩnh.',
         contractDate: '',
@@ -307,6 +321,7 @@ class _HotelListScreenState extends State<HotelListScreen> {
         bookingTimes: 55,
         revenue: 70000000,
         averageRating: 4.1,
+        priceLevel: '<500k',
       ),
       CooperationModel(
         cooperationId: 'H00008',
@@ -323,7 +338,8 @@ class _HotelListScreenState extends State<HotelListScreen> {
         district: 'Sa Pa',
         city: 'Lào Cai',
         province: 'Lào Cai',
-        photo: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400',
+        photo:
+            'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400',
         extension: '',
         introduction: 'Khách sạn view núi, không khí trong lành.',
         contractDate: '',
@@ -334,6 +350,7 @@ class _HotelListScreenState extends State<HotelListScreen> {
         bookingTimes: 40,
         revenue: 60000000,
         averageRating: 4.0,
+        priceLevel: '<500k',
       ),
     ];
   }
@@ -358,7 +375,6 @@ class _HotelListScreenState extends State<HotelListScreen> {
         .reduce((a, b) => a + b);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -379,7 +395,8 @@ class _HotelListScreenState extends State<HotelListScreen> {
                       Icon(Icons.hotel, size: 64, color: Colors.grey[400]),
                       SizedBox(height: 16),
                       Text(
-                        AppLocalizations.of(context).translate("No suitable hotels found"),
+                        AppLocalizations.of(context)
+                            .translate("No suitable hotels found"),
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey[600],
@@ -437,8 +454,10 @@ class _HotelListScreenState extends State<HotelListScreen> {
                           itemCount: filteredHotels.length,
                           itemBuilder: (context, index) {
                             final hotel = filteredHotels[index];
-                            final minPrice = _getMinRoomPrice(hotel.cooperationId);
-                            final availableRooms = _getTotalAvailableRooms(hotel.cooperationId);
+                            final minPrice =
+                                _getMinRoomPrice(hotel.cooperationId);
+                            final availableRooms =
+                                _getTotalAvailableRooms(hotel.cooperationId);
 
                             return Padding(
                               padding: EdgeInsets.only(bottom: 16.h),
@@ -450,7 +469,8 @@ class _HotelListScreenState extends State<HotelListScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => HotelDetailScreen(hotel: hotel),
+                                      builder: (context) =>
+                                          HotelDetailScreen(hotel: hotel),
                                     ),
                                   );
                                 },

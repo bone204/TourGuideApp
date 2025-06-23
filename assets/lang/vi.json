@@ -52,6 +52,12 @@
     "The best destination for you": "Điểm đến tuyệt vời dành cho bạn",
     "Nearest Places": "Địa điểm gần bạn",
     "The best destination close to you": "Điểm đến tuyệt vời gần bạn",
+    "High Rates": "Đánh Giá Cao",
+    "Top rated destinations": "Điểm đến được đánh giá cao nhất",
+    "Hotel Nearby": "Khách Sạn Gần Đây",
+    "Best hotels in Bình Dương": "Khách sạn tốt nhất tại Bình Dương",
+    "Restaurant Nearby": "Nhà Hàng Gần Đây",
+    "Best restaurants in Bình Dương": "Nhà hàng tốt nhất tại Bình Dương",
 
     "Account & Security": "Tài Khoản & Bảo Mật",
     "Personal Information": "Thông Tin Cá Nhân",
@@ -592,6 +598,10 @@
     "Return trip": "Chuyến về",
     "BUS STATION/COMPANY OFFICE": "BẾN XE/VĂN PHÒNG CÔNG TY",
     "Bus Station/\nCompany Office": "Bến xe/\nVăn phòng công ty",
-    "Shuttle Service": "Dịch vụ đưa đón"
+    "Shuttle Service": "Dịch vụ đưa đón",
+    "Sort by:": "Sắp xếp theo:",
+    "Name": "Tên",
+    "No eatery found": "Không tìm thấy quán ăn nào",
+    "Price Range:": "Mức giá:"
 }
   
