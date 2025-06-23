@@ -8,7 +8,7 @@ class BillViewModel extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<BillModel> _userBills = [];
-  
+
   List<BillModel> get userBills => _userBills;
 
   Future<void> fetchUserBills() async {
@@ -23,9 +23,9 @@ class BillViewModel extends ChangeNotifier {
           .where('uid', isEqualTo: uid)
           .limit(1)
           .get();
-      
+
       if (userDoc.docs.isEmpty) return;
-      
+
       String userId = userDoc.docs.first['userId'];
 
       // Lấy bills của user
@@ -46,7 +46,8 @@ class BillViewModel extends ChangeNotifier {
     }
   }
 
-  Future<RentalVehicleModel?> getVehicleDetails(String vehicleRegisterId) async {
+  Future<RentalVehicleModel?> getVehicleDetails(
+      String vehicleRegisterId) async {
     try {
       final vehicleDoc = await _firestore
           .collection('RENTAL_VEHICLE')
@@ -63,4 +64,87 @@ class BillViewModel extends ChangeNotifier {
       return null;
     }
   }
-} 
+
+  // Cập nhật travelPoint của user
+  Future<void> updateUserTravelPoint(
+      String userId, int travelPointsUsed, double totalAmount) async {
+    try {
+      // Trừ điểm đã sử dụng
+      if (travelPointsUsed > 0) {
+        await _firestore.collection('USER').doc(userId).update({
+          'travelPoint': FieldValue.increment(-travelPointsUsed),
+        });
+      }
+
+      // Cộng điểm thưởng theo quy tắc
+      final reward = totalAmount > 500000 ? 2000 : 1000;
+      await _firestore.collection('USER').doc(userId).update({
+        'travelPoint': FieldValue.increment(reward),
+      });
+
+      if (kDebugMode) {
+        print(
+            'Updated travel point for user $userId: -$travelPointsUsed +$reward');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating travel point: $e');
+      }
+      throw Exception('Không thể cập nhật điểm thưởng: $e');
+    }
+  }
+
+  // Tạo bill mới với travelPoint
+  Future<String> createBillWithTravelPoint({
+    required String userId,
+    required String billType,
+    required double totalAmount,
+    required int travelPointsUsed,
+    required Map<String, dynamic> billData,
+  }) async {
+    try {
+      // Tạo bill trong collection tương ứng
+      String collectionName = '';
+      switch (billType) {
+        case 'hotel':
+          collectionName = 'HOTEL_BILL';
+          break;
+        case 'restaurant':
+          collectionName = 'RESTAURANT_BILL';
+          break;
+        case 'bus':
+          collectionName = 'BUS_BILL';
+          break;
+        case 'delivery':
+          collectionName = 'DELIVERY_BILL';
+          break;
+        case 'vehicle_rental':
+          collectionName = 'VEHICLE_RENTAL_BILL';
+          break;
+        default:
+          collectionName = 'BILL';
+      }
+
+      // Thêm travelPointsUsed vào billData
+      billData['travelPointsUsed'] = travelPointsUsed;
+      billData['totalAmount'] = totalAmount;
+
+      final docRef = await _firestore.collection(collectionName).add(billData);
+      final billId = docRef.id;
+
+      // Cập nhật travelPoint của user
+      await updateUserTravelPoint(userId, travelPointsUsed, totalAmount);
+
+      if (kDebugMode) {
+        print('Created bill $billId with travel point: $travelPointsUsed');
+      }
+
+      return billId;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error creating bill with travel point: $e');
+      }
+      throw Exception('Không thể tạo bill: $e');
+    }
+  }
+}

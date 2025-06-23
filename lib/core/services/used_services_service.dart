@@ -76,31 +76,38 @@ class UsedServicesService {
       switch (serviceType) {
         case 'hotel':
           title = 'Đặt phòng khách sạn thành công!';
-          body = 'Bạn đã đặt phòng thành công với giá ${_formatCurrency(amount)}. Kiểm tra email để biết thêm chi tiết.';
+          body =
+              'Bạn đã đặt phòng thành công với giá ${_formatCurrency(amount)}. Kiểm tra email để biết thêm chi tiết.';
           break;
         case 'restaurant':
           title = 'Đặt bàn nhà hàng thành công!';
-          body = 'Bạn đã đặt bàn thành công với giá ${_formatCurrency(amount)}. Vui lòng đến đúng giờ!';
+          body =
+              'Bạn đã đặt bàn thành công với giá ${_formatCurrency(amount)}. Vui lòng đến đúng giờ!';
           break;
         case 'delivery':
           title = 'Đơn giao hàng đã được tạo!';
-          body = 'Đơn giao hàng của bạn đã được tạo với giá ${_formatCurrency(amount)}. Chúng tôi sẽ cập nhật trạng thái sớm nhất.';
+          body =
+              'Đơn giao hàng của bạn đã được tạo với giá ${_formatCurrency(amount)}. Chúng tôi sẽ cập nhật trạng thái sớm nhất.';
           break;
         case 'bus':
           title = 'Đặt vé xe buýt thành công!';
-          body = 'Bạn đã đặt vé xe buýt thành công với giá ${_formatCurrency(amount)}. Vui lòng đến bến xe đúng giờ!';
+          body =
+              'Bạn đã đặt vé xe buýt thành công với giá ${_formatCurrency(amount)}. Vui lòng đến bến xe đúng giờ!';
           break;
         case 'car_rental':
           title = 'Thuê xe thành công!';
-          body = 'Bạn đã thuê xe thành công với giá ${_formatCurrency(amount)}. Vui lòng đến địa điểm nhận xe đúng giờ!';
+          body =
+              'Bạn đã thuê xe thành công với giá ${_formatCurrency(amount)}. Vui lòng đến địa điểm nhận xe đúng giờ!';
           break;
         case 'motorbike_rental':
           title = 'Thuê xe máy thành công!';
-          body = 'Bạn đã thuê xe máy thành công với giá ${_formatCurrency(amount)}. Vui lòng đến địa điểm nhận xe đúng giờ!';
+          body =
+              'Bạn đã thuê xe máy thành công với giá ${_formatCurrency(amount)}. Vui lòng đến địa điểm nhận xe đúng giờ!';
           break;
         default:
           title = 'Dịch vụ mới!';
-          body = 'Bạn đã sử dụng dịch vụ ${serviceName} với giá ${_formatCurrency(amount)}.';
+          body =
+              'Bạn đã sử dụng dịch vụ ${serviceName} với giá ${_formatCurrency(amount)}.';
       }
 
       await _notificationService.sendNotificationToUser(
@@ -120,9 +127,9 @@ class UsedServicesService {
   // Format tiền tệ
   String _formatCurrency(double amount) {
     return '${amount.toStringAsFixed(0).replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    )} VNĐ';
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        )} VNĐ';
   }
 
   // Thêm hotel booking vào used services
@@ -197,12 +204,13 @@ class UsedServicesService {
     required double amount,
     required List<String> packagePhotos,
     required String status,
+    int travelPointsUsed = 0,
   }) async {
     try {
       await addUsedService(
         userId: userId,
         serviceType: 'delivery',
-        serviceName: 'Dịch vụ giao hàng', // Sẽ được translate trong UI
+        serviceName: 'Giao hàng',
         serviceId: orderId,
         usedDate: DateTime.now(),
         amount: amount,
@@ -219,11 +227,15 @@ class UsedServicesService {
           'requirements': requirements,
           'packagePhotos': packagePhotos,
           'orderDate': DateTime.now().toIso8601String(),
+          'travelPointsUsed': travelPointsUsed,
         },
       );
+
+      print('Delivery order added to used services: $orderId');
     } catch (e) {
       print('Error adding delivery order to used services: $e');
-      throw Exception('Không thể thêm đơn giao hàng vào dịch vụ đã sử dụng: $e');
+      throw Exception(
+          'Không thể thêm đơn giao hàng vào dịch vụ đã sử dụng: $e');
     }
   }
 
@@ -246,11 +258,12 @@ class UsedServicesService {
     String? returnDropStation,
     required double amount,
     required String status,
+    int travelPointsUsed = 0,
   }) async {
     try {
       // Tính thông tin tuyến đường
       final routeInfo = _getRouteInfo(fromLocation, toLocation);
-      
+
       await addUsedService(
         userId: userId,
         serviceType: 'bus',
@@ -274,7 +287,8 @@ class UsedServicesService {
           'returnPickupStation': returnPickupStation,
           'returnDropStation': returnDropStation,
           'orderDate': DateTime.now().toIso8601String(),
-          'totalSeats': departureSelectedSeats.length + returnSelectedSeats.length,
+          'totalSeats':
+              departureSelectedSeats.length + returnSelectedSeats.length,
           'isRoundTrip': returnDate != null,
           'busCompany': 'Phương Trang - Futa Bus Lines',
           'busType': 'Limousine',
@@ -282,13 +296,15 @@ class UsedServicesService {
           'departureTime': routeInfo['departureTime'],
           'arrivalTime': routeInfo['arrivalTime'],
           'pricePerSeat': routeInfo['pricePerSeat'],
+          'travelPointsUsed': travelPointsUsed,
         },
       );
-      
+
       print('Bus booking added to used services: $orderId');
     } catch (e) {
       print('Error adding bus booking to used services: $e');
-      throw Exception('Không thể thêm đặt vé xe buýt vào dịch vụ đã sử dụng: $e');
+      throw Exception(
+          'Không thể thêm đặt vé xe buýt vào dịch vụ đã sử dụng: $e');
     }
   }
 

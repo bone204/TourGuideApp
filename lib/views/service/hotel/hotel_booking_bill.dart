@@ -13,6 +13,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:tourguideapp/core/services/momo_service.dart';
 import 'package:tourguideapp/widgets/app_dialog.dart';
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tourguideapp/viewmodels/profile_viewmodel.dart';
 
 class HotelBookingBillScreen extends StatefulWidget {
   final CooperationModel hotel;
@@ -40,6 +43,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
   String? selectedBank;
   final HotelService _hotelService = HotelService();
   final currencyFormat = NumberFormat('#,###', 'vi_VN');
+  int travelPointToUse = 0;
 
   // Thông tin booking
   late DateTime checkInDate;
@@ -127,7 +131,8 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
     if (selectedBank == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context).translate('Please select a payment method')),
+          content: Text(AppLocalizations.of(context)
+              .translate('Please select a payment method')),
           backgroundColor: Colors.red,
         ),
       );
@@ -137,7 +142,8 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
     if (roomAvailability == null || !roomAvailability!.hasAvailability) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context).translate('No rooms available for the selected dates')),
+          content: Text(AppLocalizations.of(context)
+              .translate('No rooms available for the selected dates')),
           backgroundColor: Colors.red,
         ),
       );
@@ -155,7 +161,8 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
       );
 
       if (!bookingSuccess) {
-        throw Exception(AppLocalizations.of(context).translate('Booking failed, please try again'));
+        throw Exception(AppLocalizations.of(context)
+            .translate('Booking failed, please try again'));
       }
 
       // Tính tổng tiền
@@ -185,7 +192,8 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
         showAppDialog(
           context: context,
           title: AppLocalizations.of(context).translate('Notification'),
-          content: AppLocalizations.of(context).translate('Your hotel booking has been confirmed. The service will be added to your used list.'),
+          content: AppLocalizations.of(context).translate(
+              'Your hotel booking has been confirmed. The service will be added to your used list.'),
           icon: Icons.check_circle,
           iconColor: Colors.green,
           actions: [
@@ -203,7 +211,8 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context).translate('Error:') + ' $e'),
+            content:
+                Text(AppLocalizations.of(context).translate('Error:') + ' $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -216,239 +225,484 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
-        onBackPressed: () {
-          Navigator.of(context).pop();
-        },
-        title: AppLocalizations.of(context).translate("Booking Information"),
-      ),
+          onBackPressed: () {
+            Navigator.of(context).pop();
+          },
+          title: AppLocalizations.of(context).translate("Booking Information"),
+        ),
         body: SingleChildScrollView(
           child: Container(
             color: AppColors.white,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-              child: Column(children: [
-                // Hotel image
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12.r),
-                  child: Image.network(
-                    widget.room?.photo.isNotEmpty == true
-                        ? widget.room!.photo
-                        : widget.hotel.photo,
-                    height: 256.h,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                const Divider(
-                  thickness: 1,
-                  color: AppColors.grey,
-                ),
-                SizedBox(height: 16.h),
+              child: Consumer<ProfileViewModel>(
+                builder: (context, profile, child) {
+                  final travelPoint = profile.travelPoint;
+                  final List<int> travelPointOptions = [];
+                  for (int i = 1000; i <= travelPoint; i += 1000) {
+                    travelPointOptions.add(i);
+                  }
+                  final total = roomAvailability != null
+                      ? roomAvailability!.price *
+                          checkOutDate.difference(checkInDate).inDays *
+                          numberOfRooms
+                      : 0;
+                  final totalAfterPoint =
+                      (total - travelPointToUse).clamp(0, total);
+                  return Column(children: [
+                    // Hotel image
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12.r),
+                      child: Image.network(
+                        widget.room?.photo.isNotEmpty == true
+                            ? widget.room!.photo
+                            : widget.hotel.photo,
+                        height: 256.h,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    const Divider(
+                      thickness: 1,
+                      color: AppColors.grey,
+                    ),
+                    SizedBox(height: 16.h),
 
-                // Hotel information
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(AppLocalizations.of(context).translate("Hotel"),
-                        style:
-                            TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                    Text(widget.hotel.name,
-                        style: TextStyle(
-                            fontSize: 16.sp,
-                            color: AppColors.black,
-                            fontWeight: FontWeight.w700))
-                  ],
-                ),
-                SizedBox(height: 18.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(AppLocalizations.of(context).translate("Room"),
-                        style:
-                            TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                    Text(widget.room?.roomName ?? '',
-                        style: TextStyle(
-                            fontSize: 16.sp,
-                            color: AppColors.black,
-                            fontWeight: FontWeight.w700))
-                  ],
-                ),
-                SizedBox(height: 16.h),
-                const Divider(
-                  thickness: 1,
-                  color: AppColors.grey,
-                ),
-                SizedBox(height: 16.h),
+                    // Hotel information
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(AppLocalizations.of(context).translate("Hotel"),
+                            style: TextStyle(
+                                fontSize: 16.sp, color: AppColors.black)),
+                        Text(widget.hotel.name,
+                            style: TextStyle(
+                                fontSize: 16.sp,
+                                color: AppColors.black,
+                                fontWeight: FontWeight.w700))
+                      ],
+                    ),
+                    SizedBox(height: 18.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(AppLocalizations.of(context).translate("Room"),
+                            style: TextStyle(
+                                fontSize: 16.sp, color: AppColors.black)),
+                        Text(widget.room?.roomName ?? '',
+                            style: TextStyle(
+                                fontSize: 16.sp,
+                                color: AppColors.black,
+                                fontWeight: FontWeight.w700))
+                      ],
+                    ),
+                    SizedBox(height: 16.h),
+                    const Divider(
+                      thickness: 1,
+                      color: AppColors.grey,
+                    ),
+                    SizedBox(height: 16.h),
 
-                // Date information
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(AppLocalizations.of(context).translate("Check-in Date"),
-                        style:
-                            TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                    Text(DateFormat('dd/MM/yyyy').format(checkInDate),
-                        style: TextStyle(
-                            fontSize: 16.sp,
-                            color: AppColors.black,
-                            fontWeight: FontWeight.w700))
-                  ],
-                ),
-                SizedBox(height: 18.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(AppLocalizations.of(context).translate("Check-out Date"),
-                        style:
-                            TextStyle(fontSize: 16.sp, color: AppColors.black)),
-                    Text(DateFormat('dd/MM/yyyy').format(checkOutDate),
-                        style: TextStyle(
-                            fontSize: 16.sp,
-                            color: AppColors.black,
-                            fontWeight: FontWeight.w700))
-                  ],
-                ),
-                SizedBox(height: 16.h),
-                const Divider(
-                  thickness: 1,
-                  color: AppColors.grey,
-                ),
-                SizedBox(height: 16.h),
+                    // Date information
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                            AppLocalizations.of(context)
+                                .translate("Check-in Date"),
+                            style: TextStyle(
+                                fontSize: 16.sp, color: AppColors.black)),
+                        Text(DateFormat('dd/MM/yyyy').format(checkInDate),
+                            style: TextStyle(
+                                fontSize: 16.sp,
+                                color: AppColors.black,
+                                fontWeight: FontWeight.w700))
+                      ],
+                    ),
+                    SizedBox(height: 18.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                            AppLocalizations.of(context)
+                                .translate("Check-out Date"),
+                            style: TextStyle(
+                                fontSize: 16.sp, color: AppColors.black)),
+                        Text(DateFormat('dd/MM/yyyy').format(checkOutDate),
+                            style: TextStyle(
+                                fontSize: 16.sp,
+                                color: AppColors.black,
+                                fontWeight: FontWeight.w700))
+                      ],
+                    ),
+                    SizedBox(height: 16.h),
+                    const Divider(
+                      thickness: 1,
+                      color: AppColors.grey,
+                    ),
+                    SizedBox(height: 16.h),
 
-                // Total
-                if (roomAvailability != null) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(AppLocalizations.of(context).translate("Total"),
-                          style: TextStyle(
-                              fontSize: 16.sp,
-                              color: AppColors.black,
-                              fontWeight: FontWeight.w700)),
-                      Text(
-                          '${currencyFormat.format(roomAvailability!.price * checkOutDate.difference(checkInDate).inDays * numberOfRooms)} ₫',
-                          style: TextStyle(
-                              fontSize: 16.sp,
-                              color: AppColors.black,
-                              fontWeight: FontWeight.w700))
+                    // Total
+                    if (roomAvailability != null) ...[
+                      if (travelPointOptions.isNotEmpty) ...[
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(12.r),
+                            color: Colors.orange.shade50,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.star,
+                                    color: Colors.orange,
+                                    size: 20.sp,
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  Text(
+                                    'Sử dụng điểm thưởng',
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: Colors.orange.shade800,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 12.h),
+                              Text(
+                                'Điểm hiện có: ${currencyFormat.format(travelPoint)} điểm',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              SizedBox(height: 12.h),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  border:
+                                      Border.all(color: Colors.orange.shade200),
+                                ),
+                                child: DropdownButtonFormField<int>(
+                                  value: travelPointToUse,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16.w, vertical: 12.h),
+                                    hintText: 'Chọn số điểm muốn sử dụng',
+                                    hintStyle: TextStyle(
+                                      color: Colors.grey.shade500,
+                                      fontSize: 14.sp,
+                                    ),
+                                  ),
+                                  items: [
+                                    DropdownMenuItem(
+                                      value: 0,
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.cancel_outlined,
+                                              color: Colors.grey, size: 16.sp),
+                                          SizedBox(width: 8.w),
+                                          Text(
+                                            'Không sử dụng điểm',
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 14.sp,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    ...travelPointOptions
+                                        .map((points) => DropdownMenuItem(
+                                              value: points,
+                                              child: Text(
+                                                '${currencyFormat.format(points)} điểm (-${currencyFormat.format(points)} ₫)',
+                                                style: TextStyle(
+                                                  color: Colors.orange.shade800,
+                                                  fontSize: 14.sp,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ))
+                                        .toList(),
+                                  ],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      travelPointToUse = value ?? 0;
+                                    });
+                                  },
+                                  dropdownColor: Colors.white,
+                                  icon: Icon(Icons.keyboard_arrow_down,
+                                      color: Colors.orange),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                              ),
+                              if (travelPointToUse > 0) ...[
+                                SizedBox(height: 8.h),
+                                Container(
+                                  padding: EdgeInsets.all(8.w),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade50,
+                                    borderRadius: BorderRadius.circular(6.r),
+                                    border: Border.all(
+                                        color: Colors.green.shade200),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.savings,
+                                          color: Colors.green, size: 16.sp),
+                                      SizedBox(width: 6.w),
+                                      Text(
+                                        'Tiết kiệm: ${currencyFormat.format(travelPointToUse)} ₫',
+                                        style: TextStyle(
+                                          color: Colors.green.shade700,
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                      ],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(AppLocalizations.of(context).translate("Total"),
+                              style: TextStyle(
+                                  fontSize: 16.sp,
+                                  color: AppColors.black,
+                                  fontWeight: FontWeight.w700)),
+                          Text('${currencyFormat.format(total)} ₫',
+                              style: TextStyle(
+                                  fontSize: 16.sp,
+                                  color: AppColors.black,
+                                  fontWeight: FontWeight.w700))
+                        ],
+                      ),
+                      // Chi tiết giảm giá
+                      if (travelPointToUse > 0) ...[
+                        SizedBox(height: 12.h),
+                        Divider(height: 1, color: Colors.grey.shade300),
+                        SizedBox(height: 8.h),
+                        // Điểm thưởng
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Trừ điểm thưởng:',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            Text(
+                              '-${currencyFormat.format(travelPointToUse)} ₫',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.orange,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8.h),
+                        Divider(height: 1, color: Colors.grey.shade300),
+                        SizedBox(height: 8.h),
+                        // Tổng cuối cùng
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Tổng thanh toán:',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.black,
+                              ),
+                            ),
+                            Text(
+                              '${currencyFormat.format(totalAfterPoint)} ₫',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      SizedBox(height: 24.h),
                     ],
-                  ),
-                  SizedBox(height: 24.h),
-                ],
 
-                // Payment methods
-                Text(
-                  AppLocalizations.of(context).translate("Payment Method"),
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.black,
-                  ),
-                ),
-                SizedBox(height: 16.h),
-
-                // Hàng 1
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: bankOptions
-                      .sublist(0, 3)
-                      .map((bank) => BankOptionSelector(
-                            bankImageUrl: bank['image']!,
-                            isSelected: selectedBank == bank['id'],
-                            onTap: () {
-                              setState(() {
-                                selectedBank = bank['id'];
-                              });
-                            },
-                          ))
-                      .toList(),
-                ),
-                SizedBox(height: 24.h),
-                // Hàng 2
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: bankOptions
-                      .sublist(3, 6)
-                      .map((bank) => BankOptionSelector(
-                            bankImageUrl: bank['image']!,
-                            isSelected: selectedBank == bank['id'],
-                            onTap: () {
-                              setState(() {
-                                selectedBank = bank['id'];
-                              });
-                            },
-                          ))
-                      .toList(),
-                ),
-                SizedBox(height: 24.h),
-
-                // Confirm button
-                ElevatedButton(
-                  onPressed: (roomAvailability?.hasAvailability ?? false)
-                      ? () async {
-                          if (selectedBank == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(AppLocalizations.of(context).translate('Please select a payment method')),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                            return;
-                          }
-                          if (selectedBank == 'momo') {
-                            // Gọi thanh toán momo
-                            // TODO: Thay các tham số bên dưới bằng dữ liệu thực tế của bạn
-                            await MomoService.processPayment(
-                              merchantName: 'TTN',
-                              appScheme: 'MOMO',
-                              merchantCode: 'MOMO',
-                              partnerCode: 'MOMO',
-                              amount: (roomAvailability!.price * (checkOutDate.difference(checkInDate).inDays) * numberOfRooms).toInt(),
-                              orderId: DateTime.now().millisecondsSinceEpoch.toString(),
-                              orderLabel: 'Đặt phòng khách sạn',
-                              merchantNameLabel: 'HLGD',
-                              fee: 0,
-                              description: 'Thanh toán đặt phòng khách sạn',
-                              username: FirebaseAuth.instance.currentUser?.uid ?? '',
-                              partner: 'merchant',
-                              extra: '{"hotelId":"${widget.hotel.cooperationId}","roomId":"${roomAvailability!.roomId}"}',
-                              isTestMode: true,
-                              onSuccess: (response) async {
-                                // Gọi _processPayment để lưu bill
-                                await _processPayment();
-                              },
-                              onError: (response) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(AppLocalizations.of(context).translate('MoMo payment failed:') + ' \\${response.message}'), backgroundColor: Colors.red),
-                                );
-                              },
-                            );
-                          } else {
-                            // Các phương thức khác chỉ hiện thông báo Coming soon
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(AppLocalizations.of(context).translate('This feature will be available soon!')),
-                                backgroundColor: Colors.orange,
-                              ),
-                            );
-                          }
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF007BFF),
-                    foregroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 50.h),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.r)),
-                  ),
-                  child: Text(AppLocalizations.of(context).translate("Confirm"),
+                    // Payment methods
+                    Text(
+                      AppLocalizations.of(context).translate("Payment Method"),
                       style: TextStyle(
-                        fontSize: 18.sp,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
-                      )),
-                ),
-              ]),
+                        color: AppColors.black,
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+
+                    // Hàng 1
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: bankOptions
+                          .sublist(0, 3)
+                          .map((bank) => BankOptionSelector(
+                                bankImageUrl: bank['image']!,
+                                isSelected: selectedBank == bank['id'],
+                                onTap: () {
+                                  setState(() {
+                                    selectedBank = bank['id'];
+                                  });
+                                },
+                              ))
+                          .toList(),
+                    ),
+                    SizedBox(height: 24.h),
+                    // Hàng 2
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: bankOptions
+                          .sublist(3, 6)
+                          .map((bank) => BankOptionSelector(
+                                bankImageUrl: bank['image']!,
+                                isSelected: selectedBank == bank['id'],
+                                onTap: () {
+                                  setState(() {
+                                    selectedBank = bank['id'];
+                                  });
+                                },
+                              ))
+                          .toList(),
+                    ),
+                    SizedBox(height: 24.h),
+
+                    // Confirm button
+                    ElevatedButton(
+                      onPressed: (roomAvailability?.hasAvailability ?? false)
+                          ? () async {
+                              if (selectedBank == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context)
+                                        .translate(
+                                            'Please select a payment method')),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return;
+                              }
+                              if (selectedBank == 'momo') {
+                                await MomoService.processPayment(
+                                  merchantName: 'TTN',
+                                  appScheme: 'MOMO',
+                                  merchantCode: 'MOMO',
+                                  partnerCode: 'MOMO',
+                                  amount: totalAfterPoint.toInt(),
+                                  orderId: DateTime.now()
+                                      .millisecondsSinceEpoch
+                                      .toString(),
+                                  orderLabel: 'Đặt phòng khách sạn',
+                                  merchantNameLabel: 'HLGD',
+                                  fee: 0,
+                                  description: 'Thanh toán đặt phòng khách sạn',
+                                  username:
+                                      FirebaseAuth.instance.currentUser?.uid ??
+                                          '',
+                                  partner: 'merchant',
+                                  extra:
+                                      '{"hotelId":"${widget.hotel.cooperationId}","roomId":"${roomAvailability!.roomId}"}',
+                                  isTestMode: true,
+                                  onSuccess: (response) async {
+                                    // Trừ điểm thưởng
+                                    final userId =
+                                        FirebaseAuth.instance.currentUser?.uid;
+                                    if (userId != null &&
+                                        travelPointToUse > 0) {
+                                      await FirebaseFirestore.instance
+                                          .collection('USER')
+                                          .doc(userId)
+                                          .update({
+                                        'travelPoint': FieldValue.increment(
+                                            -travelPointToUse),
+                                      });
+                                    }
+                                    // Cộng điểm thưởng
+                                    final reward =
+                                        totalAfterPoint > 500000 ? 2000 : 1000;
+                                    if (userId != null) {
+                                      await FirebaseFirestore.instance
+                                          .collection('USER')
+                                          .doc(userId)
+                                          .update({
+                                        'travelPoint':
+                                            FieldValue.increment(reward),
+                                      });
+                                    }
+                                    // Gọi _processPayment để lưu bill
+                                    await _processPayment();
+                                  },
+                                  onError: (response) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(AppLocalizations.of(
+                                                      context)
+                                                  .translate(
+                                                      'MoMo payment failed:') +
+                                              ' ${response.message}'),
+                                          backgroundColor: Colors.red),
+                                    );
+                                  },
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context)
+                                        .translate(
+                                            'This feature will be available soon!')),
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                );
+                              }
+                            }
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF007BFF),
+                        foregroundColor: Colors.white,
+                        minimumSize: Size(double.infinity, 50.h),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.r)),
+                      ),
+                      child: Text(
+                          AppLocalizations.of(context).translate("Confirm"),
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w700,
+                          )),
+                    ),
+                  ]);
+                },
+              ),
             ),
           ),
         ));

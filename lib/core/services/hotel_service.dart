@@ -99,6 +99,23 @@ class HotelService {
       // Thêm vào used services
       await _usedServicesService.addHotelBookingToUsedServices(updatedBooking);
 
+      // Cập nhật travelPoint của user nếu có sử dụng
+      if (booking.travelPointsUsed > 0) {
+        final userId = booking.userId;
+        final totalAmount = booking.total;
+
+        // Trừ điểm đã sử dụng
+        await _firestore.collection('USER').doc(userId).update({
+          'travelPoint': FieldValue.increment(-booking.travelPointsUsed),
+        });
+
+        // Cộng điểm thưởng theo quy tắc
+        final reward = totalAmount > 500000 ? 2000 : 1000;
+        await _firestore.collection('USER').doc(userId).update({
+          'travelPoint': FieldValue.increment(reward),
+        });
+      }
+
       return bookingId;
     } catch (e) {
       print('Error creating hotel booking: $e');

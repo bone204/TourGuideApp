@@ -18,6 +18,13 @@ import 'package:tourguideapp/core/services/momo_service.dart';
 import 'package:tourguideapp/core/services/used_services_service.dart';
 import 'package:tourguideapp/widgets/app_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tourguideapp/viewmodels/profile_viewmodel.dart';
+import 'package:tourguideapp/models/voucher_model.dart';
+import 'package:tourguideapp/views/service/voucher/voucher_selection_screen.dart';
+import 'package:intl/intl.dart';
+import 'package:tourguideapp/core/services/wallet_service.dart';
 
 class BusTicketDetail extends StatefulWidget {
   final DateTime departureDate;
@@ -37,7 +44,8 @@ class BusTicketDetail extends StatefulWidget {
   _BusTicketDetailState createState() => _BusTicketDetailState();
 }
 
-class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProviderStateMixin {
+class _BusTicketDetailState extends State<BusTicketDetail>
+    with SingleTickerProviderStateMixin {
   late DateTime departureDate;
   late DateTime? returnDate;
   late String fromLocation;
@@ -159,21 +167,25 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
     ),
   ];
 
+  int travelPointToUse = 0;
+  VoucherModel? selectedVoucher;
+  final currencyFormat = NumberFormat('#,###', 'vi_VN');
+
   void toggleSeatSelection(int row, int col, bool isUpper, bool isDeparture) {
     setState(() {
       final seatLayout = isDeparture
           ? (isUpper ? departureUpperDeckLayout : departureLowerDeckLayout)
           : (isUpper ? returnUpperDeckLayout : returnLowerDeckLayout);
-      final selectedSeats = isDeparture ? departureSelectedSeats : returnSelectedSeats;
+      final selectedSeats =
+          isDeparture ? departureSelectedSeats : returnSelectedSeats;
 
       if (seatLayout[row][col] == SeatStatus.available) {
         seatLayout[row][col] = SeatStatus.selected;
         selectedSeats.add(SeatPosition(row, col, isUpper));
       } else if (seatLayout[row][col] == SeatStatus.selected) {
         seatLayout[row][col] = SeatStatus.available;
-        selectedSeats.removeWhere(
-          (seat) => seat.row == row && seat.col == col && seat.isUpper == isUpper
-        );
+        selectedSeats.removeWhere((seat) =>
+            seat.row == row && seat.col == col && seat.isUpper == isUpper);
       }
     });
   }
@@ -183,7 +195,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
     int seatNumber = row * 4 + col + 1;
     return '$rowLabel$seatNumber';
   }
-  
+
   String _getStepTitle(int index, BuildContext context) {
     switch (index) {
       case 0:
@@ -215,12 +227,12 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
     returnDate = widget.returnDate;
     fromLocation = widget.fromLocation;
     toLocation = widget.toLocation;
-    
+
     _tabController = TabController(
       length: hasReturnDate ? 2 : 1,
       vsync: this,
     );
-    
+
     _pageController = PageController();
     _scrollController = ScrollController();
 
@@ -251,7 +263,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeIn,
         );
-        
+
         if (_currentStep == 2) {
           _scrollController.animateTo(
             _scrollController.position.maxScrollExtent,
@@ -272,7 +284,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeIn,
         );
-        
+
         if (_currentStep == 1) {
           _scrollController.animateTo(
             0,
@@ -301,279 +313,374 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
       appBar: CustomAppBar(
         title: '$fromLocation - $toLocation',
         isColumnTitle: true,
-        subtitle: '${_getDayAbbreviation(departureDate, context)}, ${departureDate.day}/${departureDate.month}/${departureDate.year}',
+        subtitle:
+            '${_getDayAbbreviation(departureDate, context)}, ${departureDate.day}/${departureDate.month}/${departureDate.year}',
         onBackPressed: () => Navigator.of(context).pop(),
       ),
-      body: Column(
-        children: [
-          // Step indicators
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.h),
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(4, (index) {
-                    return Row(
-                      children: [
-                        // Indicator button
-                        Container(
-                          width: 30.w,
-                          height: 30.h,
-                          decoration: BoxDecoration(
-                            color: _currentStep >= index ? AppColors.primaryColor : Colors.transparent,
-                            border: Border.all(
-                              color: _currentStep >= index ? AppColors.primaryColor : Colors.grey,
+      body: Consumer<ProfileViewModel>(
+        builder: (context, profile, child) {
+          final travelPoint = profile.travelPoint;
+          final List<int> travelPointOptions = [];
+          for (int i = 1000; i <= travelPoint; i += 1000) {
+            travelPointOptions.add(i);
+          }
+          final totalDepartureSeats = departureSelectedSeats.length;
+          final totalReturnSeats = returnSelectedSeats.length;
+          final totalSeats = totalDepartureSeats + totalReturnSeats;
+          final total = totalSeats * seatPrice;
+          final totalAfterPoint =
+              (total - travelPointToUse).clamp(0, total).toDouble();
+          final totalAfterVoucher = selectedVoucher != null
+              ? (totalAfterPoint -
+                      selectedVoucher!.calculateDiscount(totalAfterPoint))
+                  .clamp(0, totalAfterPoint)
+                  .toDouble()
+              : totalAfterPoint;
+          return Column(
+            children: [
+              // Step indicators
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 12.h),
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(4, (index) {
+                        return Row(
+                          children: [
+                            // Indicator button
+                            Container(
+                              width: 30.w,
+                              height: 30.h,
+                              decoration: BoxDecoration(
+                                color: _currentStep >= index
+                                    ? AppColors.primaryColor
+                                    : Colors.transparent,
+                                border: Border.all(
+                                  color: _currentStep >= index
+                                      ? AppColors.primaryColor
+                                      : Colors.grey,
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${index + 1}',
+                                  style: TextStyle(
+                                    color: _currentStep >= index
+                                        ? Colors.white
+                                        : Colors.grey,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
                             ),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
+                            // Title next to button
+                            SizedBox(width: 8.w),
+                            SizedBox(
+                              child: Text(
+                                _getStepTitle(index, context),
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.start,
+                                maxLines: 2,
+                              ),
+                            ),
+                            SizedBox(width: 20.w),
+                            // Connecting line
+                            if (index < 3)
+                              Container(
+                                width: 60.w,
+                                height: 1.h,
+                                color: _currentStep > index
+                                    ? AppColors.primaryColor
+                                    : Colors.grey,
+                              ),
+                            SizedBox(width: 20.w),
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Page content
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _buildSeatPage(),
+                    _buildPassengerInfoPage(),
+                    _buildPickupDropPage(),
+                    _buildConfirmationPageWithPoint(travelPointOptions, total,
+                        totalAfterPoint, totalAfterVoucher),
+                  ],
+                ),
+              ),
+
+              // Navigation buttons
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.black,
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (_currentStep > 0)
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _previousStep,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: const Color(0xFF007BFF),
+                              side: const BorderSide(color: Color(0xFF007BFF)),
+                              minimumSize: Size(double.infinity, 50.h),
+                              padding: EdgeInsets.symmetric(vertical: 16.h),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                            ),
                             child: Text(
-                              '${index + 1}',
+                              AppLocalizations.of(context)
+                                  .translate("Previous"),
                               style: TextStyle(
-                                color: _currentStep >= index ? Colors.white : Colors.grey,
-                                fontSize: 14.sp,
                                 fontWeight: FontWeight.w700,
+                                fontSize: 16.sp,
                               ),
                             ),
                           ),
                         ),
-                        // Title next to button
-                        SizedBox(width: 8.w),
-                        SizedBox(
+                      if (_currentStep > 0) SizedBox(width: 16.w),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _currentStep == 3
+                              ? () async {
+                                  if (departureSelectedSeats.isEmpty &&
+                                      returnSelectedSeats.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(AppLocalizations.of(
+                                                context)
+                                            .translate(
+                                                'Please select at least one seat')),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  if (_fullNameController.text.isEmpty ||
+                                      _emailController.text.isEmpty ||
+                                      _phoneNumberController.text.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(AppLocalizations.of(
+                                                context)
+                                            .translate(
+                                                'Please fill in all passenger information')),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  final userId =
+                                      FirebaseAuth.instance.currentUser?.uid;
+                                  await MomoService.processPayment(
+                                    merchantName: 'TTN',
+                                    appScheme: 'MOMO',
+                                    merchantCode: 'MOMO',
+                                    partnerCode: 'MOMO',
+                                    amount: totalAfterVoucher.toInt(),
+                                    orderId: DateTime.now()
+                                        .millisecondsSinceEpoch
+                                        .toString(),
+                                    orderLabel: 'Đặt vé xe buýt',
+                                    merchantNameLabel: 'HLGD',
+                                    fee: 0,
+                                    description: 'Thanh toán đặt vé xe buýt',
+                                    username: userId ?? '',
+                                    partner: 'merchant',
+                                    extra:
+                                        '{"fromLocation":"$fromLocation","toLocation":"$toLocation","departureDate":"${departureDate.toIso8601String()}"}',
+                                    isTestMode: true,
+                                    onSuccess: (response) async {
+                                      if (userId != null &&
+                                          travelPointToUse > 0) {
+                                        await FirebaseFirestore.instance
+                                            .collection('USER')
+                                            .doc(userId)
+                                            .update({
+                                          'travelPoint': FieldValue.increment(
+                                              -travelPointToUse),
+                                        });
+                                      }
+                                      final reward = totalAfterVoucher > 500000
+                                          ? 2000
+                                          : 1000;
+                                      if (userId != null) {
+                                        await FirebaseFirestore.instance
+                                            .collection('USER')
+                                            .doc(userId)
+                                            .update({
+                                          'travelPoint':
+                                              FieldValue.increment(reward),
+                                        });
+                                      }
+                                      try {
+                                        final orderId = DateTime.now()
+                                            .millisecondsSinceEpoch
+                                            .toString();
+                                        final currentUser =
+                                            FirebaseAuth.instance.currentUser;
+                                        if (currentUser == null) {
+                                          throw Exception(
+                                              'User not authenticated');
+                                        }
+                                        await _usedServicesService
+                                            .addBusBookingToUsedServices(
+                                          userId: currentUser.uid,
+                                          orderId: orderId,
+                                          fromLocation: fromLocation,
+                                          toLocation: toLocation,
+                                          departureDate: departureDate,
+                                          returnDate: returnDate,
+                                          passengerName:
+                                              _fullNameController.text,
+                                          passengerEmail: _emailController.text,
+                                          passengerPhone:
+                                              _phoneNumberController.text,
+                                          departureSelectedSeats:
+                                              departureSelectedSeats
+                                                  .map((e) =>
+                                                      '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}')
+                                                  .toList(),
+                                          returnSelectedSeats: returnSelectedSeats
+                                              .map((e) =>
+                                                  '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}')
+                                              .toList(),
+                                          departurePickupStation:
+                                              selectedDeparturePickupStation
+                                                      ?.name ??
+                                                  '',
+                                          departureDropStation:
+                                              selectedDepartureDropStation
+                                                      ?.name ??
+                                                  '',
+                                          returnPickupStation:
+                                              selectedReturnPickupStation?.name,
+                                          returnDropStation:
+                                              selectedReturnDropStation?.name,
+                                          amount: totalAfterVoucher,
+                                          travelPointsUsed: travelPointToUse,
+                                          status: 'confirmed',
+                                        );
+                                        print(
+                                            'Bus booking saved to used services successfully: $orderId');
+                                        if (mounted) {
+                                          showAppDialog(
+                                            context: context,
+                                            title: AppLocalizations.of(context)
+                                                .translate('Notification'),
+                                            content: AppLocalizations.of(
+                                                    context)
+                                                .translate(
+                                                    'Your bus booking has been confirmed. The service will be added to your used list.'),
+                                            icon: Icons.check_circle,
+                                            iconColor: Colors.green,
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                  Navigator.of(context)
+                                                      .popUntil((route) =>
+                                                          route.isFirst);
+                                                },
+                                                child: Text(
+                                                    AppLocalizations.of(context)
+                                                        .translate('OK')),
+                                              ),
+                                            ],
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                  AppLocalizations.of(context)
+                                                          .translate('Error:') +
+                                                      ' $e'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    onError: (response) {
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(AppLocalizations.of(
+                                                        context)
+                                                    .translate(
+                                                        'MoMo payment failed:') +
+                                                ' ${response.message}'),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  );
+                                }
+                              : _nextStep,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF007BFF),
+                            foregroundColor: Colors.white,
+                            minimumSize: Size(double.infinity, 50.h),
+                            padding: EdgeInsets.symmetric(vertical: 16.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                          ),
                           child: Text(
-                            _getStepTitle(index, context),
+                            _currentStep == 3
+                                ? AppLocalizations.of(context)
+                                    .translate("Confirm")
+                                : AppLocalizations.of(context)
+                                    .translate("Next"),
                             style: TextStyle(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16.sp,
                             ),
-                            textAlign: TextAlign.start,
-                            maxLines: 2,
-                          ),
-                        ),
-                        SizedBox(width: 20.w),
-                        // Connecting line
-                        if (index < 3)
-                          Container(
-                            width: 60.w,
-                            height: 1.h,
-                            color: _currentStep > index ? AppColors.primaryColor : Colors.grey,
-                          ),
-                          SizedBox(width: 20.w),
-                      ],
-                    );
-                  }),
-                ),
-              ),
-            ),
-          ),
-
-          // Page content
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildSeatPage(),
-                _buildPassengerInfoPage(),
-                _buildPickupDropPage(),
-                _buildConfirmationPage(),
-              ],
-            ),
-          ),
-
-          // Navigation buttons
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.black,
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (_currentStep > 0)
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _previousStep,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF007BFF),
-                          side: const BorderSide(color: Color(0xFF007BFF)),
-                          minimumSize: Size(double.infinity, 50.h),
-                          padding: EdgeInsets.symmetric(vertical: 16.h),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                        ),
-                        child: Text(
-                          AppLocalizations.of(context).translate("Previous"),
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16.sp,
                           ),
                         ),
                       ),
-                    ),
-                  if (_currentStep > 0)
-                    SizedBox(width: 16.w),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _currentStep == 3 ? () async {
-                        // Kiểm tra xem đã chọn ghế chưa
-                        if (departureSelectedSeats.isEmpty && returnSelectedSeats.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(AppLocalizations.of(context).translate('Please select at least one seat')),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-
-                        // Kiểm tra thông tin hành khách
-                        if (_fullNameController.text.isEmpty || 
-                            _emailController.text.isEmpty || 
-                            _phoneNumberController.text.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(AppLocalizations.of(context).translate('Please fill in all passenger information')),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-
-                        // Tính tổng tiền
-                        final totalDepartureSeats = departureSelectedSeats.length;
-                        final totalReturnSeats = returnSelectedSeats.length;
-                        final totalSeats = totalDepartureSeats + totalReturnSeats;
-                        final totalPrice = totalSeats * seatPrice;
-
-                        // Gọi thanh toán MoMo
-                        await MomoService.processPayment(
-                          merchantName: 'TTN',
-                          appScheme: 'MOMO',
-                          merchantCode: 'MOMO',
-                          partnerCode: 'MOMO',
-                          amount: totalPrice.toInt(),
-                          orderId: DateTime.now().millisecondsSinceEpoch.toString(),
-                          orderLabel: 'Đặt vé xe buýt',
-                          merchantNameLabel: 'HLGD',
-                          fee: 0,
-                          description: 'Thanh toán đặt vé xe buýt',
-                          username: FirebaseAuth.instance.currentUser?.uid ?? '',
-                          partner: 'merchant',
-                          extra: '{"fromLocation":"$fromLocation","toLocation":"$toLocation","departureDate":"${departureDate.toIso8601String()}"}',
-                          isTestMode: true,
-                          onSuccess: (response) async {
-                            try {
-                              // Tạo order ID duy nhất
-                              final orderId = DateTime.now().millisecondsSinceEpoch.toString();
-                              final currentUser = FirebaseAuth.instance.currentUser;
-                              
-                              if (currentUser == null) {
-                                throw Exception('User not authenticated');
-                              }
-
-                              // Lưu vào used services với thông tin chi tiết
-                              await _usedServicesService.addBusBookingToUsedServices(
-                                userId: currentUser.uid,
-                                orderId: orderId,
-                                fromLocation: fromLocation,
-                                toLocation: toLocation,
-                                departureDate: departureDate,
-                                returnDate: returnDate,
-                                passengerName: _fullNameController.text,
-                                passengerEmail: _emailController.text,
-                                passengerPhone: _phoneNumberController.text,
-                                departureSelectedSeats: departureSelectedSeats.map((e) => '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}').toList(),
-                                returnSelectedSeats: returnSelectedSeats.map((e) => '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}').toList(),
-                                departurePickupStation: selectedDeparturePickupStation?.name ?? '',
-                                departureDropStation: selectedDepartureDropStation?.name ?? '',
-                                returnPickupStation: selectedReturnPickupStation?.name,
-                                returnDropStation: selectedReturnDropStation?.name,
-                                amount: totalPrice,
-                                status: 'confirmed',
-                              );
-
-                              print('Bus booking saved to used services successfully: $orderId');
-
-                              // Hiển thị dialog thành công
-                              if (mounted) {
-                                showAppDialog(
-                                  context: context,
-                                  title: AppLocalizations.of(context).translate('Notification'),
-                                  content: AppLocalizations.of(context).translate('Your bus booking has been confirmed. The service will be added to your used list.'),
-                                  icon: Icons.check_circle,
-                                  iconColor: Colors.green,
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                        Navigator.of(context).popUntil((route) => route.isFirst);
-                                      },
-                                      child: Text(AppLocalizations.of(context).translate('OK')),
-                                    ),
-                                  ],
-                                );
-                              }
-                            } catch (e) {
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(AppLocalizations.of(context).translate('Error:') + ' $e'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            }
-                          },
-                          onError: (response) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(AppLocalizations.of(context).translate('MoMo payment failed:') + ' ${response.message}'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          },
-                        );
-                      } : _nextStep,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF007BFF),
-                        foregroundColor: Colors.white,
-                        minimumSize: Size(double.infinity, 50.h),
-                        padding: EdgeInsets.symmetric(vertical: 16.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                      ),
-                      child: Text(
-                        _currentStep == 3 ? AppLocalizations.of(context).translate("Confirm") : AppLocalizations.of(context).translate("Next"),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16.sp,
-                        ),
-                      ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -608,8 +715,8 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
           child: TabBarView(
             controller: _tabController,
             children: [
-              _buildSeatSelectionTab(true),  // Departure tab
-              if (hasReturnDate) _buildSeatSelectionTab(false),  // Return tab
+              _buildSeatSelectionTab(true), // Departure tab
+              if (hasReturnDate) _buildSeatSelectionTab(false), // Return tab
             ],
           ),
         ),
@@ -633,14 +740,17 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
               ],
             ),
             SizedBox(height: 20.h),
-            
             BusSeatLayout(
-              upperDeckLayout: isDeparture ? departureUpperDeckLayout : returnUpperDeckLayout,
-              lowerDeckLayout: isDeparture ? departureLowerDeckLayout : returnLowerDeckLayout,
-              onSeatTap: (row, col, isUpper) => toggleSeatSelection(row, col, isUpper, isDeparture),
+              upperDeckLayout: isDeparture
+                  ? departureUpperDeckLayout
+                  : returnUpperDeckLayout,
+              lowerDeckLayout: isDeparture
+                  ? departureLowerDeckLayout
+                  : returnLowerDeckLayout,
+              onSeatTap: (row, col, isUpper) =>
+                  toggleSeatSelection(row, col, isUpper, isDeparture),
               getSeatLabel: getSeatLabel,
             ),
-            
             SizedBox(height: 20.h),
             _buildBookingSummary(),
           ],
@@ -670,8 +780,11 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
   }
 
   Widget _buildBookingSummary() {
-    final totalSeats = departureSelectedSeats.length + returnSelectedSeats.length;
-    final totalPrice = (departureSelectedSeats.length + returnSelectedSeats.length) * seatPrice;
+    final totalSeats =
+        departureSelectedSeats.length + returnSelectedSeats.length;
+    final totalPrice =
+        (departureSelectedSeats.length + returnSelectedSeats.length) *
+            seatPrice;
 
     return Container(
       width: double.infinity,
@@ -753,18 +866,22 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context).translate("Passenger Information"),
-                  style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500),
+                  AppLocalizations.of(context)
+                      .translate("Passenger Information"),
+                  style:
+                      TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 16.h),
                 _buildTextField(
                   controller: _fullNameController,
-                  hintText: AppLocalizations.of(context).translate("Enter your full name"),
+                  hintText: AppLocalizations.of(context)
+                      .translate("Enter your full name"),
                   label: AppLocalizations.of(context).translate("Full Name"),
                   isEditing: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context).translate("Please enter your full name");
+                      return AppLocalizations.of(context)
+                          .translate("Please enter your full name");
                     }
                     return null;
                   },
@@ -772,12 +889,14 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                 SizedBox(height: 16.h),
                 _buildTextField(
                   controller: _emailController,
-                  hintText: AppLocalizations.of(context).translate("Enter your email"),
+                  hintText: AppLocalizations.of(context)
+                      .translate("Enter your email"),
                   label: AppLocalizations.of(context).translate("Email"),
                   isEditing: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context).translate("Please enter your email");
+                      return AppLocalizations.of(context)
+                          .translate("Please enter your email");
                     }
                     return null;
                   },
@@ -785,12 +904,14 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                 SizedBox(height: 16.h),
                 _buildTextField(
                   controller: _phoneNumberController,
-                  hintText: AppLocalizations.of(context).translate("Enter your phone number"),
+                  hintText: AppLocalizations.of(context)
+                      .translate("Enter your phone number"),
                   label: AppLocalizations.of(context).translate("Phone Number"),
                   isEditing: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context).translate("Please enter your phone number");
+                      return AppLocalizations.of(context)
+                          .translate("Please enter your phone number");
                     }
                     return null;
                   },
@@ -798,7 +919,8 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                 SizedBox(height: 40.h),
                 Center(
                   child: Text(
-                    AppLocalizations.of(context).translate("TERMS AND CONDITIONS"),
+                    AppLocalizations.of(context)
+                        .translate("TERMS AND CONDITIONS"),
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: AppColors.orange,
@@ -812,16 +934,29 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: '(*) Quý khách vui lòng có mặt tại bến xuất phát của xe trước ít nhất 30 phút giờ xe khởi hành, mang theo thông báo đã thanh toán vé thành công có chứa mã vé được gửi từ hệ thống TRAVELINE. Vui lòng liên hệ Trung tâm tổng đài ',
-                        style: TextStyle(color: AppColors.black, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
+                        text:
+                            '(*) Quý khách vui lòng có mặt tại bến xuất phát của xe trước ít nhất 30 phút giờ xe khởi hành, mang theo thông báo đã thanh toán vé thành công có chứa mã vé được gửi từ hệ thống TRAVELINE. Vui lòng liên hệ Trung tâm tổng đài ',
+                        style: TextStyle(
+                            color: AppColors.black,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            height: 1.5),
                       ),
                       TextSpan(
                         text: '1900 6067',
-                        style: TextStyle(color: AppColors.orange, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
+                        style: TextStyle(
+                            color: AppColors.orange,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            height: 1.5),
                       ),
                       TextSpan(
                         text: ' để được hỗ trợ.',
-                        style: TextStyle(color: AppColors.black, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
+                        style: TextStyle(
+                            color: AppColors.black,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            height: 1.5),
                       ),
                     ],
                   ),
@@ -831,24 +966,40 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: '(*) Nếu quý khách có nhu cầu trung chuyển, vui lòng liên hệ Tổng đài trung chuyển ',
-                        style: TextStyle(color: AppColors.black, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
+                        text:
+                            '(*) Nếu quý khách có nhu cầu trung chuyển, vui lòng liên hệ Tổng đài trung chuyển ',
+                        style: TextStyle(
+                            color: AppColors.black,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            height: 1.5),
                       ),
                       TextSpan(
                         text: '1900 6918',
-                        style: TextStyle(color: AppColors.orange, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
+                        style: TextStyle(
+                            color: AppColors.orange,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            height: 1.5),
                       ),
                       TextSpan(
-                        text: ' trước khi đặt vé. Chúng tôi không đón/trung chuyển tại những điểm xe trung chuyển không thể tới được.',
-                        style: TextStyle(color: AppColors.black, fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.5),
+                        text:
+                            ' trước khi đặt vé. Chúng tôi không đón/trung chuyển tại những điểm xe trung chuyển không thể tới được.',
+                        style: TextStyle(
+                            color: AppColors.black,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            height: 1.5),
                       ),
                     ],
                   ),
                 ),
                 SizedBox(height: 20.h),
                 CheckboxRow(
-                  title: AppLocalizations.of(context).translate("I confirm all data provided is accurate and truthful. I have read and agree to "),
-                  link: AppLocalizations.of(context).translate("Traveline's Privacy Policy."),
+                  title: AppLocalizations.of(context).translate(
+                      "I confirm all data provided is accurate and truthful. I have read and agree to "),
+                  link: AppLocalizations.of(context)
+                      .translate("Traveline's Privacy Policy."),
                   onTitleTap: _handleTitleTap,
                   value: _isCheckboxChecked,
                   onChanged: (bool? newValue) {
@@ -883,19 +1034,23 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
           children: [
             // Phần thông tin đón/trả cho chiều đi
             _buildTripSection(
-              title: AppLocalizations.of(context).translate("Pick-up/Drop Information"),
-              subtitle: AppLocalizations.of(context).translate("Departure trip - ${_getDayAbbreviation(departureDate, context)}, ${departureDate.day}/${departureDate.month}/${departureDate.year}"),
+              title: AppLocalizations.of(context)
+                  .translate("Pick-up/Drop Information"),
+              subtitle: AppLocalizations.of(context).translate(
+                  "Departure trip - ${_getDayAbbreviation(departureDate, context)}, ${departureDate.day}/${departureDate.month}/${departureDate.year}"),
               date: departureDate,
               isDeparture: true,
             ),
 
             SizedBox(height: 40.h),
-            
+
             // Phần thông tin đón/trả cho chiều về (nếu có)
-            if (hasReturnDate) 
+            if (hasReturnDate)
               _buildTripSection(
-                title: AppLocalizations.of(context).translate("Pick-up/Drop Information"),
-                subtitle: AppLocalizations.of(context).translate("Return trip - ${_getDayAbbreviation(returnDate!, context)}, ${returnDate!.day}/${returnDate!.month}/${returnDate!.year}"),
+                title: AppLocalizations.of(context)
+                    .translate("Pick-up/Drop Information"),
+                subtitle: AppLocalizations.of(context).translate(
+                    "Return trip - ${_getDayAbbreviation(returnDate!, context)}, ${returnDate!.day}/${returnDate!.month}/${returnDate!.year}"),
                 date: returnDate!,
                 isDeparture: false,
               ),
@@ -914,11 +1069,17 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
     required bool isDeparture,
   }) {
     // Xác định các biến tương ứng dựa trên chiều đi/về
-    final pickupOption = isDeparture ? _selectedDeparturePickupOption : _selectedReturnPickupOption;
-    final dropOption = isDeparture ? _selectedDepartureDropOption : _selectedReturnDropOption;
-    final pickupStation = isDeparture ? selectedDeparturePickupStation : selectedReturnPickupStation;
-    final dropStation = isDeparture ? selectedDepartureDropStation : selectedReturnDropStation;
-    
+    final pickupOption = isDeparture
+        ? _selectedDeparturePickupOption
+        : _selectedReturnPickupOption;
+    final dropOption =
+        isDeparture ? _selectedDepartureDropOption : _selectedReturnDropOption;
+    final pickupStation = isDeparture
+        ? selectedDeparturePickupStation
+        : selectedReturnPickupStation;
+    final dropStation =
+        isDeparture ? selectedDepartureDropStation : selectedReturnDropStation;
+
     // Xác định các điểm đi và đến
     final fromLoc = isDeparture ? fromLocation : toLocation;
     final toLoc = isDeparture ? toLocation : fromLocation;
@@ -936,7 +1097,7 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
           style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
         ),
         SizedBox(height: 20.h),
-        
+
         // Phần điểm đón (pickup)
         Container(
           padding: EdgeInsets.all(12.w),
@@ -950,20 +1111,22 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
               Text(
                 'ĐIỂM ĐÓN - $fromLoc',
                 style: TextStyle(
-                  fontSize: 16.sp, 
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primaryColor,
                 ),
               ),
               SizedBox(height: 16.h),
               Text(
-                AppLocalizations.of(context).translate("BUS STATION/COMPANY OFFICE"),
+                AppLocalizations.of(context)
+                    .translate("BUS STATION/COMPANY OFFICE"),
                 style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
               ),
               SizedBox(height: 16.h),
               RadioOptionsWidget(
                 titles: [
-                  AppLocalizations.of(context).translate("Bus Station/\nCompany Office"),
+                  AppLocalizations.of(context)
+                      .translate("Bus Station/\nCompany Office"),
                   AppLocalizations.of(context).translate("Shuttle Service"),
                 ],
                 selectedOption: pickupOption,
@@ -995,9 +1158,9 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
             ],
           ),
         ),
-        
+
         SizedBox(height: 20.h),
-        
+
         // Phần điểm trả (drop)
         Container(
           padding: EdgeInsets.all(12.w),
@@ -1011,20 +1174,22 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
               Text(
                 'ĐIỂM TRẢ - $toLoc',
                 style: TextStyle(
-                  fontSize: 16.sp, 
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
                   color: AppColors.green,
                 ),
               ),
               SizedBox(height: 16.h),
               Text(
-                AppLocalizations.of(context).translate("BUS STATION/COMPANY OFFICE"),
+                AppLocalizations.of(context)
+                    .translate("BUS STATION/COMPANY OFFICE"),
                 style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
               ),
               SizedBox(height: 16.h),
               RadioOptionsWidget(
                 titles: [
-                  AppLocalizations.of(context).translate("Bus Station/\nCompany Office"),
+                  AppLocalizations.of(context)
+                      .translate("Bus Station/\nCompany Office"),
                   AppLocalizations.of(context).translate("Shuttle Service"),
                 ],
                 selectedOption: dropOption,
@@ -1061,147 +1226,708 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
   }
 
   // Phương thức tạo văn bản hướng dẫn tùy chỉnh cho pickup hoặc drop
-  Widget _buildInstructionText(DateTime date, BusStation? station, {required bool isPickup}) {
+  Widget _buildInstructionText(DateTime date, BusStation? station,
+      {required bool isPickup}) {
     return RichText(
       text: TextSpan(
         children: [
           TextSpan(
-            text: isPickup 
-                ? 'Quý khách vui lòng có mặt tại Bến xe/Văn phòng ' 
+            text: isPickup
+                ? 'Quý khách vui lòng có mặt tại Bến xe/Văn phòng '
                 : 'Quý khách sẽ được trả tại Bến xe/Văn phòng ',
-            style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.w500, height: 1.5),
+            style: TextStyle(
+                color: AppColors.black,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                height: 1.5),
           ),
           TextSpan(
             text: station?.name ?? getDefaultBusStation().name,
-            style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.w700, height: 1.5),
-          ),
-          TextSpan(
-            text: isPickup 
-                ? ' trước 21:30 ngày ${date.day}/${date.month}/${date.year} ' 
-                : ' vào khoảng ${(date.hour + 8).toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')} ngày ${date.day}/${date.month}/${date.year} ',
-            style: TextStyle(color: AppColors.orange, fontSize: 14.sp, fontWeight: FontWeight.w500, height: 1.5),
+            style: TextStyle(
+                color: AppColors.black,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                height: 1.5),
           ),
           TextSpan(
             text: isPickup
-                ? 'để được đón và kiểm tra thông tin trước khi lên xe.'
+                ? ' trước 21:30 ngày ${date.day}/${date.month}/${date.year} '
                 : '(thời gian dự kiến, có thể thay đổi tùy tình hình giao thông).',
-            style: TextStyle(color: AppColors.black, fontSize: 14.sp, fontWeight: FontWeight.w500, height: 1.5),
+            style: TextStyle(
+                color: AppColors.orange,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                height: 1.5),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildConfirmationPage() {
-    // Tính tổng số ghế và giá vé
-    final totalDepartureSeats = departureSelectedSeats.length;
-    final totalReturnSeats = returnSelectedSeats.length;
-    final totalSeats = totalDepartureSeats + totalReturnSeats;
-    final totalPrice = totalSeats * seatPrice;
-    
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.all(20.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Xác nhận thông tin đặt vé',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            SizedBox(height: 20.h),
-            
-            // Thông tin hành khách
-            _buildConfirmationSection(
-              title: 'Thông tin hành khách',
-              content: [
-                'Họ tên: ${_fullNameController.text}',
-                'Email: ${_emailController.text}',
-                'Số điện thoại: ${_phoneNumberController.text}',
-              ],
-            ),
-            
-            // Thông tin chuyến đi
-            _buildConfirmationSection(
-              title: 'Thông tin chuyến đi',
-              content: [
-                'Chiều đi: $fromLocation - $toLocation',
-                'Ngày đi: ${departureDate.day}/${departureDate.month}/${departureDate.year}',
-                'Số ghế: $totalDepartureSeats',
-                'Điểm đón: ${selectedDeparturePickupStation?.name ?? ""}',
-                'Điểm trả: ${selectedDepartureDropStation?.name ?? ""}',
-                if (hasReturnDate) 'Chiều về: $toLocation - $fromLocation',
-                if (hasReturnDate) 'Ngày về: ${returnDate!.day}/${returnDate!.month}/${returnDate!.year}',
-                if (hasReturnDate) 'Số ghế: $totalReturnSeats',
-                if (hasReturnDate) 'Điểm đón: ${selectedReturnPickupStation?.name ?? ""}',
-                if (hasReturnDate) 'Điểm trả: ${selectedReturnDropStation?.name ?? ""}',
-              ],
-            ),
-            
-            // Tổng tiền
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Tổng số vé:',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        '$totalSeats',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
+  Widget _buildConfirmationPageWithPoint(List<int> travelPointOptions,
+      double total, double totalAfterPoint, double totalAfterVoucher) {
+    return Consumer<ProfileViewModel>(
+      builder: (context, profile, child) {
+        final travelPoint = profile.travelPoint;
+        return SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(20.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Xác nhận thông tin đặt vé',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
                   ),
-                  SizedBox(height: 8.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Tổng tiền:',
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
+                ),
+                SizedBox(height: 20.h),
+                // Thông tin hành khách
+                _buildConfirmationSection(
+                  title: 'Thông tin hành khách',
+                  content: [
+                    'Họ tên: ${_fullNameController.text}',
+                    'Email: ${_emailController.text}',
+                    'Số điện thoại: ${_phoneNumberController.text}',
+                  ],
+                ),
+                // Thông tin chuyến đi
+                _buildConfirmationSection(
+                  title: 'Thông tin chuyến đi',
+                  content: [
+                    'Chiều đi: $fromLocation - $toLocation',
+                    'Ngày đi: ${departureDate.day}/${departureDate.month}/${departureDate.year}',
+                    'Số ghế: ${departureSelectedSeats.length}',
+                    'Điểm đón: ${selectedDeparturePickupStation?.name ?? ""}',
+                    'Điểm trả: ${selectedDepartureDropStation?.name ?? ""}',
+                    if (hasReturnDate) 'Chiều về: $toLocation - $fromLocation',
+                    if (hasReturnDate)
+                      'Ngày về: ${returnDate!.day}/${returnDate!.month}/${returnDate!.year}',
+                    if (hasReturnDate) 'Số ghế: ${returnSelectedSeats.length}',
+                    if (hasReturnDate)
+                      'Điểm đón: ${selectedReturnPickupStation?.name ?? ""}',
+                    if (hasReturnDate)
+                      'Điểm trả: ${selectedReturnDropStation?.name ?? ""}',
+                  ],
+                ),
+                // Sử dụng điểm thưởng
+                if (travelPointOptions.isNotEmpty) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(12.r),
+                      color: Colors.orange.shade50,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.star,
+                              color: Colors.orange,
+                              size: 20.sp,
+                            ),
+                            SizedBox(width: 8.w),
+                            Text(
+                              'Sử dụng điểm thưởng',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                color: Colors.orange.shade800,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Text(
-                        '${totalPrice.toStringAsFixed(0)} VND',
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.blue,
+                        SizedBox(height: 12.h),
+                        Text(
+                          'Điểm hiện có: ${currencyFormat.format(travelPoint)} điểm',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 12.h),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(color: Colors.orange.shade200),
+                          ),
+                          child: DropdownButtonFormField<int>(
+                            value: travelPointToUse,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16.w, vertical: 12.h),
+                              hintText: 'Chọn số điểm muốn sử dụng',
+                              hintStyle: TextStyle(
+                                color: Colors.grey.shade500,
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                            items: [
+                              DropdownMenuItem(
+                                value: 0,
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.cancel_outlined,
+                                        color: Colors.grey, size: 16.sp),
+                                    SizedBox(width: 8.w),
+                                    Text(
+                                      'Không sử dụng điểm',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 14.sp,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              ...travelPointOptions
+                                  .map((points) => DropdownMenuItem(
+                                        value: points,
+                                        child: Text(
+                                          '${currencyFormat.format(points)} điểm (-${currencyFormat.format(points)} ₫)',
+                                          style: TextStyle(
+                                            color: Colors.orange.shade800,
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ))
+                                  .toList(),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                travelPointToUse = value ?? 0;
+                              });
+                            },
+                            dropdownColor: Colors.white,
+                            icon: Icon(Icons.keyboard_arrow_down,
+                                color: Colors.orange),
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                        ),
+                        if (travelPointToUse > 0) ...[
+                          SizedBox(height: 8.h),
+                          Container(
+                            padding: EdgeInsets.all(8.w),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(6.r),
+                              border: Border.all(color: Colors.green.shade200),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.savings,
+                                    color: Colors.green, size: 16.sp),
+                                SizedBox(width: 6.w),
+                                Text(
+                                  'Tiết kiệm: ${currencyFormat.format(travelPointToUse)} ₫',
+                                  style: TextStyle(
+                                    color: Colors.green.shade700,
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
+                  SizedBox(height: 16.h),
                 ],
-              ),
+                // Chọn voucher
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(16.w),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Voucher',
+                              style: TextStyle(
+                                  fontSize: 16.sp,
+                                  color: AppColors.primaryColor,
+                                  fontWeight: FontWeight.w700)),
+                          GestureDetector(
+                            onTap: () async {
+                              final result = await Navigator.push<VoucherModel>(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => VoucherSelectionScreen(
+                                    totalAmount: totalAfterPoint,
+                                    onVoucherSelected: (voucher) {
+                                      setState(() {
+                                        selectedVoucher = voucher;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              );
+                              if (result != null) {
+                                setState(() {
+                                  selectedVoucher = result;
+                                });
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12.w, vertical: 6.h),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryColor,
+                                borderRadius: BorderRadius.circular(16.r),
+                              ),
+                              child: Text(
+                                selectedVoucher != null
+                                    ? 'Thay đổi'
+                                    : 'Chọn voucher',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                      if (selectedVoucher != null) ...[
+                        Container(
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.local_offer,
+                                color: AppColors.primaryColor,
+                                size: 20.sp,
+                              ),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'GIẢM ${selectedVoucher!.value}% HÓA ĐƠN',
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Tiết kiệm: ${currencyFormat.format(selectedVoucher!.calculateDiscount(totalAfterPoint))} ₫',
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedVoucher = null;
+                                  });
+                                },
+                                child: Icon(
+                                  Icons.close,
+                                  color: Colors.grey,
+                                  size: 20.sp,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else ...[
+                        Text(
+                          'Chưa chọn voucher',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                // Thanh toán bằng ví tiền
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(16.w),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Thanh toán bằng ví tiền',
+                              style: TextStyle(
+                                  fontSize: 16.sp,
+                                  color: AppColors.primaryColor,
+                                  fontWeight: FontWeight.w700)),
+                          Switch(
+                            value: false, // Mặc định không chọn
+                            onChanged: profile.walletBalance >=
+                                    totalAfterVoucher
+                                ? (value) {
+                                    // Xử lý khi chọn thanh toán bằng ví
+                                    if (value) {
+                                      showAppDialog(
+                                        context: context,
+                                        title: 'Xác nhận thanh toán',
+                                        content:
+                                            'Bạn có muốn thanh toán ${currencyFormat.format(totalAfterVoucher)} ₫ bằng ví tiền không?',
+                                        icon: Icons.account_balance_wallet,
+                                        iconColor: AppColors.primaryColor,
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(),
+                                            child: Text('Hủy'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () async {
+                                              Navigator.of(context).pop();
+                                              // Xử lý thanh toán bằng ví
+                                              try {
+                                                final userId = FirebaseAuth
+                                                    .instance.currentUser?.uid;
+                                                if (userId != null) {
+                                                  final success =
+                                                      await WalletService()
+                                                          .deductFromWallet(
+                                                              userId,
+                                                              totalAfterVoucher);
+                                                  if (success) {
+                                                    // Cập nhật số dư
+                                                    final newBalance =
+                                                        await WalletService()
+                                                            .getWalletBalance(
+                                                                userId);
+                                                    profile.updateWalletBalance(
+                                                        newBalance);
+
+                                                    // Lưu vào used services
+                                                    final orderId = DateTime
+                                                            .now()
+                                                        .millisecondsSinceEpoch
+                                                        .toString();
+                                                    await _usedServicesService
+                                                        .addBusBookingToUsedServices(
+                                                      userId: userId,
+                                                      orderId: orderId,
+                                                      fromLocation:
+                                                          fromLocation,
+                                                      toLocation: toLocation,
+                                                      departureDate:
+                                                          departureDate,
+                                                      returnDate: returnDate,
+                                                      passengerName:
+                                                          _fullNameController
+                                                              .text,
+                                                      passengerEmail:
+                                                          _emailController.text,
+                                                      passengerPhone:
+                                                          _phoneNumberController
+                                                              .text,
+                                                      departureSelectedSeats:
+                                                          departureSelectedSeats
+                                                              .map((e) =>
+                                                                  '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}')
+                                                              .toList(),
+                                                      returnSelectedSeats:
+                                                          returnSelectedSeats
+                                                              .map((e) =>
+                                                                  '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}')
+                                                              .toList(),
+                                                      departurePickupStation:
+                                                          selectedDeparturePickupStation
+                                                                  ?.name ??
+                                                              '',
+                                                      departureDropStation:
+                                                          selectedDepartureDropStation
+                                                                  ?.name ??
+                                                              '',
+                                                      returnPickupStation:
+                                                          selectedReturnPickupStation
+                                                              ?.name,
+                                                      returnDropStation:
+                                                          selectedReturnDropStation
+                                                              ?.name,
+                                                      amount: totalAfterVoucher,
+                                                      travelPointsUsed:
+                                                          travelPointToUse,
+                                                      status: 'confirmed',
+                                                    );
+
+                                                    if (mounted) {
+                                                      showAppDialog(
+                                                        context: context,
+                                                        title: 'Thành công',
+                                                        content:
+                                                            'Đặt vé thành công! Đã thanh toán bằng ví tiền.',
+                                                        icon:
+                                                            Icons.check_circle,
+                                                        iconColor: Colors.green,
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .popUntil(
+                                                                      (route) =>
+                                                                          route
+                                                                              .isFirst);
+                                                            },
+                                                            child: Text('OK'),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    }
+                                                  } else {
+                                                    throw Exception(
+                                                        'Không đủ số dư trong ví');
+                                                  }
+                                                }
+                                              } catch (e) {
+                                                if (mounted) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text('Lỗi: $e'),
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                    ),
+                                                  );
+                                                }
+                                              }
+                                            },
+                                            child: Text('Xác nhận'),
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                  }
+                                : null,
+                            activeColor: AppColors.primaryColor,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        'Số dư ví: ${currencyFormat.format(profile.walletBalance)} ₫',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      if (profile.walletBalance < totalAfterVoucher) ...[
+                        SizedBox(height: 4.h),
+                        Text(
+                          'Số dư không đủ để thanh toán',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                // Tổng tiền
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(16.w),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Tổng số vé:',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            '${departureSelectedSeats.length + returnSelectedSeats.length}',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Tổng tiền:',
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            '${currencyFormat.format(total)} ₫',
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Chi tiết giảm giá
+                      if (selectedVoucher != null || travelPointToUse > 0) ...[
+                        SizedBox(height: 12.h),
+                        Divider(height: 1, color: Colors.grey.shade300),
+                        SizedBox(height: 8.h),
+                        // Voucher giảm giá
+                        if (selectedVoucher != null) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Giảm ${selectedVoucher!.value}% voucher:',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              Text(
+                                '-${currencyFormat.format(selectedVoucher!.calculateDiscount(total))} ₫',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 4.h),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Sau voucher:',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              Text(
+                                '${currencyFormat.format(totalAfterPoint)} ₫',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: Colors.blue.shade700,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+                        ],
+                        // Điểm thưởng
+                        if (travelPointToUse > 0) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Trừ điểm thưởng:',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              Text(
+                                '-${currencyFormat.format(travelPointToUse)} ₫',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: Colors.orange,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+                        ],
+                        Divider(height: 1, color: Colors.grey.shade300),
+                        SizedBox(height: 8.h),
+                        // Tổng cuối cùng
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Tổng thanh toán:',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              '${currencyFormat.format(totalAfterVoucher)} ₫',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
-  
+
   // Phương thức để hiển thị phần thông tin trong trang xác nhận
-  Widget _buildConfirmationSection({required String title, required List<String> content}) {
+  Widget _buildConfirmationSection(
+      {required String title, required List<String> content}) {
     return Container(
       width: double.infinity,
       margin: EdgeInsets.only(bottom: 20.h),
@@ -1221,15 +1947,17 @@ class _BusTicketDetailState extends State<BusTicketDetail> with SingleTickerProv
             ),
           ),
           SizedBox(height: 12.h),
-          ...content.map((item) => Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
-            child: Text(
-              item,
-              style: TextStyle(
-                fontSize: 14.sp,
-              ),
-            ),
-          )).toList(),
+          ...content
+              .map((item) => Padding(
+                    padding: EdgeInsets.only(bottom: 8.h),
+                    child: Text(
+                      item,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                      ),
+                    ),
+                  ))
+              .toList(),
         ],
       ),
     );
@@ -1245,7 +1973,12 @@ class SeatPosition {
   SeatPosition(this.row, this.col, this.isUpper);
 }
 
-Widget _buildTextField({required TextEditingController controller, required String label, required String hintText, required bool isEditing, required Function(String?) validator}) {
+Widget _buildTextField(
+    {required TextEditingController controller,
+    required String label,
+    required String hintText,
+    required bool isEditing,
+    required Function(String?) validator}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
