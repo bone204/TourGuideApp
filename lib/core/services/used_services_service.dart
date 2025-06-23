@@ -480,6 +480,31 @@ class UsedServicesService {
     }
   }
 
+  // Lấy dịch vụ đã sử dụng theo userId, serviceType, serviceId
+  Future<Map<String, dynamic>?> getUsedServiceByTypeAndId(
+      String userId, String serviceType, String serviceId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('USED_SERVICES')
+          .where('userId', isEqualTo: userId)
+          .where('serviceType', isEqualTo: serviceType)
+          .where('serviceId', isEqualTo: serviceId)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        return {
+          'id': snapshot.docs.first.id,
+          ...snapshot.docs.first.data(),
+        };
+      }
+      return null;
+    } catch (e) {
+      print('Error fetching used service by type and id: $e');
+      return null;
+    }
+  }
+
   // Cập nhật trạng thái dịch vụ đã sử dụng
   Future<void> updateUsedServiceStatus(String serviceId, String status) async {
     try {

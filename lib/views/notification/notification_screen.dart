@@ -6,6 +6,8 @@ import 'package:tourguideapp/models/notification_model.dart';
 import 'package:tourguideapp/services/notification_service.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:tourguideapp/core/services/used_services_service.dart';
+import 'package:tourguideapp/views/service/used_service/used_service_detail_screen.dart';
 
 class NotificationScreen extends StatefulWidget {
   final String userId;
@@ -164,6 +166,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
             ),
           ),
           centerTitle: true,
+          leading: IconButton(
+            icon: Icon(Icons.chevron_left, size: 32.sp, color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
           title: Text(
             AppLocalizations.of(context).translate('Thông báo'),
             style: TextStyle(
@@ -399,11 +405,32 @@ class _NotificationScreenState extends State<NotificationScreen> {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () {
+            onTap: () async {
               if (!notification.isRead) {
-                _markAsRead(notification.id);
+                await _markAsRead(notification.id);
               }
-              // TODO: Navigate đến chi tiết service nếu cần
+              // Nếu notification có serviceType và serviceId thì chuyển sang chi tiết dịch vụ
+              if (notification.serviceType.isNotEmpty && notification.serviceId.isNotEmpty) {
+                final usedService = await UsedServicesService().getUsedServiceByTypeAndId(
+                  notification.userId,
+                  notification.serviceType,
+                  notification.serviceId,
+                );
+                if (usedService != null) {
+                  // ignore: use_build_context_synchronously
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UsedServiceDetailScreen(service: usedService),
+                    ),
+                  );
+                } else {
+                  // ignore: use_build_context_synchronously
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Không tìm thấy thông tin dịch vụ!')),
+                  );
+                }
+              }
             },
             borderRadius: BorderRadius.circular(16.r),
             child: Padding(
