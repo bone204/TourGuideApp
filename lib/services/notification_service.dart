@@ -14,7 +14,6 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
   String? _fcmToken;
-  String? _currentUserId;
 
   // Khởi tạo service
   Future<void> initialize() async {
@@ -85,7 +84,6 @@ class NotificationService {
 
   // Đăng ký FCM token cho user
   Future<void> registerUserToken(String userId) async {
-    _currentUserId = userId;
     
     if (_fcmToken != null) {
       try {

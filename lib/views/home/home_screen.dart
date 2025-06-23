@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/viewmodels/favourite_destinations_viewmodel.dart';
-import 'package:tourguideapp/views/admin/admin_screen.dart';
 import 'package:tourguideapp/views/chat/chat.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/home_navigator.dart';
@@ -45,7 +44,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   double _fabRight = 20;
   double _fabBottom = 40;
-  double? _initX, _initY;
 
   // Thêm biến phân trang
   int _visiblePopular = 10;
@@ -667,8 +665,8 @@ class _HomeScreenState extends State<HomeScreen> {
             bottom: _fabBottom,
             child: GestureDetector(
               onPanStart: (details) {
-                _initX = details.globalPosition.dx;
-                _initY = details.globalPosition.dy;
+                // _initX = details.globalPosition.dx;
+                // _initY = details.globalPosition.dy;
               },
               onPanUpdate: (details) {
                 setState(() {
@@ -1003,7 +1001,7 @@ class InspirationSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 20.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1052,7 +1050,7 @@ class InspirationSection extends StatelessWidget {
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 161.w / 190.h,
-        mainAxisSpacing: 20.h,
+        mainAxisSpacing: 10.h,
         crossAxisSpacing: 10.w,
       ),
       itemCount: 4,
