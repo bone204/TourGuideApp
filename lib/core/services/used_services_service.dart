@@ -20,16 +20,17 @@ class UsedServicesService {
   }) async {
     try {
       // Kiểm tra xem service đã tồn tại chưa để tránh duplicate
+      // Chỉ kiểm tra theo serviceId vì mỗi dịch vụ sẽ có serviceId unique
       final existingService = await _firestore
           .collection('USED_SERVICES')
           .where('userId', isEqualTo: userId)
-          .where('serviceType', isEqualTo: serviceType)
           .where('serviceId', isEqualTo: serviceId)
           .limit(1)
           .get();
 
       if (existingService.docs.isNotEmpty) {
-        print('Service already exists, skipping duplicate: $serviceId');
+        print(
+            'Service with same serviceId already exists, skipping: $serviceId');
         return;
       }
 
@@ -455,6 +456,9 @@ class UsedServicesService {
   Future<List<Map<String, dynamic>>> getUsedServicesByUserId(
       String userId) async {
     try {
+      // Tạm thời tắt tính năng tự động xóa duplicate để tránh xóa nhầm
+      // await removeDuplicateUsedServices(userId);
+
       final snapshot = await _firestore
           .collection('USED_SERVICES')
           .where('userId', isEqualTo: userId)
@@ -542,5 +546,70 @@ class UsedServicesService {
       print('Error deleting used service: $e');
       throw Exception('Không thể xóa dịch vụ đã sử dụng: $e');
     }
+  }
+
+  // Xóa các used services duplicate
+  Future<void> removeDuplicateUsedServices(String userId) async {
+    try {
+      print('Removing duplicate used services for user: $userId');
+
+      // Lấy tất cả used services của user
+      final snapshot = await _firestore
+          .collection('USED_SERVICES')
+          .where('userId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      final services = snapshot.docs;
+      final seen = <String>{};
+      final toDelete = <String>[];
+
+      for (var doc in services) {
+        final data = doc.data();
+        // Chỉ kiểm tra duplicate dựa trên serviceId và thời gian tạo gần nhau (trong vòng 1 phút)
+        final createdAt = data['createdAt'];
+        if (createdAt != null) {
+          DateTime createTime;
+          if (createdAt is Timestamp) {
+            createTime = createdAt.toDate();
+          } else if (createdAt is String) {
+            createTime = DateTime.parse(createdAt);
+          } else {
+            continue; // Bỏ qua nếu không có thời gian tạo
+          }
+
+          // Chỉ xem xét các dịch vụ được tạo trong 1 phút gần đây
+          final oneMinuteAgo = DateTime.now().subtract(Duration(minutes: 1));
+          if (createTime.isAfter(oneMinuteAgo)) {
+            final key = '${data['serviceId']}_${data['serviceType']}';
+
+            if (seen.contains(key)) {
+              toDelete.add(doc.id);
+              print('Found duplicate service: ${data['serviceId']}');
+            } else {
+              seen.add(key);
+            }
+          }
+        }
+      }
+
+      if (toDelete.isNotEmpty) {
+        final batch = _firestore.batch();
+        for (var docId in toDelete) {
+          batch.delete(_firestore.collection('USED_SERVICES').doc(docId));
+        }
+        await batch.commit();
+        print('Removed ${toDelete.length} duplicate used services');
+      } else {
+        print('No duplicate used services found');
+      }
+    } catch (e) {
+      print('Error removing duplicate used services: $e');
+    }
+  }
+
+  // Phương thức public để xóa duplicate used services
+  Future<void> cleanupDuplicateUsedServices(String userId) async {
+    await removeDuplicateUsedServices(userId);
   }
 }

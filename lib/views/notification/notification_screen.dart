@@ -35,14 +35,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Future<void> _loadNotifications() async {
     setState(() => _isLoading = true);
-    
+
     try {
       print('Debug: Loading notifications for user: ${widget.userId}');
-      final notifications = await _notificationService.getUserNotifications(widget.userId);
-      final unreadCount = await _notificationService.getUnreadNotificationCount(widget.userId);
-      
-      print('Debug: Loaded ${notifications.length} notifications, $unreadCount unread');
-      
+      final notifications =
+          await _notificationService.getUserNotifications(widget.userId);
+      final unreadCount =
+          await _notificationService.getUnreadNotificationCount(widget.userId);
+
+      print(
+          'Debug: Loaded ${notifications.length} notifications, $unreadCount unread');
+
       setState(() {
         _notifications = notifications;
         _unreadCount = unreadCount;
@@ -74,7 +77,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.of(context).translate('Xác nhận')),
-        content: Text(AppLocalizations.of(context).translate('Bạn có chắc muốn xóa tất cả thông báo?')),
+        content: Text(AppLocalizations.of(context)
+            .translate('Bạn có chắc muốn xóa tất cả thông báo?')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -94,6 +98,31 @@ class _NotificationScreenState extends State<NotificationScreen> {
     if (confirmed == true) {
       await _notificationService.deleteAllUserNotifications(widget.userId);
       await _loadNotifications(); // Reload để cập nhật UI
+    }
+  }
+
+  Future<void> _cleanupDuplicateNotifications() async {
+    try {
+      await _notificationService.cleanupDuplicateNotifications(widget.userId);
+      await _loadNotifications(); // Reload để cập nhật UI
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)
+                .translate('Đã xóa thông báo trùng lặp')),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -178,38 +207,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
             ),
           ),
           actions: [
-            Padding(
-              padding: EdgeInsets.only(right: 10.w),
-              child: badges.Badge(
-                showBadge: _unreadCount > 0,
-                badgeStyle: badges.BadgeStyle(
-                  badgeColor: Colors.red,
-                  padding: const EdgeInsets.all(3),
-                  borderRadius: BorderRadius.circular(10),
-                  elevation: 0,
-                ),
-                badgeContent: Container(
-                  constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                  alignment: Alignment.center,
-                  child: Text(
-                    _unreadCount > 99 ? '99+' : '$_unreadCount',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                position: badges.BadgePosition.topEnd(top: -2, end: -2),
-                child: const Icon(Icons.notifications, color: Colors.white, size: 28),
-              ),
-            ),
             if (_unreadCount > 0)
               IconButton(
                 onPressed: _markAllAsRead,
                 icon: const Icon(Icons.done_all),
-                tooltip: AppLocalizations.of(context).translate('Đánh dấu tất cả đã đọc'),
+                tooltip: AppLocalizations.of(context)
+                    .translate('Đánh dấu tất cả đã đọc'),
               ),
             if (_notifications.isNotEmpty)
               PopupMenuButton<String>(
@@ -218,9 +221,26 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     case 'delete_all':
                       _deleteAllNotifications();
                       break;
+                    case 'cleanup_duplicates':
+                      _cleanupDuplicateNotifications();
+                      break;
                   }
                 },
                 itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'cleanup_duplicates',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.cleaning_services, color: Colors.blue),
+                        SizedBox(width: 8.w),
+                        Text(
+                          AppLocalizations.of(context)
+                              .translate('Xóa thông báo trùng lặp'),
+                          style: const TextStyle(color: Colors.blue),
+                        ),
+                      ],
+                    ),
+                  ),
                   PopupMenuItem(
                     value: 'delete_all',
                     child: Row(
@@ -330,7 +350,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
-            'assets/img/empty_notification.png',
+            'assets/img/my_vehicle_1.png',
             width: 120.w,
             height: 120.w,
             fit: BoxFit.contain,
@@ -346,7 +366,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
           ),
           SizedBox(height: 10.h),
           Text(
-            AppLocalizations.of(context).translate('Bạn sẽ nhận được thông báo khi có dịch vụ mới'),
+            AppLocalizations.of(context)
+                .translate('Bạn sẽ nhận được thông báo khi có dịch vụ mới'),
             style: TextStyle(
               fontSize: 14.sp,
               color: Colors.grey[500],
@@ -378,7 +399,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
             SizedBox(width: 14.w),
             Text(
               AppLocalizations.of(context).translate('Xóa'),
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20.sp, letterSpacing: 0.5),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 20.sp,
+                  letterSpacing: 0.5),
             ),
           ],
         ),
@@ -410,8 +435,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 await _markAsRead(notification.id);
               }
               // Nếu notification có serviceType và serviceId thì chuyển sang chi tiết dịch vụ
-              if (notification.serviceType.isNotEmpty && notification.serviceId.isNotEmpty) {
-                final usedService = await UsedServicesService().getUsedServiceByTypeAndId(
+              if (notification.serviceType.isNotEmpty &&
+                  notification.serviceId.isNotEmpty) {
+                final usedService =
+                    await UsedServicesService().getUsedServiceByTypeAndId(
                   notification.userId,
                   notification.serviceType,
                   notification.serviceId,
@@ -421,13 +448,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => UsedServiceDetailScreen(service: usedService),
+                      builder: (context) =>
+                          UsedServiceDetailScreen(service: usedService),
                     ),
                   );
                 } else {
                   // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Không tìm thấy thông tin dịch vụ!')),
+                    SnackBar(
+                        content: Text('Không tìm thấy thông tin dịch vụ!')),
                   );
                 }
               }
@@ -442,12 +471,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     width: 44.w,
                     height: 44.h,
                     decoration: BoxDecoration(
-                      color: _getServiceColor(notification.serviceType).withOpacity(0.12),
+                      color: _getServiceColor(notification.serviceType)
+                          .withOpacity(0.12),
                       borderRadius: BorderRadius.circular(22.r),
                     ),
                     child: Center(
                       child: Icon(
-                        _getMaterialIcon(_getServiceIcon(notification.serviceType)),
+                        _getMaterialIcon(
+                            _getServiceIcon(notification.serviceType)),
                         color: _getServiceColor(notification.serviceType),
                         size: 26.sp,
                       ),
@@ -465,11 +496,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 notification.title,
                                 style: TextStyle(
                                   fontSize: 16.sp,
-                                  fontWeight: notification.isRead 
-                                      ? FontWeight.w500 
+                                  fontWeight: notification.isRead
+                                      ? FontWeight.w500
                                       : FontWeight.w700,
-                                  color: notification.isRead 
-                                      ? Colors.black87 
+                                  color: notification.isRead
+                                      ? Colors.black87
                                       : Colors.black,
                                 ),
                                 maxLines: 2,
@@ -523,14 +554,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 vertical: 5.h,
                               ),
                               decoration: BoxDecoration(
-                                color: _getServiceColor(notification.serviceType).withOpacity(0.13),
+                                color:
+                                    _getServiceColor(notification.serviceType)
+                                        .withOpacity(0.13),
                                 borderRadius: BorderRadius.circular(12.r),
                               ),
                               child: Text(
                                 notification.serviceName,
                                 style: TextStyle(
                                   fontSize: 11.sp,
-                                  color: _getServiceColor(notification.serviceType),
+                                  color: _getServiceColor(
+                                      notification.serviceType),
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -567,4 +601,4 @@ class _NotificationScreenState extends State<NotificationScreen> {
         return Icons.notifications;
     }
   }
-} 
+}

@@ -55,6 +55,7 @@ class _DeliveryBillState extends State<DeliveryBill> {
   final UsedServicesService _usedServicesService = UsedServicesService();
   int travelPointToUse = 0;
   VoucherModel? selectedVoucher;
+  bool _isOrderSaved = false;
 
   final List<Map<String, String>> bankOptions = [
     {'id': 'visa', 'image': 'assets/img/Logo_Visa.png'},
@@ -69,6 +70,12 @@ class _DeliveryBillState extends State<DeliveryBill> {
   final int deliveryPrice = 650000;
 
   Future<void> _processPayment() async {
+    // Kiểm tra xem đã lưu chưa để tránh duplicate
+    if (_isOrderSaved) {
+      print('Delivery order already saved, skipping duplicate save');
+      return;
+    }
+
     try {
       // Tạo order ID
       final orderId = DateTime.now().millisecondsSinceEpoch.toString();
@@ -106,6 +113,9 @@ class _DeliveryBillState extends State<DeliveryBill> {
         travelPointsUsed: travelPointToUse,
         status: 'confirmed',
       );
+
+      // Đánh dấu đã lưu thành công
+      _isOrderSaved = true;
 
       // Hiển thị thông báo thành công
       if (mounted) {
@@ -827,7 +837,7 @@ class _DeliveryBillState extends State<DeliveryBill> {
                             ),
                           ),
                           Text(
-                            '-${currencyFormat.format(selectedVoucher!.calculateDiscount(total.toDouble()))} ₫',
+                            '-${currencyFormat.format(selectedVoucher!.calculateDiscount(totalAfterPoint))} ₫',
                             style: TextStyle(
                               fontSize: 14.sp,
                               color: Colors.red,
@@ -848,7 +858,7 @@ class _DeliveryBillState extends State<DeliveryBill> {
                             ),
                           ),
                           Text(
-                            '${currencyFormat.format(totalAfterPoint)} ₫',
+                            '${currencyFormat.format(totalAfterVoucher)} ₫',
                             style: TextStyle(
                               fontSize: 14.sp,
                               color: Colors.blue.shade700,

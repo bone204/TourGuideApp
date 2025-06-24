@@ -28,83 +28,6 @@ class _ChatState extends State<Chat> {
   bool _isLoading = false;
   String? _errorMessage;
   bool _isAITyping = false;
-  List<String> _serviceIntents = [];
-
-  // Mapping intent sang thông tin dịch vụ
-  final List<Map<String, dynamic>> chatbotServices = [
-    {
-      "intent": "car_rental",
-      "label": "Thuê xe ô tô tự lái",
-      "imageUrl": "assets/img/car_home.png",
-      "description": "Thuê xe ô tô tự lái",
-      "navigate": (BuildContext context) {
-        Navigator.pushNamed(context, "/car_rental");
-      }
-    },
-    {
-      "intent": "motorbike_rental",
-      "label": "Thuê xe máy tự lái",
-      "imageUrl": "assets/img/motorbike_home.png",
-      "description": "Thuê xe máy tự lái",
-      "navigate": (BuildContext context) {
-        Navigator.pushNamed(context, "/motorbike_rental");
-      }
-    },
-    {
-      "intent": "custom_route",
-      "label": "Tạo lộ trình du lịch",
-      "imageUrl": "assets/img/travel_home.png",
-      "description": "Tạo lộ trình du lịch cho riêng bạn",
-      "navigate": (BuildContext context) {
-        Navigator.pushNamed(context, "/travel");
-      }
-    },
-    {
-      "intent": "restaurant_booking",
-      "label": "Đặt bàn nhà hàng",
-      "imageUrl": "assets/img/restaurant_home.png",
-      "description": "Đặt bàn nhà hàng",
-      "navigate": (BuildContext context) {
-        Navigator.pushNamed(context, "/restaurant");
-      }
-    },
-    {
-      "intent": "hotel_booking",
-      "label": "Đặt phòng khách sạn",
-      "imageUrl": "assets/img/hotel_home.png",
-      "description": "Đặt phòng khách sạn",
-      "navigate": (BuildContext context) {
-        Navigator.pushNamed(context, "/hotel");
-      }
-    },
-    {
-      "intent": "delivery",
-      "label": "Đặt chuyển phát nhanh",
-      "imageUrl": "assets/img/delivery_home.png",
-      "description": "Đặt chuyển phát nhanh",
-      "navigate": (BuildContext context) {
-        Navigator.pushNamed(context, "/delivery");
-      }
-    },
-    {
-      "intent": "find_eatery",
-      "label": "Tìm quán ăn ngon",
-      "imageUrl": "assets/img/eatery_home.png",
-      "description": "Tìm quán ăn ngon",
-      "navigate": (BuildContext context) {
-        Navigator.pushNamed(context, "/eatery");
-      }
-    },
-    {
-      "intent": "bus_ticket",
-      "label": "Đặt mua vé xe",
-      "imageUrl": "assets/img/bus_home.png",
-      "description": "Đặt mua vé xe",
-      "navigate": (BuildContext context) {
-        Navigator.pushNamed(context, "/bus");
-      }
-    },
-  ];
 
   @override
   void initState() {
@@ -184,26 +107,7 @@ class _ChatState extends State<Chat> {
       }
 
       // Gọi GeminiService để lấy phản hồi AI như bình thường
-      final aiResponse = await _geminiService.askGemini(userMessage);
-
-      // Parse intent nếu có
-      _serviceIntents.clear();
-      try {
-        // Nếu Gemini trả về JSON intent
-        if (aiResponse.trim().startsWith('{') &&
-            aiResponse.trim().endsWith('}')) {
-          final Map<String, dynamic> data = aiResponse.contains('intent')
-              ? Map<String, dynamic>.from(jsonDecode(aiResponse))
-              : {};
-          if (data.isNotEmpty && data['intent'] == 'navigate_to') {
-            if (data['services'] is List) {
-              _serviceIntents = List<String>.from(data['services']);
-            } else if (data['screen'] is String) {
-              _serviceIntents = [data['screen']];
-            }
-          }
-        }
-      } catch (_) {}
+      await _geminiService.askGemini(userMessage);
     } catch (e) {
       setState(() {
         _errorMessage = 'Lỗi: $e';
@@ -268,28 +172,6 @@ class _ChatState extends State<Chat> {
         color: AppColors.white,
         child: Column(
           children: [
-            if (_serviceIntents.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: HomeCardListView(
-                  cardDataList: chatbotServices
-                      .where((service) =>
-                          _serviceIntents.contains(service["intent"]))
-                      .map((service) => HomeCardData(
-                            imageUrl: service["imageUrl"],
-                            placeName: service["label"],
-                            description: service["description"],
-                            rating: 0,
-                            favouriteTimes: 0,
-                          ))
-                      .toList(),
-                  onCardTap: (card) {
-                    final service = chatbotServices
-                        .firstWhere((s) => s["label"] == card.placeName);
-                    service["navigate"](context);
-                  },
-                ),
-              ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: _firestore
@@ -406,6 +288,7 @@ class _ChatState extends State<Chat> {
                           ? DateFormat('HH:mm').format(timestamp.toDate())
                           : '';
                       final type = data['type'] ?? 'text';
+
                       if (type == 'image') {
                         final List<dynamic> images =
                             jsonDecode(data['message']);
@@ -432,6 +315,7 @@ class _ChatState extends State<Chat> {
                               .toList(),
                         );
                       }
+
                       return Align(
                         alignment: isUser
                             ? Alignment.centerRight

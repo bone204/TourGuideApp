@@ -25,6 +25,7 @@ import 'package:tourguideapp/core/services/notification_service.dart';
 import 'package:tourguideapp/core/services/user_service.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:tourguideapp/core/services/cooperation_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -79,6 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _hotelsScrollController = ScrollController();
   final ScrollController _restaurantsScrollController = ScrollController();
 
+  // Biến để lưu danh sách inspiration đã sắp xếp
+  List<HomeCardData> _sortedInspirationList = [];
+  bool _isLoadingSortedInspiration = false;
+
   @override
   void initState() {
     super.initState();
@@ -96,8 +101,9 @@ class _HomeScreenState extends State<HomeScreen> {
       await _notificationService.initialize();
       // Lấy user ID từ UserService
       _currentUserId = await _userService.getCurrentUserId();
-      print('Debug: Initialized notification service, User ID: $_currentUserId');
-      
+      print(
+          'Debug: Initialized notification service, User ID: $_currentUserId');
+
       if (_currentUserId != null) {
         await _notificationService.registerUserToken(_currentUserId!);
         _startNotificationTimer();
@@ -126,7 +132,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadUnreadNotificationCount() async {
     if (_currentUserId != null) {
       try {
-        final count = await _notificationService.getUnreadNotificationCount(_currentUserId!);
+        final count = await _notificationService
+            .getUnreadNotificationCount(_currentUserId!);
         print('Debug: User ID: $_currentUserId, Unread count: $count');
         if (mounted && count != _unreadNotificationCount) {
           setState(() {
@@ -153,7 +160,18 @@ class _HomeScreenState extends State<HomeScreen> {
       // Delay để đảm bảo DestinationsViewModel đã load xong
       Future.delayed(const Duration(milliseconds: 500), () {
         _loadCooperationData();
+        // Load danh sách inspiration đã sắp xếp
+        final destinationsViewModel =
+            Provider.of<DestinationsViewModel>(context, listen: false);
+        _loadSortedInspirationList(destinationsViewModel.horizontalCardsData);
       });
+    }
+
+    // Cập nhật danh sách đã sắp xếp khi favorite destinations thay đổi
+    final destinationsViewModel = Provider.of<DestinationsViewModel>(context);
+    if (destinationsViewModel.horizontalCardsData.isNotEmpty &&
+        _sortedInspirationList.isEmpty) {
+      _loadSortedInspirationList(destinationsViewModel.horizontalCardsData);
     }
   }
 
@@ -616,31 +634,58 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 SizedBox(height: 32.h),
                 // Inspiration Section
-                InspirationSection(
-                  cardDataList: pagedInspirationList,
-                  onCardTap: (cardData) {
-                    final destination =
-                        destinationsViewModel.destinations.firstWhere(
-                      (dest) => dest.destinationName == cardData.placeName,
-                    );
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DestinationDetailPage(
-                          cardData: cardData,
-                          destinationData: destination,
-                          isFavourite:
-                              favouriteViewModel.isFavourite(destination),
-                          onFavouriteToggle: (isFavourite) {
-                            favouriteViewModel.toggleFavourite(destination);
-                          },
-                        ),
-                      ),
+                Consumer<DestinationsViewModel>(
+                  builder: (context, destinationsViewModel, child) {
+                    if (destinationsViewModel.isLoading) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    // Chỉ gọi _loadSortedInspirationList khi dữ liệu đã sẵn sàng và chưa có sorted list
+                    if (_sortedInspirationList.isEmpty &&
+                        destinationsViewModel.horizontalCardsData.isNotEmpty &&
+                        !_isLoadingSortedInspiration) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _loadSortedInspirationList(
+                            destinationsViewModel.horizontalCardsData);
+                      });
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    return InspirationSection(
+                      cardDataList: _sortedInspirationList.isNotEmpty
+                          ? _sortedInspirationList
+                              .take(_visibleInspiration)
+                              .toList()
+                          : destinationsViewModel.horizontalCardsData
+                              .take(_visibleInspiration)
+                              .toList(),
+                      onCardTap: (cardData) {
+                        final destination =
+                            destinationsViewModel.destinations.firstWhere(
+                          (dest) => dest.destinationName == cardData.placeName,
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DestinationDetailPage(
+                              cardData: cardData,
+                              destinationData: destination,
+                              isFavourite:
+                                  favouriteViewModel.isFavourite(destination),
+                              onFavouriteToggle: (isFavourite) {
+                                favouriteViewModel.toggleFavourite(destination);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      isLoading:
+                          _isLoadingInspiration || _isLoadingSortedInspiration,
+                      hasMore: _visibleInspiration <
+                          (_sortedInspirationList.isNotEmpty
+                              ? _sortedInspirationList.length
+                              : destinationsViewModel
+                                  .horizontalCardsData.length),
                     );
                   },
-                  isLoading: _isLoadingInspiration,
-                  hasMore: _visibleInspiration < inspirationList.length,
                 ),
               ],
             ),
@@ -762,7 +807,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(width: 16.w),
+                      SizedBox(width: 12.w),
                       // Notification button with badge
                       _currentUserId == null
                           ? Icon(
@@ -771,7 +816,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               size: 28.sp,
                             )
                           : StreamBuilder<int>(
-                              stream: _notificationService.unreadNotificationCountStream(_currentUserId!),
+                              stream: _notificationService
+                                  .unreadNotificationCountStream(
+                                      _currentUserId!),
                               builder: (context, snapshot) {
                                 final count = snapshot.data ?? 0;
                                 return badges.Badge(
@@ -783,7 +830,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     elevation: 0,
                                   ),
                                   badgeContent: Container(
-                                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                    constraints: const BoxConstraints(
+                                        minWidth: 16, minHeight: 16),
                                     alignment: Alignment.center,
                                     child: Text(
                                       count > 99 ? '99+' : count.toString(),
@@ -795,14 +843,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
-                                  position: badges.BadgePosition.topEnd(top: -2, end: -2),
+                                  position: badges.BadgePosition.topEnd(
+                                      top: -4, end: -6),
                                   child: GestureDetector(
                                     onTap: () {
                                       if (_currentUserId != null) {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => NotificationScreen(
+                                            builder: (context) =>
+                                                NotificationScreen(
                                               userId: _currentUserId!,
                                             ),
                                           ),
@@ -812,7 +862,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Icon(
                                       Icons.notifications,
                                       color: AppColors.white,
-                                      size: 28.sp,
+                                      size: 32.sp,
                                     ),
                                   ),
                                 );
@@ -1010,6 +1060,289 @@ class _HomeScreenState extends State<HomeScreen> {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  // Hàm sắp xếp danh sách inspiration theo user preferences
+  Future<List<HomeCardData>> _sortInspirationList(
+      List<HomeCardData> originalList) async {
+    if (originalList.isEmpty) return originalList;
+
+    final destinationsViewModel =
+        Provider.of<DestinationsViewModel>(context, listen: false);
+    final favouriteViewModel =
+        Provider.of<FavouriteDestinationsViewModel>(context, listen: false);
+
+    // Lấy thông tin user preferences
+    final userData = await _getUserPreferences();
+    final favoriteDestinationIds =
+        List<String>.from(userData['favoriteDestinationIds'] ?? []);
+    final hobbies = List<Map<String, dynamic>>.from(userData['hobbies'] ?? []);
+
+    print('🔍 DEBUG: favoriteDestinationIds = $favoriteDestinationIds');
+    print('🔍 DEBUG: originalList length = ${originalList.length}');
+    print(
+        '🔍 DEBUG: originalList names = ${originalList.map((e) => e.placeName).toList()}');
+
+    // Kiểm tra xem có destination nào có tên chứa "vườn quốc gia" không
+    final destinationsWithVQG = originalList
+        .where((card) => card.placeName.toLowerCase().contains("vườn quốc gia"))
+        .toList();
+    print(
+        '🔍 DEBUG: Destinations with "vườn quốc gia": ${destinationsWithVQG.map((e) => e.placeName).toList()}');
+
+    // Kiểm tra toàn bộ database xem có destination nào có tên chứa "vườn quốc gia" không
+    final allDestinationsWithVQG = destinationsViewModel.destinations
+        .where((dest) =>
+            dest.destinationName.toLowerCase().contains("vườn quốc gia"))
+        .toList();
+    print(
+        '🔍 DEBUG: All destinations in DB with "vườn quốc gia": ${allDestinationsWithVQG.map((e) => e.destinationName).toList()}');
+
+    // Kiểm tra xem D00521 và D01081 có trong danh sách không
+    final d00521InList = originalList.any((card) =>
+        destinationsViewModel.destinations.any((dest) =>
+            dest.destinationId == "D00521" &&
+            dest.destinationName == card.placeName));
+    final d01081InList = originalList.any((card) =>
+        destinationsViewModel.destinations.any((dest) =>
+            dest.destinationId == "D01081" &&
+            dest.destinationName == card.placeName));
+    print(
+        '🔍 DEBUG: D00521 in list: $d00521InList, D01081 in list: $d01081InList');
+
+    // Kiểm tra tên của D00521 và D01081
+    final d00521Dest = destinationsViewModel.destinations
+        .where((dest) => dest.destinationId == "D00521")
+        .firstOrNull;
+    final d01081Dest = destinationsViewModel.destinations
+        .where((dest) => dest.destinationId == "D01081")
+        .firstOrNull;
+    print(
+        '🔍 DEBUG: D00521 name: ${d00521Dest?.destinationName ?? "Not found"}');
+    print(
+        '🔍 DEBUG: D01081 name: ${d01081Dest?.destinationName ?? "Not found"}');
+
+    List<HomeCardData> sortedList = List.from(originalList);
+
+    // Điều kiện 1: Nếu có D00521 và D01081 trong favorite, ưu tiên "vườn quốc gia"
+    final hasD00521 = favoriteDestinationIds.contains("D00521");
+    final hasD01081 = favoriteDestinationIds.contains("D01081");
+    print('🔍 DEBUG: hasD00521 = $hasD00521, hasD01081 = $hasD01081');
+
+    if (hasD00521 && hasD01081) {
+      print(
+          '🔍 DEBUG: Đưa tất cả "Vườn Quốc gia" lên đầu danh sách inspiration');
+      // 1. Lấy tất cả destination có tên bắt đầu bằng "Vườn Quốc gia"
+      final vqgDestinations = destinationsViewModel.destinations
+          .where((dest) => dest.destinationName
+              .trim()
+              .toLowerCase()
+              .startsWith("vườn quốc gia"))
+          .toList();
+
+      // 2. Chuyển sang HomeCardData
+      final vqgCards = vqgDestinations
+          .map((dest) => HomeCardData(
+                placeName: dest.destinationName,
+                imageUrl: dest.photo.isNotEmpty ? dest.photo[0] : '',
+                description: dest.province,
+                rating: dest.rating,
+                favouriteTimes: dest.favouriteTimes,
+              ))
+          .toList();
+
+      // 3. Loại bỏ các item trùng trong originalList
+      final vqgNames = vqgCards.map((e) => e.placeName).toSet();
+      final rest = originalList
+          .where((card) => !vqgNames.contains(card.placeName))
+          .toList();
+
+      // 4. Ghép lại: VQG lên đầu, các item còn lại phía sau
+      sortedList = [...vqgCards, ...rest];
+      print(
+          '🔍 DEBUG: Inspiration list sau khi ưu tiên Vườn Quốc gia: ${sortedList.map((e) => e.placeName).toList()}');
+    }
+
+    // Điều kiện 2: Nếu có CA02 trong hobbies, ưu tiên "Giải trí"
+    final hasCA02 = hobbies.any((hobby) => hobby['categoriesID'] == "CA02");
+    print('🔍 DEBUG: hasCA02 = $hasCA02');
+    if (hasCA02) {
+      print('🔍 DEBUG: Applying entertainment sorting...');
+      sortedList.sort((a, b) {
+        // Tìm destination tương ứng để lấy category
+        try {
+          final destA = destinationsViewModel.destinations.firstWhere(
+            (dest) => dest.destinationName == a.placeName,
+          );
+          final destB = destinationsViewModel.destinations.firstWhere(
+            (dest) => dest.destinationName == b.placeName,
+          );
+
+          final aIsEntertainment = destA.categories.contains("Giải trí");
+          final bIsEntertainment = destB.categories.contains("Giải trí");
+
+          print(
+              '🔍 DEBUG: Comparing "${a.placeName}" (isEntertainment: $aIsEntertainment) vs "${b.placeName}" (isEntertainment: $bIsEntertainment)');
+
+          if (aIsEntertainment && !bIsEntertainment) return -1;
+          if (!aIsEntertainment && bIsEntertainment) return 1;
+          return 0;
+        } catch (e) {
+          print('🔍 DEBUG: Error finding destination for comparison: $e');
+          return 0;
+        }
+      });
+      print(
+          '🔍 DEBUG: After entertainment sorting: ${sortedList.map((e) => e.placeName).toList()}');
+    }
+
+    // Điều kiện 3: Nếu có D00426 trong danh sách, sắp xếp theo số lượng đánh giá
+    final hasD00426 = sortedList.any((card) {
+      try {
+        final dest = destinationsViewModel.destinations.firstWhere(
+          (dest) => dest.destinationName == card.placeName,
+        );
+        return dest.destinationId == "D00426";
+      } catch (e) {
+        return false;
+      }
+    });
+    print('🔍 DEBUG: hasD00426 = $hasD00426');
+
+    if (hasD00426) {
+      print('🔍 DEBUG: Applying rating sorting...');
+      sortedList.sort((a, b) {
+        try {
+          final destA = destinationsViewModel.destinations.firstWhere(
+            (dest) => dest.destinationName == a.placeName,
+          );
+          final destB = destinationsViewModel.destinations.firstWhere(
+            (dest) => dest.destinationName == b.placeName,
+          );
+
+          // Sắp xếp từ nhiều đánh giá nhất đến ít nhất
+          final result =
+              destB.userRatingsTotal.compareTo(destA.userRatingsTotal);
+          print(
+              '🔍 DEBUG: Comparing "${a.placeName}" (${destA.userRatingsTotal} ratings) vs "${b.placeName}" (${destB.userRatingsTotal} ratings) = $result');
+          return result;
+        } catch (e) {
+          print(
+              '🔍 DEBUG: Error finding destination for rating comparison: $e');
+          return 0;
+        }
+      });
+      print(
+          '🔍 DEBUG: After rating sorting: ${sortedList.map((e) => e.placeName).toList()}');
+    }
+
+    // Điều kiện 4: Nếu có D00504, D00488, D00507 trong favorite, ưu tiên "Hồ Chí Minh"
+    final hasD00504 = favoriteDestinationIds.contains("D00504");
+    final hasD00488 = favoriteDestinationIds.contains("D00488");
+    final hasD00507 = favoriteDestinationIds.contains("D00507");
+    print(
+        '🔍 DEBUG: hasD00504 = $hasD00504, hasD00488 = $hasD00488, hasD00507 = $hasD00507');
+
+    if (hasD00504 && hasD00488 && hasD00507) {
+      print('🔍 DEBUG: Applying HCM sorting...');
+      sortedList.sort((a, b) {
+        try {
+          final destA = destinationsViewModel.destinations.firstWhere(
+            (dest) => dest.destinationName == a.placeName,
+          );
+          final destB = destinationsViewModel.destinations.firstWhere(
+            (dest) => dest.destinationName == b.placeName,
+          );
+
+          final aIsHCM = destA.province == "Hồ Chí Minh";
+          final bIsHCM = destB.province == "Hồ Chí Minh";
+
+          print(
+              '🔍 DEBUG: Comparing "${a.placeName}" (isHCM: $aIsHCM) vs "${b.placeName}" (isHCM: $bIsHCM)');
+
+          if (aIsHCM && !bIsHCM) return -1;
+          if (!aIsHCM && bIsHCM) return 1;
+          return 0;
+        } catch (e) {
+          print('🔍 DEBUG: Error finding destination for HCM comparison: $e');
+          return 0;
+        }
+      });
+      print(
+          '🔍 DEBUG: After HCM sorting: ${sortedList.map((e) => e.placeName).toList()}');
+    }
+
+    print(
+        '🔍 DEBUG: Final sorted list: ${sortedList.map((e) => e.placeName).toList()}');
+    return sortedList;
+  }
+
+  // Hàm lấy thông tin user preferences
+  Future<Map<String, dynamic>> _getUserPreferences() async {
+    try {
+      final userService = UserService();
+      final userId = await userService.getCurrentUserId();
+
+      if (userId == null) {
+        return {
+          'favoriteDestinationIds': [],
+          'hobbies': [],
+        };
+      }
+
+      // Lấy thông tin user từ Firestore
+      final userDoc =
+          await FirebaseFirestore.instance.collection('USER').doc(userId).get();
+
+      if (userDoc.exists) {
+        final userData = userDoc.data()!;
+        return {
+          'favoriteDestinationIds': userData['favoriteDestinationIds'] ?? [],
+          'hobbies': userData['hobbies'] ?? [],
+        };
+      }
+
+      return {
+        'favoriteDestinationIds': [],
+        'hobbies': [],
+      };
+    } catch (e) {
+      print('Error getting user preferences: $e');
+      return {
+        'favoriteDestinationIds': [],
+        'hobbies': [],
+      };
+    }
+  }
+
+  // Hàm load danh sách inspiration đã sắp xếp
+  Future<void> _loadSortedInspirationList(
+      List<HomeCardData> originalList) async {
+    if (originalList.isEmpty) {
+      setState(() {
+        _sortedInspirationList = [];
+        _isLoadingSortedInspiration = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoadingSortedInspiration = true;
+    });
+
+    try {
+      final sortedList = await _sortInspirationList(originalList);
+      setState(() {
+        _sortedInspirationList = sortedList;
+        _isLoadingSortedInspiration = false;
+      });
+    } catch (e) {
+      print('Error sorting inspiration list: $e');
+      setState(() {
+        _sortedInspirationList = originalList;
+        _isLoadingSortedInspiration = false;
+      });
     }
   }
 }

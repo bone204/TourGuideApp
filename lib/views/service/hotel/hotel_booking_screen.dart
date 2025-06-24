@@ -9,7 +9,6 @@ import 'package:tourguideapp/widgets/date_time_picker.dart';
 import 'package:tourguideapp/widgets/disable_textfield.dart';
 import 'package:tourguideapp/widgets/province_picker.dart';
 import 'package:tourguideapp/widgets/custom_elevated_button.dart';
-import 'package:tourguideapp/widgets/custom_combo_box.dart';
 
 class HotelBookingScreen extends StatefulWidget {
   @override

@@ -11,7 +11,8 @@ class NotificationService {
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
 
   String? _fcmToken;
 
@@ -20,13 +21,13 @@ class NotificationService {
     try {
       // Cấu hình local notifications
       await _initializeLocalNotifications();
-      
+
       // Cấu hình FCM
       await _initializeFCM();
-      
+
       // Lắng nghe thông báo khi app đang chạy
       FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-      
+
       // Lắng nghe khi user tap vào thông báo
       FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
     } catch (e) {
@@ -38,10 +39,10 @@ class NotificationService {
     try {
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('@mipmap/ic_launcher');
-      
+
       const DarwinInitializationSettings initializationSettingsIOS =
           DarwinInitializationSettings();
-      
+
       const InitializationSettings initializationSettings =
           InitializationSettings(
         android: initializationSettingsAndroid,
@@ -52,7 +53,7 @@ class NotificationService {
         initializationSettings,
         onDidReceiveNotificationResponse: _onNotificationTapped,
       );
-      
+
       print('Local notifications initialized successfully');
     } catch (e) {
       print('Error initializing local notifications: $e');
@@ -84,7 +85,6 @@ class NotificationService {
 
   // Đăng ký FCM token cho user
   Future<void> registerUserToken(String userId) async {
-    
     if (_fcmToken != null) {
       try {
         await _firestore.collection('USER_FCM_TOKENS').doc(userId).set({
@@ -111,17 +111,17 @@ class NotificationService {
   }) async {
     try {
       // Kiểm tra xem notification đã tồn tại chưa để tránh duplicate
+      // Chỉ kiểm tra theo serviceId vì mỗi dịch vụ sẽ có serviceId unique
       final existingNotification = await _firestore
           .collection('NOTIFICATIONS')
           .where('userId', isEqualTo: userId)
-          .where('serviceType', isEqualTo: serviceType)
           .where('serviceId', isEqualTo: serviceId)
-          .where('title', isEqualTo: title)
           .limit(1)
           .get();
 
       if (existingNotification.docs.isNotEmpty) {
-        print('Notification already exists, skipping duplicate: $serviceId');
+        print(
+            'Notification with same serviceId already exists, skipping: $serviceId');
         return;
       }
 
@@ -186,7 +186,7 @@ class NotificationService {
           'serviceId': serviceId,
         }),
       );
-      
+
       print('Local notification shown successfully');
     } catch (e) {
       print('Error showing local notification: $e');
@@ -201,7 +201,7 @@ class NotificationService {
 
     if (message.notification != null) {
       print('Message also contained a notification: ${message.notification}');
-      
+
       // Hiển thị local notification
       _showLocalNotification(
         message.notification!.title ?? 'Thông báo mới',
@@ -231,6 +231,10 @@ class NotificationService {
   Future<List<NotificationModel>> getUserNotifications(String userId) async {
     try {
       print('Debug: Fetching notifications for user: $userId');
+
+      // Tạm thời tắt tính năng tự động xóa duplicate để tránh xóa nhầm
+      // await removeDuplicateNotifications(userId);
+
       final snapshot = await _firestore
           .collection('NOTIFICATIONS')
           .where('userId', isEqualTo: userId)
@@ -245,8 +249,9 @@ class NotificationService {
       final notifications = snapshot.docs
           .map((doc) => NotificationModel.fromMap(doc.data(), doc.id))
           .toList();
-      
-      print('Debug: Found ${notifications.length} notifications for user: $userId');
+
+      print(
+          'Debug: Found ${notifications.length} notifications for user: $userId');
       return notifications;
     } catch (e) {
       print('Error fetching notifications: $e');
@@ -266,11 +271,12 @@ class NotificationService {
         final notifications = snapshot.docs
             .map((doc) => NotificationModel.fromMap(doc.data(), doc.id))
             .toList();
-        
+
         // Sort manually
         notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        
-        print('Debug: Found ${notifications.length} notifications with simple query');
+
+        print(
+            'Debug: Found ${notifications.length} notifications with simple query');
         return notifications;
       } catch (e2) {
         print('Error with simple query: $e2');
@@ -380,7 +386,7 @@ class NotificationService {
   Future<void> removeDuplicateNotifications(String userId) async {
     try {
       print('Removing duplicate notifications for user: $userId');
-      
+
       // Lấy tất cả notifications của user
       final snapshot = await _firestore
           .collection('NOTIFICATIONS')
@@ -393,12 +399,30 @@ class NotificationService {
 
       for (var doc in notifications) {
         final data = doc.data();
-        final key = '${data['serviceType']}_${data['serviceId']}_${data['title']}';
-        
-        if (seen.contains(key)) {
-          toDelete.add(doc.id);
-        } else {
-          seen.add(key);
+        // Chỉ kiểm tra duplicate dựa trên serviceId và thời gian tạo gần nhau (trong vòng 1 phút)
+        final createdAt = data['createdAt'];
+        if (createdAt != null) {
+          DateTime createTime;
+          if (createdAt is Timestamp) {
+            createTime = createdAt.toDate();
+          } else if (createdAt is String) {
+            createTime = DateTime.parse(createdAt);
+          } else {
+            continue; // Bỏ qua nếu không có thời gian tạo
+          }
+
+          // Chỉ xem xét các thông báo được tạo trong 1 phút gần đây
+          final oneMinuteAgo = DateTime.now().subtract(Duration(minutes: 1));
+          if (createTime.isAfter(oneMinuteAgo)) {
+            final key = '${data['serviceId']}_${data['serviceType']}';
+
+            if (seen.contains(key)) {
+              toDelete.add(doc.id);
+              print('Found duplicate notification: ${data['serviceId']}');
+            } else {
+              seen.add(key);
+            }
+          }
         }
       }
 
@@ -417,6 +441,11 @@ class NotificationService {
     }
   }
 
+  // Phương thức public để xóa duplicate notifications
+  Future<void> cleanupDuplicateNotifications(String userId) async {
+    await removeDuplicateNotifications(userId);
+  }
+
   // Stream số lượng thông báo chưa đọc
   Stream<int> unreadNotificationCountStream(String userId) {
     return _firestore
@@ -426,4 +455,4 @@ class NotificationService {
         .snapshots()
         .map((snapshot) => snapshot.docs.length);
   }
-} 
+}

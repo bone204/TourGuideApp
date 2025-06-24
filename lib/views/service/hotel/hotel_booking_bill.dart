@@ -16,6 +16,8 @@ import 'package:tourguideapp/widgets/app_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/viewmodels/profile_viewmodel.dart';
+import 'package:tourguideapp/models/voucher_model.dart';
+import 'package:tourguideapp/views/service/voucher/voucher_selection_screen.dart';
 
 class HotelBookingBillScreen extends StatefulWidget {
   final CooperationModel hotel;
@@ -44,6 +46,9 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
   final HotelService _hotelService = HotelService();
   final currencyFormat = NumberFormat('#,###', 'vi_VN');
   int travelPointToUse = 0;
+  VoucherModel? selectedVoucher;
+  bool _isBookingSaved = false;
+  bool _isProcessingPayment = false;
 
   // Thông tin booking
   late DateTime checkInDate;
@@ -128,6 +133,21 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
   }
 
   Future<void> _processPayment() async {
+    // Kiểm tra xem đã lưu chưa để tránh duplicate
+    if (_isBookingSaved) {
+      print('Hotel booking already saved, skipping duplicate save');
+      return;
+    }
+
+    // Kiểm tra xem đang xử lý thanh toán không để tránh duplicate
+    if (_isProcessingPayment) {
+      print('Payment is already being processed, skipping duplicate payment');
+      return;
+    }
+
+    // Đánh dấu đang xử lý thanh toán
+    _isProcessingPayment = true;
+
     if (selectedBank == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -136,6 +156,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
           backgroundColor: Colors.red,
         ),
       );
+      _isProcessingPayment = false; // Reset trạng thái
       return;
     }
 
@@ -147,6 +168,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
           backgroundColor: Colors.red,
         ),
       );
+      _isProcessingPayment = false; // Reset trạng thái
       return;
     }
 
@@ -169,6 +191,14 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
       final numberOfNights = checkOutDate.difference(checkInDate).inDays;
       final totalPrice =
           roomAvailability!.price * numberOfNights * numberOfRooms;
+      final totalAfterPoint =
+          (totalPrice - travelPointToUse).clamp(0, totalPrice).toDouble();
+      final voucherDiscount = selectedVoucher != null
+          ? selectedVoucher!.calculateDiscount(totalAfterPoint)
+          : 0.0;
+      final totalAfterVoucher = (totalAfterPoint - voucherDiscount)
+          .clamp(0, totalAfterPoint)
+          .toDouble();
 
       // Tạo bill trong database
       final bill = HotelBillModel(
@@ -178,14 +208,32 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
         checkOutDate: DateFormat('yyyy-MM-dd').format(checkOutDate),
         createdDate: DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
         numberOfRooms: numberOfRooms,
-        total: totalPrice,
-        voucherId: '',
-        travelPointsUsed: 0,
+        total: totalAfterVoucher,
+        voucherId: selectedVoucher?.voucherId ?? '',
+        travelPointsUsed: travelPointToUse,
         status: 'confirmed',
         roomIds: [roomAvailability!.roomId],
       );
 
       final billId = await _hotelService.createHotelBooking(bill);
+
+      // Trừ điểm thưởng
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId != null && travelPointToUse > 0) {
+        await FirebaseFirestore.instance.collection('USER').doc(userId).update({
+          'travelPoint': FieldValue.increment(-travelPointToUse),
+        });
+      }
+      // Cộng điểm thưởng
+      final reward = totalAfterVoucher > 500000 ? 2000 : 1000;
+      if (userId != null) {
+        await FirebaseFirestore.instance.collection('USER').doc(userId).update({
+          'travelPoint': FieldValue.increment(reward),
+        });
+      }
+
+      // Đánh dấu đã lưu thành công
+      _isBookingSaved = true;
 
       // Hiển thị thông báo thành công
       if (mounted) {
@@ -217,6 +265,9 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
           ),
         );
       }
+    } finally {
+      // Reset trạng thái xử lý thanh toán
+      _isProcessingPayment = false;
     }
   }
 
@@ -248,7 +299,13 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                           numberOfRooms
                       : 0;
                   final totalAfterPoint =
-                      (total - travelPointToUse).clamp(0, total);
+                      (total - travelPointToUse).clamp(0, total).toDouble();
+                  final voucherDiscount = selectedVoucher != null
+                      ? selectedVoucher!.calculateDiscount(totalAfterPoint)
+                      : 0.0;
+                  final totalAfterVoucher = (totalAfterPoint - voucherDiscount)
+                      .clamp(0, totalAfterPoint)
+                      .toDouble();
                   return Column(children: [
                     // Hotel image
                     ClipRRect(
@@ -343,165 +400,344 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                     ),
                     SizedBox(height: 16.h),
 
-                    // Total
-                    if (roomAvailability != null) ...[
-                      if (travelPointOptions.isNotEmpty) ...[
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.all(16.w),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(12.r),
-                            color: Colors.orange.shade50,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.star,
-                                    color: Colors.orange,
-                                    size: 20.sp,
+                    // Chọn điểm thưởng
+                    if (roomAvailability != null &&
+                        travelPointOptions.isNotEmpty) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(16.w),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(12.r),
+                          color: Colors.orange.shade50,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.orange,
+                                  size: 20.sp,
+                                ),
+                                SizedBox(width: 8.w),
+                                Text(
+                                  'Sử dụng điểm thưởng',
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    color: Colors.orange.shade800,
+                                    fontWeight: FontWeight.w700,
                                   ),
-                                  SizedBox(width: 8.w),
-                                  Text(
-                                    'Sử dụng điểm thưởng',
-                                    style: TextStyle(
-                                      fontSize: 16.sp,
-                                      color: Colors.orange.shade800,
-                                      fontWeight: FontWeight.w700,
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 12.h),
+                            Text(
+                              'Điểm hiện có: ${currencyFormat.format(travelPoint)} điểm',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            SizedBox(height: 12.h),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8.r),
+                                border:
+                                    Border.all(color: Colors.orange.shade200),
+                              ),
+                              child: DropdownButtonFormField<int>(
+                                value: travelPointToUse,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 16.w, vertical: 12.h),
+                                  hintText: 'Chọn số điểm muốn sử dụng',
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey.shade500,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: 0,
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.cancel_outlined,
+                                            color: Colors.grey, size: 16.sp),
+                                        SizedBox(width: 8.w),
+                                        Text(
+                                          'Không sử dụng điểm',
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 14.sp,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
+                                  ...travelPointOptions
+                                      .map((points) => DropdownMenuItem(
+                                            value: points,
+                                            child: Text(
+                                              '${currencyFormat.format(points)} điểm (-${currencyFormat.format(points)} ₫)',
+                                              style: TextStyle(
+                                                color: Colors.orange.shade800,
+                                                fontSize: 14.sp,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ))
+                                      .toList(),
                                 ],
-                              ),
-                              SizedBox(height: 12.h),
-                              Text(
-                                'Điểm hiện có: ${currencyFormat.format(travelPoint)} điểm',
+                                onChanged: (value) {
+                                  setState(() {
+                                    travelPointToUse = value ?? 0;
+                                  });
+                                },
+                                dropdownColor: Colors.white,
+                                icon: Icon(Icons.keyboard_arrow_down,
+                                    color: Colors.orange),
                                 style: TextStyle(
+                                  color: Colors.black,
                                   fontSize: 14.sp,
-                                  color: Colors.grey.shade600,
                                 ),
                               ),
-                              SizedBox(height: 12.h),
+                            ),
+                            if (travelPointToUse > 0) ...[
+                              SizedBox(height: 8.h),
                               Container(
+                                padding: EdgeInsets.all(8.w),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8.r),
+                                  color: Colors.green.shade50,
+                                  borderRadius: BorderRadius.circular(6.r),
                                   border:
-                                      Border.all(color: Colors.orange.shade200),
+                                      Border.all(color: Colors.green.shade200),
                                 ),
-                                child: DropdownButtonFormField<int>(
-                                  value: travelPointToUse,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 16.w, vertical: 12.h),
-                                    hintText: 'Chọn số điểm muốn sử dụng',
-                                    hintStyle: TextStyle(
-                                      color: Colors.grey.shade500,
-                                      fontSize: 14.sp,
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.savings,
+                                        color: Colors.green, size: 16.sp),
+                                    SizedBox(width: 6.w),
+                                    Text(
+                                      'Tiết kiệm: ${currencyFormat.format(travelPointToUse)} ₫',
+                                      style: TextStyle(
+                                        color: Colors.green.shade700,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                    ],
+
+                    // Chọn voucher
+                    if (roomAvailability != null) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(16.w),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Voucher',
+                                    style: TextStyle(
+                                        fontSize: 16.sp,
+                                        color: AppColors.primaryColor,
+                                        fontWeight: FontWeight.w700)),
+                                GestureDetector(
+                                  onTap: () async {
+                                    final result =
+                                        await Navigator.push<VoucherModel>(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            VoucherSelectionScreen(
+                                          totalAmount: totalAfterPoint,
+                                          onVoucherSelected: (voucher) {
+                                            setState(() {
+                                              selectedVoucher = voucher;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                    if (result != null) {
+                                      setState(() {
+                                        selectedVoucher = result;
+                                      });
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 12.w, vertical: 6.h),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryColor,
+                                      borderRadius: BorderRadius.circular(16.r),
+                                    ),
+                                    child: Text(
+                                      selectedVoucher != null
+                                          ? 'Thay đổi'
+                                          : 'Chọn voucher',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
-                                  items: [
-                                    DropdownMenuItem(
-                                      value: 0,
-                                      child: Row(
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8.h),
+                            if (selectedVoucher != null) ...[
+                              Container(
+                                padding: EdgeInsets.all(12.w),
+                                decoration: BoxDecoration(
+                                  color:
+                                      AppColors.primaryColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.local_offer,
+                                      color: AppColors.primaryColor,
+                                      size: 20.sp,
+                                    ),
+                                    SizedBox(width: 8.w),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Icon(Icons.cancel_outlined,
-                                              color: Colors.grey, size: 16.sp),
-                                          SizedBox(width: 8.w),
                                           Text(
-                                            'Không sử dụng điểm',
+                                            'GIẢM ${selectedVoucher!.value}% HÓA ĐƠN',
                                             style: TextStyle(
-                                              color: Colors.grey,
                                               fontSize: 14.sp,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.primaryColor,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Tiết kiệm: ${currencyFormat.format(voucherDiscount)} ₫',
+                                            style: TextStyle(
+                                              fontSize: 12.sp,
+                                              color: Colors.grey,
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    ...travelPointOptions
-                                        .map((points) => DropdownMenuItem(
-                                              value: points,
-                                              child: Text(
-                                                '${currencyFormat.format(points)} điểm (-${currencyFormat.format(points)} ₫)',
-                                                style: TextStyle(
-                                                  color: Colors.orange.shade800,
-                                                  fontSize: 14.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ))
-                                        .toList(),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          selectedVoucher = null;
+                                        });
+                                      },
+                                      child: Icon(
+                                        Icons.close,
+                                        color: Colors.grey,
+                                        size: 20.sp,
+                                      ),
+                                    ),
                                   ],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      travelPointToUse = value ?? 0;
-                                    });
-                                  },
-                                  dropdownColor: Colors.white,
-                                  icon: Icon(Icons.keyboard_arrow_down,
-                                      color: Colors.orange),
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14.sp,
-                                  ),
                                 ),
                               ),
-                              if (travelPointToUse > 0) ...[
-                                SizedBox(height: 8.h),
-                                Container(
-                                  padding: EdgeInsets.all(8.w),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.shade50,
-                                    borderRadius: BorderRadius.circular(6.r),
-                                    border: Border.all(
-                                        color: Colors.green.shade200),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.savings,
-                                          color: Colors.green, size: 16.sp),
-                                      SizedBox(width: 6.w),
-                                      Text(
-                                        'Tiết kiệm: ${currencyFormat.format(travelPointToUse)} ₫',
-                                        style: TextStyle(
-                                          color: Colors.green.shade700,
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                            ] else ...[
+                              Text(
+                                'Chưa chọn voucher',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: Colors.grey,
                                 ),
-                              ],
+                              ),
                             ],
-                          ),
+                          ],
                         ),
-                        SizedBox(height: 16.h),
-                      ],
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(AppLocalizations.of(context).translate("Total"),
-                              style: TextStyle(
-                                  fontSize: 16.sp,
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.w700)),
-                          Text('${currencyFormat.format(total)} ₫',
-                              style: TextStyle(
-                                  fontSize: 16.sp,
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.w700))
-                        ],
                       ),
-                      // Chi tiết giảm giá
-                      if (travelPointToUse > 0) ...[
-                        SizedBox(height: 12.h),
-                        Divider(height: 1, color: Colors.grey.shade300),
+                      SizedBox(height: 16.h),
+                    ],
+
+                    // Tổng tiền
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(AppLocalizations.of(context).translate("Total"),
+                            style: TextStyle(
+                                fontSize: 16.sp,
+                                color: AppColors.black,
+                                fontWeight: FontWeight.w700)),
+                        Text('${currencyFormat.format(total)} ₫',
+                            style: TextStyle(
+                                fontSize: 16.sp,
+                                color: AppColors.black,
+                                fontWeight: FontWeight.w700))
+                      ],
+                    ),
+                    if (travelPointToUse > 0 || selectedVoucher != null) ...[
+                      SizedBox(height: 12.h),
+                      Divider(height: 1, color: Colors.grey.shade300),
+                      SizedBox(height: 8.h),
+                      if (selectedVoucher != null) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Giảm ${selectedVoucher!.value}% voucher:',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            Text(
+                              '-${currencyFormat.format(voucherDiscount)} ₫',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.red,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Sau voucher:',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            Text(
+                              '${currencyFormat.format(totalAfterVoucher)} ₫',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.blue.shade700,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                         SizedBox(height: 8.h),
-                        // Điểm thưởng
+                      ],
+                      if (travelPointToUse > 0) ...[
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -523,32 +759,30 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                           ],
                         ),
                         SizedBox(height: 8.h),
-                        Divider(height: 1, color: Colors.grey.shade300),
-                        SizedBox(height: 8.h),
-                        // Tổng cuối cùng
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Tổng thanh toán:',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.black,
-                              ),
-                            ),
-                            Text(
-                              '${currencyFormat.format(totalAfterPoint)} ₫',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primaryColor,
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
-                      SizedBox(height: 24.h),
+                      Divider(height: 1, color: Colors.grey.shade300),
+                      SizedBox(height: 8.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Tổng thanh toán:',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.black,
+                            ),
+                          ),
+                          Text(
+                            '${currencyFormat.format(totalAfterVoucher)} ₫',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
 
                     // Payment methods
@@ -599,7 +833,8 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
 
                     // Confirm button
                     ElevatedButton(
-                      onPressed: (roomAvailability?.hasAvailability ?? false)
+                      onPressed: (roomAvailability?.hasAvailability ?? false) &&
+                              !_isProcessingPayment
                           ? () async {
                               if (selectedBank == null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -618,7 +853,7 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                                   appScheme: 'MOMO',
                                   merchantCode: 'MOMO',
                                   partnerCode: 'MOMO',
-                                  amount: totalAfterPoint.toInt(),
+                                  amount: totalAfterVoucher.toInt(),
                                   orderId: DateTime.now()
                                       .millisecondsSinceEpoch
                                       .toString(),
@@ -634,31 +869,6 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                                       '{"hotelId":"${widget.hotel.cooperationId}","roomId":"${roomAvailability!.roomId}"}',
                                   isTestMode: true,
                                   onSuccess: (response) async {
-                                    // Trừ điểm thưởng
-                                    final userId =
-                                        FirebaseAuth.instance.currentUser?.uid;
-                                    if (userId != null &&
-                                        travelPointToUse > 0) {
-                                      await FirebaseFirestore.instance
-                                          .collection('USER')
-                                          .doc(userId)
-                                          .update({
-                                        'travelPoint': FieldValue.increment(
-                                            -travelPointToUse),
-                                      });
-                                    }
-                                    // Cộng điểm thưởng
-                                    final reward =
-                                        totalAfterPoint > 500000 ? 2000 : 1000;
-                                    if (userId != null) {
-                                      await FirebaseFirestore.instance
-                                          .collection('USER')
-                                          .doc(userId)
-                                          .update({
-                                        'travelPoint':
-                                            FieldValue.increment(reward),
-                                      });
-                                    }
                                     // Gọi _processPayment để lưu bill
                                     await _processPayment();
                                   },
@@ -687,18 +897,44 @@ class _HotelBookingBillScreenState extends State<HotelBookingBillScreen> {
                             }
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF007BFF),
+                        backgroundColor: _isProcessingPayment
+                            ? Colors.grey
+                            : const Color(0xFF007BFF),
                         foregroundColor: Colors.white,
                         minimumSize: Size(double.infinity, 50.h),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.r)),
                       ),
-                      child: Text(
-                          AppLocalizations.of(context).translate("Confirm"),
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w700,
-                          )),
+                      child: _isProcessingPayment
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 20.sp,
+                                  height: 20.sp,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
+                                  ),
+                                ),
+                                SizedBox(width: 12.w),
+                                Text(
+                                  'Đang xử lý...',
+                                  style: TextStyle(
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              AppLocalizations.of(context).translate("Confirm"),
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                     ),
                   ]);
                 },

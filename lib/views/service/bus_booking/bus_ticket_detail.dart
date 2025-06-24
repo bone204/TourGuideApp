@@ -14,6 +14,7 @@ import 'package:tourguideapp/widgets/checkbox_row.dart';
 import 'package:tourguideapp/widgets/custom_radio_options.dart';
 import 'package:tourguideapp/widgets/custom_text_field.dart';
 import 'package:tourguideapp/widgets/seat_widget.dart';
+import 'package:tourguideapp/widgets/bank_option_selector.dart';
 import 'package:tourguideapp/core/services/momo_service.dart';
 import 'package:tourguideapp/core/services/used_services_service.dart';
 import 'package:tourguideapp/widgets/app_dialog.dart';
@@ -170,6 +171,18 @@ class _BusTicketDetailState extends State<BusTicketDetail>
   int travelPointToUse = 0;
   VoucherModel? selectedVoucher;
   final currencyFormat = NumberFormat('#,###', 'vi_VN');
+  bool _isBookingSaved = false; // Biến để kiểm soát việc đã lưu chưa
+  bool _isProcessingPayment = false; // Biến để kiểm soát trạng thái thanh toán
+  String? selectedBank; // Phương thức thanh toán được chọn
+
+  final List<Map<String, String>> bankOptions = [
+    {'id': 'visa', 'image': 'assets/img/Logo_Visa.png'},
+    {'id': 'mastercard', 'image': 'assets/img/Logo_Mastercard.png'},
+    {'id': 'paypal', 'image': 'assets/img/Logo_PayPal.png'},
+    {'id': 'momo', 'image': 'assets/img/Logo_Momo.png'},
+    {'id': 'zalopay', 'image': 'assets/img/Logo_Zalopay.png'},
+    {'id': 'shopee', 'image': 'assets/img/Logo_Shopee.png'},
+  ];
 
   void toggleSeatSelection(int row, int col, bool isUpper, bool isDeparture) {
     setState(() {
@@ -471,187 +484,7 @@ class _BusTicketDetailState extends State<BusTicketDetail>
                       if (_currentStep > 0) SizedBox(width: 16.w),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: _currentStep == 3
-                              ? () async {
-                                  if (departureSelectedSeats.isEmpty &&
-                                      returnSelectedSeats.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(AppLocalizations.of(
-                                                context)
-                                            .translate(
-                                                'Please select at least one seat')),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                    return;
-                                  }
-                                  if (_fullNameController.text.isEmpty ||
-                                      _emailController.text.isEmpty ||
-                                      _phoneNumberController.text.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(AppLocalizations.of(
-                                                context)
-                                            .translate(
-                                                'Please fill in all passenger information')),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                    return;
-                                  }
-                                  final userId =
-                                      FirebaseAuth.instance.currentUser?.uid;
-                                  await MomoService.processPayment(
-                                    merchantName: 'TTN',
-                                    appScheme: 'MOMO',
-                                    merchantCode: 'MOMO',
-                                    partnerCode: 'MOMO',
-                                    amount: totalAfterVoucher.toInt(),
-                                    orderId: DateTime.now()
-                                        .millisecondsSinceEpoch
-                                        .toString(),
-                                    orderLabel: 'Đặt vé xe buýt',
-                                    merchantNameLabel: 'HLGD',
-                                    fee: 0,
-                                    description: 'Thanh toán đặt vé xe buýt',
-                                    username: userId ?? '',
-                                    partner: 'merchant',
-                                    extra:
-                                        '{"fromLocation":"$fromLocation","toLocation":"$toLocation","departureDate":"${departureDate.toIso8601String()}"}',
-                                    isTestMode: true,
-                                    onSuccess: (response) async {
-                                      if (userId != null &&
-                                          travelPointToUse > 0) {
-                                        await FirebaseFirestore.instance
-                                            .collection('USER')
-                                            .doc(userId)
-                                            .update({
-                                          'travelPoint': FieldValue.increment(
-                                              -travelPointToUse),
-                                        });
-                                      }
-                                      final reward = totalAfterVoucher > 500000
-                                          ? 2000
-                                          : 1000;
-                                      if (userId != null) {
-                                        await FirebaseFirestore.instance
-                                            .collection('USER')
-                                            .doc(userId)
-                                            .update({
-                                          'travelPoint':
-                                              FieldValue.increment(reward),
-                                        });
-                                      }
-                                      try {
-                                        final orderId = DateTime.now()
-                                            .millisecondsSinceEpoch
-                                            .toString();
-                                        final currentUser =
-                                            FirebaseAuth.instance.currentUser;
-                                        if (currentUser == null) {
-                                          throw Exception(
-                                              'User not authenticated');
-                                        }
-                                        await _usedServicesService
-                                            .addBusBookingToUsedServices(
-                                          userId: currentUser.uid,
-                                          orderId: orderId,
-                                          fromLocation: fromLocation,
-                                          toLocation: toLocation,
-                                          departureDate: departureDate,
-                                          returnDate: returnDate,
-                                          passengerName:
-                                              _fullNameController.text,
-                                          passengerEmail: _emailController.text,
-                                          passengerPhone:
-                                              _phoneNumberController.text,
-                                          departureSelectedSeats:
-                                              departureSelectedSeats
-                                                  .map((e) =>
-                                                      '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}')
-                                                  .toList(),
-                                          returnSelectedSeats: returnSelectedSeats
-                                              .map((e) =>
-                                                  '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}')
-                                              .toList(),
-                                          departurePickupStation:
-                                              selectedDeparturePickupStation
-                                                      ?.name ??
-                                                  '',
-                                          departureDropStation:
-                                              selectedDepartureDropStation
-                                                      ?.name ??
-                                                  '',
-                                          returnPickupStation:
-                                              selectedReturnPickupStation?.name,
-                                          returnDropStation:
-                                              selectedReturnDropStation?.name,
-                                          amount: totalAfterVoucher,
-                                          travelPointsUsed: travelPointToUse,
-                                          status: 'confirmed',
-                                        );
-                                        print(
-                                            'Bus booking saved to used services successfully: $orderId');
-                                        if (mounted) {
-                                          showAppDialog(
-                                            context: context,
-                                            title: AppLocalizations.of(context)
-                                                .translate('Notification'),
-                                            content: AppLocalizations.of(
-                                                    context)
-                                                .translate(
-                                                    'Your bus booking has been confirmed. The service will be added to your used list.'),
-                                            icon: Icons.check_circle,
-                                            iconColor: Colors.green,
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                  Navigator.of(context)
-                                                      .popUntil((route) =>
-                                                          route.isFirst);
-                                                },
-                                                child: Text(
-                                                    AppLocalizations.of(context)
-                                                        .translate('OK')),
-                                              ),
-                                            ],
-                                          );
-                                        }
-                                      } catch (e) {
-                                        if (mounted) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  AppLocalizations.of(context)
-                                                          .translate('Error:') +
-                                                      ' $e'),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
-                                        }
-                                      }
-                                    },
-                                    onError: (response) {
-                                      if (mounted) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content: Text(AppLocalizations.of(
-                                                        context)
-                                                    .translate(
-                                                        'MoMo payment failed:') +
-                                                ' ${response.message}'),
-                                            backgroundColor: Colors.red,
-                                          ),
-                                        );
-                                      }
-                                    },
-                                  );
-                                }
-                              : _nextStep,
+                          onPressed: _currentStep == 3 ? null : _nextStep,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF007BFF),
                             foregroundColor: Colors.white,
@@ -662,11 +495,7 @@ class _BusTicketDetailState extends State<BusTicketDetail>
                             ),
                           ),
                           child: Text(
-                            _currentStep == 3
-                                ? AppLocalizations.of(context)
-                                    .translate("Confirm")
-                                : AppLocalizations.of(context)
-                                    .translate("Next"),
+                            AppLocalizations.of(context).translate("Next"),
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 16.sp,
@@ -1635,85 +1464,8 @@ class _BusTicketDetailState extends State<BusTicketDetail>
                                                         newBalance);
 
                                                     // Lưu vào used services
-                                                    final orderId = DateTime
-                                                            .now()
-                                                        .millisecondsSinceEpoch
-                                                        .toString();
-                                                    await _usedServicesService
-                                                        .addBusBookingToUsedServices(
-                                                      userId: userId,
-                                                      orderId: orderId,
-                                                      fromLocation:
-                                                          fromLocation,
-                                                      toLocation: toLocation,
-                                                      departureDate:
-                                                          departureDate,
-                                                      returnDate: returnDate,
-                                                      passengerName:
-                                                          _fullNameController
-                                                              .text,
-                                                      passengerEmail:
-                                                          _emailController.text,
-                                                      passengerPhone:
-                                                          _phoneNumberController
-                                                              .text,
-                                                      departureSelectedSeats:
-                                                          departureSelectedSeats
-                                                              .map((e) =>
-                                                                  '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}')
-                                                              .toList(),
-                                                      returnSelectedSeats:
-                                                          returnSelectedSeats
-                                                              .map((e) =>
-                                                                  '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}')
-                                                              .toList(),
-                                                      departurePickupStation:
-                                                          selectedDeparturePickupStation
-                                                                  ?.name ??
-                                                              '',
-                                                      departureDropStation:
-                                                          selectedDepartureDropStation
-                                                                  ?.name ??
-                                                              '',
-                                                      returnPickupStation:
-                                                          selectedReturnPickupStation
-                                                              ?.name,
-                                                      returnDropStation:
-                                                          selectedReturnDropStation
-                                                              ?.name,
-                                                      amount: totalAfterVoucher,
-                                                      travelPointsUsed:
-                                                          travelPointToUse,
-                                                      status: 'confirmed',
-                                                    );
-
-                                                    if (mounted) {
-                                                      showAppDialog(
-                                                        context: context,
-                                                        title: 'Thành công',
-                                                        content:
-                                                            'Đặt vé thành công! Đã thanh toán bằng ví tiền.',
-                                                        icon:
-                                                            Icons.check_circle,
-                                                        iconColor: Colors.green,
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop();
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .popUntil(
-                                                                      (route) =>
-                                                                          route
-                                                                              .isFirst);
-                                                            },
-                                                            child: Text('OK'),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    }
+                                                    await _saveBusBooking(
+                                                        totalAfterVoucher);
                                                   } else {
                                                     throw Exception(
                                                         'Không đủ số dư trong ví');
@@ -1833,7 +1585,7 @@ class _BusTicketDetailState extends State<BusTicketDetail>
                                 ),
                               ),
                               Text(
-                                '-${currencyFormat.format(selectedVoucher!.calculateDiscount(total))} ₫',
+                                '-${currencyFormat.format(selectedVoucher!.calculateDiscount(totalAfterPoint))} ₫',
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   color: Colors.red,
@@ -1854,7 +1606,7 @@ class _BusTicketDetailState extends State<BusTicketDetail>
                                 ),
                               ),
                               Text(
-                                '${currencyFormat.format(totalAfterPoint)} ₫',
+                                '${currencyFormat.format(totalAfterVoucher)} ₫',
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   color: Colors.blue.shade700,
@@ -1917,6 +1669,188 @@ class _BusTicketDetailState extends State<BusTicketDetail>
                     ],
                   ),
                 ),
+                SizedBox(height: 24.h),
+
+                // Phương thức thanh toán
+                Text(
+                  AppLocalizations.of(context).translate("Payment Method"),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.black,
+                  ),
+                ),
+                SizedBox(height: 16.h),
+
+                // Hàng 1 - 3 phương thức đầu
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: bankOptions
+                      .sublist(0, 3)
+                      .map((bank) => BankOptionSelector(
+                            bankImageUrl: bank['image']!,
+                            isSelected: selectedBank == bank['id'],
+                            onTap: () {
+                              setState(() {
+                                selectedBank = bank['id'];
+                              });
+                            },
+                          ))
+                      .toList(),
+                ),
+                SizedBox(height: 16.h),
+
+                // Hàng 2 - 3 phương thức sau
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: bankOptions
+                      .sublist(3, 6)
+                      .map((bank) => BankOptionSelector(
+                            bankImageUrl: bank['image']!,
+                            isSelected: selectedBank == bank['id'],
+                            onTap: () {
+                              setState(() {
+                                selectedBank = bank['id'];
+                              });
+                            },
+                          ))
+                      .toList(),
+                ),
+                SizedBox(height: 32.h),
+
+                // Nút xác nhận thanh toán
+                ElevatedButton(
+                  onPressed: !_isProcessingPayment
+                      ? () async {
+                          // Kiểm tra thông tin trước khi thanh toán
+                          if (departureSelectedSeats.isEmpty &&
+                              returnSelectedSeats.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(AppLocalizations.of(context)
+                                    .translate(
+                                        'Please select at least one seat')),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
+                          if (_fullNameController.text.isEmpty ||
+                              _emailController.text.isEmpty ||
+                              _phoneNumberController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(AppLocalizations.of(context)
+                                    .translate(
+                                        'Please fill in all passenger information')),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
+                          if (selectedBank == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(AppLocalizations.of(context)
+                                    .translate(
+                                        'Please select a payment method')),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
+                          if (selectedBank == 'momo') {
+                            await MomoService.processPayment(
+                              merchantName: 'TTN',
+                              appScheme: 'MOMO',
+                              merchantCode: 'MOMO',
+                              partnerCode: 'MOMO',
+                              amount: totalAfterVoucher.toInt(),
+                              orderId: DateTime.now()
+                                  .millisecondsSinceEpoch
+                                  .toString(),
+                              orderLabel: 'Đặt vé xe buýt',
+                              merchantNameLabel: 'HLGD',
+                              fee: 0,
+                              description: 'Thanh toán đặt vé xe buýt',
+                              username:
+                                  FirebaseAuth.instance.currentUser?.uid ?? '',
+                              partner: 'merchant',
+                              extra:
+                                  '{"fromLocation":"$fromLocation","toLocation":"$toLocation"}',
+                              isTestMode: true,
+                              onSuccess: (response) async {
+                                // Gọi _saveBusBooking để lưu booking
+                                await _saveBusBooking(totalAfterVoucher);
+                              },
+                              onError: (response) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(AppLocalizations.of(context)
+                                              .translate(
+                                                  'MoMo payment failed:') +
+                                          ' ${response.message}'),
+                                      backgroundColor: Colors.red),
+                                );
+                              },
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(AppLocalizations.of(context)
+                                    .translate(
+                                        'This feature will be available soon!')),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                          }
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isProcessingPayment
+                        ? Colors.grey
+                        : AppColors.primaryColor,
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 56.h),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r)),
+                    elevation: 0,
+                  ),
+                  child: _isProcessingPayment
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 20.sp,
+                              height: 20.sp,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            ),
+                            SizedBox(width: 12.w),
+                            Text(
+                              'Đang xử lý...',
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Text(
+                          AppLocalizations.of(context)
+                              .translate("Confirm Payment"),
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                ),
               ],
             ),
           ),
@@ -1961,6 +1895,114 @@ class _BusTicketDetailState extends State<BusTicketDetail>
         ],
       ),
     );
+  }
+
+  // Phương thức riêng để xử lý việc lưu bus booking
+  Future<void> _saveBusBooking(double totalAfterVoucher) async {
+    // Kiểm tra xem đã lưu chưa để tránh duplicate
+    if (_isBookingSaved) {
+      print('Bus booking already saved, skipping duplicate save');
+      return;
+    }
+
+    // Kiểm tra xem đang xử lý thanh toán không để tránh duplicate
+    if (_isProcessingPayment) {
+      print('Payment is already being processed, skipping duplicate payment');
+      return;
+    }
+
+    // Đánh dấu đang xử lý thanh toán
+    _isProcessingPayment = true;
+
+    try {
+      final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw Exception('User not authenticated');
+      }
+
+      await _usedServicesService.addBusBookingToUsedServices(
+        userId: currentUser.uid,
+        orderId: orderId,
+        fromLocation: fromLocation,
+        toLocation: toLocation,
+        departureDate: departureDate,
+        returnDate: returnDate,
+        passengerName: _fullNameController.text,
+        passengerEmail: _emailController.text,
+        passengerPhone: _phoneNumberController.text,
+        departureSelectedSeats: departureSelectedSeats
+            .map((e) => '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}')
+            .toList(),
+        returnSelectedSeats: returnSelectedSeats
+            .map((e) => '${e.isUpper ? 'B' : 'A'}${e.row * 4 + e.col + 1}')
+            .toList(),
+        departurePickupStation: selectedDeparturePickupStation?.name ?? '',
+        departureDropStation: selectedDepartureDropStation?.name ?? '',
+        returnPickupStation: selectedReturnPickupStation?.name,
+        returnDropStation: selectedReturnDropStation?.name,
+        amount: totalAfterVoucher,
+        travelPointsUsed: travelPointToUse,
+        status: 'confirmed',
+      );
+
+      // Trừ điểm thưởng
+      if (travelPointToUse > 0) {
+        await FirebaseFirestore.instance
+            .collection('USER')
+            .doc(currentUser.uid)
+            .update({
+          'travelPoint': FieldValue.increment(-travelPointToUse),
+        });
+      }
+
+      // Cộng điểm thưởng
+      final reward = totalAfterVoucher > 500000 ? 2000 : 1000;
+      await FirebaseFirestore.instance
+          .collection('USER')
+          .doc(currentUser.uid)
+          .update({
+        'travelPoint': FieldValue.increment(reward),
+      });
+
+      // Đánh dấu đã lưu thành công
+      _isBookingSaved = true;
+
+      print('Bus booking saved to used services successfully: $orderId');
+
+      if (mounted) {
+        showAppDialog(
+          context: context,
+          title: AppLocalizations.of(context).translate('Notification'),
+          content: AppLocalizations.of(context).translate(
+              'Your bus booking has been confirmed. The service will be added to your used list.'),
+          icon: Icons.check_circle,
+          iconColor: Colors.green,
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+              child: Text(AppLocalizations.of(context).translate('OK')),
+            ),
+          ],
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text(AppLocalizations.of(context).translate('Error:') + ' $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      // Reset trạng thái xử lý thanh toán
+      _isProcessingPayment = false;
+    }
   }
 }
 

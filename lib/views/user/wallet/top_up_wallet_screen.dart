@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/widgets/app_bar.dart';
-import 'package:tourguideapp/localization/app_localizations.dart';
 import 'package:tourguideapp/core/services/wallet_service.dart';
 import 'package:tourguideapp/core/services/momo_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,20 +22,27 @@ class TopUpWalletScreen extends StatefulWidget {
 class _TopUpWalletScreenState extends State<TopUpWalletScreen> {
   final WalletService _walletService = WalletService();
   final TextEditingController _amountController = TextEditingController();
+  final FocusNode _amountFocusNode = FocusNode();
   final currencyFormat = NumberFormat('#,###', 'vi_VN');
 
   bool isProcessing = false;
+  bool isAmountFocused = false;
 
   @override
   void initState() {
     super.initState();
+    _amountFocusNode.addListener(() {
+      setState(() {
+        isAmountFocused = _amountFocusNode.hasFocus;
+      });
+    });
   }
 
   Future<void> _topUpWallet() async {
     final amountText = _amountController.text.trim();
     if (amountText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Vui lòng nhập số tiền'),
           backgroundColor: Colors.red,
         ),
@@ -43,10 +50,13 @@ class _TopUpWalletScreenState extends State<TopUpWalletScreen> {
       return;
     }
 
-    final amount = double.tryParse(amountText.replaceAll(',', ''));
+    // Loại bỏ dấu phẩy và dấu chấm trước khi parse
+    final cleanAmountText = amountText.replaceAll(',', '').replaceAll('.', '');
+    final amount = double.tryParse(cleanAmountText);
+
     if (amount == null || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Số tiền không hợp lệ'),
           backgroundColor: Colors.red,
         ),
@@ -56,7 +66,7 @@ class _TopUpWalletScreenState extends State<TopUpWalletScreen> {
 
     if (amount < 10000) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Số tiền tối thiểu là 10,000 ₫'),
           backgroundColor: Colors.red,
         ),
@@ -90,35 +100,44 @@ class _TopUpWalletScreenState extends State<TopUpWalletScreen> {
         extra: '{"type":"wallet_topup","amount":"$amount"}',
         isTestMode: true,
         onSuccess: (response) async {
+          // Kiểm tra widget còn mounted không
+          if (!mounted) return;
+
           // Nạp tiền vào ví
           final success = await _walletService.topUpWallet(userId, amount);
           if (success) {
+            // Kiểm tra mounted trước khi cập nhật UI
+            if (!mounted) return;
+
             // Cập nhật số dư trong ProfileViewModel
             final profileViewModel =
                 Provider.of<ProfileViewModel>(context, listen: false);
             final newBalance = await _walletService.getWalletBalance(userId);
+
+            // Kiểm tra mounted trước khi cập nhật UI
+            if (!mounted) return;
+
             profileViewModel.updateWalletBalance(newBalance);
 
-            if (mounted) {
-              showAppDialog(
-                context: context,
-                title: 'Thành công',
-                content:
-                    'Đã nạp ${currencyFormat.format(amount)} ₫ vào ví thành công!',
-                icon: Icons.check_circle,
-                iconColor: Colors.green,
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('OK'),
-                  ),
-                ],
-              );
-            }
+            showAppDialog(
+              context: context,
+              title: 'Thành công',
+              content:
+                  'Đã nạp ${currencyFormat.format(amount)} ₫ vào ví thành công!',
+              icon: Icons.check_circle,
+              iconColor: Colors.green,
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
           } else {
+            if (!mounted) return;
             throw Exception('Không thể cập nhật ví');
           }
         },
@@ -153,59 +172,22 @@ class _TopUpWalletScreenState extends State<TopUpWalletScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.h),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          surfaceTintColor: Colors.transparent,
-          automaticallyImplyLeading: false,
-          flexibleSpace: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                height: 40.h,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        icon: Icon(Icons.arrow_back, color: Colors.black),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        'Nạp ví tiền',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20.sp,
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: IconButton(
-                        icon:
-                            Icon(Icons.history, color: AppColors.primaryColor),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const WalletHistoryScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+      appBar: CustomAppBar(
+        title: 'Nạp ví tiền',
+        onBackPressed: () => Navigator.of(context).pop(),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history, color: AppColors.primaryColor),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WalletHistoryScreen(),
                 ),
-              ),
-            ],
+              );
+            },
           ),
-        ),
+        ],
       ),
       body: Consumer<ProfileViewModel>(
         builder: (context, profileViewModel, child) {
@@ -232,7 +214,7 @@ class _TopUpWalletScreenState extends State<TopUpWalletScreen> {
                       BoxShadow(
                         color: AppColors.primaryColor.withOpacity(0.3),
                         blurRadius: 10,
-                        offset: Offset(0, 4),
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
@@ -280,11 +262,24 @@ class _TopUpWalletScreenState extends State<TopUpWalletScreen> {
 
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
+                    border: Border.all(
+                      color: AppColors.primaryColor,
+                      width: isAmountFocused ? 2.0 : 1.0,
+                    ),
                     borderRadius: BorderRadius.circular(12.r),
+                    boxShadow: isAmountFocused
+                        ? [
+                            BoxShadow(
+                              color: AppColors.primaryColor.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: TextField(
                     controller: _amountController,
+                    focusNode: _amountFocusNode,
                     keyboardType: TextInputType.number,
                     style: TextStyle(
                       fontSize: 18.sp,
@@ -298,7 +293,9 @@ class _TopUpWalletScreenState extends State<TopUpWalletScreen> {
                       ),
                       prefixIcon: Icon(
                         Icons.attach_money,
-                        color: AppColors.primaryColor,
+                        color: isAmountFocused
+                            ? AppColors.primaryColor
+                            : Colors.grey.shade600,
                       ),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(
@@ -307,18 +304,51 @@ class _TopUpWalletScreenState extends State<TopUpWalletScreen> {
                       ),
                     ),
                     onChanged: (value) {
-                      // Chỉ format khi người dùng đã nhập xong
-                      if (value.isNotEmpty && !value.contains(',')) {
-                        final number = double.tryParse(value);
-                        if (number != null && number > 0) {
-                          final formatted = currencyFormat.format(number);
-                          if (formatted != value) {
-                            _amountController.value = TextEditingValue(
-                              text: formatted,
-                              selection: TextSelection.collapsed(
-                                offset: formatted.length,
-                              ),
-                            );
+                      // Lưu vị trí con trỏ cũ
+                      final oldText = _amountController.text;
+                      final oldSelection = _amountController.selection;
+
+                      // Lấy số thuần (bỏ dấu phẩy, dấu chấm)
+                      final numericValue =
+                          value.replaceAll(RegExp(r'[^\d]'), '');
+
+                      if (numericValue.isEmpty) {
+                        _amountController.value = TextEditingValue(
+                          text: '',
+                          selection: TextSelection.collapsed(offset: 0),
+                        );
+                        return;
+                      }
+
+                      final number = double.tryParse(numericValue);
+                      if (number != null && number > 0) {
+                        final formatted = currencyFormat.format(number);
+
+                        // Tính lại vị trí con trỏ mới
+                        int selectionIndex = formatted.length -
+                            (oldText.length - oldSelection.baseOffset);
+                        if (selectionIndex < 0) selectionIndex = 0;
+                        if (selectionIndex > formatted.length)
+                          selectionIndex = formatted.length;
+
+                        _amountController.value = TextEditingValue(
+                          text: formatted,
+                          selection:
+                              TextSelection.collapsed(offset: selectionIndex),
+                        );
+                      }
+                    },
+                    onEditingComplete: () {
+                      // Format khi người dùng hoàn thành nhập
+                      final value = _amountController.text.trim();
+                      if (value.isNotEmpty) {
+                        final numericValue =
+                            value.replaceAll(RegExp(r'[^\d]'), '');
+                        if (numericValue.isNotEmpty) {
+                          final number = double.tryParse(numericValue);
+                          if (number != null && number > 0) {
+                            final formatted = currencyFormat.format(number);
+                            _amountController.text = formatted;
                           }
                         }
                       }
@@ -358,7 +388,7 @@ class _TopUpWalletScreenState extends State<TopUpWalletScreen> {
                               SizedBox(
                                 width: 20.sp,
                                 height: 20.sp,
-                                child: CircularProgressIndicator(
+                                child: const CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     Colors.white,
@@ -450,6 +480,7 @@ class _TopUpWalletScreenState extends State<TopUpWalletScreen> {
   @override
   void dispose() {
     _amountController.dispose();
+    _amountFocusNode.dispose();
     super.dispose();
   }
 }

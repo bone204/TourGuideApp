@@ -87,8 +87,8 @@ class GeminiService {
       'timestamp': FieldValue.serverTimestamp(),
     });
     return response.text ??
-        'Xin lỗi, câu hỏi của bạn có vẻ không liên quan đến ứng dụng du lịch Traveline' 
-        'của mình. Hãy thử hỏi lại nhé!';
+        'Xin lỗi, câu hỏi của bạn có vẻ không liên quan đến ứng dụng du lịch Traveline'
+            'của mình. Hãy thử hỏi lại nhé!';
   }
 
   /// Lấy các địa điểm nổi tiếng nhất (nhiều người đánh giá nhất)

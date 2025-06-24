@@ -22,10 +22,13 @@ class CommentCheckResult {
 }
 
 class CommentCheckerService {
-  static const String baseUrl = 'http://192.168.1.110:5000'; // Thay IP nếu cần
+  static const String baseUrl = 'http://192.168.1.166:5000'; // Thay IP nếu cần
 
   static Future<CommentCheckResult?> checkComment(String comment) async {
     final url = Uri.parse('$baseUrl/predict');
+
+    print('Đang gọi API: $url');
+    print('Comment: $comment');
 
     try {
       final response = await http.post(
@@ -34,10 +37,14 @@ class CommentCheckerService {
         body: jsonEncode({'comment': comment}),
       );
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return CommentCheckResult.fromJson(data);
       } else {
+        print('API trả về lỗi: ${response.statusCode}');
         return null;
       }
     } catch (e) {

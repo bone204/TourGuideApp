@@ -9,11 +9,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourguideapp/widgets/destination_detail_page.dart';
 import 'package:tourguideapp/widgets/home_card.dart';
 import 'package:tourguideapp/models/destination_model.dart';
-import 'package:tourguideapp/models/eatery_model.dart';
 import 'package:tourguideapp/core/services/cooperation_service.dart';
 import 'package:tourguideapp/models/cooperation_model.dart';
 import 'package:tourguideapp/widgets/shimmer_cards.dart';
-import 'package:shimmer/shimmer.dart';
 import 'dart:math';
 
 class EateryScreen extends StatefulWidget {
@@ -289,12 +287,12 @@ Favourite times: ${eateryData.favouriteTimes}
   Widget _buildShimmerGrid() {
     return GridView.builder(
       padding:
-          EdgeInsets.only(top: 10.w, right: 10.h, left: 10.h, bottom: 20.h),
+          EdgeInsets.only(top: 10.w, right: 20.h, left: 20.h, bottom: 20.h),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 161.w / 190.h,
-        mainAxisSpacing: 20.h,
-        crossAxisSpacing: 0,
+        mainAxisSpacing: 10.h,
+        crossAxisSpacing: 10.w,
       ),
       itemCount: 6,
       itemBuilder: (context, index) => const ShimmerFavoriteCard(),
@@ -395,12 +393,12 @@ Favourite times: ${eateryData.favouriteTimes}
                     ? _buildEmptyState()
                     : GridView.builder(
                         padding: EdgeInsets.only(
-                            top: 10.w, right: 10.h, left: 10.h, bottom: 20.h),
+                            top: 10.w, right: 20.h, left: 20.h, bottom: 20.h),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           childAspectRatio: 161.w / 190.h,
-                          mainAxisSpacing: 20.h,
-                          crossAxisSpacing: 0,
+                          mainAxisSpacing: 10.h,
+                          crossAxisSpacing: 10.w,
                         ),
                         itemCount: _filteredEateries.length,
                         itemBuilder: (context, index) {

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tourguideapp/core/constants/app_colors.dart';
 import 'package:tourguideapp/views/user/favourite_destinations/favourite_destinations.dart';
-import 'package:tourguideapp/views/user/help_center/help_screen.dart';
 import 'package:tourguideapp/views/user/settings/setting_screen.dart';
 import 'package:tourguideapp/views/user/wallet/top_up_wallet_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,7 +13,6 @@ import '../../localization/app_localizations.dart';
 import '../../widgets/interactive_row_widget.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/auth_bloc.dart';
-import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -242,21 +240,21 @@ class ProfileScreen extends StatelessWidget {
                                 },
                               ),
                               SizedBox(height: 16.h),
-                              InteractiveRowWidget(
-                                leadingIcon: Icons.help_center,
-                                title: AppLocalizations.of(context)
-                                    .translate('Help Center'),
-                                trailingIcon: Icons.chevron_right,
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const HelpScreen()),
-                                  );
-                                },
-                              ),
-                              SizedBox(height: 16.h),
+                              // InteractiveRowWidget(
+                              //   leadingIcon: Icons.help_center,
+                              //   title: AppLocalizations.of(context)
+                              //       .translate('Help Center'),
+                              //   trailingIcon: Icons.chevron_right,
+                              //   onTap: () {
+                              //     Navigator.push(
+                              //       context,
+                              //       MaterialPageRoute(
+                              //           builder: (context) =>
+                              //               const HelpScreen()),
+                              //     );
+                              //   },
+                              // ),
+                              // SizedBox(height: 16.h),
                               InteractiveRowWidget(
                                 leadingIcon: Icons.settings,
                                 title: AppLocalizations.of(context)
@@ -274,7 +272,8 @@ class ProfileScreen extends StatelessWidget {
                               SizedBox(height: 16.h),
                               InteractiveRowWidget(
                                 leadingIcon: Icons.account_balance_wallet,
-                                title: 'Nạp ví tiền',
+                                title: AppLocalizations.of(context)
+                                    .translate('Wallet'),
                                 trailingIcon: Icons.chevron_right,
                                 onTap: () {
                                   Navigator.push(
@@ -303,46 +302,50 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildStatsRow(BuildContext context) {
     final profileViewModel = Provider.of<ProfileViewModel>(context);
-    final currencyFormat = NumberFormat('#,###', 'vi_VN');
+
+    // Format số tiền ngắn gọn
+    String formatWalletBalance(double balance) {
+      if (balance >= 1000000000) {
+        final value = balance / 1000000000;
+        return value == value.toInt()
+            ? '${value.toInt()}T'
+            : '${value.toStringAsFixed(1)}T';
+      } else if (balance >= 1000000) {
+        final value = balance / 1000000;
+        return value == value.toInt()
+            ? '${value.toInt()}M'
+            : '${value.toStringAsFixed(1)}M';
+      } else if (balance >= 1000) {
+        final value = balance / 1000;
+        return value == value.toInt()
+            ? '${value.toInt()}K'
+            : '${value.toStringAsFixed(1)}K';
+      } else {
+        return balance.toInt().toString();
+      }
+    }
+
     return Container(
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Hàng 1: Travel Points và Travel Trips
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildStatsColumn(
-                context,
-                AppLocalizations.of(context).translate('Travel Points'),
-                profileViewModel.travelPoint.toString(),
-                Icons.star,
-              ),
-              _buildStatsColumn(
-                context,
-                AppLocalizations.of(context).translate('Travel Trips'),
-                profileViewModel.travelTrip.toString(),
-                Icons.flight_takeoff,
-              ),
-            ],
+          _buildStatsColumn(
+            context,
+            AppLocalizations.of(context).translate('Travel Points'),
+            profileViewModel.travelPoint.toString(),
+            Icons.star,
           ),
-          SizedBox(height: 12.h),
-          // Hàng 2: Reviews và Wallet Balance
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildStatsColumn(
-                context,
-                AppLocalizations.of(context).translate('Reviews'),
-                profileViewModel.feedbackTimes.toString(),
-                Icons.rate_review,
-              ),
-              _buildStatsColumn(
-                context,
-                'Ví tiền',
-                '${currencyFormat.format(profileViewModel.walletBalance)} ₫',
-                Icons.account_balance_wallet,
-              ),
-            ],
+          _buildStatsColumn(
+            context,
+            AppLocalizations.of(context).translate('Reviews'),
+            profileViewModel.feedbackTimes.toString(),
+            Icons.rate_review,
+          ),
+          _buildStatsColumn(
+            context,
+            AppLocalizations.of(context).translate('Wallet'),
+            '${formatWalletBalance(profileViewModel.walletBalance)} ₫',
+            Icons.account_balance_wallet,
           ),
         ],
       ),
