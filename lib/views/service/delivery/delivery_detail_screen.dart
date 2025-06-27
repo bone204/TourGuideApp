@@ -84,7 +84,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
       id: 'motorbike',
       name: 'Motorbike',
       image: 'assets/img/ic_motorbike.png',
-      description:
+      description                       :
           'Maximum cargo capacity of 30 kilograms\nMaximun dimensions of 0.5 x 0.4 x 0.5 meters',
     ),
     VehicleType(

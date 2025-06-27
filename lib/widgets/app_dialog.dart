@@ -86,7 +86,6 @@ class AppDialog extends StatelessWidget {
   }
 }
 
-// Hàm tiện ích để show dialog
 Future<T?> showAppDialog<T>({
   required BuildContext context,
   required String title,
